@@ -18,6 +18,7 @@ return new class extends Migration
             $table->longText('refresh_token')->nullable();
             $table->foreignUlid('user_id')->index();
             $table->timestamp('expires_at');
+            $table->timestamp('renewed_at')->nullable();
             $table->timestamps();
         });
     }

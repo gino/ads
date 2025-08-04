@@ -15,6 +15,12 @@ class Connection extends Model
         'refresh_token',
         'user_id',
         'expires_at',
+        'renewed_at',
+    ];
+
+    protected $hidden = [
+        'access_token',
+        'refresh_token',
     ];
 
     protected function casts()
@@ -23,6 +29,12 @@ class Connection extends Model
             'access_token' => 'encrypted',
             'refresh_token' => 'encrypted',
             'expires_at' => 'datetime',
+            'renewed_at' => 'datetime',
         ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
