@@ -66,13 +66,23 @@ class SyncDataFromMeta implements ShouldQueue
         $mappedEntries = array_map(function ($entry) {
             return [
                 'account_id' => $entry['account_id'],
+                //
                 'name' => $entry['name'],
                 'currency' => $entry['currency'],
+                'status' => $entry['account_status'],
+                //
                 'connection_id' => $this->c->id,
             ];
         }, $entries);
 
-        AdAccount::upsert($mappedEntries, uniqueBy: ['account_id'], update: ['name', 'currency']);
+        AdAccount::upsert(
+            $mappedEntries,
+            uniqueBy: ['account_id'],
+            update: [
+                'name',
+                'currency',
+                'status',
+            ]);
 
         Log::debug('[Sync] Completed sync of '.count($entries).' ad account(s)');
     }

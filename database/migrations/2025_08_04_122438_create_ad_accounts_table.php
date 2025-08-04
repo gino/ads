@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('account_id')->unique();
             $table->string('name');
             $table->string('currency');
-            $table->foreignUlid('connection_id');
+            $table->integer('status');
+            $table->foreignUlid('connection_id')->index();
             $table->timestamps();
         });
     }

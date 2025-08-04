@@ -14,10 +14,19 @@ class AdAccount extends Model
         'name',
         'currency',
         'connection_id',
+        'status',
     ];
 
     public function connection()
     {
         return $this->belongsTo(Connection::class);
+    }
+
+    public function getStatusAttribute($status)
+    {
+        return match ($status) {
+            1 => 'active',
+            default => 'inactive'
+        };
     }
 }

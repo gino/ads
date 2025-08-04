@@ -12,7 +12,8 @@ use Laravel\Socialite\Facades\Socialite;
 Route::middleware('guest')->group(function () {
     Route::get('/login', function () {
         // https://developers.facebook.com/docs/permissions/
-        $scopes = ['business_management',
+        $scopes = [
+            'business_management',
             'pages_show_list',
             'pages_read_engagement',
             'ads_management',
@@ -31,7 +32,10 @@ Route::get('/connect/facebook/callback', function () {
 
     $user = User::firstOrCreate(
         ['email' => $data->email],
-        ['name' => $data->name]
+        [
+            'name' => $data->name,
+            'avatar' => $data->avatar,
+        ]
     );
 
     $connection = Connection::updateOrCreate([
@@ -66,6 +70,16 @@ Route::middleware(['auth', EnsureFacebookTokenIsValid::class])->group(function (
     // Will be a POST eventually
     Route::get('/logout', function () {
         Auth::logout();
+
+        return response('OK', 200);
+    });
+
+    Route::get('/force-sync', function () {
+        // Eventually we will have some "Sync" button in the UI which also has a cooldown -> we can check on $connection->last_synced_at
+
+        $user = Auth::user();
+
+        SyncDataFromMeta::dispatch($user->connection);
 
         return response('OK', 200);
     });
