@@ -63,10 +63,4 @@ class Facebook
 
         return false;
     }
-
-    public static function getAdAccounts(Connection $connection)
-    {
-        // Return from our database
-        return [];
-    }
 }

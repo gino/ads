@@ -9,15 +9,22 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
-Route::get('/login', function () {
-    // https://developers.facebook.com/docs/permissions/
-    $scopes = ['business_management', 'pages_show_list', 'pages_read_engagement', 'ads_management', 'ads_read'];
+Route::middleware('guest')->group(function () {
+    Route::get('/login', function () {
+        // https://developers.facebook.com/docs/permissions/
+        $scopes = ['business_management',
+            'pages_show_list',
+            'pages_read_engagement',
+            'ads_management',
+            'ads_read',
+        ];
 
-    /** @var Socialite $driver */
-    $driver = Socialite::driver('facebook');
+        /** @var Socialite $driver */
+        $driver = Socialite::driver('facebook');
 
-    return $driver->scopes($scopes)->redirect();
-})->name('login');
+        return $driver->scopes($scopes)->redirect();
+    })->name('login');
+});
 
 Route::get('/connect/facebook/callback', function () {
     $data = Socialite::driver('facebook')->user();
@@ -40,6 +47,7 @@ Route::get('/connect/facebook/callback', function () {
     Facebook::renewToken($connection);
 
     if ($user->wasRecentlyCreated) {
+        // Sync data if the user has just been created (so we have the latest data on our end, from Meta)
         SyncDataFromMeta::dispatch($connection);
     }
 
@@ -52,11 +60,7 @@ Route::middleware(['auth', EnsureFacebookTokenIsValid::class])->group(function (
     Route::get('/foo', function () {
         $user = Auth::user();
 
-        $adAccounts = Facebook::getAdAccounts($user->connection);
-
-        return $adAccounts;
-
-        return $user;
+        return $user->connection->adAccounts()->get();
     });
 
     // Will be a POST eventually

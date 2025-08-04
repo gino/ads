@@ -16,6 +16,7 @@ class Connection extends Model
         'user_id',
         'expires_at',
         'renewed_at',
+        'last_synced_at',
     ];
 
     protected $hidden = [
@@ -30,6 +31,7 @@ class Connection extends Model
             'refresh_token' => 'encrypted',
             'expires_at' => 'datetime',
             'renewed_at' => 'datetime',
+            'last_synced_at' => 'datetime',
         ];
     }
 

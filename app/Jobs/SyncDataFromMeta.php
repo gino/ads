@@ -8,6 +8,7 @@ use App\Services\Facebook;
 use App\Services\Paginator;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
 class SyncDataFromMeta implements ShouldQueue
 {
@@ -33,6 +34,11 @@ class SyncDataFromMeta implements ShouldQueue
 
         // Sync ad accounts
         $this->syncAdAccounts($paginator);
+
+        // After all syncing, update the 'last_synced_at' column
+        $this->c->update([
+            'last_synced_at' => now(),
+        ]);
     }
 
     private function syncAdAccounts(Paginator $paginator)
@@ -67,5 +73,7 @@ class SyncDataFromMeta implements ShouldQueue
         }, $entries);
 
         AdAccount::upsert($mappedEntries, uniqueBy: ['account_id'], update: ['name', 'currency']);
+
+        Log::debug('[Sync] Completed sync of '.count($entries).' ad account(s)');
     }
 }
