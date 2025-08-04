@@ -37,4 +37,9 @@ class Connection extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function adAccounts()
+    {
+        return $this->hasMany(AdAccount::class);
+    }
 }

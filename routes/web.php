@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsureFacebookTokenIsValid;
+use App\Jobs\SyncDataFromMeta;
 use App\Models\Connection;
 use App\Models\User;
 use App\Services\Facebook;
@@ -7,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
 
-Route::get('/', function () {
+Route::get('/login', function () {
     // https://developers.facebook.com/docs/permissions/
     $scopes = ['business_management', 'pages_show_list', 'pages_read_engagement', 'ads_management', 'ads_read'];
 
@@ -15,7 +17,7 @@ Route::get('/', function () {
     $driver = Socialite::driver('facebook');
 
     return $driver->scopes($scopes)->redirect();
-});
+})->name('login');
 
 Route::get('/connect/facebook/callback', function () {
     $data = Socialite::driver('facebook')->user();
@@ -37,24 +39,30 @@ Route::get('/connect/facebook/callback', function () {
     // Exchange short-lived token for a long-lived one
     Facebook::renewToken($connection);
 
-    // We wanna call some sync function so we have all known data on our end:
-    // - Ad accounts
-    // - Campaigns / ad sets / ads
+    if ($user->wasRecentlyCreated) {
+        SyncDataFromMeta::dispatch($connection);
+    }
 
     Auth::login($user);
 
-    // dd($data);
     return redirect()->to('/foo');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', EnsureFacebookTokenIsValid::class])->group(function () {
     Route::get('/foo', function () {
         $user = Auth::user();
 
-        $adAccounts = (Facebook::getAdAccounts($user->connection));
+        $adAccounts = Facebook::getAdAccounts($user->connection);
 
         return $adAccounts;
 
         return $user;
+    });
+
+    // Will be a POST eventually
+    Route::get('/logout', function () {
+        Auth::logout();
+
+        return response('OK', 200);
     });
 });
