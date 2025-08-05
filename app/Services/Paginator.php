@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class Paginator
 {
-    protected PendingRequest $client;
+    public PendingRequest $client;
 
     public function __construct($client)
     {
@@ -79,5 +79,10 @@ class Paginator
                 $url = null;
             }
         } while ($url);
+    }
+
+    public function getClient()
+    {
+        return $this->client;
     }
 }

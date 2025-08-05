@@ -29,4 +29,9 @@ class AdAccount extends Model
             default => 'inactive'
         };
     }
+
+    public function adCampaigns()
+    {
+        return $this->hasMany(AdCampaign::class);
+    }
 }

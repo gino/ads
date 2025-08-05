@@ -10,7 +10,6 @@ class Connection extends Model
     use HasUlids;
 
     protected $fillable = [
-        'type',
         'access_token',
         'refresh_token',
         'user_id',

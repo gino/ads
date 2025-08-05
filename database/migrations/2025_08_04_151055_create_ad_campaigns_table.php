@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('connections', function (Blueprint $table) {
+        Schema::create('ad_campaigns', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->longText('access_token');
-            $table->longText('refresh_token')->nullable();
-            $table->foreignUlid('user_id')->index();
-            $table->timestamp('expires_at');
-            $table->timestamp('renewed_at')->nullable();
-            $table->timestamp('last_synced_at')->nullable();
+            $table->string('campaign_id')->unique();
+            $table->string('name');
+            $table->string('status');
+            $table->foreignUlid('ad_account_id')->index();
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('connections');
+        Schema::dropIfExists('ad_campaigns');
     }
 };

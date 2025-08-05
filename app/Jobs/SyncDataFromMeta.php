@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AdAccount;
+use App\Models\AdCampaign;
 use App\Models\Connection;
 use App\Services\Facebook;
 use App\Services\Paginator;
@@ -14,14 +15,14 @@ class SyncDataFromMeta implements ShouldQueue
 {
     use Queueable;
 
-    protected Connection $c;
+    protected Connection $metaConnection;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Connection $c)
+    public function __construct(Connection $metaConnection)
     {
-        $this->c = $c;
+        $this->metaConnection = $metaConnection;
     }
 
     /**
@@ -34,16 +35,17 @@ class SyncDataFromMeta implements ShouldQueue
 
         // Sync ad accounts
         $this->syncAdAccounts($paginator);
+        $this->syncAdCampaigns($paginator);
 
-        // After all syncing, update the 'last_synced_at' column
-        $this->c->update([
+        // After all syncing, update the 'last_synced_at' column on the connection
+        $this->metaConnection->update([
             'last_synced_at' => now(),
         ]);
     }
 
     private function syncAdAccounts(Paginator $paginator)
     {
-        $limit = 5;
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-account/#overview
         $fields = [
             'account_id',
             'name',
@@ -52,11 +54,11 @@ class SyncDataFromMeta implements ShouldQueue
             'business',
             'owner',
         ];
+        $limit = 5;
         $entries = [];
 
         $paginator->fetchEachBatch('/me/adaccounts', [
-            'access_token' => $this->c->access_token,
-            // https://developers.facebook.com/docs/marketing-api/reference/ad-account/#overview
+            'access_token' => $this->metaConnection->access_token,
             'fields' => implode(',', $fields),
             'limit' => $limit,
         ], function (array $batch) use (&$entries) {
@@ -71,7 +73,7 @@ class SyncDataFromMeta implements ShouldQueue
                 'currency' => $entry['currency'],
                 'status' => $entry['account_status'],
                 //
-                'connection_id' => $this->c->id,
+                'connection_id' => $this->metaConnection->id,
             ];
         }, $entries);
 
@@ -85,5 +87,50 @@ class SyncDataFromMeta implements ShouldQueue
             ]);
 
         Log::debug('[Sync] Completed sync of '.count($entries).' ad account(s)');
+    }
+
+    private function syncAdCampaigns(Paginator $paginator)
+    {
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign-group
+        $fields = [
+            'id',
+            'account_id',
+            'name',
+            'status',
+        ];
+        $limit = 5;
+
+        foreach ($this->metaConnection->adAccounts()->get() as $adAccount) {
+            $entries = [];
+
+            $paginator->fetchEachBatch("/act_{$adAccount->account_id}/campaigns", [
+                'access_token' => $this->metaConnection->access_token,
+                'fields' => implode(',', $fields),
+                'limit' => $limit,
+                'date_preset' => 'maximum',
+            ], function (array $batch) use (&$entries) {
+                $entries = array_merge($entries, $batch);
+            });
+
+            $mappedEntries = array_map(function ($entry) use ($adAccount) {
+                return [
+                    'ad_account_id' => $adAccount->id,
+                    'campaign_id' => $entry['id'],
+                    //
+                    'name' => $entry['name'],
+                    'status' => $entry['status'],
+                ];
+            }, $entries);
+
+            AdCampaign::upsert(
+                $mappedEntries,
+                uniqueBy: ['campaign_id'],
+                update: [
+                    'name',
+                    'status',
+                ]);
+
+            Log::debug('[Sync] Completed sync of '.count($entries).' ad campaigns(s) for act_'.$adAccount->account_id);
+        }
     }
 }

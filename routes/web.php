@@ -33,13 +33,13 @@ Route::get('/connect/facebook/callback', function () {
     $user = User::firstOrCreate(
         ['email' => $data->email],
         [
+            'account_id' => $data->id,
             'name' => $data->name,
             'avatar' => $data->avatar,
         ]
     );
 
     $connection = Connection::updateOrCreate([
-        'type' => 'facebook',
         'user_id' => $user->id,
     ], [
         'access_token' => $data->token,
@@ -64,7 +64,7 @@ Route::middleware(['auth', EnsureFacebookTokenIsValid::class])->group(function (
     Route::get('/foo', function () {
         $user = Auth::user();
 
-        return $user->connection->adAccounts()->get();
+        return $user->connection->adAccounts()->with('adCampaigns')->get();
     });
 
     // Will be a POST eventually
