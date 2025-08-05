@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\SyncController;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
+use App\Jobs\Meta\Sync;
+use App\Jobs\Meta\SyncAdAccounts;
+use App\Jobs\Meta\SyncAdCampaigns;
+use App\Jobs\Meta\SyncAdSets;
 use App\Jobs\SyncDataFromMeta;
 use App\Models\Connection;
 use App\Models\User;
@@ -52,7 +57,11 @@ Route::get('/connect/facebook/callback', function () {
 
     if ($user->wasRecentlyCreated) {
         // Sync data if the user has just been created (so we have the latest data on our end, from Meta)
-        SyncDataFromMeta::dispatch($connection);
+
+        // SyncDataFromMeta::dispatch($connection);
+        SyncAdAccounts::dispatch($connection);
+        SyncAdCampaigns::dispatch($connection);
+        SyncAdSets::dispatch($user->connection);
     }
 
     Auth::login($user);
@@ -64,7 +73,7 @@ Route::middleware(['auth', EnsureFacebookTokenIsValid::class])->group(function (
     Route::get('/foo', function () {
         $user = Auth::user();
 
-        return $user;
+        return $user->connection->with('adAccounts.adCampaigns.adSets')->get();
     });
 
     // Will be a POST eventually
@@ -74,13 +83,5 @@ Route::middleware(['auth', EnsureFacebookTokenIsValid::class])->group(function (
         return response('OK', 200);
     });
 
-    Route::get('/force-sync', function () {
-        // Eventually we will have some "Sync" button in the UI which also has a cooldown -> we can check on $connection->last_synced_at
-
-        $user = Auth::user();
-
-        SyncDataFromMeta::dispatch($user->connection);
-
-        return response('OK', 200);
-    });
+    Route::get('/force-sync/{type?}', [SyncController::class, 'sync']);
 });
