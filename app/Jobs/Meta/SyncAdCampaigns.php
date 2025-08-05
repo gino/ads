@@ -136,6 +136,13 @@ class SyncAdCampaigns implements ShouldQueue
             }
         }
 
+        $this->metaConnection->update([
+            'last_synced' => array_merge(
+                $this->metaConnection->last_synced ?? [],
+                ['ad_campaigns' => now()->toDateTimeString()]
+            ),
+        ]);
+
         Log::info('[Meta Sync] Completed campaigns sync', [
             'connection_id' => $this->metaConnection->id,
             'total_campaigns' => $totalCampaigns,

@@ -99,6 +99,13 @@ class SyncAdAccounts implements ShouldQueue
             );
         });
 
+        $this->metaConnection->update([
+            'last_synced' => array_merge(
+                $this->metaConnection->last_synced ?? [],
+                ['ad_accounts' => now()->toDateTimeString()]
+            ),
+        ]);
+
         Log::info('[Meta Sync] Successfully synced ad accounts', [
             'connection_id' => $this->metaConnection->id,
             'count' => count($mappedEntries),

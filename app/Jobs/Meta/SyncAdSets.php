@@ -142,6 +142,13 @@ class SyncAdSets implements ShouldQueue
             }
         }
 
+        $this->metaConnection->update([
+            'last_synced' => array_merge(
+                $this->metaConnection->last_synced ?? [],
+                ['ad_sets' => now()->toDateTimeString()]
+            ),
+        ]);
+
         Log::info('[Meta Sync] Completed ad sets sync', [
             'connection_id' => $this->metaConnection->id,
             'total_ad_sets' => $totalAdSets,
