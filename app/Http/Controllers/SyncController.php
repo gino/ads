@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\Meta\Sync;
 use App\Jobs\Meta\SyncAdAccounts;
 use App\Jobs\Meta\SyncAdCampaigns;
+use App\Jobs\Meta\SyncAds;
 use App\Jobs\Meta\SyncAdSets;
 use App\SyncType;
 use Carbon\Carbon;
@@ -17,6 +18,14 @@ class SyncController extends Controller
         SyncType::AD_ACCOUNTS->value => 10,
         SyncType::AD_CAMPAIGNS->value => 10,
         SyncType::AD_SETS->value => 10,
+        SyncType::ADS->value => 10,
+    ];
+
+    protected array $jobs = [
+        SyncType::AD_ACCOUNTS->value => SyncAdAccounts::class,
+        SyncType::AD_CAMPAIGNS->value => SyncAdCampaigns::class,
+        SyncType::AD_SETS->value => SyncAdSets::class,
+        SyncType::ADS->value => SyncAds::class,
     ];
 
     public function sync(?SyncType $type = null)
@@ -41,15 +50,9 @@ class SyncController extends Controller
             return response('OK', 200);
         }
 
-        $jobs = [
-            SyncType::AD_ACCOUNTS->value => SyncAdAccounts::class,
-            SyncType::AD_CAMPAIGNS->value => SyncAdCampaigns::class,
-            SyncType::AD_SETS->value => SyncAdSets::class,
-        ];
-
         $typeValue = $type->value;
 
-        if (! array_key_exists($typeValue, $jobs)) {
+        if (! array_key_exists($typeValue, $this->jobs)) {
             return response('Invalid sync type', 422);
         }
 
@@ -63,7 +66,7 @@ class SyncController extends Controller
             ], 429);
         }
 
-        $jobs[$typeValue]::dispatch($connection);
+        $this->jobs[$typeValue]::dispatch($connection);
         $this->updateLastSyncedTimes($connection, [$typeValue]);
 
         return response('OK', 200);

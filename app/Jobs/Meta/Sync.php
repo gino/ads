@@ -34,6 +34,7 @@ class Sync implements ShouldQueue
             new SyncAdAccounts($this->metaConnection),
             new SyncAdCampaigns($this->metaConnection),
             new SyncAdSets($this->metaConnection),
+            new SyncAds($this->metaConnection),
         ])->dispatch();
     }
 }

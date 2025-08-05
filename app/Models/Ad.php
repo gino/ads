@@ -5,24 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 
-class AdSet extends Model
+class Ad extends Model
 {
     use HasUlids;
 
     protected $fillable = [
         'external_id',
-        'name',
-        'status',
+        //
         'ad_campaign_id',
     ];
 
-    public function adCampaign()
+    public function adSet()
     {
-        return $this->belongsTo(AdCampaign::class);
-    }
-
-    public function ads()
-    {
-        return $this->hasMany(Ad::class);
+        return $this->belongsTo(AdSet::class);
     }
 }
