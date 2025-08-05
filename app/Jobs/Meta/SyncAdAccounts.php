@@ -6,6 +6,7 @@ use App\Models\AdAccount;
 use App\Models\Connection;
 use App\Services\Facebook;
 use App\Services\Paginator;
+use App\SyncType;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -99,12 +100,8 @@ class SyncAdAccounts implements ShouldQueue
             );
         });
 
-        $this->metaConnection->update([
-            'last_synced' => array_merge(
-                $this->metaConnection->last_synced ?? [],
-                ['ad_accounts' => now()->toDateTimeString()]
-            ),
-        ]);
+        $this->metaConnection->last_synced->refresh(SyncType::AD_ACCOUNTS);
+        $this->metaConnection->save();
 
         Log::info('[Meta Sync] Successfully synced ad accounts', [
             'connection_id' => $this->metaConnection->id,

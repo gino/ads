@@ -6,6 +6,7 @@ use App\Models\AdCampaign;
 use App\Models\Connection;
 use App\Services\Facebook;
 use App\Services\Paginator;
+use App\SyncType;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -136,12 +137,8 @@ class SyncAdCampaigns implements ShouldQueue
             }
         }
 
-        $this->metaConnection->update([
-            'last_synced' => array_merge(
-                $this->metaConnection->last_synced ?? [],
-                ['ad_campaigns' => now()->toDateTimeString()]
-            ),
-        ]);
+        $this->metaConnection->last_synced->refresh(SyncType::AD_CAMPAIGNS);
+        $this->metaConnection->save();
 
         Log::info('[Meta Sync] Completed campaigns sync', [
             'connection_id' => $this->metaConnection->id,

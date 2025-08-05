@@ -6,6 +6,7 @@ use App\Models\AdSet;
 use App\Models\Connection;
 use App\Services\Facebook;
 use App\Services\Paginator;
+use App\SyncType;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -142,12 +143,8 @@ class SyncAdSets implements ShouldQueue
             }
         }
 
-        $this->metaConnection->update([
-            'last_synced' => array_merge(
-                $this->metaConnection->last_synced ?? [],
-                ['ad_sets' => now()->toDateTimeString()]
-            ),
-        ]);
+        $this->metaConnection->last_synced->refresh(SyncType::AD_SETS);
+        $this->metaConnection->save();
 
         Log::info('[Meta Sync] Completed ad sets sync', [
             'connection_id' => $this->metaConnection->id,

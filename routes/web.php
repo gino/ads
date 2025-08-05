@@ -10,6 +10,7 @@ use App\Jobs\SyncDataFromMeta;
 use App\Models\Connection;
 use App\Models\User;
 use App\Services\Facebook;
+use App\SyncType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Laravel\Socialite\Facades\Socialite;
@@ -83,5 +84,5 @@ Route::middleware(['auth', EnsureFacebookTokenIsValid::class])->group(function (
         return response('OK', 200);
     });
 
-    Route::get('/force-sync/{type?}', [SyncController::class, 'sync']);
+    Route::get('/force-sync/{type?}', [SyncController::class, 'sync'])->whereIn('type', array_map(fn ($e) => $e->value, SyncType::cases()));
 });

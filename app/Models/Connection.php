@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\LastSynced;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 
@@ -30,7 +31,7 @@ class Connection extends Model
             'refresh_token' => 'encrypted',
             'expires_at' => 'datetime',
             'renewed_at' => 'datetime',
-            'last_synced' => 'array',
+            'last_synced' => LastSynced::class,
         ];
     }
 
