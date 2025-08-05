@@ -15,6 +15,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->string('external_id')->unique();
             $table->string('name');
+            $table->string('status');
             $table->foreignUlid('ad_campaign_id')->index();
             $table->timestamps();
         });

@@ -145,6 +145,7 @@ class SyncDataFromMeta implements ShouldQueue
         $fields = [
             'id',
             'name',
+            'status',
         ];
         $limit = 5;
 
@@ -158,6 +159,7 @@ class SyncDataFromMeta implements ShouldQueue
                     'access_token' => $this->metaConnection->access_token,
                     'fields' => implode(',', $fields),
                     'limit' => $limit,
+                    'date_preset' => 'maximum',
                 ], function (array $batch) use (&$entries) {
                     $entries = array_merge($entries, $batch);
                 });
@@ -167,6 +169,7 @@ class SyncDataFromMeta implements ShouldQueue
                         'external_id' => $entry['id'],
                         //
                         'name' => $entry['name'],
+                        'status' => $entry['status'],
                         //
                         'ad_campaign_id' => $adCampaign->id,
                     ];
@@ -177,6 +180,7 @@ class SyncDataFromMeta implements ShouldQueue
                     uniqueBy: ['external_id'],
                     update: [
                         'name',
+                        'status',
                     ]);
 
                 Log::debug('[Sync] Completed sync of '.count($entries).' ad set(s) for '.$adCampaign->external_id);

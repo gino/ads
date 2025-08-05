@@ -12,6 +12,7 @@ class AdSet extends Model
     protected $fillable = [
         'external_id',
         'name',
+        'status',
         'ad_campaign_id',
     ];
 
