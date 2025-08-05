@@ -26,13 +26,16 @@ class SyncController extends Controller
 
         if (is_null($type)) {
             // Check cooldown for all sync types
-            $blocked = $this->checkCooldowns($connection, array_keys($this->cooldowns));
-            if ($blocked !== null) {
-                return $blocked;
+            $cooldown = $this->checkCooldowns($connection, array_keys($this->cooldowns));
+            if ($cooldown['is_blocked']) {
+                return response()->json([
+                    'message' => "Please wait {$cooldown['seconds_left']} seconds before syncing again.",
+                    'retry_after' => $cooldown['seconds_left'],
+                    'type' => $cooldown['type'],
+                ], 429);
             }
 
             Sync::dispatch($connection);
-
             $this->updateLastSyncedTimes($connection, array_keys($this->cooldowns));
 
             return response('OK', 200);
@@ -51,13 +54,16 @@ class SyncController extends Controller
         }
 
         // Check cooldown for specific sync type
-        $blocked = $this->checkCooldowns($connection, [$typeValue]);
-        if ($blocked !== null) {
-            return $blocked;
+        $cooldown = $this->checkCooldowns($connection, [$typeValue]);
+        if ($cooldown['is_blocked']) {
+            return response()->json([
+                'message' => "Please wait {$cooldown['seconds_left']} seconds before syncing '{$typeValue}' again.",
+                'retry_after' => $cooldown['seconds_left'],
+                'type' => $typeValue,
+            ], 429);
         }
 
         $jobs[$typeValue]::dispatch($connection);
-
         $this->updateLastSyncedTimes($connection, [$typeValue]);
 
         return response('OK', 200);
@@ -67,7 +73,7 @@ class SyncController extends Controller
      * Checks cooldowns for the given sync types on the connection.
      * Returns a 429 JSON response if any cooldown active, otherwise null.
      */
-    private function checkCooldowns($connection, array $syncTypes)
+    private function checkCooldowns($connection, array $syncTypes): array
     {
         foreach ($syncTypes as $syncTypeValue) {
             $lastSyncedAt = $connection->last_synced[$syncTypeValue] ?? null;
@@ -83,15 +89,20 @@ class SyncController extends Controller
                 if ($nextAvailableAt->isFuture()) {
                     $secondsLeft = now()->diffInSeconds($nextAvailableAt);
 
-                    return response()->json([
-                        'message' => "Please wait {$secondsLeft} seconds before syncing '{$syncTypeValue}' again.",
-                        'retry_after' => $secondsLeft,
-                    ], 429);
+                    return [
+                        'is_blocked' => true,
+                        'seconds_left' => $secondsLeft,
+                        'type' => $syncTypeValue, // return the exact sync type causing the block
+                    ];
                 }
             }
         }
 
-        return null;
+        return [
+            'is_blocked' => false,
+            'seconds_left' => 0,
+            'type' => null,
+        ];
     }
 
     /**
