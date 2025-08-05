@@ -10,7 +10,7 @@ class AdAccount extends Model
     use HasUlids;
 
     protected $fillable = [
-        'account_id',
+        'external_id',
         'name',
         'currency',
         'connection_id',

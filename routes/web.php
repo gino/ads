@@ -64,7 +64,7 @@ Route::middleware(['auth', EnsureFacebookTokenIsValid::class])->group(function (
     Route::get('/foo', function () {
         $user = Auth::user();
 
-        return $user->connection->adAccounts()->with('adCampaigns')->get();
+        return $user;
     });
 
     // Will be a POST eventually

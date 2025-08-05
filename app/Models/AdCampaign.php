@@ -10,7 +10,7 @@ class AdCampaign extends Model
     use HasUlids;
 
     protected $fillable = [
-        'campaign_id',
+        'external_id',
         'name',
         'status',
         'ad_account_id',
@@ -19,5 +19,10 @@ class AdCampaign extends Model
     public function adAccount()
     {
         return $this->belongsTo(AdAccount::class);
+    }
+
+    public function adSets()
+    {
+        return $this->hasMany(AdSet::class);
     }
 }

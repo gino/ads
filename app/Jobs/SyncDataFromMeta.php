@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\AdAccount;
 use App\Models\AdCampaign;
+use App\Models\AdSet;
 use App\Models\Connection;
 use App\Services\Facebook;
 use App\Services\Paginator;
@@ -36,6 +37,7 @@ class SyncDataFromMeta implements ShouldQueue
         // Sync ad accounts
         $this->syncAdAccounts($paginator);
         $this->syncAdCampaigns($paginator);
+        $this->syncAdSets($paginator);
 
         // After all syncing, update the 'last_synced_at' column on the connection
         $this->metaConnection->update([
@@ -67,7 +69,7 @@ class SyncDataFromMeta implements ShouldQueue
 
         $mappedEntries = array_map(function ($entry) {
             return [
-                'account_id' => $entry['account_id'],
+                'external_id' => $entry['id'],
                 //
                 'name' => $entry['name'],
                 'currency' => $entry['currency'],
@@ -79,7 +81,7 @@ class SyncDataFromMeta implements ShouldQueue
 
         AdAccount::upsert(
             $mappedEntries,
-            uniqueBy: ['account_id'],
+            uniqueBy: ['external_id'],
             update: [
                 'name',
                 'currency',
@@ -100,10 +102,12 @@ class SyncDataFromMeta implements ShouldQueue
         ];
         $limit = 5;
 
-        foreach ($this->metaConnection->adAccounts()->get() as $adAccount) {
+        $adAccounts = $this->metaConnection->adAccounts()->get();
+
+        foreach ($adAccounts as $adAccount) {
             $entries = [];
 
-            $paginator->fetchEachBatch("/act_{$adAccount->account_id}/campaigns", [
+            $paginator->fetchEachBatch("/{$adAccount->external_id}/campaigns", [
                 'access_token' => $this->metaConnection->access_token,
                 'fields' => implode(',', $fields),
                 'limit' => $limit,
@@ -114,23 +118,69 @@ class SyncDataFromMeta implements ShouldQueue
 
             $mappedEntries = array_map(function ($entry) use ($adAccount) {
                 return [
-                    'ad_account_id' => $adAccount->id,
-                    'campaign_id' => $entry['id'],
+                    'external_id' => $entry['id'],
                     //
                     'name' => $entry['name'],
                     'status' => $entry['status'],
+                    //
+                    'ad_account_id' => $adAccount->id,
                 ];
             }, $entries);
 
             AdCampaign::upsert(
                 $mappedEntries,
-                uniqueBy: ['campaign_id'],
+                uniqueBy: ['external_id'],
                 update: [
                     'name',
                     'status',
                 ]);
 
-            Log::debug('[Sync] Completed sync of '.count($entries).' ad campaigns(s) for act_'.$adAccount->account_id);
+            Log::debug('[Sync] Completed sync of '.count($entries).' ad campaigns(s) for '.$adAccount->external_id);
+        }
+    }
+
+    private function syncAdSets(Paginator $paginator)
+    {
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign
+        $fields = [
+            'id',
+            'name',
+        ];
+        $limit = 5;
+
+        $adAccounts = $this->metaConnection->adAccounts()->with('adCampaigns')->get();
+
+        foreach ($adAccounts as $adAccount) {
+            foreach ($adAccount->adCampaigns as $adCampaign) {
+                $entries = [];
+
+                $paginator->fetchEachBatch("/{$adCampaign->external_id}/adsets", [
+                    'access_token' => $this->metaConnection->access_token,
+                    'fields' => implode(',', $fields),
+                    'limit' => $limit,
+                ], function (array $batch) use (&$entries) {
+                    $entries = array_merge($entries, $batch);
+                });
+
+                $mappedEntries = array_map(function ($entry) use ($adCampaign) {
+                    return [
+                        'external_id' => $entry['id'],
+                        //
+                        'name' => $entry['name'],
+                        //
+                        'ad_campaign_id' => $adCampaign->id,
+                    ];
+                }, $entries);
+
+                AdSet::upsert(
+                    $mappedEntries,
+                    uniqueBy: ['external_id'],
+                    update: [
+                        'name',
+                    ]);
+
+                Log::debug('[Sync] Completed sync of '.count($entries).' ad set(s) for '.$adCampaign->external_id);
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('ad_accounts', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('account_id')->unique();
+            $table->string('external_id')->unique();
             $table->string('name');
             $table->string('currency');
             $table->integer('status');

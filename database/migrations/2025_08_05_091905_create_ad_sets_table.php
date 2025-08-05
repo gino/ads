@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ad_campaigns', function (Blueprint $table) {
+        Schema::create('ad_sets', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('external_id')->unique();
             $table->string('name');
-            $table->string('status');
-            $table->foreignUlid('ad_account_id')->index();
+            $table->foreignUlid('ad_campaign_id')->index();
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ad_campaigns');
+        Schema::dropIfExists('ad_sets');
     }
 };
