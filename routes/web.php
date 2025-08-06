@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Route;
 // https://developers.facebook.com/docs/marketing-api/get-started/basic-ad-creation
 
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/login', [ViewController::class, 'login'])->name('login');
 });
 
 Route::get('/connect/facebook/callback', [AuthController::class, 'callback']);
