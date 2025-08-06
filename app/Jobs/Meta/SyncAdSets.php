@@ -48,6 +48,7 @@ class SyncAdSets implements ShouldQueue
 
     private function sync(Paginator $paginator)
     {
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign
         $fields = [
             'id',
             'name',
@@ -110,8 +111,6 @@ class SyncAdSets implements ShouldQueue
                             'name' => $entry['name'] ?? 'Unknown',
                             'status' => $entry['status'] ?? 'unknown',
                             'ad_campaign_id' => $adCampaign->id,
-                            'created_at' => now(),
-                            'updated_at' => now(),
                         ];
                     }, $entries);
 
@@ -119,7 +118,7 @@ class SyncAdSets implements ShouldQueue
                         AdSet::upsert(
                             $mappedEntries,
                             uniqueBy: ['external_id'],
-                            update: ['name', 'status', 'updated_at']
+                            update: ['name', 'status']
                         );
                     });
 

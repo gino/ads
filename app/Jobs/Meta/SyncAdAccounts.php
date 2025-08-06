@@ -48,6 +48,7 @@ class SyncAdAccounts implements ShouldQueue
 
     private function sync(Paginator $paginator)
     {
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-account/#overview
         $fields = [
             'account_id',
             'name',
@@ -82,8 +83,6 @@ class SyncAdAccounts implements ShouldQueue
                 'currency' => $entry['currency'] ?? null,
                 'status' => $entry['account_status'] ?? 'unknown',
                 'connection_id' => $this->metaConnection->id,
-                'created_at' => now(),
-                'updated_at' => now(),
             ];
         }, $entries);
 
@@ -95,7 +94,6 @@ class SyncAdAccounts implements ShouldQueue
                     'name',
                     'currency',
                     'status',
-                    'updated_at',
                 ]
             );
         });

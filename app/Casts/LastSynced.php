@@ -15,7 +15,7 @@ class LastSynced implements ArrayAccess, CastsAttributes
     {
         $this->data = json_decode($value ?? '{}', true);
 
-        return $this;
+        return $this->data;
     }
 
     public function set($model, string $key, $value, array $attributes)

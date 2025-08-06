@@ -48,6 +48,7 @@ class SyncAdCampaigns implements ShouldQueue
 
     private function sync(Paginator $paginator)
     {
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign-group
         $fields = [
             'id',
             'account_id',
@@ -105,8 +106,6 @@ class SyncAdCampaigns implements ShouldQueue
                         'name' => $entry['name'] ?? 'Unknown',
                         'status' => $entry['status'] ?? 'unknown',
                         'ad_account_id' => $adAccount->id,
-                        'created_at' => now(),
-                        'updated_at' => now(),
                     ];
                 }, $entries);
 
@@ -114,7 +113,7 @@ class SyncAdCampaigns implements ShouldQueue
                     AdCampaign::upsert(
                         $mappedEntries,
                         uniqueBy: ['external_id'],
-                        update: ['name', 'status', 'updated_at']
+                        update: ['name', 'status']
                     );
                 });
 
