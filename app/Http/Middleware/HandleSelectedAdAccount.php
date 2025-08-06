@@ -27,7 +27,11 @@ class HandleSelectedAdAccount
 
         if (! $request->session()->has($sessionKey) || ! $selectable) {
             if (! empty($adAccounts)) {
-                $request->session()->put($sessionKey, $adAccounts->first()->id);
+                $adAccount = $adAccounts->first();
+
+                if (! is_null($adAccount)) {
+                    $request->session()->put($sessionKey, $adAccount->id);
+                }
             }
         }
 
