@@ -1,10 +1,7 @@
 // https://github.com/laravel/react-starter-kit/blob/main/resources/js/types/index.d.ts
 
 export interface Auth {
-    user: {
-        // TODO: make generated type
-        id: string;
-    };
+    user: App.Data.UserData;
 }
 
 export interface SharedData {
