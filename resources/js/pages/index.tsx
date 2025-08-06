@@ -15,7 +15,7 @@ export default function Index({ adCampaigns }: any) {
 
     return (
         <div className="flex h-screen">
-            <aside className="flex overflow-y-auto flex-col p-3 w-72 min-h-0 border-r border-neutral-100">
+            <aside className="flex overflow-y-auto flex-col p-3 w-72 min-h-0 shadow-base">
                 <div className="flex-1">
                     <div className="mb-4">
                         <div className="relative">
@@ -53,7 +53,7 @@ export default function Index({ adCampaigns }: any) {
                                 <span className="font-semibold bg-neutral-100 text-[12px] px-2 leading-5 rounded-full text-neutral-800">
                                     {selectedAdAccount.currency}
                                 </span>
-                                <i className="fa-solid fa-angle-down text-neutral-500" />
+                                <i className="fa-solid fa-angle-down text-neutral-400" />
                             </div>
 
                             <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -98,7 +98,7 @@ export default function Index({ adCampaigns }: any) {
                             src={user.avatar}
                             className="object-cover object-center w-8 h-8 rounded-full"
                         />
-                        <div>
+                        <div className="flex-1">
                             <div className="text-sm font-semibold">
                                 {user.name}
                             </div>
@@ -106,6 +106,7 @@ export default function Index({ adCampaigns }: any) {
                                 {user.email}
                             </div>
                         </div>
+                        <i className="fa-solid fa-ellipsis-v text-neutral-400" />
                     </button>
                 </div>
             </aside>
