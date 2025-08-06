@@ -26,13 +26,7 @@ class HandleSelectedAdAccount
         });
 
         if (! $request->session()->has($sessionKey) || ! $selectable) {
-            if (! empty($adAccounts)) {
-                $adAccount = $adAccounts->first();
-
-                if (! is_null($adAccount)) {
-                    $request->session()->put($sessionKey, $adAccount->id);
-                }
-            }
+            $request->session()->put($sessionKey, $adAccounts->first()->id);
         }
 
         Inertia::share('selectedAdAccountId', fn () => $request->session()->get($sessionKey));

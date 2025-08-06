@@ -6,8 +6,9 @@ use App\SyncType;
 use ArrayAccess;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Support\Carbon;
+use JsonSerializable;
 
-class LastSynced implements ArrayAccess, CastsAttributes
+class LastSynced implements ArrayAccess, CastsAttributes, JsonSerializable
 {
     protected array $data = [];
 
@@ -59,5 +60,10 @@ class LastSynced implements ArrayAccess, CastsAttributes
     public function refresh(SyncType $type): void
     {
         $this[$type] = now();
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return $this->data ?: null;
     }
 }
