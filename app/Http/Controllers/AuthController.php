@@ -7,6 +7,7 @@ use App\Models\Connection;
 use App\Models\User;
 use App\Services\Facebook;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
@@ -25,14 +26,16 @@ class AuthController extends Controller
         /** @var Socialite $driver */
         $driver = Socialite::driver('facebook');
 
-        return $driver->scopes($scopes)->redirect();
+        $redirect = $driver->scopes($scopes)->redirect();
+
+        return Inertia::location($redirect->getTargetUrl());
     }
 
     public function logout()
     {
         Auth::logout();
 
-        return response('OK', 200);
+        return to_route('login');
     }
 
     public function callback()
@@ -66,6 +69,6 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->to('/foo');
+        return to_route('dashboard.index');
     }
 }
