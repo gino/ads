@@ -1,3 +1,4 @@
+import { Layout } from "@/components/layouts/app";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { router } from "@inertiajs/react";
 
@@ -5,7 +6,7 @@ export default function Index() {
     const user = useAuth();
 
     return (
-        <div>
+        <Layout>
             <div className="bg-blue-50">logged in</div>
             <div className="bg-pink-50">{JSON.stringify(user)}</div>
             <button
@@ -14,6 +15,6 @@ export default function Index() {
             >
                 logout
             </button>
-        </div>
+        </Layout>
     );
 }

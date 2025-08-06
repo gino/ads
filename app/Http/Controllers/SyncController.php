@@ -10,6 +10,7 @@ use App\Jobs\Meta\SyncAdSets;
 use App\SyncType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
 
 class SyncController extends Controller
 {
@@ -44,7 +45,12 @@ class SyncController extends Controller
                 ], 429);
             }
 
-            Sync::dispatch($connection);
+            Bus::chain([
+                new SyncAdAccounts($connection),
+                new SyncAdCampaigns($connection),
+                new SyncAdSets($connection),
+                new SyncAds($connection),
+            ])->dispatch();
             $this->updateLastSyncedTimes($connection, array_keys($this->cooldowns));
 
             return response('OK', 200);

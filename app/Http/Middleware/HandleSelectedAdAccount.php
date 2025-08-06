@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 class HandleSelectedAdAccount
@@ -15,6 +16,8 @@ class HandleSelectedAdAccount
      */
     public function handle(Request $request, Closure $next): Response
     {
+        Inertia::share('adAccounts', fn () => $request->user()->connection->adAccounts()->get());
+
         return $next($request);
     }
 }

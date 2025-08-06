@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('status');
             $table->foreignUlid('connection_id')->index();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

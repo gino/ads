@@ -9,4 +9,10 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class UserData extends Data
 {
     public string $id;
+
+    public string $name;
+
+    public string $email;
+
+    public string $avatar;
 }

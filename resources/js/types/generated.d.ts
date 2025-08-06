@@ -4,5 +4,8 @@ export type SyncType = 'ad_accounts' | 'ad_campaigns' | 'ad_sets' | 'ads' | 'ad_
 declare namespace App.Data {
 export type UserData = {
 id: string;
+name: string;
+email: string;
+avatar: string;
 };
 }
