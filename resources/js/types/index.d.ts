@@ -6,7 +6,8 @@ export interface Auth {
 
 export interface SharedData {
     auth: Auth;
-    adAccounts: any[]; // TODO
+    adAccounts: App.Data.AdAccountData[];
+    selectedAdAccountId: string;
     ziggy: Config & { location: string };
     [key: string]: unknown;
 }

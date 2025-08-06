@@ -4,7 +4,7 @@ import { Fragment, PropsWithChildren, useEffect } from "react";
 
 export function Layout({ children }: PropsWithChildren) {
     const { props } = usePage<SharedData>();
-    const interval = 3_000;
+    const interval = 2_000;
 
     const { start, stop } = usePoll(
         interval,

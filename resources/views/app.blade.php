@@ -7,7 +7,14 @@
     <link rel="preconnect" href="https://rsms.me/">
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v7.0.0/css/all.css">
-
+    <script src="https://use.typekit.net/tie6dmw.js"></script>
+    <script>
+        try {
+            Typekit.load({
+                async: false
+            });
+        } catch (e) {}
+    </script>
     @routes
     @viteReactRefresh
     @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])

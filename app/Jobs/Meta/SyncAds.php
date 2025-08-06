@@ -3,6 +3,7 @@
 namespace App\Jobs\Meta;
 
 use App\Models\Ad;
+use App\Models\AdSet;
 use App\Models\Connection;
 use App\Services\Facebook;
 use App\Services\Paginator;
@@ -86,6 +87,7 @@ class SyncAds implements ShouldQueue
                     'external_id' => $adAccount->external_id,
                 ]);
 
+                // We wanna change this - we wanna fetch all the ads per ad set to avoid an ad-account query per ad (could be a lot)
                 $paginator->fetchEachBatch("/{$adAccount->external_id}/ads", [
                     'access_token' => $this->metaConnection->access_token,
                     'fields' => implode(',', $fields),
@@ -104,11 +106,13 @@ class SyncAds implements ShouldQueue
                 }
 
                 $mappedEntries = array_map(function ($entry) {
+                    $matchingAdset = AdSet::where('external_id', $entry['adset_id'])->select('id')->first();
+
                     return [
                         'external_id' => $entry['id'],
                         'name' => $entry['name'] ?? 'Unknown',
                         'status' => $entry['status'] ?? 'unknown',
-                        'ad_set_id' => $entry['adset_id'],
+                        'ad_set_id' => $matchingAdset->id,
                     ];
                 }, $entries);
 

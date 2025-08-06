@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\AdAccountData;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +17,24 @@ class HandleSelectedAdAccount
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Inertia::share('adAccounts', fn () => $request->user()->connection->adAccounts()->get());
+        $adAccounts = $request->user()->connection->adAccounts()->get();
+
+        // https://github.com/gino/elevate/blob/main/app/Http/Middleware/EnsurePageSelected.php
+        $sessionKey = 'selected_ad_account_id';
+        $selectable = $adAccounts->contains(function ($adAccount) use ($request, $sessionKey) {
+            return $adAccount->id === $request->session()->get($sessionKey);
+        });
+
+        if (! $request->session()->has($sessionKey) || ! $selectable) {
+            if (! empty($adAccounts)) {
+                $request->session()->put($sessionKey, $adAccounts->first()->id);
+            }
+        }
+
+        Inertia::share('selectedAdAccountId', fn () => $request->session()->get($sessionKey));
+        Inertia::share('adAccounts', function () use ($adAccounts) {
+            return AdAccountData::collect($adAccounts);
+        });
 
         return $next($request);
     }
