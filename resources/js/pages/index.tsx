@@ -8,7 +8,7 @@ export default function Index({ adCampaigns }: any) {
     return (
         <div className="flex h-screen">
             <Sidebar adAccounts={props.adAccounts} />
-            <main className="overflow-y-auto flex-1 p-6 min-h-0 bg-neutral-50/50">
+            <main className="overflow-y-auto flex-1 p-6 min-h-0">
                 <h1 className="mb-3 font-semibold">Campaigns</h1>
 
                 <div>

@@ -9,7 +9,7 @@ export function Sidebar({ adAccounts }: Props) {
     const user = useAuth();
 
     return (
-        <aside className="flex overflow-y-auto flex-col gap-4 p-3 w-72 min-h-0 shadow-base">
+        <aside className="flex overflow-y-auto flex-col gap-4 p-3 w-72 min-h-0 shadow-base bg-white">
             <div className="flex-1">
                 <div className="mb-4">
                     <AdAccountSelector adAccounts={adAccounts} />
