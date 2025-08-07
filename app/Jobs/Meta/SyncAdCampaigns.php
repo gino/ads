@@ -126,7 +126,7 @@ class SyncAdCampaigns implements ShouldQueue
 
             } catch (Throwable $e) {
                 Log::error('[Meta Sync] Error syncing campaigns for ad account', [
-                    'ad_account_id' => $adAccount->id,
+                    'id' => $adAccount->id,
                     'external_id' => $adAccount->external_id,
                     'error' => $e->getMessage(),
                 ]);

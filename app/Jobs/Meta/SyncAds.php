@@ -3,7 +3,6 @@
 namespace App\Jobs\Meta;
 
 use App\Models\Ad;
-use App\Models\AdSet;
 use App\Models\Connection;
 use App\Services\Facebook;
 use App\Services\Paginator;
@@ -52,10 +51,9 @@ class SyncAds implements ShouldQueue
 
     private function sync(Paginator $paginator)
     {
-        // https://developers.facebook.com/docs/marketing-api/reference/ad-account/ads
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/ads/
         $fields = [
             'id',
-            'adset_id',
             'name',
             'status',
         ];
@@ -79,67 +77,79 @@ class SyncAds implements ShouldQueue
         $totalAds = 0;
 
         foreach ($adAccounts as $adAccount) {
-            try {
-                $entries = [];
-
-                Log::debug('[Meta Sync] Fetching ads for ad account', [
-                    'ad_account_id' => $adAccount->id,
+            if ($adAccount->adCampaigns->isEmpty()) {
+                Log::debug('[Meta Sync] No campaigns found for ad account', [
                     'external_id' => $adAccount->external_id,
                 ]);
 
-                // We wanna change this - we wanna fetch all the ads per ad set to avoid an ad-account query per ad (could be a lot)
-                $paginator->fetchEachBatch("/{$adAccount->external_id}/ads", [
-                    'access_token' => $this->metaConnection->access_token,
-                    'fields' => implode(',', $fields),
-                    'limit' => $limit,
-                    'date_preset' => 'maximum',
-                ], function (array $batch) use (&$entries) {
-                    $entries = array_merge($entries, $batch);
-                });
+                continue;
+            }
 
-                if (empty($entries)) {
-                    Log::debug('[Meta Sync] No ads found for ad account', [
-                        'external_id' => $adAccount->external_id,
+            foreach ($adAccount->adCampaigns as $adCampaign) {
+                if ($adCampaign->adsets->isEmpty()) {
+                    Log::debug('[Meta Sync] No ad sets found for ad campaign', [
+                        'external_id' => $adCampaign->external_id,
                     ]);
 
                     continue;
                 }
 
-                $mappedEntries = array_map(function ($entry) {
-                    $matchingAdset = AdSet::where('external_id', $entry['adset_id'])->select('id')->first();
+                foreach ($adCampaign->adSets as $adSet) {
+                    try {
+                        $entries = [];
 
-                    return [
-                        'external_id' => $entry['id'],
-                        'name' => $entry['name'] ?? 'Unknown',
-                        'status' => $entry['status'] ?? 'unknown',
-                        'ad_set_id' => $matchingAdset->id,
-                    ];
-                }, $entries);
+                        $paginator->fetchEachBatch("/{$adSet->external_id}/ads", [
+                            'access_token' => $this->metaConnection->access_token,
+                            'fields' => implode(',', $fields),
+                            'limit' => $limit,
+                            'date_preset' => 'maximum',
+                        ], function (array $batch) use (&$entries) {
+                            $entries = array_merge($entries, $batch);
+                        });
 
-                DB::transaction(function () use ($mappedEntries) {
-                    Ad::upsert(
-                        $mappedEntries,
-                        uniqueBy: ['external_id'],
-                        update: ['name', 'status']
-                    );
-                });
+                        if (empty($entries)) {
+                            Log::debug('[Meta Sync] No ads found for ad set', [
+                                'external_id' => $adSet->external_id,
+                            ]);
 
-                $totalAds += count($entries);
+                            continue;
+                        }
 
-                Log::debug('[Meta Sync] Synced ads for ad account', [
-                    'external_id' => $adAccount->external_id,
-                    'ads_count' => count($entries),
-                ]);
+                        $mappedEntries = array_map(function ($entry) use ($adSet) {
+                            return [
+                                'external_id' => $entry['id'],
+                                'name' => $entry['name'] ?? 'Unknown',
+                                'status' => $entry['status'] ?? 'unknown',
+                                'ad_set_id' => $adSet->id,
+                            ];
+                        }, $entries);
 
-            } catch (Throwable $e) {
-                Log::error('[Meta Sync] Error syncing ads for ad account', [
-                    'ad_account_id' => $adAccount->id,
-                    'external_id' => $adAccount->external_id,
-                    'error' => $e->getMessage(),
-                ]);
+                        DB::transaction(function () use ($mappedEntries) {
+                            Ad::upsert(
+                                $mappedEntries,
+                                uniqueBy: ['external_id'],
+                                update: ['name', 'status']
+                            );
+                        });
 
-                // Continue with next ad account instead of failing entirely
-                continue;
+                        $totalAds += count($entries);
+
+                        Log::debug('[Meta Sync] Synced ads for ad set', [
+                            'external_id' => $adSet->external_id,
+                            'ads_count' => count($entries),
+                        ]);
+
+                    } catch (Throwable $e) {
+                        Log::error('[Meta Sync] Error syncing ads for ad set', [
+                            'id' => $adSet->id,
+                            'external_id' => $adSet->external_id,
+                            'error' => $e->getMessage(),
+                        ]);
+
+                        // Continue with next campaign instead of failing entirely
+                        continue;
+                    }
+                }
             }
         }
 

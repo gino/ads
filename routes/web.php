@@ -6,6 +6,8 @@ use App\Http\Controllers\ViewController;
 use App\Http\Middleware\EnsureDataSynced;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
+use App\Services\Facebook;
+use App\Services\Paginator;
 use App\SyncType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,6 +17,21 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/login', [ViewController::class, 'login'])->name('login');
+});
+
+Route::get('/foo', function (Request $request) {
+    $client = Facebook::client();
+    $paginator = new Paginator($client);
+
+    $user = $request->user();
+
+    $data = $paginator->fetchAll('/120225708821840156/ads', [
+        'access_token' => $user->connection->access_token,
+        'fields' => 'id,name',
+        'limit' => 25,
+    ]);
+
+    dd($data);
 });
 
 Route::get('/connect/facebook/callback', [AuthController::class, 'callback']);

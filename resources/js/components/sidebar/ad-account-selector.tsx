@@ -45,7 +45,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
             </div>
 
             <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                <div className="flex justify-center items-center w-6 h-6 text-[12px] font-bold bg-blue-50 rounded text-blue-950">
+                <div className="flex justify-center items-center w-6 h-6 text-[12px] font-bold bg-blue-600/5 rounded text-blue-950">
                     {selectedAdAccount.name[0].toUpperCase()}
                 </div>
             </div>

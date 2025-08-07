@@ -99,7 +99,7 @@ class SyncAdSets implements ShouldQueue
 
                     if (empty($entries)) {
                         Log::debug('[Meta Sync] No ad sets found for campaign', [
-                            'campaign_external_id' => $adCampaign->external_id,
+                            'external_id' => $adCampaign->external_id,
                         ]);
 
                         continue;
@@ -125,14 +125,14 @@ class SyncAdSets implements ShouldQueue
                     $totalAdSets += count($entries);
 
                     Log::debug('[Meta Sync] Synced ad sets for campaign', [
-                        'campaign_external_id' => $adCampaign->external_id,
+                        'external_id' => $adCampaign->external_id,
                         'ad_sets_count' => count($entries),
                     ]);
 
                 } catch (Throwable $e) {
                     Log::error('[Meta Sync] Error syncing ad sets for campaign', [
                         'campaign_id' => $adCampaign->id,
-                        'campaign_external_id' => $adCampaign->external_id,
+                        'external_id' => $adCampaign->external_id,
                         'error' => $e->getMessage(),
                     ]);
 

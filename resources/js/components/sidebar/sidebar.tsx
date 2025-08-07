@@ -40,18 +40,6 @@ export function Sidebar({ adAccounts }: Props) {
                 </div>
             </div>
             <div className="flex flex-col gap-4">
-                <div className="px-3.5 py-3 shadow-base rding-1 ring-neutral-100 rounded-lg">
-                    <div className="flex items-center mb-2">
-                        <div className="font-semibold flex-1">Free trial</div>
-                        <div className="text-[12px] font-semibold text-neutral-500">
-                            5 days left
-                        </div>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-neutral-100 overflow-hidden">
-                        <div className="h-full w-1/4 bg-emerald-600 rounded-r-full"></div>
-                    </div>
-                </div>
-
                 <button className="flex gap-3 enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out items-center px-3 py-2.5 w-full text-left rounded-lg ring-1 ring-gray-100 hover:bg-gray-100 cursor-pointer">
                     <img
                         src={user.avatar}
