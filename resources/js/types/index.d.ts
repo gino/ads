@@ -8,7 +8,8 @@ export interface SharedData {
     auth: Auth;
     adAccounts: App.Data.AdAccountData[];
     selectedAdAccountId: string;
-    last_synced: {} | null;
+    last_synced: Record<string, any> | null;
+    flash: Record<string, any> | null;
     ziggy: Config & { location: string };
     [key: string]: unknown;
 }

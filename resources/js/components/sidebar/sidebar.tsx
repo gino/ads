@@ -1,5 +1,6 @@
 import { useAuth } from "@/lib/hooks/useAuth";
 import { AdAccountSelector } from "./ad-account-selector";
+import { SidebarItem } from "./sidebar-item";
 
 interface Props {
     adAccounts: App.Data.AdAccountData[];
@@ -16,42 +17,42 @@ export function Sidebar({ adAccounts }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                    <button className="px-3 cursor-pointer py-2.5 flex rounded-lg group w-full items-center gap-3 font-semibold bg-gray-100 ring-1 ring-gray-100">
-                        <i className="text-base fa-regular fa-grid-2 fa-fw" />
-                        <span>Dashboard</span>
-                    </button>
-
-                    <button className="px-3 cursor-pointer py-2.5 flex rounded-lg group w-full items-center gap-3 font-semibold hover:bg-gray-100 hover:ring-1 ring-gray-100">
-                        <i className="text-base fa-regular fa-arrow-up-from-bracket fa-fw text-gray-400 group-hover:text-black" />
-                        <span className="text-gray-600 group-hover:text-black">
-                            Upload
-                        </span>
-                    </button>
-
-                    <button className="px-3 cursor-pointer py-2.5 flex rounded-lg group w-full items-center gap-3 font-semibold hover:bg-gray-100 hover:ring-1 ring-gray-100">
-                        <i className="text-base fa-regular fa-list fa-fw text-gray-400 group-hover:text-black" />
-                        <span className="text-gray-600 group-hover:text-black">
-                            Campaigns
-                        </span>
-                    </button>
-
-                    <button className="px-3 cursor-pointer py-2.5 flex rounded-lg group w-full items-center gap-3 font-semibold hover:bg-gray-100 hover:ring-1 ring-gray-100">
-                        <i className="text-base fa-regular fa-chart-simple fa-fw text-gray-400 group-hover:text-black" />
-                        <span className="text-gray-600 group-hover:text-black">
-                            Analytics
-                        </span>
-                    </button>
-
-                    <button className="px-3 cursor-pointer py-2.5 flex rounded-lg group w-full items-center gap-3 font-semibold hover:bg-gray-100 hover:ring-1 ring-gray-100">
-                        <i className="text-base fa-regular fa-cog fa-fw text-gray-400 group-hover:text-black" />
-                        <span className="text-gray-600 group-hover:text-black">
-                            Settings
-                        </span>
-                    </button>
+                    <SidebarItem icon="fa-grid-2" active>
+                        Dashboard
+                    </SidebarItem>
+                    <SidebarItem icon="fa-arrow-up-from-bracket">
+                        Upload
+                    </SidebarItem>
+                    <SidebarItem icon="fa-list">Campaigns</SidebarItem>
+                    <SidebarItem
+                        icon="fa-chart-simple"
+                        suffix={
+                            <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-enabled:group-hover:bg-gray-200 rounded-full text-gray-800">
+                                Coming soon
+                            </span>
+                        }
+                        disabled
+                    >
+                        Analytics
+                    </SidebarItem>
+                    <SidebarItem icon="fa-circle-nodes">Events</SidebarItem>
+                    <SidebarItem icon="fa-cog">Settings</SidebarItem>
                 </div>
             </div>
-            <div>
-                <button className="flex gap-3 items-center px-3 py-2.5 w-full text-left rounded-lg ring-1 ring-gray-100 hover:bg-gray-100 cursor-pointer">
+            <div className="flex flex-col gap-4">
+                <div className="px-3.5 py-3 shadow-base rding-1 ring-neutral-100 rounded-lg">
+                    <div className="flex items-center mb-2">
+                        <div className="font-semibold flex-1">Free trial</div>
+                        <div className="text-[12px] font-semibold text-neutral-500">
+                            5 days left
+                        </div>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-neutral-100 overflow-hidden">
+                        <div className="h-full w-1/4 bg-emerald-600 rounded-r-full"></div>
+                    </div>
+                </div>
+
+                <button className="flex gap-3 enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out items-center px-3 py-2.5 w-full text-left rounded-lg ring-1 ring-gray-100 hover:bg-gray-100 cursor-pointer">
                     <img
                         src={user.avatar}
                         className="object-cover object-center w-8 h-8 rounded-full"

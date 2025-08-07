@@ -46,6 +46,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => UserData::from($user),
             ],
             'last_synced' => $connection?->last_synced,
+            'flash' => $request->session()->get('flash'),
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

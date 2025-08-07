@@ -29,26 +29,32 @@ export default function Index({ adCampaigns }: any) {
 function Campaigns({ adCampaigns = [] }: any) {
     return (
         <div>
-            {adCampaigns.length === 0 && (
+            {adCampaigns.length === 0 ? (
                 <div className="text-sm font-medium text-gray-500">
                     The selected ad account does not have any campaigns.
                 </div>
+            ) : (
+                <div className="bg-white shadow-base p-6 rounded-xl overflow-y-auto min-h-0">
+                    <pre className="font-sans text-xs">
+                        {JSON.stringify(adCampaigns, null, 2)}
+                    </pre>
+                </div>
             )}
 
-            {adCampaigns.map((adCampaign: any) => (
-                <div className="p-4 mb-4 bg-white rounded-xl border border-gray-100">
+            {/* {adCampaigns.map((adCampaign: any) => (
+                <div className="p-4 mb-4 bg-white rounded-xl shadow-base">
                     <div className="mb-4 font-semibold">
                         {adCampaign.name} ({adCampaign.status}):
                     </div>
 
                     {adCampaign.ad_sets.map((adSet: any) => (
-                        <div className="p-4 space-y-4 bg-white rounded-xl border border-gray-100">
+                        <div className="p-4 space-y-4 bg-white rounded-xl shadow-base">
                             <div className="font-semibold">
                                 {adSet.name} ({adSet.status}):
                             </div>
 
                             {adSet.ads.map((ad: any) => (
-                                <div className="p-4 bg-white rounded-xl border border-gray-100">
+                                <div className="p-4 bg-white rounded-xl shadow-base">
                                     <div className="font-semibold">
                                         {ad.name} ({ad.status})
                                     </div>
@@ -57,7 +63,7 @@ function Campaigns({ adCampaigns = [] }: any) {
                         </div>
                     ))}
                 </div>
-            ))}
+            ))} */}
         </div>
     );
 }
