@@ -10,15 +10,16 @@ class ViewController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $adCampaigns = $user->connection->adAccounts
-            ->where('id', $request->session()->get('selected_ad_account_id'))
-            ->first()
-            ->adCampaigns()
-            ->with('adSets.ads')
-            ->get();
 
         return Inertia::render('index', [
-            'adCampaigns' => $adCampaigns,
+            'adCampaigns' => Inertia::defer(function () use ($user, $request) {
+                return $user->connection->adAccounts
+                    ->where('id', $request->session()->get('selected_ad_account_id'))
+                    ->first()
+                    ->adCampaigns()
+                    ->with('adSets.ads')
+                    ->get();
+            }),
         ]);
     }
 

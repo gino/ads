@@ -38,10 +38,10 @@ export function AdAccountSelector({ adAccounts }: Props) {
             </select>
 
             <div className="flex absolute right-3 top-1/2 gap-2 items-center text-xs -translate-y-1/2 pointer-events-none">
-                <span className="font-semibold bg-neutral-100 text-[12px] px-2 leading-5 rounded-full text-neutral-800">
+                <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 rounded-full text-gray-800">
                     {selectedAdAccount.currency}
                 </span>
-                <i className="fa-solid fa-angle-down text-neutral-400" />
+                <i className="fa-solid fa-angle-down text-gray-400" />
             </div>
 
             <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
