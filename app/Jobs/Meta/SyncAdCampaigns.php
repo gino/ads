@@ -51,7 +51,6 @@ class SyncAdCampaigns implements ShouldQueue
         // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign-group
         $fields = [
             'id',
-            'account_id',
             'name',
             'status',
         ];

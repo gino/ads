@@ -50,12 +50,10 @@ class SyncAdAccounts implements ShouldQueue
     {
         // https://developers.facebook.com/docs/marketing-api/reference/ad-account/#overview
         $fields = [
-            'account_id',
+            'id',
             'name',
             'account_status',
             'currency',
-            'business',
-            'owner',
         ];
         $limit = 25;
         $entries = [];

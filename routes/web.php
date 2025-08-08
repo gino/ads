@@ -3,11 +3,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SyncController;
 use App\Http\Controllers\ViewController;
+use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\EnsureDataSynced;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
-use App\Services\Facebook;
-use App\Services\Paginator;
 use App\SyncType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -19,22 +18,13 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [ViewController::class, 'login'])->name('login');
 });
 
-Route::get('/foo', function (Request $request) {
-    $client = Facebook::client();
-    $paginator = new Paginator($client);
-
-    $user = $request->user();
-
-    $data = $paginator->fetchAll('/120225708821840156/ads', [
-        'access_token' => $user->connection->access_token,
-        'fields' => 'id,name',
-        'limit' => 25,
-    ]);
-
-    dd($data);
-});
-
 Route::get('/connect/facebook/callback', [AuthController::class, 'callback']);
+Route::get('/connect/facebook/webhook', [WebhookController::class, 'verify']);
+Route::post('/connect/facebook/webhook', [WebhookController::class, 'webhook']);
+
+Route::middleware('auth')->group(function () {
+    Route::get('/setting-up', [ViewController::class, 'settingUp']);
+});
 
 Route::middleware([
     'auth',
@@ -44,14 +34,6 @@ Route::middleware([
 ])->group(function () {
     Route::get('/', [ViewController::class, 'index'])->name('dashboard.index');
 
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    Route::get('/setting-up', [ViewController::class, 'settingUp'])
-        ->withoutMiddleware([
-            EnsureDataSynced::class,
-            HandleSelectedAdAccount::class,
-        ]);
-
     Route::get('/force-sync/{type?}', [SyncController::class, 'sync'])
         ->whereIn('type', array_map(fn ($e) => $e->value, SyncType::cases()));
 
@@ -60,4 +42,6 @@ Route::middleware([
 
         return response(null, 200);
     });
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
