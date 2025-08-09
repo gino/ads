@@ -27,7 +27,7 @@ class GetAdAccountsRequest extends Request implements Paginatable
 
     protected function defaultQuery(): array
     {
-        // https://developers.facebook.com/docs/marketing-api/reference/ad-account/#overview
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-account/#fields
         $fields = [
             'id',
             'name',

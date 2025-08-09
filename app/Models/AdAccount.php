@@ -23,6 +23,11 @@ class AdAccount extends Model
         return $this->belongsTo(Connection::class);
     }
 
+    public function isActive()
+    {
+        return $this->status === 'active';
+    }
+
     public function getStatusAttribute($status)
     {
         return match ($status) {

@@ -1,5 +1,6 @@
+import { cn } from "@/lib/cn";
 import { useSelectedAdAccount } from "@/lib/hooks/useSelectedAdAccount";
-import { router } from "@inertiajs/react";
+import * as Ariakit from "@ariakit/react";
 import { useState } from "react";
 
 interface Props {
@@ -7,48 +8,94 @@ interface Props {
 }
 
 export function AdAccountSelector({ adAccounts }: Props) {
-    const { selectedAdAccountId, selectedAdAccount } = useSelectedAdAccount();
-    const [selected, setSelected] = useState(selectedAdAccountId);
+    const { selectedAdAccountId, selectAdAccount } = useSelectedAdAccount();
 
-    return (
-        <div className="relative">
-            <select
-                value={selected}
-                title={`${selectedAdAccount.name} (${selectedAdAccount.currency})`}
-                onChange={(e) => {
-                    setSelected(e.target.value);
+    const renderValue = (id: string) => {
+        const adAccount = adAccounts.find((adAccount) => adAccount.id === id)!;
 
-                    router.post(
-                        "/select-ad-account",
-                        {
-                            ad_account_id: e.target.value,
-                        },
-                        {
-                            only: ["selectedAdAccountId", "adCampaigns"],
-                        }
-                    );
-                }}
-                className="appearance-none cursor-pointer outline-none w-full rounded-lg pl-11 pr-20 truncate py-2.5 font-semibold shadow-base text-sm"
+        return (
+            <div
+                title={`${adAccount.name} (${adAccount.currency})`}
+                className="flex items-center w-full mr-6 relative"
             >
-                {adAccounts.map((adAccount) => (
-                    <option key={adAccount.id} value={adAccount.id}>
-                        {adAccount.name}
-                    </option>
-                ))}
-            </select>
-
-            <div className="flex absolute right-3 top-1/2 gap-2 items-center text-xs -translate-y-1/2 pointer-events-none">
-                <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 rounded-full text-gray-800">
-                    {selectedAdAccount.currency}
-                </span>
-                <i className="fa-solid fa-angle-down text-gray-400" />
-            </div>
-
-            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                <div className="flex justify-center items-center w-6 h-6 text-[12px] font-bold bg-blue-600/5 rounded text-blue-950">
-                    {selectedAdAccount.name[0].toUpperCase()}
+                <div className="absolute flex left-0 top-1/2 -translate-y-1/2">
+                    <div className="flex justify-center items-center w-6 h-6 text-[12px] font-bold bg-blue-600/5 rounded text-blue-950 mr-3">
+                        {adAccount.name[0].toUpperCase()}
+                    </div>
+                </div>
+                <div className="max-w-36 text-left ml-[34px] truncate">
+                    {adAccount.name}
+                </div>
+                <div className="absolute flex right-0 top-1/2 -translate-y-1/2">
+                    <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full text-gray-800 leading-5">
+                        {adAccount.currency}
+                    </span>
                 </div>
             </div>
-        </div>
+        );
+    };
+
+    const [value, setValue] = useState(selectedAdAccountId);
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <Ariakit.SelectProvider
+            value={value}
+            open={isOpen}
+            setOpen={(value) => setIsOpen(value)}
+            setValue={(value) => {
+                setValue(value);
+                selectAdAccount(value);
+            }}
+        >
+            <Ariakit.Select className="cursor-pointer px-2.5 py-2.5 font-semibold shadow-base text-sm rounded-lg data-[active]:scale-[0.99] transition-transform duration-100 ease-in-out w-full relative flex items-center">
+                <Ariakit.SelectValue fallback="">
+                    {(value) => renderValue(value)}
+                </Ariakit.SelectValue>
+                <Ariakit.SelectArrow className="absolute right-3 pointer-events-none text-xs top-1/2 -translate-y-1/2 !h-[unset] !w-[unset]">
+                    <i
+                        className={cn(
+                            "fa-solid fa-angle-down text-gray-400 transition-transform duration-200 ease-in-out",
+                            isOpen && "rotate-180"
+                        )}
+                    />
+                </Ariakit.SelectArrow>
+            </Ariakit.Select>
+            <Ariakit.SelectPopover
+                gutter={8}
+                sameWidth
+                className="rounded-xl bg-white shadow-base-popup p-1 space-y-1"
+            >
+                {adAccounts.map((adAccount) => (
+                    <Ariakit.SelectItem
+                        key={adAccount.id}
+                        value={adAccount.id}
+                        disabled={adAccount.status !== "active"}
+                        className="data-[active-item]:bg-gray-100 px-3 py-2.5 rounded-lg cursor-pointer font-semibold gap-3 flex items-start group aria-disabled:opacity-50"
+                    >
+                        <div className="w-[16px]">
+                            {value === adAccount.id && (
+                                <i className="fa-solid fa-check text-[12px] text-gray-400" />
+                            )}
+                        </div>
+                        <div className="flex-1 truncate">
+                            <div className="truncate mb-px">
+                                {adAccount.name}
+                            </div>
+                            <div className="text-[12px] font-medium text-gray-500">
+                                ID: {adAccount.externalId.replace("act_", "")}
+                            </div>
+                        </div>
+                        <div>
+                            {adAccount.status !== "active" && (
+                                <span className="font-semibold bg-gray-100 text-[12px] px-2 capitalize inline-block rounded-full text-gray-800 leading-5 group-data-[active-item]:bg-gray-200">
+                                    {adAccount.status}
+                                </span>
+                            )}
+                        </div>
+                    </Ariakit.SelectItem>
+                ))}
+            </Ariakit.SelectPopover>
+        </Ariakit.SelectProvider>
     );
 }

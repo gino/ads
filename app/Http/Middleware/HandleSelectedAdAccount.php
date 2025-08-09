@@ -22,7 +22,7 @@ class HandleSelectedAdAccount
         // https://github.com/gino/elevate/blob/main/app/Http/Middleware/EnsurePageSelected.php
         $sessionKey = 'selected_ad_account_id';
         $selectable = $adAccounts->contains(function ($adAccount) use ($request, $sessionKey) {
-            return $adAccount->id === $request->session()->get($sessionKey);
+            return $adAccount->id === $request->session()->get($sessionKey) && $adAccount->isActive();
         });
 
         if (! $request->session()->has($sessionKey) || ! $selectable) {
@@ -30,9 +30,7 @@ class HandleSelectedAdAccount
         }
 
         Inertia::share('selectedAdAccountId', fn () => $request->session()->get($sessionKey));
-        Inertia::share('adAccounts', function () use ($adAccounts) {
-            return AdAccountData::collect($adAccounts);
-        });
+        Inertia::share('adAccounts', fn () => AdAccountData::collect($adAccounts));
 
         return $next($request);
     }
