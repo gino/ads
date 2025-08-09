@@ -1,6 +1,6 @@
 import { SharedData } from "@/types";
-import { usePage } from "@inertiajs/react";
-import { useMemo } from "react";
+import { router, usePage } from "@inertiajs/react";
+import { useCallback, useMemo } from "react";
 
 export function useSelectedAdAccount() {
     const { props } = usePage<SharedData>();
@@ -12,5 +12,17 @@ export function useSelectedAdAccount() {
         return adAccounts.find((account) => account.id === selectedAdAccountId);
     }, [selectedAdAccountId])!;
 
-    return { selectedAdAccountId, selectedAdAccount };
+    const selectAdAccount = useCallback((id: string) => {
+        router.post(
+            "/select-ad-account",
+            {
+                ad_account_id: id,
+            }
+            // {
+            //     only: ["selectedAdAccountId", "adCampaigns"],
+            // }
+        );
+    }, []);
+
+    return { selectedAdAccountId, selectedAdAccount, selectAdAccount };
 }

@@ -1,5 +1,5 @@
 import { useAuth } from "@/lib/hooks/useAuth";
-import { AdAccountSelector } from "./ad-account-selector";
+import { AdAccountSelector } from "./ad-account-selector2";
 import { SidebarItem } from "./sidebar-item";
 
 interface Props {
