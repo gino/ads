@@ -48,7 +48,7 @@ export function Sidebar({ adAccounts }: Props) {
                     <div className="flex-1">
                         <div className="text-sm font-semibold">{user.name}</div>
                         <div className="text-xs font-medium text-gray-500">
-                            {user.email}
+                            Free plan
                         </div>
                     </div>
                     <i className="fa-solid fa-ellipsis-v text-gray-400" />

@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignUlid('user_id')->index();
             $table->timestamp('expires_at');
             $table->timestamp('renewed_at')->nullable();
-            $table->json('last_synced')->nullable();
             $table->timestamps();
         });
     }

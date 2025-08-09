@@ -1,13 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\SyncController;
 use App\Http\Controllers\ViewController;
-use App\Http\Controllers\WebhookController;
-use App\Http\Middleware\EnsureDataSynced;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
-use App\SyncType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,23 +15,13 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/connect/facebook/callback', [AuthController::class, 'callback']);
-Route::get('/connect/facebook/webhook', [WebhookController::class, 'verify']);
-Route::post('/connect/facebook/webhook', [WebhookController::class, 'webhook']);
-
-Route::middleware('auth')->group(function () {
-    Route::get('/setting-up', [ViewController::class, 'settingUp']);
-});
 
 Route::middleware([
     'auth',
     EnsureFacebookTokenIsValid::class,
-    EnsureDataSynced::class,
     HandleSelectedAdAccount::class,
 ])->group(function () {
     Route::get('/', [ViewController::class, 'index'])->name('dashboard.index');
-
-    Route::get('/force-sync/{type?}', [SyncController::class, 'sync'])
-        ->whereIn('type', array_map(fn ($e) => $e->value, SyncType::cases()));
 
     Route::post('/select-ad-account', function (Request $request) {
         $request->session()->put('selected_ad_account_id', $request->input('ad_account_id'));
