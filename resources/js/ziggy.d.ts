@@ -3,6 +3,7 @@ declare module 'ziggy-js' {
   interface RouteList {
     "login": [],
     "dashboard.index": [],
+    "dashboard.campaigns": [],
     "logout": [],
     "storage.local": [
         {

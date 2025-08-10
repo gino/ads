@@ -9,14 +9,12 @@ class ViewController extends Controller
 {
     public function index(Request $request)
     {
-        return Inertia::render('index', [
-            'adCampaigns' => [],
-        ]);
+        return Inertia::render('index');
     }
 
     public function campaigns(Request $request)
     {
-        return Inertia::render('index', [
+        return Inertia::render('campaigns', [
             'adCampaigns' => [],
         ]);
     }

@@ -33,6 +33,7 @@
 
 @layer base {
     body {
-        @apply font-sans text-sm antialiased bg-gray-50/50;
+        /* bg-gray-50/50 before */
+        @apply font-sans text-sm antialiased bg-gray-50;
     }
 }
