@@ -9,6 +9,6 @@ export interface SharedData {
     adAccounts: App.Data.AdAccountData[];
     selectedAdAccountId: string;
     flash: Record<string, any> | null;
-    ziggy: Config & { location: string };
+    ziggy: Config & { location: string; route: string };
     [key: string]: unknown;
 }

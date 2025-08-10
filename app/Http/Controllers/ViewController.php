@@ -14,6 +14,13 @@ class ViewController extends Controller
         ]);
     }
 
+    public function campaigns(Request $request)
+    {
+        return Inertia::render('index', [
+            'adCampaigns' => [],
+        ]);
+    }
+
     public function login()
     {
         return Inertia::render('login');

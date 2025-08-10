@@ -48,7 +48,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                 selectAdAccount(value);
             }}
         >
-            <Ariakit.Select className="cursor-pointer px-2.5 py-2.5 font-semibold shadow-base text-sm rounded-lg data-[active]:scale-[0.99] transition-transform duration-100 ease-in-out w-full relative flex items-center">
+            <Ariakit.Select className="cursor-pointer px-2.5 py-2.5 font-semibold shadow-base text-sm rounded-lg active:scale-[0.99] transition-transform duration-100 ease-in-out w-full relative flex items-center">
                 <Ariakit.SelectValue fallback="">
                     {(value) => renderValue(value)}
                 </Ariakit.SelectValue>
@@ -63,8 +63,14 @@ export function AdAccountSelector({ adAccounts }: Props) {
             </Ariakit.Select>
             <Ariakit.SelectPopover
                 gutter={8}
+                portal
                 sameWidth
-                className="rounded-xl bg-white shadow-base-popup p-1 space-y-1"
+                // unmountOnHide
+                className={cn(
+                    "rounded-xl bg-white shadow-base-popup p-1 space-y-1"
+                    // "opacity-0 -translate-y-2 scale-[0.97] transition-[opacity,scale,translate] duration-200 ease-in-out origin-top",
+                    // "data-[enter]:opacity-100 data-[enter]:translate-y-0 data-[enter]:scale-[1]"
+                )}
             >
                 {adAccounts.map((adAccount) => (
                     <Ariakit.SelectItem
@@ -87,9 +93,13 @@ export function AdAccountSelector({ adAccounts }: Props) {
                             </div>
                         </div>
                         <div>
-                            {adAccount.status !== "active" && (
+                            {adAccount.status !== "active" ? (
                                 <span className="font-semibold bg-gray-100 text-[12px] px-2 capitalize inline-block rounded-full text-gray-800 leading-5 group-data-[active-item]:bg-gray-200">
                                     {adAccount.status}
+                                </span>
+                            ) : (
+                                <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full text-gray-800 leading-5 group-data-[active-item]:bg-gray-200">
+                                    {adAccount.currency}
                                 </span>
                             )}
                         </div>

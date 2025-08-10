@@ -22,6 +22,7 @@ Route::middleware([
     HandleSelectedAdAccount::class,
 ])->group(function () {
     Route::get('/', [ViewController::class, 'index'])->name('dashboard.index');
+    Route::get('/campaigns', [ViewController::class, 'campaigns'])->name('dashboard.campaigns');
 
     Route::post('/select-ad-account', function (Request $request) {
         $request->session()->put('selected_ad_account_id', $request->input('ad_account_id'));

@@ -1,4 +1,6 @@
 import { useAuth } from "@/lib/hooks/useAuth";
+import { SharedData } from "@/types";
+import { usePage } from "@inertiajs/react";
 import { AdAccountSelector } from "./ad-account-selector";
 import { SidebarItem } from "./sidebar-item";
 
@@ -8,6 +10,9 @@ interface Props {
 
 export function Sidebar({ adAccounts }: Props) {
     const user = useAuth();
+
+    const props = usePage<SharedData>();
+    console.log(props.props);
 
     return (
         <aside className="flex overflow-y-auto flex-col gap-4 p-3 w-72 min-h-0 shadow-base bg-white">
