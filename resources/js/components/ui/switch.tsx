@@ -12,10 +12,11 @@ export function Switch({ ...props }: Props) {
 
     return (
         <label
+            role="checkbox"
             data-checked={checked}
             data-focus-visible={focusVisible || undefined}
             className={cn(
-                "bg-gray-100 ring-inset ring-neutral-200 w-7 rounded-full flex relative cursor-pointer",
+                "bg-gray-100 ring-1 ring-gray-200 w-8  rounded-full flex relative cursor-pointer",
                 "data-[checked='true']:bg-emerald-600 data-[checked='true']:ring-emerald-600"
             )}
         >
@@ -35,7 +36,7 @@ export function Switch({ ...props }: Props) {
             <div
                 data-checked={checked}
                 className={cn(
-                    "h-3.5 w-3.5 rounded-full ring-1 ring-neutral-200 bg-white shadow-base transition duration-200 ease-in-out translate-x-0",
+                    "h-4 w-4 rounded-full ring-1 ring-gray-200 bg-white shadow-base transition duration-200 ease-in-out translate-x-0",
                     "data-[checked='true']:translate-x-[calc(100%)]",
                     "data-[checked='true']:ring-emerald-600"
                 )}

@@ -9,4 +9,8 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class AdCampaignData extends Data
 {
     public string $id;
+
+    public string $name;
+
+    public string $status;
 }

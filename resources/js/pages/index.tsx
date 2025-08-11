@@ -1,5 +1,4 @@
 import { Layout } from "@/components/layouts/app-layout";
-import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { SharedData } from "@/types";
 import { router, usePage } from "@inertiajs/react";
@@ -19,7 +18,6 @@ export default function Index() {
                         2
                     )}
                 </pre>
-                <Switch />
             </div>
 
             <button

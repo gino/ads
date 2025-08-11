@@ -6,6 +6,11 @@ currency: string;
 status: string;
 externalId: string;
 };
+export type AdCampaignData = {
+id: string;
+name: string;
+status: string;
+};
 export type UserData = {
 id: string;
 name: string;
