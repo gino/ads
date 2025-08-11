@@ -16,8 +16,8 @@ export function Switch({ ...props }: Props) {
             data-checked={checked}
             data-focus-visible={focusVisible || undefined}
             className={cn(
-                "bg-gray-100 ring-1 ring-gray-200 w-8  rounded-full flex relative cursor-pointer",
-                "data-[checked='true']:bg-emerald-600 data-[checked='true']:ring-emerald-600"
+                "bg-gray-100 ring-1 ring-gray-200 w-8 rounded-full flex relative cursor-pointer",
+                "data-[checked='true']:bg-teal-600 data-[checked='true']:ring-teal-600"
             )}
         >
             <Ariakit.VisuallyHidden>
@@ -36,11 +36,20 @@ export function Switch({ ...props }: Props) {
             <div
                 data-checked={checked}
                 className={cn(
-                    "h-4 w-4 rounded-full ring-1 ring-gray-200 bg-white shadow-base transition duration-200 ease-in-out translate-x-0",
+                    "h-4 w-4 rounded-full ring-1 ring-gray-200 text-gray-300 bg-white shadow-base transition duration-200 ease-in-out translate-x-0",
                     "data-[checked='true']:translate-x-[calc(100%)]",
-                    "data-[checked='true']:ring-emerald-600"
+                    "data-[checked='true']:ring-teal-600",
+                    "data-[checked='true']:text-teal-600",
+                    "flex items-center justify-center"
                 )}
-            />
+            >
+                <i
+                    className={cn(
+                        "fa-solid text-[8px]",
+                        checked ? "fa-check" : "fa-times"
+                    )}
+                />
+            </div>
         </label>
     );
 }

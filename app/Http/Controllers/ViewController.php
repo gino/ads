@@ -26,8 +26,16 @@ class ViewController extends Controller
         return Inertia::render('campaigns', [
             'campaigns' => Inertia::defer(function () use ($meta, $adAccount) {
                 $data = $meta->paginate(new GetAdCampaignsRequest($adAccount));
+                $campaigns = AdCampaignData::collect($data->collect());
 
-                return AdCampaignData::collect($data->collect());
+                return [
+                    ...$campaigns,
+                    ...$campaigns,
+                    ...$campaigns,
+                    ...$campaigns,
+                    ...$campaigns,
+                    ...$campaigns,
+                ];
             }),
         ]);
     }

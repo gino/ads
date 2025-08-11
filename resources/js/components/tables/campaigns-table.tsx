@@ -1,109 +1,54 @@
-import { Layout } from "@/components/layouts/app-layout";
-import { CampaignsTable2 } from "@/components/tables/campaigns-table";
-import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/cn";
-import { Deferred, router } from "@inertiajs/react";
 import {
     createColumnHelper,
     flexRender,
     getCoreRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-
-interface Props {
-    campaigns: App.Data.AdCampaignData[];
-}
-
-export default function Campaigns({ campaigns }: Props) {
-    return (
-        <Layout title="Campaigns">
-            <div className="bg-white shadow-base rounded-xl overflow-hidden">
-                <div className="flex items-center bg-gray-50 border-b border-gray-100 overflow-hidden">
-                    <button className="bg-white w-72 px-5 py-3.5 rounded-tr-xl font-semibold flex items-center gap-2.5 cursor-pointer border-t -mt-px border-r border-gray-100">
-                        <i className="fa-solid fa-folder text-[12px] text-gray-300" />
-                        <span>Campaigns</span>
-                    </button>
-                    <button className="w-72 px-5 py-3.5 rounded-tr-xl font-semibold flex items-center gap-2.5 cursor-pointer">
-                        <i className="fa-solid fa-folder text-[12px] text-gray-300" />
-                        <span>Ad sets</span>
-                    </button>
-                    <button className="w-72 px-5 py-3.5 rounded-tr-xl font-semibold flex items-center gap-2.5 cursor-pointer">
-                        <i className="fa-solid fa-folder text-[12px] text-gray-300" />
-                        <span>Ads</span>
-                    </button>
-                </div>
-
-                <div className="overflow-auto">
-                    <Deferred data="campaigns" fallback={<div>Loading...</div>}>
-                        <CampaignsTable2 campaigns={campaigns} />
-                    </Deferred>
-                </div>
-            </div>
-
-            <button
-                className="cursor-pointer mt-3"
-                onClick={() => router.post(route("logout"))}
-            >
-                logout
-            </button>
-        </Layout>
-    );
-}
+import { Switch } from "../ui/switch";
 
 const columnHelper = createColumnHelper<App.Data.AdCampaignData>();
 const columns = [
     columnHelper.accessor("name", {
-        footer: ({ table }) => (
-            <div className="flex">
-                <div className="text-xs text-gray-500 font-medium">
-                    Results of{" "}
-                    <span className="font-semibold">{table.getRowCount()}</span>{" "}
-                    campaigns
-                </div>
-            </div>
-        ),
         header: () => (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
                 <div className="h-4 w-4 rounded shadow-base bg-white"></div>
                 <div className="font-semibold">Campaign</div>
             </div>
         ),
         cell: (info) => (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
                 <div className="h-4 w-4 rounded shadow-base bg-white"></div>
-                <div className="font-semibold">
-                    <span className="h-2 w-2 bg-emerald-600 rounded-full mr-2 inline-block align-baseline" />{" "}
-                    {info.renderValue()}
+                <div className="flex items-center gap-6">
+                    <Switch defaultChecked />
+                    <div className="font-semibold">{info.renderValue()}</div>
                 </div>
-            </div>
-        ),
-    }),
-    columnHelper.display({
-        id: "switch",
-        cell: () => (
-            <div className="flex justify-center">
-                <Switch defaultChecked />
             </div>
         ),
     }),
     columnHelper.accessor("status", {
         header: () => <div className="text-right">Status</div>,
-        cell: (info) => <div className="text-right">{info.getValue()}</div>,
+        cell: (info) => (
+            <div className="text-right">
+                <div className="inline-flex items-center ring bg-gray-100 ring-gray-100 px-2 leading-5 font-semibold text-[12px] rounded-full">
+                    {/* <span className="h-1.5 w-1.5 bg-gray-300 rounded-full mr-2" /> */}
+                    <span>Paused</span>
+                </div>
+            </div>
+        ),
     }),
     columnHelper.accessor("status", {
         header: () => <div className="text-right">Spend</div>,
         cell: (info) => <div className="text-right">€ 5,67</div>,
-        footer: () => <div className="text-right">€ 5,67</div>,
+        // footer: (info) => <div className="text-right">€ 5,67</div>,
     }),
     columnHelper.accessor("status", {
         header: () => <div className="text-right">CPC</div>,
         cell: (info) => <div className="text-right">€ 1,23</div>,
-        footer: (info) => <div className="text-right">€ 1,23</div>,
     }),
     columnHelper.accessor("status", {
         header: () => <div className="text-right">CPM</div>,
         cell: (info) => <div className="text-right">€ 12,34</div>,
-        footer: (info) => <div className="text-right">€ 12,34</div>,
     }),
     columnHelper.accessor("status", {
         header: () => <div className="text-right">CTR</div>,
@@ -116,7 +61,6 @@ const columns = [
     columnHelper.accessor("status", {
         header: () => <div className="text-right">CPA</div>,
         cell: (info) => <div className="text-right">€ 0,47</div>,
-        footer: (info) => <div className="text-right">€ 0,47</div>,
     }),
     columnHelper.accessor("status", {
         header: () => <div className="text-right">ROAS</div>,
@@ -124,11 +68,11 @@ const columns = [
     }),
 ];
 
-function CampaignsTable({
-    campaigns,
-}: {
+interface Props {
     campaigns: App.Data.AdCampaignData[];
-}) {
+}
+
+export function CampaignsTable2({ campaigns }: Props) {
     const table = useReactTable({
         data: campaigns,
         columns,
@@ -141,7 +85,7 @@ function CampaignsTable({
                 {JSON.stringify(campaigns, null, 2)}
             </pre> */}
 
-            <div className="">
+            <div className="p-3 pt-1">
                 <table className="w-full overflow-x-auto">
                     <thead className="h-10">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -149,7 +93,7 @@ function CampaignsTable({
                                 {headerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="font-semibold text-left h-[3.4rem] px-5 align-middle bg-gray-50 whitespace-nowrap border-b last:border-r-0 border-gray-200 border-r"
+                                        className="font-semibold text-left h-[3.4rem] px-4 align-middle whitespace-nowrap border-b-2 border-gray-200"
                                     >
                                         {header.isPlaceholder
                                             ? null
@@ -163,14 +107,17 @@ function CampaignsTable({
                             </tr>
                         ))}
                     </thead>
-                    <tbody className="divide-y border-b border-gray-200 divide-gray-200">
+                    <tbody className="divide-y divide-gray-200">
                         {table.getRowModel().rows.map((row) => (
-                            <tr key={row.id} className="hover:bg-gray-50">
+                            <tr
+                                key={row.id}
+                                className="evedn:bg-gray-50 hover:bg-gray-50"
+                            >
                                 {row.getVisibleCells().map((cell) => (
                                     <td
                                         key={cell.id}
                                         className={cn(
-                                            "px-5 py-4 whitespace-nowrap align-middle border-r border-gray-200 last:border-r-0"
+                                            "px-4 py-4 whitespace-nowrap align-middle border-gray-200"
                                         )}
                                     >
                                         {flexRender(
@@ -182,13 +129,13 @@ function CampaignsTable({
                             </tr>
                         ))}
                     </tbody>
-                    <tfoot>
+                    {/* <tfoot>
                         {table.getFooterGroups().map((footerGroup) => (
                             <tr key={footerGroup.id}>
                                 {footerGroup.headers.map((header) => (
                                     <th
                                         key={header.id}
-                                        className="px-5 py-4 whitespace-nowrap align-middle border-r border-gray-200 last:border-r-0 font-normal"
+                                        className="px-4 py-4 whitespace-nowrap align-middle font-normal"
                                     >
                                         {header.isPlaceholder
                                             ? null
@@ -201,7 +148,7 @@ function CampaignsTable({
                                 ))}
                             </tr>
                         ))}
-                    </tfoot>
+                    </tfoot> */}
                 </table>
             </div>
         </div>
