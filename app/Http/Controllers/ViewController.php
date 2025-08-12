@@ -28,14 +28,7 @@ class ViewController extends Controller
                 $data = $meta->paginate(new GetAdCampaignsRequest($adAccount));
                 $campaigns = AdCampaignData::collect($data->collect());
 
-                return [
-                    ...$campaigns,
-                    ...$campaigns,
-                    ...$campaigns,
-                    ...$campaigns,
-                    ...$campaigns,
-                    ...$campaigns,
-                ];
+                return $campaigns;
             }),
         ]);
     }

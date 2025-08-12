@@ -7,7 +7,7 @@ interface Props extends ComponentPropsWithoutRef<"input"> {
 }
 
 export function Switch({ ...props }: Props) {
-    const [checked, setChecked] = useState(props.defaultChecked ?? false);
+    const [checked, setChecked] = useState(props.checked ?? false);
     const [focusVisible, setFocusVisible] = useState(false);
 
     return (
@@ -45,7 +45,7 @@ export function Switch({ ...props }: Props) {
             >
                 <i
                     className={cn(
-                        "fa-solid text-[8px]",
+                        "fa-solid text-[7px]",
                         checked ? "fa-check" : "fa-times"
                     )}
                 />
