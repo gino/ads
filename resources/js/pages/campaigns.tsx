@@ -16,11 +16,16 @@ interface Props {
 }
 
 export default function Campaigns({ campaigns }: Props) {
-    const [campaignsSelected, setCampaignsSelected] = useState({});
+    const [selectedCampaigns, setSelectedCampaigns] = useState({});
 
-    const campaignsSelectedAmount = useMemo(
-        () => Object.keys(campaignsSelected).length,
-        [campaignsSelected]
+    const selectedCampaignIds = useMemo(
+        () => Object.keys(selectedCampaigns),
+        [selectedCampaigns]
+    );
+
+    const selectedCampaignsAmount = useMemo(
+        () => selectedCampaignIds.length,
+        [selectedCampaignIds]
     );
 
     return (
@@ -31,11 +36,11 @@ export default function Campaigns({ campaigns }: Props) {
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
                         <span>Campaigns</span>
 
-                        {campaignsSelectedAmount > 0 && (
+                        {selectedCampaignsAmount > 0 && (
                             <div className="absolute right-5 top-1/2 -translate-y-1/2 bg-teal-600 text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
-                                <span>{campaignsSelectedAmount} selected</span>
+                                <span>{selectedCampaignsAmount} selected</span>
                                 <button
-                                    onClick={() => setCampaignsSelected({})}
+                                    onClick={() => setSelectedCampaigns({})}
                                     className="text-[9px] ml-1 cursor-pointer"
                                 >
                                     <i className="fa-solid fa-times align-middle" />
@@ -45,10 +50,10 @@ export default function Campaigns({ campaigns }: Props) {
                     </button>
                     <button className="w-72 px-5 py-3.5 rounded-tr-xl font-semibold flex items-center gap-2.5 cursor-pointer relative">
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
-                        {campaignsSelectedAmount > 0 ? (
+                        {selectedCampaignsAmount > 0 ? (
                             <span>
-                                Ad sets for {campaignsSelectedAmount} campaign
-                                {campaignsSelectedAmount > 1 ? "s" : ""}
+                                Ad sets for {selectedCampaignsAmount} campaign
+                                {selectedCampaignsAmount > 1 ? "s" : ""}
                             </span>
                         ) : (
                             <span>Ad sets</span>
@@ -56,10 +61,10 @@ export default function Campaigns({ campaigns }: Props) {
                     </button>
                     <button className="w-72 px-5 py-3.5 rounded-tr-xl font-semibold flex items-center gap-2.5 cursor-pointer relative">
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
-                        {campaignsSelectedAmount > 0 ? (
+                        {selectedCampaignsAmount > 0 ? (
                             <span>
-                                Ads for {campaignsSelectedAmount} campaign
-                                {campaignsSelectedAmount > 1 ? "s" : ""}
+                                Ads for {selectedCampaignsAmount} campaign
+                                {selectedCampaignsAmount > 1 ? "s" : ""}
                             </span>
                         ) : (
                             <span>Ads</span>
@@ -67,12 +72,12 @@ export default function Campaigns({ campaigns }: Props) {
                     </button>
                 </div>
 
-                <div className="overflow-auto">
+                <div className="overflow-hidden">
                     <Deferred data="campaigns" fallback={<div>Loading...</div>}>
                         <CampaignsTable2
                             campaigns={campaigns}
-                            onRowSelectionChange={setCampaignsSelected}
-                            rowSelection={campaignsSelected}
+                            onRowSelectionChange={setSelectedCampaigns}
+                            rowSelection={selectedCampaigns}
                         />
                     </Deferred>
                 </div>

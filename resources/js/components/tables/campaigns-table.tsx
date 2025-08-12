@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { useIsScrolled } from "@/lib/hooks/useIsScrolled";
 import {
     createColumnHelper,
     flexRender,
@@ -7,9 +8,10 @@ import {
     RowSelectionState,
     useReactTable,
 } from "@tanstack/react-table";
+import { useRef } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { Switch } from "../ui/switch";
-import { getPinnedColumnStyles } from "./utils";
+import { getPinnedColumnStyles, ShadowSeperator } from "./utils";
 
 const columnHelper = createColumnHelper<App.Data.AdCampaignData>();
 const columns = [
@@ -46,7 +48,7 @@ const columns = [
         footer: ({ table }) => (
             <div className="font-semibold text-xs">
                 Total of {table.getRowCount()} campaigns{" "}
-                <i className="fa-solid fa-circle-question align-middle ml-1 text-xs text-gray-300" />
+                <i className="fa-solid fa-circle-info align-middle ml-1 text-[12px] text-gray-300" />
             </div>
         ),
     }),
@@ -120,6 +122,8 @@ const columns = [
     }),
 ];
 
+const ROW_HEIGHT = cn("h-14");
+
 interface Props {
     campaigns: App.Data.AdCampaignData[];
     rowSelection: RowSelectionState;
@@ -142,97 +146,121 @@ export function CampaignsTable2({
         },
         enableRowSelection: true,
         onRowSelectionChange,
+        getRowId: (campaign) => campaign.id,
         getCoreRowModel: getCoreRowModel(),
     });
 
+    const tableContainerRef = useRef<HTMLTableElement>(null!);
+    const isScrolled = useIsScrolled(tableContainerRef, 12); // 12px (container padding / p-3)
+
     return (
-        <div className="p-3 pt-0 pb-0">
-            <table className="w-full overflow-x-auto">
-                <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <th
-                                    key={header.id}
-                                    style={{
-                                        ...getPinnedColumnStyles(header.column),
-                                    }}
-                                    className={cn(
-                                        "font-semibold text-left h-[3.4rem] px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-b-2 border-gray-200",
-                                        header.column.getIsPinned() &&
-                                            "bg-white"
-                                    )}
-                                >
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                              header.column.columnDef.header,
-                                              header.getContext()
-                                          )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody className="divide-y divide-gray-200 border-b-2 border-gray-200">
-                    {table.getRowModel().rows.map((row) => (
-                        <tr
-                            key={row.id}
-                            className={cn(
-                                "evend:bg-gray-50 hover:bg-gray-50 group",
-                                row.getIsSelected() && "bg-gray-50"
-                            )}
-                        >
-                            {row.getVisibleCells().map((cell) => (
-                                <td
-                                    key={cell.id}
-                                    style={{
-                                        ...getPinnedColumnStyles(cell.column),
-                                    }}
-                                    className={cn(
-                                        "px-5 first:px-4 last:px-4 py-4.5 whitespace-nowrap align-middle",
-                                        cell.column.getIsPinned() &&
-                                            (cell.row.getIsSelected()
-                                                ? "bg-gray-50"
-                                                : "bg-white group-hover:bg-gray-50")
-                                    )}
-                                >
-                                    {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext()
-                                    )}
-                                </td>
-                            ))}
-                        </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    {table.getFooterGroups().map((footerGroup) => (
-                        <tr key={footerGroup.id}>
-                            {footerGroup.headers.map((header) => (
-                                <th
-                                    key={header.id}
-                                    style={{
-                                        ...getPinnedColumnStyles(header.column),
-                                    }}
-                                    className={cn(
-                                        "px-5 first:px-4 last:px-4 h-[3.4rem] whitespace-nowrap align-middle font-normal text-left",
-                                        header.column.getIsPinned() &&
-                                            "bg-white"
-                                    )}
-                                >
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                              header.column.columnDef.footer,
-                                              header.getContext()
-                                          )}
-                                </th>
-                            ))}
-                        </tr>
-                    ))}
-                </tfoot>
-            </table>
+        <div ref={tableContainerRef} className="overflow-x-auto">
+            <div className="p-3 pt-0 pb-0">
+                <table className="w-full">
+                    <thead>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <tr key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <th
+                                        key={header.id}
+                                        style={{
+                                            ...getPinnedColumnStyles(
+                                                header.column
+                                            ),
+                                        }}
+                                        className={cn(
+                                            "font-semibold text-left px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-b-2 border-gray-200",
+                                            ROW_HEIGHT,
+                                            header.column.getIsPinned() &&
+                                                "bg-white"
+                                        )}
+                                    >
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                  header.column.columnDef
+                                                      .header,
+                                                  header.getContext()
+                                              )}
+
+                                        {header.column.getIsPinned() &&
+                                            isScrolled && <ShadowSeperator />}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 border-b border-gray-200">
+                        {table.getRowModel().rows.map((row) => (
+                            <tr
+                                key={row.id}
+                                className={cn(
+                                    "hover:bg-gray-50 group",
+                                    row.getIsSelected() && "bg-gray-50"
+                                )}
+                            >
+                                {row.getVisibleCells().map((cell) => (
+                                    <td
+                                        key={cell.id}
+                                        style={{
+                                            ...getPinnedColumnStyles(
+                                                cell.column
+                                            ),
+                                        }}
+                                        className={cn(
+                                            "px-5 first:px-4 last:px-4 whitespace-nowrap align-middle relative",
+                                            ROW_HEIGHT,
+                                            cell.column.getIsPinned() &&
+                                                (cell.row.getIsSelected()
+                                                    ? "bg-gray-50"
+                                                    : "bg-white group-hover:bg-gray-50")
+                                        )}
+                                    >
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
+                                        )}
+                                        {cell.column.getIsPinned() &&
+                                            isScrolled && <ShadowSeperator />}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                    <tfoot>
+                        {table.getFooterGroups().map((footerGroup) => (
+                            <tr key={footerGroup.id}>
+                                {footerGroup.headers.map((header) => (
+                                    <th
+                                        key={header.id}
+                                        style={{
+                                            ...getPinnedColumnStyles(
+                                                header.column
+                                            ),
+                                        }}
+                                        className={cn(
+                                            "px-5 first:px-4 last:px-4 whitespace-nowrap align-middle font-normal text-left",
+                                            ROW_HEIGHT,
+                                            header.column.getIsPinned() &&
+                                                "bg-white"
+                                        )}
+                                    >
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                  header.column.columnDef
+                                                      .footer,
+                                                  header.getContext()
+                                              )}
+                                        {header.column.getIsPinned() &&
+                                            isScrolled && <ShadowSeperator />}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </tfoot>
+                </table>
+            </div>
         </div>
     );
 }
