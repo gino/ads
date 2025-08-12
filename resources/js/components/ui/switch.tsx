@@ -7,7 +7,7 @@ interface Props extends ComponentPropsWithoutRef<"input"> {
 }
 
 export function Switch({ ...props }: Props) {
-    const [checked, setChecked] = useState(props.checked ?? false);
+    const [checked, setChecked] = useState(props.defaultChecked ?? false);
     const [focusVisible, setFocusVisible] = useState(false);
 
     return (

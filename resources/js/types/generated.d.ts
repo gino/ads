@@ -10,6 +10,7 @@ export type AdCampaignData = {
 id: string;
 name: string;
 status: string;
+dailyBudget: string;
 };
 export type UserData = {
 id: string;

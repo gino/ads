@@ -9,12 +9,14 @@ import {
 } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
 import { Switch } from "../ui/switch";
+import { getPinnedColumnStyles } from "./utils";
 
 const columnHelper = createColumnHelper<App.Data.AdCampaignData>();
 const columns = [
     columnHelper.accessor("name", {
+        id: "campaign",
         header: ({ table }) => (
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-5">
                 <Checkbox
                     aria-label="Select all rows"
                     checked={table.getIsAllRowsSelected()}
@@ -26,7 +28,7 @@ const columns = [
             </div>
         ),
         cell: ({ cell, row }) => (
-            <div className="flex items-center gap-6 min-w-sm">
+            <div className="flex items-center gap-5 min-w-sm">
                 <Checkbox
                     aria-label="Select row"
                     checked={row.getIsSelected()}
@@ -35,8 +37,8 @@ const columns = [
                     onChange={row.getToggleSelectedHandler()}
                     className="flex-shrink-0"
                 />
-                <div className="flex items-center gap-6">
-                    <Switch checked={cell.getValue() === "ACTIVE"} />
+                <div className="flex items-center gap-5">
+                    <Switch defaultChecked={cell.getValue() === "ACTIVE"} />
                     <div className="font-semibold">{cell.getValue()}</div>
                 </div>
             </div>
@@ -60,6 +62,25 @@ const columns = [
             </div>
         ),
         footer: (info) => <div className="text-right">-</div>,
+    }),
+    columnHelper.accessor("dailyBudget", {
+        header: () => <div className="text-right">Daily budget</div>,
+        cell: (info) => {
+            const formatted = new Intl.NumberFormat("nl-NL", {
+                style: "currency",
+                currency: "EUR",
+            }).format(parseInt(info.getValue()) / 100);
+
+            return <div className="text-right">{formatted}</div>;
+        },
+        footer: () => {
+            const formatted = new Intl.NumberFormat("nl-NL", {
+                style: "currency",
+                currency: "EUR",
+            }).format(12.34);
+
+            return <div className="text-right">{formatted}</div>;
+        },
     }),
     columnHelper.accessor("status", {
         header: () => <div className="text-right">Spend</div>,
@@ -112,14 +133,19 @@ export function CampaignsTable2({
     const table = useReactTable({
         data: campaigns,
         columns,
-        state: { rowSelection },
+        state: {
+            rowSelection,
+            columnPinning: {
+                left: ["campaign"],
+            },
+        },
         enableRowSelection: true,
         onRowSelectionChange,
         getCoreRowModel: getCoreRowModel(),
     });
 
     return (
-        <div className="p-2.5 pt-1">
+        <div className="p-3 pt-1 pb-1">
             <table className="w-full overflow-x-auto">
                 <thead className="h-10">
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -127,7 +153,10 @@ export function CampaignsTable2({
                             {headerGroup.headers.map((header) => (
                                 <th
                                     key={header.id}
-                                    className="font-semibold text-left h-[3.4rem] px-5 align-middle whitespace-nowrap border-b-2 border-gray-200"
+                                    style={{
+                                        ...getPinnedColumnStyles(header.column),
+                                    }}
+                                    className="font-semibold text-left h-[3.4rem] px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-b-2 border-gray-200"
                                 >
                                     {header.isPlaceholder
                                         ? null
@@ -144,13 +173,23 @@ export function CampaignsTable2({
                     {table.getRowModel().rows.map((row) => (
                         <tr
                             key={row.id}
-                            className="odd:bg-gray-50 hover:bg-gray-50"
+                            className={cn(
+                                "evend:bg-gray-50 hover:bg-gray-50 group",
+                                row.getIsSelected() && "bg-gray-50"
+                            )}
                         >
                             {row.getVisibleCells().map((cell) => (
                                 <td
                                     key={cell.id}
+                                    style={{
+                                        ...getPinnedColumnStyles(cell.column),
+                                    }}
                                     className={cn(
-                                        "px-5 py-4.5 whitespace-nowrap align-middle"
+                                        "px-5 first:px-4 last:px-4 py-4.5 whitespace-nowrap align-middle",
+                                        cell.column.getIsPinned() &&
+                                            (cell.row.getIsSelected()
+                                                ? "bg-gray-50"
+                                                : "bg-white group-hover:bg-gray-50")
                                     )}
                                 >
                                     {flexRender(
@@ -168,7 +207,10 @@ export function CampaignsTable2({
                             {footerGroup.headers.map((header) => (
                                 <th
                                     key={header.id}
-                                    className="px-5 py-4.5 whitespace-nowrap align-middle font-normal text-left"
+                                    style={{
+                                        ...getPinnedColumnStyles(header.column),
+                                    }}
+                                    className="px-5 first:px-4 last:px-4 py-4.5 whitespace-nowrap align-middle font-normal text-left"
                                 >
                                     {header.isPlaceholder
                                         ? null

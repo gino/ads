@@ -33,6 +33,7 @@ class GetAdCampaignsRequest extends Request implements Paginatable
             'id',
             'name',
             'status',
+            'daily_budget',
         ];
 
         return [
