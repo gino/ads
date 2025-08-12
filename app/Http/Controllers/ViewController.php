@@ -32,6 +32,7 @@ class ViewController extends Controller
                     ...$campaigns,
                     ...$campaigns,
                     ...$campaigns,
+                    ...$campaigns,
                 ];
             }),
         ]);

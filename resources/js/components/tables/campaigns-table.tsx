@@ -45,7 +45,8 @@ const columns = [
         ),
         footer: ({ table }) => (
             <div className="font-semibold text-xs">
-                Total of {table.getRowCount()} campaigns
+                Total of {table.getRowCount()} campaigns{" "}
+                <i className="fa-solid fa-circle-question align-middle ml-1 text-xs text-gray-300" />
             </div>
         ),
     }),
@@ -145,9 +146,9 @@ export function CampaignsTable2({
     });
 
     return (
-        <div className="p-3 pt-1 pb-1">
+        <div className="p-3 pt-0 pb-0">
             <table className="w-full overflow-x-auto">
-                <thead className="h-10">
+                <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (
@@ -215,7 +216,7 @@ export function CampaignsTable2({
                                         ...getPinnedColumnStyles(header.column),
                                     }}
                                     className={cn(
-                                        "px-5 first:px-4 last:px-4 py-4.5 whitespace-nowrap align-middle font-normal text-left",
+                                        "px-5 first:px-4 last:px-4 h-[3.4rem] whitespace-nowrap align-middle font-normal text-left",
                                         header.column.getIsPinned() &&
                                             "bg-white"
                                     )}
