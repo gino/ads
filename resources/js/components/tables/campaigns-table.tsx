@@ -156,7 +156,11 @@ export function CampaignsTable2({
                                     style={{
                                         ...getPinnedColumnStyles(header.column),
                                     }}
-                                    className="font-semibold text-left h-[3.4rem] px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-b-2 border-gray-200"
+                                    className={cn(
+                                        "font-semibold text-left h-[3.4rem] px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-b-2 border-gray-200",
+                                        header.column.getIsPinned() &&
+                                            "bg-white"
+                                    )}
                                 >
                                     {header.isPlaceholder
                                         ? null
@@ -210,7 +214,11 @@ export function CampaignsTable2({
                                     style={{
                                         ...getPinnedColumnStyles(header.column),
                                     }}
-                                    className="px-5 first:px-4 last:px-4 py-4.5 whitespace-nowrap align-middle font-normal text-left"
+                                    className={cn(
+                                        "px-5 first:px-4 last:px-4 py-4.5 whitespace-nowrap align-middle font-normal text-left",
+                                        header.column.getIsPinned() &&
+                                            "bg-white"
+                                    )}
                                 >
                                     {header.isPlaceholder
                                         ? null
