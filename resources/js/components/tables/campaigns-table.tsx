@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { useIsScrolled } from "@/lib/hooks/useIsScrolled";
+import { useIsScrolled } from "@/lib/hooks/use-is-scrolled";
 import {
     createColumnHelper,
     flexRender,
@@ -130,7 +130,7 @@ interface Props {
     onRowSelectionChange: OnChangeFn<RowSelectionState>;
 }
 
-export function CampaignsTable2({
+export function CampaignsTable({
     campaigns,
     rowSelection,
     onRowSelectionChange,

@@ -1,4 +1,4 @@
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/use-auth";
 import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
 import { AdAccountSelector } from "./ad-account-selector";

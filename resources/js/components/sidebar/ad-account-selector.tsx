@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { useSelectedAdAccount } from "@/lib/hooks/useSelectedAdAccount";
+import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import * as Ariakit from "@ariakit/react";
 import { useState } from "react";
 
@@ -68,7 +68,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                 // unmountOnHide
                 className={cn(
                     "rounded-xl bg-white shadow-base-popup p-1 space-y-1"
-                    // "opacity-0 -translate-y-2 scale-[0.97] transition-[opacity,scale,translate] duration-200 ease-in-out origin-top",
+                    // "opacity-0 -translate-y-1 scale-[0.98] transition-[opacity,scale,translate] duration-150 ease-in-out origin-top",
                     // "data-[enter]:opacity-100 data-[enter]:translate-y-0 data-[enter]:scale-[1]"
                 )}
             >

@@ -1,15 +1,8 @@
 import { Layout } from "@/components/layouts/app-layout";
-import { CampaignsTable2 } from "@/components/tables/campaigns-table";
-import { Switch } from "@/components/ui/switch";
+import { CampaignsTable } from "@/components/tables/campaigns-table";
 import { cn } from "@/lib/cn";
-import { Deferred, router } from "@inertiajs/react";
-import {
-    createColumnHelper,
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { Deferred } from "@inertiajs/react";
+import { ComponentProps, useMemo, useState } from "react";
 
 interface Props {
     campaigns: App.Data.AdCampaignData[];
@@ -28,27 +21,39 @@ export default function Campaigns({ campaigns }: Props) {
         [selectedCampaignIds]
     );
 
+    const [activeTab, setActiveTab] = useState<"campaigns" | "adsets" | "ads">(
+        "campaigns"
+    );
+
     return (
         <Layout title="Campaigns">
             <div className="bg-white shadow-base rounded-xl overflow-hidden">
                 <div className="flex items-center bg-gray-50 border-b border-gray-100 overflow-hidden">
-                    <button className="bg-white w-72 px-5 py-3.5 rounded-tr-xl font-semibold flex items-center gap-2.5 cursor-pointer shadow-base relative">
+                    <Tab
+                        active={activeTab === "campaigns"}
+                        onClick={() => setActiveTab("campaigns")}
+                    >
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
                         <span>Campaigns</span>
-
                         {selectedCampaignsAmount > 0 && (
                             <div className="absolute right-5 top-1/2 -translate-y-1/2 bg-teal-600 text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
                                 <span>{selectedCampaignsAmount} selected</span>
-                                <button
-                                    onClick={() => setSelectedCampaigns({})}
+                                <div
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedCampaigns({});
+                                    }}
                                     className="text-[9px] ml-1 cursor-pointer"
                                 >
                                     <i className="fa-solid fa-times align-middle" />
-                                </button>
+                                </div>
                             </div>
                         )}
-                    </button>
-                    <button className="w-72 px-5 py-3.5 rounded-tr-xl font-semibold flex items-center gap-2.5 cursor-pointer relative">
+                    </Tab>
+                    <Tab
+                        active={activeTab === "adsets"}
+                        onClick={() => setActiveTab("adsets")}
+                    >
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
                         {selectedCampaignsAmount > 0 ? (
                             <span>
@@ -58,8 +63,11 @@ export default function Campaigns({ campaigns }: Props) {
                         ) : (
                             <span>Ad sets</span>
                         )}
-                    </button>
-                    <button className="w-72 px-5 py-3.5 rounded-tr-xl font-semibold flex items-center gap-2.5 cursor-pointer relative">
+                    </Tab>
+                    <Tab
+                        active={activeTab === "ads"}
+                        onClick={() => setActiveTab("ads")}
+                    >
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
                         {selectedCampaignsAmount > 0 ? (
                             <span>
@@ -69,184 +77,57 @@ export default function Campaigns({ campaigns }: Props) {
                         ) : (
                             <span>Ads</span>
                         )}
-                    </button>
+                    </Tab>
                 </div>
 
                 <div className="overflow-hidden">
                     <Deferred data="campaigns" fallback={<div>Loading...</div>}>
-                        <CampaignsTable2
-                            campaigns={campaigns}
-                            onRowSelectionChange={setSelectedCampaigns}
-                            rowSelection={selectedCampaigns}
-                        />
+                        <div>
+                            {activeTab === "campaigns" && (
+                                <CampaignsTable
+                                    campaigns={campaigns}
+                                    onRowSelectionChange={setSelectedCampaigns}
+                                    rowSelection={selectedCampaigns}
+                                />
+                            )}
+                        </div>
                     </Deferred>
+
+                    {activeTab === "adsets" && (
+                        <div className="p-6">
+                            <div>ad sets view</div>
+                            {JSON.stringify(selectedCampaignIds)}
+                        </div>
+                    )}
+
+                    {activeTab === "ads" && (
+                        <div className="p-6">
+                            <div>ads view</div>
+                            {JSON.stringify(selectedCampaignIds)}
+                        </div>
+                    )}
                 </div>
             </div>
-
-            <button
-                className="cursor-pointer mt-3"
-                onClick={() => router.post(route("logout"))}
-            >
-                logout
-            </button>
         </Layout>
     );
 }
 
-const columnHelper = createColumnHelper<App.Data.AdCampaignData>();
-const columns = [
-    columnHelper.accessor("name", {
-        footer: ({ table }) => (
-            <div className="flex">
-                <div className="text-xs text-gray-500 font-medium">
-                    Results of{" "}
-                    <span className="font-semibold">{table.getRowCount()}</span>{" "}
-                    campaigns
-                </div>
-            </div>
-        ),
-        header: () => (
-            <div className="flex items-center gap-4">
-                <div className="h-4 w-4 rounded shadow-base bg-white"></div>
-                <div className="font-semibold">Campaign</div>
-            </div>
-        ),
-        cell: (info) => (
-            <div className="flex items-center gap-4">
-                <div className="h-4 w-4 rounded shadow-base bg-white"></div>
-                <div className="font-semibold">
-                    <span className="h-2 w-2 bg-emerald-600 rounded-full mr-2 inline-block align-baseline" />{" "}
-                    {info.renderValue()}
-                </div>
-            </div>
-        ),
-    }),
-    columnHelper.display({
-        id: "switch",
-        cell: () => (
-            <div className="flex justify-center">
-                <Switch defaultChecked />
-            </div>
-        ),
-    }),
-    columnHelper.accessor("status", {
-        header: () => <div className="text-right">Status</div>,
-        cell: (info) => <div className="text-right">{info.getValue()}</div>,
-    }),
-    columnHelper.accessor("status", {
-        header: () => <div className="text-right">Spend</div>,
-        cell: (info) => <div className="text-right">€ 5,67</div>,
-        footer: () => <div className="text-right">€ 5,67</div>,
-    }),
-    columnHelper.accessor("status", {
-        header: () => <div className="text-right">CPC</div>,
-        cell: (info) => <div className="text-right">€ 1,23</div>,
-        footer: (info) => <div className="text-right">€ 1,23</div>,
-    }),
-    columnHelper.accessor("status", {
-        header: () => <div className="text-right">CPM</div>,
-        cell: (info) => <div className="text-right">€ 12,34</div>,
-        footer: (info) => <div className="text-right">€ 12,34</div>,
-    }),
-    columnHelper.accessor("status", {
-        header: () => <div className="text-right">CTR</div>,
-        cell: (info) => <div className="text-right">8,24%</div>,
-    }),
-    columnHelper.accessor("status", {
-        header: () => <div className="text-right">Conversions</div>,
-        cell: (info) => <div className="text-right">12</div>,
-    }),
-    columnHelper.accessor("status", {
-        header: () => <div className="text-right">CPA</div>,
-        cell: (info) => <div className="text-right">€ 0,47</div>,
-        footer: (info) => <div className="text-right">€ 0,47</div>,
-    }),
-    columnHelper.accessor("status", {
-        header: () => <div className="text-right">ROAS</div>,
-        cell: (info) => <div className="text-right">2.82</div>,
-    }),
-];
-
-function CampaignsTable({
-    campaigns,
-}: {
-    campaigns: App.Data.AdCampaignData[];
-}) {
-    const table = useReactTable({
-        data: campaigns,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-    });
-
+function Tab({
+    children,
+    active,
+    className,
+    ...props
+}: ComponentProps<"button"> & { active?: boolean }) {
     return (
-        <div>
-            {/* <pre className="font-sans text-xs">
-                {JSON.stringify(campaigns, null, 2)}
-            </pre> */}
-
-            <div className="">
-                <table className="w-full overflow-x-auto">
-                    <thead className="h-10">
-                        {table.getHeaderGroups().map((headerGroup) => (
-                            <tr key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => (
-                                    <th
-                                        key={header.id}
-                                        className="font-semibold text-left h-[3.4rem] px-5 align-middle bg-gray-50 whitespace-nowrap border-b last:border-r-0 border-gray-200 border-r"
-                                    >
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                  header.column.columnDef
-                                                      .header,
-                                                  header.getContext()
-                                              )}
-                                    </th>
-                                ))}
-                            </tr>
-                        ))}
-                    </thead>
-                    <tbody className="divide-y border-b border-gray-200 divide-gray-200">
-                        {table.getRowModel().rows.map((row) => (
-                            <tr key={row.id} className="hover:bg-gray-50">
-                                {row.getVisibleCells().map((cell) => (
-                                    <td
-                                        key={cell.id}
-                                        className={cn(
-                                            "px-5 py-4 whitespace-nowrap align-middle border-r border-gray-200 last:border-r-0"
-                                        )}
-                                    >
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                    <tfoot>
-                        {table.getFooterGroups().map((footerGroup) => (
-                            <tr key={footerGroup.id}>
-                                {footerGroup.headers.map((header) => (
-                                    <th
-                                        key={header.id}
-                                        className="px-5 py-4 whitespace-nowrap align-middle border-r border-gray-200 last:border-r-0 font-normal"
-                                    >
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                  header.column.columnDef
-                                                      .footer,
-                                                  header.getContext()
-                                              )}
-                                    </th>
-                                ))}
-                            </tr>
-                        ))}
-                    </tfoot>
-                </table>
-            </div>
-        </div>
+        <button
+            className={cn(
+                "w-72 px-5 py-3.5 rounded-t-xl font-semibold flex items-center gap-2.5 cursor-pointer relative",
+                active && "bg-white shadow-base",
+                className
+            )}
+            {...props}
+        >
+            {children}
+        </button>
     );
 }

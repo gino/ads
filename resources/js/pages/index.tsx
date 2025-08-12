@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layouts/app-layout";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/use-auth";
 import { SharedData } from "@/types";
 import { router, usePage } from "@inertiajs/react";
 
