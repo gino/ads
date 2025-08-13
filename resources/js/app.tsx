@@ -1,5 +1,6 @@
 import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
+import { NuqsAdapter } from "nuqs/adapters/react";
 import { createRoot } from "react-dom/client";
 import "../css/app.css";
 
@@ -15,7 +16,11 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        root.render(
+            <NuqsAdapter>
+                <App {...props} />
+            </NuqsAdapter>
+        );
     },
     progress: false,
 });

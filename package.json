@@ -23,6 +23,7 @@
         "@tanstack/react-table": "^8.21.3",
         "@vitejs/plugin-react": "^4.7.0",
         "clsx": "^2.1.1",
+        "nuqs": "^2.4.3",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
         "tailwind-merge": "^3.3.1"

@@ -1,11 +1,10 @@
 import { cn } from "@/lib/cn";
 import { useIsScrolled } from "@/lib/hooks/use-is-scrolled";
+import { useSelectedCampaigns } from "@/pages/campaigns";
 import {
     createColumnHelper,
     flexRender,
     getCoreRowModel,
-    OnChangeFn,
-    RowSelectionState,
     useReactTable,
 } from "@tanstack/react-table";
 import { useRef } from "react";
@@ -30,7 +29,7 @@ const columns = [
             </div>
         ),
         cell: ({ cell, row }) => (
-            <div className="flex items-center gap-5 min-w-sm">
+            <div className="flex items-center gap-5 min-w-md">
                 <Checkbox
                     aria-label="Select row"
                     checked={row.getIsSelected()}
@@ -126,26 +125,22 @@ const ROW_HEIGHT = cn("h-14");
 
 interface Props {
     campaigns: App.Data.AdCampaignData[];
-    rowSelection: RowSelectionState;
-    onRowSelectionChange: OnChangeFn<RowSelectionState>;
 }
 
-export function CampaignsTable({
-    campaigns,
-    rowSelection,
-    onRowSelectionChange,
-}: Props) {
+export function CampaignsTable({ campaigns }: Props) {
+    const [selectedCampaigns, setSelectedCampaigns] = useSelectedCampaigns();
+
     const table = useReactTable({
         data: campaigns,
         columns,
         state: {
-            rowSelection,
+            rowSelection: selectedCampaigns,
             columnPinning: {
                 left: ["campaign"],
             },
         },
         enableRowSelection: true,
-        onRowSelectionChange,
+        onRowSelectionChange: setSelectedCampaigns,
         getRowId: (campaign) => campaign.id,
         getCoreRowModel: getCoreRowModel(),
     });
@@ -155,7 +150,7 @@ export function CampaignsTable({
 
     return (
         <div ref={tableContainerRef} className="overflow-x-auto">
-            <div className="p-3 pt-0 pb-0">
+            <div className="px-3">
                 <table className="w-full">
                     <thead>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -169,7 +164,7 @@ export function CampaignsTable({
                                             ),
                                         }}
                                         className={cn(
-                                            "font-semibold text-left px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-b-2 border-gray-200",
+                                            "font-semibold text-left px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-b-2 border-gray-200 border-r last:border-r-0",
                                             ROW_HEIGHT,
                                             header.column.getIsPinned() &&
                                                 "bg-white"
@@ -190,12 +185,12 @@ export function CampaignsTable({
                             </tr>
                         ))}
                     </thead>
-                    <tbody className="divide-y divide-gray-200 border-b border-gray-200">
+                    <tbody className="border-b border-gray-200">
                         {table.getRowModel().rows.map((row) => (
                             <tr
                                 key={row.id}
                                 className={cn(
-                                    "hover:bg-gray-50 group",
+                                    "hover:bg-gray-50 group even:bg-gray-50",
                                     row.getIsSelected() && "bg-gray-50"
                                 )}
                             >
@@ -208,12 +203,12 @@ export function CampaignsTable({
                                             ),
                                         }}
                                         className={cn(
-                                            "px-5 first:px-4 last:px-4 whitespace-nowrap align-middle relative",
+                                            "px-5 first:px-4 last:px-4 whitespace-nowrap align-middle relative border-r border-gray-200 last:border-r-0",
                                             ROW_HEIGHT,
                                             cell.column.getIsPinned() &&
                                                 (cell.row.getIsSelected()
                                                     ? "bg-gray-50"
-                                                    : "bg-white group-hover:bg-gray-50")
+                                                    : "bg-white group-even:bg-gray-50 group-hover:bg-gray-50")
                                         )}
                                     >
                                         {flexRender(
@@ -239,7 +234,7 @@ export function CampaignsTable({
                                             ),
                                         }}
                                         className={cn(
-                                            "px-5 first:px-4 last:px-4 whitespace-nowrap align-middle font-normal text-left",
+                                            "px-5 first:px-4 last:px-4 whitespace-nowrap align-middle font-normal text-left border-r border-gray-200 last:border-r-0",
                                             ROW_HEIGHT,
                                             header.column.getIsPinned() &&
                                                 "bg-white"

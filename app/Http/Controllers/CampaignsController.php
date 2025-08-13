@@ -18,7 +18,7 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        return Inertia::render('campaigns', [
+        return Inertia::render('campaigns/index', [
             'view' => 'campaigns',
             'campaigns' => Inertia::defer(function () use ($meta, $adAccount) {
                 $data = $meta->paginate(new GetAdCampaignsRequest($adAccount));
@@ -38,15 +38,11 @@ class CampaignsController extends Controller
 
     public function adSets()
     {
-        return Inertia::render('campaigns', [
-            'view' => 'adSets',
-        ]);
+        return Inertia::render('campaigns/adsets');
     }
 
     public function ads()
     {
-        return Inertia::render('campaigns', [
-            'view' => 'ads',
-        ]);
+        return Inertia::render('campaigns/ads');
     }
 }
