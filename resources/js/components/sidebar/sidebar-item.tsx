@@ -41,7 +41,10 @@ export function SidebarItem({
 
     const active = useMemo(() => {
         if (isLink) {
-            return page.props.ziggy.route === props.href;
+            return (
+                page.props.ziggy.route === props.href ||
+                page.props.ziggy.route.startsWith(props.href)
+            );
         }
 
         return false;
