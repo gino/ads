@@ -1,14 +1,34 @@
 import { Layout } from "@/components/layouts/app-layout";
-import { CampaignsTable } from "@/components/tables/campaigns-table";
+import { CampaignsTable } from "@/components/tables/campaigns-table2";
 import { cn } from "@/lib/cn";
-import { Deferred } from "@inertiajs/react";
+import { SharedData } from "@/types";
+import { Deferred, Link, usePage } from "@inertiajs/react";
 import { ComponentProps, useMemo, useState } from "react";
 
 interface Props {
+    view: "campaigns" | "adSets" | "ads";
     campaigns: App.Data.AdCampaignData[];
 }
 
-export default function Campaigns({ campaigns }: Props) {
+export default function Campaigns({ view, campaigns }: Props) {
+    const { props } = usePage<SharedData>();
+
+    const currentTab = useMemo(() => {
+        const routeName = props.ziggy.route as Parameters<typeof route>[0];
+
+        if (routeName === "dashboard.campaigns") {
+            return "campaigns";
+        }
+
+        if (routeName === "dashboard.campaigns.adSets") {
+            return "adSets";
+        }
+
+        if (routeName === "dashboard.campaigns.ads") {
+            return "ads";
+        }
+    }, [props.ziggy.route]);
+
     const [selectedCampaigns, setSelectedCampaigns] = useState({});
 
     const selectedCampaignIds = useMemo(
@@ -21,17 +41,16 @@ export default function Campaigns({ campaigns }: Props) {
         [selectedCampaignIds]
     );
 
-    const [activeTab, setActiveTab] = useState<"campaigns" | "adsets" | "ads">(
-        "campaigns"
-    );
-
     return (
         <Layout title="Campaigns">
             <div className="bg-white shadow-base rounded-xl overflow-hidden">
                 <div className="flex items-center bg-gray-50 border-b border-gray-100 overflow-hidden">
-                    <Tab
-                        active={activeTab === "campaigns"}
-                        onClick={() => setActiveTab("campaigns")}
+                    <Link
+                        href={route("dashboard.campaigns")}
+                        replace
+                        preserveScroll
+                        preserveState
+                        className="w-72 px-5 py-3.5 rounded-t-xl font-semibold flex items-center gap-2.5 cursor-pointer relative aria-selected:bg-white aria-selected:shadow-base"
                     >
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
                         <span>Campaigns</span>
@@ -49,10 +68,13 @@ export default function Campaigns({ campaigns }: Props) {
                                 </div>
                             </div>
                         )}
-                    </Tab>
-                    <Tab
-                        active={activeTab === "adsets"}
-                        onClick={() => setActiveTab("adsets")}
+                    </Link>
+                    <Link
+                        href={route("dashboard.campaigns.adSets")}
+                        replace
+                        preserveScroll
+                        preserveState
+                        className="w-72 px-5 py-3.5 rounded-t-xl font-semibold flex items-center gap-2.5 cursor-pointer relative aria-selected:bg-white aria-selected:shadow-base"
                     >
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
                         {selectedCampaignsAmount > 0 ? (
@@ -63,10 +85,13 @@ export default function Campaigns({ campaigns }: Props) {
                         ) : (
                             <span>Ad sets</span>
                         )}
-                    </Tab>
-                    <Tab
-                        active={activeTab === "ads"}
-                        onClick={() => setActiveTab("ads")}
+                    </Link>
+                    <Link
+                        href={route("dashboard.campaigns.ads")}
+                        replace
+                        preserveScroll
+                        preserveState
+                        className="w-72 px-5 py-3.5 rounded-t-xl font-semibold flex items-center gap-2.5 cursor-pointer relative aria-selected:bg-white aria-selected:shadow-base"
                     >
                         <i className="fa-solid fa-folder text-[12px] text-gray-300" />
                         {selectedCampaignsAmount > 0 ? (
@@ -77,35 +102,20 @@ export default function Campaigns({ campaigns }: Props) {
                         ) : (
                             <span>Ads</span>
                         )}
-                    </Tab>
+                    </Link>
                 </div>
 
-                <div className="overflow-hidden">
-                    <Deferred data="campaigns" fallback={<div>Loading...</div>}>
-                        <div>
-                            {activeTab === "campaigns" && (
-                                <CampaignsTable
-                                    campaigns={campaigns}
-                                    onRowSelectionChange={setSelectedCampaigns}
-                                    rowSelection={selectedCampaigns}
-                                />
-                            )}
-                        </div>
+                <div>
+                    <Deferred
+                        data="campaigns"
+                        fallback={<div className="p-6">Loading...</div>}
+                    >
+                        <CampaignsTable
+                            campaigns={campaigns}
+                            onRowSelectionChange={setSelectedCampaigns}
+                            rowSelection={selectedCampaigns}
+                        />
                     </Deferred>
-
-                    {activeTab === "adsets" && (
-                        <div className="p-6">
-                            <div>ad sets view</div>
-                            {JSON.stringify(selectedCampaignIds)}
-                        </div>
-                    )}
-
-                    {activeTab === "ads" && (
-                        <div className="p-6">
-                            <div>ads view</div>
-                            {JSON.stringify(selectedCampaignIds)}
-                        </div>
-                    )}
                 </div>
             </div>
         </Layout>

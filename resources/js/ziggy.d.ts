@@ -4,6 +4,8 @@ declare module 'ziggy-js' {
     "login": [],
     "dashboard.index": [],
     "dashboard.campaigns": [],
+    "dashboard.campaigns.adSets": [],
+    "dashboard.campaigns.ads": [],
     "logout": [],
     "storage.local": [
         {

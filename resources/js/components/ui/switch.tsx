@@ -43,12 +43,12 @@ export function Switch({ ...props }: Props) {
                     "flex items-center justify-center"
                 )}
             >
-                <i
+                {/* <i
                     className={cn(
                         "fa-solid text-[7px]",
                         checked ? "fa-check" : "fa-times"
                     )}
-                />
+                /> */}
             </div>
         </label>
     );

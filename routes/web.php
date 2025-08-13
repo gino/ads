@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CampaignsController;
 use App\Http\Controllers\ViewController;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
@@ -22,7 +23,9 @@ Route::middleware([
     HandleSelectedAdAccount::class,
 ])->group(function () {
     Route::get('/', [ViewController::class, 'index'])->name('dashboard.index');
-    Route::get('/campaigns', [ViewController::class, 'campaigns'])->name('dashboard.campaigns');
+    Route::get('/campaigns', [CampaignsController::class, 'campaigns'])->name('dashboard.campaigns');
+    Route::get('/campaigns/adsets', [CampaignsController::class, 'adSets'])->name('dashboard.campaigns.adSets');
+    Route::get('/campaigns/ads', [CampaignsController::class, 'ads'])->name('dashboard.campaigns.ads');
 
     Route::post('/select-ad-account', function (Request $request) {
         $request->session()->put('selected_ad_account_id', $request->input('ad_account_id'));
