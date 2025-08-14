@@ -27,14 +27,14 @@ export default function Campaigns({ campaigns }: Props) {
 export function Layout({ children }: PropsWithChildren) {
     return (
         <AppLayout title="Campaigns">
-            <div className="bg-white shadow-base rounded-xl overflow-hidden">
-                <div className="flex items-center bg-gray-50 border-b border-gray-100 overflow-hidden">
+            <div className="bg-white flex flex-col shadow-base rounded-xl overflow-hidden max-h-full">
+                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-100 overflow-hidden">
                     <CampaignsTab />
                     <AdSetsTab />
                     <AdsTab />
                 </div>
 
-                {children}
+                <div className="flex-1 overflow-y-auto">{children}</div>
             </div>
         </AppLayout>
     );

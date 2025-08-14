@@ -1,6 +1,10 @@
 import { cn } from "@/lib/cn";
 import { useIsScrolled } from "@/lib/hooks/use-is-scrolled";
-import { useSelectedAdSets, useSelectedCampaigns } from "@/pages/campaigns";
+import {
+    useSelectedAds,
+    useSelectedAdSets,
+    useSelectedCampaigns,
+} from "@/pages/campaigns";
 import {
     createColumnHelper,
     flexRender,
@@ -16,10 +20,10 @@ import {
     useSkeletonLoader,
 } from "./utils";
 
-const columnHelper = createColumnHelper<App.Data.AdSetData>();
+const columnHelper = createColumnHelper<App.Data.AdData>();
 const columns = [
     columnHelper.accessor("name", {
-        id: "adSet",
+        id: "ad",
         header: ({ table }) => (
             <div className="flex items-center gap-5">
                 <Checkbox
@@ -29,7 +33,7 @@ const columns = [
                     indeterminate={table.getIsSomeRowsSelected()}
                     className="flex-shrink-0"
                 />
-                <div className="font-semibold">Ad set</div>
+                <div className="font-semibold">Ad</div>
             </div>
         ),
         cell: ({ cell, row }) => (
@@ -50,7 +54,7 @@ const columns = [
         ),
         footer: ({ table }) => (
             <div className="font-semibold text-xs">
-                Total of {table.getRowCount()} ad sets{" "}
+                Total of {table.getRowCount()} ads{" "}
                 <i className="fa-solid fa-circle-info align-middle ml-1 text-[12px] text-gray-300" />
             </div>
         ),
@@ -110,11 +114,12 @@ const ROW_HEIGHT = cn("h-14");
 
 interface Props {
     isLoading?: boolean;
-    adSets: App.Data.AdSetData[];
+    ads: App.Data.AdData[];
 }
 
-export function AdSetsTable({ isLoading, adSets }: Props) {
-    const [selectedAdSets, setSelectedAdSets] = useSelectedAdSets();
+export function AdsTable({ isLoading, ads }: Props) {
+    const [selectedAds, setSelectedAds] = useSelectedAds();
+    const [selectedAdSets] = useSelectedAdSets();
     const [selectedCampaigns] = useSelectedCampaigns();
 
     const selectedCampaignIds = useMemo(
@@ -122,34 +127,52 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
         [selectedCampaigns]
     );
 
+    const selectedAdsetIds = useMemo(
+        () => Object.keys(selectedAdSets),
+        [selectedAdSets]
+    );
+
     const { data, columns: _columns } = useSkeletonLoader({
-        data: adSets,
+        data: ads,
         columns,
         isLoading,
     });
 
-    const filteredAdSets = useMemo(() => {
-        if (selectedCampaignIds.length === 0) {
-            return data;
+    const filteredAds = useMemo(() => {
+        if (selectedCampaignIds.length > 0 && selectedAdsetIds.length > 0) {
+            return data.filter((ad) => {
+                return (
+                    selectedCampaignIds.includes(ad.campaignId) &&
+                    selectedAdsetIds.includes(ad.adsetId)
+                );
+            });
         }
 
-        return data.filter((adSet) =>
-            selectedCampaignIds.includes(adSet.campaignId)
-        );
-    }, [selectedCampaignIds, data]);
+        if (selectedCampaignIds.length > 0) {
+            return data.filter((ad) =>
+                selectedCampaignIds.includes(ad.campaignId)
+            );
+        }
+
+        if (selectedAdsetIds.length > 0) {
+            return data.filter((ad) => selectedAdsetIds.includes(ad.adsetId));
+        }
+
+        return data;
+    }, [selectedCampaignIds, selectedAdsetIds, data]);
 
     const table = useReactTable({
-        data: filteredAdSets,
+        data: filteredAds,
         columns: _columns,
         state: {
-            rowSelection: selectedAdSets,
+            rowSelection: selectedAds,
             columnPinning: {
-                left: ["adSet"],
+                left: ["ad"],
             },
         },
         enableRowSelection: true,
-        onRowSelectionChange: setSelectedAdSets,
-        getRowId: (adSet) => adSet.id,
+        onRowSelectionChange: setSelectedAds,
+        getRowId: (ad) => ad.id,
         getCoreRowModel: getCoreRowModel(),
     });
 

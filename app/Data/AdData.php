@@ -15,6 +15,8 @@ class AdData extends Data
 
     public string $name;
 
+    public string $status;
+
     public string $adsetId;
 
     public string $campaignId;

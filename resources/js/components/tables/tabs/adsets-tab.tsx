@@ -58,7 +58,7 @@ export function AdSetsTab() {
             <span>{label}</span>
 
             {selectedAdSetsAmount > 0 && (
-                <div className="absolute right-5 top-1/2 -translate-y-1/2 bg-teal-600 text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 bg-brand text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
                     <span>{selectedAdSetsAmount} selected</span>
                     <div
                         onClick={(e) => {

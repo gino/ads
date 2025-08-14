@@ -15,6 +15,7 @@ dailyBudget: string;
 export type AdData = {
 id: string;
 name: string;
+status: string;
 adsetId: string;
 campaignId: string;
 };

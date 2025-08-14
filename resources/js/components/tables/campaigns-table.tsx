@@ -201,8 +201,8 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                             <tr
                                 key={row.id}
                                 className={cn(
-                                    "hover:bg-gray-50 group even:bg-gray-50",
-                                    row.getIsSelected() && "bg-gray-50"
+                                    "hover:bg-gray-100 group even:bg-gray-50",
+                                    row.getIsSelected() && "bg-gray-100"
                                 )}
                             >
                                 {row.getVisibleCells().map((cell) => (
@@ -218,8 +218,8 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                                             ROW_HEIGHT,
                                             cell.column.getIsPinned() &&
                                                 (cell.row.getIsSelected()
-                                                    ? "bg-gray-50"
-                                                    : "bg-white group-even:bg-gray-50 group-hover:bg-gray-50")
+                                                    ? "bg-gray-100"
+                                                    : "bg-white group-even:bg-gray-50 group-hover:bg-gray-100")
                                         )}
                                     >
                                         {flexRender(

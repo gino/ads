@@ -39,6 +39,7 @@ class GetAdsRequest extends Request implements Cacheable, Paginatable
         $fields = [
             'id',
             'name',
+            'status',
             'adset_id',
             'campaign_id',
         ];

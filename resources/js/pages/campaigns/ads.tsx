@@ -1,3 +1,4 @@
+import { AdsTable } from "@/components/tables/ads-table";
 import useDeferred from "@/lib/hooks/use-deferred";
 import { Layout } from ".";
 
@@ -10,12 +11,8 @@ export default function Ads({ ads }: Props) {
 
     return (
         <Layout>
-            <div className="p-6">
-                <div>ads</div>
-
-                <pre className="font-sans text-xs">
-                    {JSON.stringify(ads, null, 2)}
-                </pre>
+            <div>
+                <AdsTable isLoading={isLoading} ads={ads} />
             </div>
         </Layout>
     );
