@@ -1,6 +1,6 @@
 import { Column, RowSelectionState } from "@tanstack/react-table";
 import { createParser } from "nuqs";
-import { CSSProperties } from "react";
+import { CSSProperties, useMemo } from "react";
 
 // Custom nuqs parser to handle row selection in URL as query param (https://nuqs.47ng.com)
 export const parseAsRowSelection = createParser<RowSelectionState>({
@@ -57,3 +57,52 @@ export function ShadowSeperator() {
         />
     );
 }
+
+interface SkeletonLoaderProps<T, C> {
+    data: T[];
+    columns: C[];
+    isLoading?: boolean;
+    skeletonCount?: number;
+}
+
+interface SkeletonLoaderReturn<T, C> {
+    data: T[];
+    columns: C[];
+}
+
+export const useSkeletonLoader = <T, C>({
+    data,
+    columns,
+    isLoading,
+    skeletonCount = 10,
+}: SkeletonLoaderProps<T, C>): SkeletonLoaderReturn<T, C> => {
+    const skeletonData = useMemo(() => {
+        if (isLoading) {
+            return Array(skeletonCount).fill({}) as T[];
+        }
+        return data;
+    }, [isLoading, data, skeletonCount]);
+
+    const skeletonColumns = useMemo(() => {
+        if (isLoading) {
+            return columns.map((column) => ({
+                ...column,
+                header: (
+                    <div className="h-4 min-w-32 rounded w-full bg-gray-100 animate-pulse" />
+                ),
+                cell: (
+                    <div className="h-4 min-w-32 rounded w-full bg-gray-100 animate-pulse" />
+                ),
+                footer: (
+                    <div className="h-4 min-w-32 rounded w-full bg-gray-100 animate-pulse" />
+                ),
+            }));
+        }
+        return columns;
+    }, [isLoading, columns]);
+
+    return {
+        data: skeletonData,
+        columns: skeletonColumns,
+    };
+};

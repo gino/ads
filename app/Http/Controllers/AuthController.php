@@ -75,7 +75,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return to_route('dashboard.index');
+        return redirect()->intended(route('dashboard.index'));
     }
 
     private function exchangeLongLivedToken(Connection $connection)

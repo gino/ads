@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\AdAccount;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Model::automaticallyEagerLoadRelationships();
+        Model::preventLazyLoading(! app()->isProduction());
+
         Request::macro('selectedAdAccountId', function () {
             return $this->session()->get('selected_ad_account_id');
         });

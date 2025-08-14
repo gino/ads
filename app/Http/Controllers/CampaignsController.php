@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Data\AdCampaignData;
+use App\Data\AdSetData;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
+use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,32 +19,43 @@ class CampaignsController extends Controller
         $adAccount = $request->adAccount();
 
         $meta = new MetaConnector($request->user()->connection);
+        $adCampaignsRequest = new GetAdCampaignsRequest($adAccount);
 
         return Inertia::render('campaigns/index', [
-            'view' => 'campaigns',
-            'campaigns' => Inertia::defer(function () use ($meta, $adAccount) {
-                $data = $meta->paginate(new GetAdCampaignsRequest($adAccount));
+            'campaigns' => Inertia::defer(function () use ($meta, $adCampaignsRequest) {
+                $data = $meta->paginate($adCampaignsRequest);
                 $campaigns = AdCampaignData::collect($data->collect());
 
-                return [
-                    ...$campaigns,
-                    ...$campaigns,
-                    ...$campaigns,
-                    ...$campaigns,
-                    ...$campaigns,
-                    ...$campaigns,
-                ];
+                return $campaigns;
             }),
         ]);
     }
 
-    public function adSets()
+    public function adSets(Request $request)
     {
-        return Inertia::render('campaigns/adsets');
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+        $adSetsRequest = new GetAdSetsRequest($adAccount);
+
+        return Inertia::render('campaigns/adsets', [
+            'adSets' => Inertia::defer(function () use ($meta, $adSetsRequest) {
+                $data = $meta->paginate($adSetsRequest);
+                $adSets = AdSetData::collect($data->collect());
+
+                return $adSets;
+            }),
+        ]);
     }
 
     public function ads()
     {
         return Inertia::render('campaigns/ads');
+    }
+
+    public function refresh()
+    {
+        // Here we wanna just invalidate the cache of the type (campaigns/ad sets/ads) and reload the current route props via Inertia
     }
 }

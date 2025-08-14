@@ -2,8 +2,9 @@ import { Layout as AppLayout } from "@/components/layouts/app-layout";
 import { CampaignsTable } from "@/components/tables/campaigns-table";
 import { parseAsRowSelection } from "@/components/tables/utils";
 import { cn } from "@/lib/cn";
+import useDeferred from "@/lib/hooks/use-deferred";
 import { SharedData } from "@/types";
-import { Deferred, router, usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { useQueryState } from "nuqs";
 import { PropsWithChildren, useMemo } from "react";
 
@@ -12,15 +13,12 @@ interface Props {
 }
 
 export default function Campaigns({ campaigns }: Props) {
+    const { isLoading } = useDeferred({ data: "campaigns" });
+
     return (
         <Layout>
             <div>
-                <Deferred
-                    data="campaigns"
-                    fallback={<div className="p-6">Loading...</div>}
-                >
-                    <CampaignsTable campaigns={campaigns} />
-                </Deferred>
+                <CampaignsTable isLoading={isLoading} campaigns={campaigns} />
             </div>
         </Layout>
     );
@@ -76,13 +74,27 @@ export function Layout({ children }: PropsWithChildren) {
                         return (
                             <button
                                 key={tab.key}
+                                // This prefetching could maybe work but isn't supported for deferred props it seems like
+                                // https://github.com/inertiajs/inertia/issues/2108#event-18640816336
+                                // onMouseOver={() => {
+                                //     router.prefetch(
+                                //         route(tab.route) + location.search  ,
+                                //         {
+                                //             method: "get",
+                                //             only: ["campaigns"],
+                                //         },
+                                //         {
+                                //             cacheFor: "5m",
+                                //         }
+                                //     );
+                                // }}
                                 onClick={() => {
+                                    if (props.ziggy.route === tab.route) {
+                                        return;
+                                    }
+
                                     router.visit(
-                                        route(tab.route) + location.search,
-                                        {
-                                            preserveScroll: true,
-                                            preserveState: true,
-                                        }
+                                        route(tab.route) + location.search
                                     );
                                 }}
                                 className={cn(
@@ -126,6 +138,13 @@ export function Layout({ children }: PropsWithChildren) {
 export function useSelectedCampaigns() {
     return useQueryState(
         "selected_campaign_ids",
+        parseAsRowSelection.withDefault({})
+    );
+}
+
+export function useSelectedAdSets() {
+    return useQueryState(
+        "selected_adset_ids",
         parseAsRowSelection.withDefault({})
     );
 }

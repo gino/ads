@@ -10,7 +10,11 @@ import {
 import { useRef } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { Switch } from "../ui/switch";
-import { getPinnedColumnStyles, ShadowSeperator } from "./utils";
+import {
+    getPinnedColumnStyles,
+    ShadowSeperator,
+    useSkeletonLoader,
+} from "./utils";
 
 const columnHelper = createColumnHelper<App.Data.AdCampaignData>();
 const columns = [
@@ -124,15 +128,22 @@ const columns = [
 const ROW_HEIGHT = cn("h-14");
 
 interface Props {
+    isLoading?: boolean;
     campaigns: App.Data.AdCampaignData[];
 }
 
-export function CampaignsTable({ campaigns }: Props) {
+export function CampaignsTable({ isLoading, campaigns }: Props) {
     const [selectedCampaigns, setSelectedCampaigns] = useSelectedCampaigns();
 
-    const table = useReactTable({
+    const { data, columns: _columns } = useSkeletonLoader({
         data: campaigns,
         columns,
+        isLoading,
+    });
+
+    const table = useReactTable({
+        data,
+        columns: _columns,
         state: {
             rowSelection: selectedCampaigns,
             columnPinning: {

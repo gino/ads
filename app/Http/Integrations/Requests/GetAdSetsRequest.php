@@ -12,9 +12,9 @@ use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
 
-// https://github.com/gino/ads/blob/main/app/Jobs/Meta/SyncAdCampaigns.php
+// https://github.com/gino/ads/blob/main/app/Jobs/Meta/SyncAdSets.php
 
-class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
+class GetAdSetsRequest extends Request implements Cacheable, Paginatable
 {
     use HasCaching;
 
@@ -29,18 +29,18 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
 
     public function resolveEndpoint(): string
     {
-        return "{$this->adAccount->external_id}/campaigns";
+        return "{$this->adAccount->external_id}/adsets";
     }
 
     protected function defaultQuery(): array
     {
-        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign-group
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign#fields
 
         $fields = [
             'id',
             'name',
             'status',
-            'daily_budget',
+            'campaign_id',
         ];
 
         return [

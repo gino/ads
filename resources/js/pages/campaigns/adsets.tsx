@@ -1,13 +1,18 @@
-import { Layout, useSelectedCampaigns } from ".";
+import { AdSetsTable } from "@/components/tables/adsets-table";
+import useDeferred from "@/lib/hooks/use-deferred";
+import { Layout } from ".";
 
-export default function AdSets() {
-    const [selectedCampaigns] = useSelectedCampaigns();
+interface Props {
+    adSets: App.Data.AdSetData[];
+}
+
+export default function AdSets({ adSets }: Props) {
+    const { isLoading } = useDeferred({ data: "adSets" });
 
     return (
         <Layout>
-            <div className="p-6">
-                <div>adsets</div>
-                <div>{JSON.stringify(selectedCampaigns)}</div>
+            <div>
+                <AdSetsTable isLoading={isLoading} adSets={adSets} />
             </div>
         </Layout>
     );
