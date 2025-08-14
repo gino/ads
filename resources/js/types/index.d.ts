@@ -12,3 +12,5 @@ export interface SharedData {
     ziggy: Config & { location: string; route: string };
     [key: string]: unknown;
 }
+
+export type Route = Parameters<typeof route>[0];

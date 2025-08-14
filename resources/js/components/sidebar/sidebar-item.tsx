@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { SharedData } from "@/types";
+import { Route, SharedData } from "@/types";
 import { Link, usePage } from "@inertiajs/react";
 import { ComponentProps, ReactElement, useMemo } from "react";
 
@@ -21,7 +21,7 @@ interface AsButton
 interface AsLink
     extends BaseProps,
         Omit<ComponentProps<typeof Link>, keyof BaseProps | "disabled"> {
-    href: Parameters<typeof route>[0];
+    href: Route;
     onClick?: never;
 }
 
