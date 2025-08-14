@@ -180,10 +180,13 @@ export function AdsTable({ isLoading, ads }: Props) {
     const isScrolled = useIsScrolled(tableContainerRef, 12); // 12px (container padding / p-3)
 
     return (
-        <div ref={tableContainerRef} className="overflow-x-auto">
+        <div
+            ref={tableContainerRef}
+            className="flex-1 overflow-auto max-h-full"
+        >
             <div className="px-3">
                 <table className="w-full">
-                    <thead>
+                    <thead className="sticky top-0 z-20 bg-white [box-shadow:0_2px_0_var(--color-gray-200)]">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
@@ -195,7 +198,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                                             ),
                                         }}
                                         className={cn(
-                                            "font-semibold text-left px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-b-2 border-gray-200 border-r last:border-r-0",
+                                            "font-semibold text-left px-5 first:px-4 last:px-4 align-middle whitespace-nowrap border-gray-200 border-r last:border-r-0",
                                             ROW_HEIGHT,
                                             header.column.getIsPinned() &&
                                                 "bg-white"
@@ -216,7 +219,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                             </tr>
                         ))}
                     </thead>
-                    <tbody className="border-b border-gray-200">
+                    <tbody>
                         {table.getRowModel().rows.map((row) => (
                             <tr
                                 key={row.id}
@@ -253,7 +256,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                             </tr>
                         ))}
                     </tbody>
-                    <tfoot>
+                    <tfoot className="sticky bottom-0 z-20 bg-white [box-shadow:0_-1px_0_var(--color-gray-200)]">
                         {table.getFooterGroups().map((footerGroup) => (
                             <tr key={footerGroup.id}>
                                 {footerGroup.headers.map((header) => (

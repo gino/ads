@@ -17,9 +17,7 @@ export default function Campaigns({ campaigns }: Props) {
 
     return (
         <Layout>
-            <div>
-                <CampaignsTable isLoading={isLoading} campaigns={campaigns} />
-            </div>
+            <CampaignsTable isLoading={isLoading} campaigns={campaigns} />
         </Layout>
     );
 }
@@ -34,7 +32,9 @@ export function Layout({ children }: PropsWithChildren) {
                     <AdsTab />
                 </div>
 
-                <div className="flex-1 overflow-y-auto">{children}</div>
+                <div className="flex-1 flex flex-col min-h-full">
+                    {children}
+                </div>
             </div>
         </AppLayout>
     );

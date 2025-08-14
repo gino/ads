@@ -11,9 +11,7 @@ export default function AdSets({ adSets }: Props) {
 
     return (
         <Layout>
-            <div>
-                <AdSetsTable isLoading={isLoading} adSets={adSets} />
-            </div>
+            <AdSetsTable isLoading={isLoading} adSets={adSets} />
         </Layout>
     );
 }
