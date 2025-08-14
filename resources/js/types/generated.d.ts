@@ -12,6 +12,12 @@ name: string;
 status: string;
 dailyBudget: string;
 };
+export type AdData = {
+id: string;
+name: string;
+adsetId: string;
+campaignId: string;
+};
 export type AdSetData = {
 id: string;
 name: string;

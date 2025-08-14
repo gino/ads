@@ -1,13 +1,21 @@
-import { Layout, useSelectedCampaigns } from ".";
+import useDeferred from "@/lib/hooks/use-deferred";
+import { Layout } from ".";
 
-export default function Ads() {
-    const [selectedCampaigns] = useSelectedCampaigns();
+interface Props {
+    ads: App.Data.AdData[];
+}
+
+export default function Ads({ ads }: Props) {
+    const { isLoading } = useDeferred({ data: "ads" });
 
     return (
         <Layout>
             <div className="p-6">
                 <div>ads</div>
-                <div>{JSON.stringify(selectedCampaigns)}</div>
+
+                <pre className="font-sans text-xs">
+                    {JSON.stringify(ads, null, 2)}
+                </pre>
             </div>
         </Layout>
     );

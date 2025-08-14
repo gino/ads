@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Data\AdCampaignData;
+use App\Data\AdData;
 use App\Data\AdSetData;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
+use App\Http\Integrations\Requests\GetAdsRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -49,9 +51,22 @@ class CampaignsController extends Controller
         ]);
     }
 
-    public function ads()
+    public function ads(Request $request)
     {
-        return Inertia::render('campaigns/ads');
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+        $adsRequest = new GetAdsRequest($adAccount);
+
+        return Inertia::render('campaigns/ads', [
+            'ads' => Inertia::defer(function () use ($meta, $adsRequest) {
+                $data = $meta->paginate($adsRequest);
+                $ads = AdData::collect($data->collect());
+
+                return $ads;
+            }),
+        ]);
     }
 
     public function refresh()
