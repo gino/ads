@@ -19,6 +19,7 @@ class InsightsData extends Data
         public ?int $conversions,
         public ?int $atc,
         public ?float $cpa,
+        public ?float $roas,
     ) {}
 
     public static function fromRaw(array $data): self
@@ -27,6 +28,11 @@ class InsightsData extends Data
 
         $conversions = (int) ($actions->firstWhere('action_type', 'purchase')['value'] ?? 0);
         $addToCarts = (int) ($actions->firstWhere('action_type', 'add_to_cart')['value'] ?? 0);
+
+        $roas = null;
+        if (! empty($data['purchase_roas'])) {
+            $roas = collect($data['purchase_roas'])->firstWhere('action_type', 'purchase')['value'];
+        }
 
         return new self(
             campaignId: $data['campaign_id'] ?? null,
@@ -39,6 +45,7 @@ class InsightsData extends Data
             conversions: $conversions ?? null,
             atc: $addToCarts ?? null,
             cpa: $data['cost_per_objective_result'] ?? null,
+            roas: $roas ?? null,
         );
     }
 }

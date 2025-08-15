@@ -50,6 +50,7 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
             'inline_link_click_ctr',
             'actions',
             'cost_per_objective_result',
+            'purchase_roas',
         ];
 
         return [

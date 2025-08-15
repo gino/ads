@@ -191,9 +191,16 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
             },
             {
                 id: "roas",
-                accessorFn: (row) => row.insights?.cpm,
+                accessorFn: (row) => row.insights?.roas,
                 header: () => <div className="text-right">ROAS</div>,
-                cell: (info) => <div className="text-right">2.82</div>,
+                cell: ({ getValue }) => {
+                    const value = getValue<number>();
+                    return (
+                        <div className="text-right">
+                            {value ? value : <>&mdash;</>}
+                        </div>
+                    );
+                },
                 footer: (info) => <div className="text-right">2.82</div>,
             },
         ],

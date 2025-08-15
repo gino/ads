@@ -39,6 +39,7 @@ ctr: number | null;
 conversions: number | null;
 atc: number | null;
 cpa: number | null;
+roas: number | null;
 };
 export type UserData = {
 id: string;
