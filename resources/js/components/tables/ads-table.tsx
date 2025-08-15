@@ -187,9 +187,16 @@ export function AdsTable({ isLoading, ads }: Props) {
             },
             {
                 id: "cpa",
-                accessorFn: (row) => row.insights?.cpm,
+                accessorFn: (row) => row.insights?.cpa,
                 header: () => <div className="text-right">CPA</div>,
-                cell: (info) => <div className="text-right">€ 0,47</div>,
+                cell: ({ getValue }) => {
+                    const value = getValue<number>();
+                    return (
+                        <div className="text-right">
+                            {value ? formatMoney(value) : <>&mdash;</>}
+                        </div>
+                    );
+                },
                 footer: (info) => <div className="text-right">€ 0,47</div>,
             },
             {
@@ -308,7 +315,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                                             ),
                                         }}
                                         className={cn(
-                                            "px-5 first:px-4 last:px-4 whitespace-nowrap align-middle relative border-r border-gray-200 last:border-r-0",
+                                            "px-5 first:px-4 last:px-4 whitespace-nowrap min-w-32 align-middle relative border-r border-gray-200 last:border-r-0",
                                             ROW_HEIGHT,
                                             cell.column.getIsPinned() &&
                                                 (cell.row.getIsSelected()

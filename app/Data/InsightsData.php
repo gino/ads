@@ -18,6 +18,7 @@ class InsightsData extends Data
         public ?float $ctr,
         public ?int $conversions,
         public ?int $atc,
+        public ?float $cpa,
     ) {}
 
     public static function fromRaw(array $data): self
@@ -37,6 +38,7 @@ class InsightsData extends Data
             ctr: $data['inline_link_click_ctr'] ?? null,
             conversions: $conversions ?? null,
             atc: $addToCarts ?? null,
+            cpa: $data['cost_per_objective_result'] ?? null,
         );
     }
 }

@@ -38,6 +38,7 @@ cpc: number | null;
 ctr: number | null;
 conversions: number | null;
 atc: number | null;
+cpa: number | null;
 };
 export type UserData = {
 id: string;
