@@ -6,7 +6,7 @@ import {
     useSelectedCampaigns,
 } from "@/pages/campaigns";
 import {
-    createColumnHelper,
+    ColumnDef,
     flexRender,
     getCoreRowModel,
     useReactTable,
@@ -15,15 +15,16 @@ import { useMemo, useRef } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { Switch } from "../ui/switch";
 import {
+    formatMoney,
     getPinnedColumnStyles,
     ShadowSeperator,
     useSkeletonLoader,
 } from "./utils";
 
-const columnHelper = createColumnHelper<App.Data.AdData>();
-const columns = [
-    columnHelper.accessor("name", {
+const columns: ColumnDef<App.Data.AdData>[] = [
+    {
         id: "ad",
+        accessorFn: (row) => row.name,
         header: ({ table }) => (
             <div className="flex items-center gap-5">
                 <Checkbox
@@ -36,7 +37,7 @@ const columns = [
                 <div className="font-semibold">Ad</div>
             </div>
         ),
-        cell: ({ cell, row }) => (
+        cell: ({ getValue, row }) => (
             <div className="flex items-center gap-5 min-w-md">
                 <Checkbox
                     aria-label="Select row"
@@ -47,8 +48,8 @@ const columns = [
                     className="flex-shrink-0"
                 />
                 <div className="flex items-center gap-5">
-                    <Switch defaultChecked={cell.getValue() === "ACTIVE"} />
-                    <div className="font-semibold">{cell.getValue()}</div>
+                    <Switch defaultChecked={getValue() === "ACTIVE"} />
+                    <div className="font-semibold">{getValue<string>()}</div>
                 </div>
             </div>
         ),
@@ -58,56 +59,80 @@ const columns = [
                 <i className="fa-solid fa-circle-info align-middle ml-1 text-[12px] text-gray-300" />
             </div>
         ),
-    }),
-    columnHelper.accessor("status", {
+    },
+    {
+        id: "status",
+        accessorFn: (row) => row.status,
         header: () => <div className="text-right">Status</div>,
-        cell: (info) => (
+        cell: ({ getValue }) => (
             <div className="text-right">
                 <span className="inline-flex items-center font-semibold gap-2 rounded-full text-xs">
                     <div className="h-[7px] w-[7px] bg-gray-300 rounded-full" />
                     <span className="capitalize">
-                        {info.getValue().toLowerCase()}
+                        {getValue<string>().toLowerCase()}
                     </span>
                 </span>
             </div>
         ),
         footer: (info) => <div className="text-right">-</div>,
-    }),
-    columnHelper.accessor("status", {
+    },
+    {
+        id: "spend",
+        accessorFn: (row) => row.status,
         header: () => <div className="text-right">Spend</div>,
         cell: (info) => <div className="text-right">€ 5,67</div>,
         footer: (info) => <div className="text-right">€ 5,67</div>,
-    }),
-    columnHelper.accessor("status", {
+    },
+    {
+        id: "cpc",
+        accessorFn: (row) => row.insights?.cpc,
         header: () => <div className="text-right">CPC</div>,
-        cell: (info) => <div className="text-right">€ 1,23</div>,
+        cell: (info) => (
+            <div className="text-right">
+                {formatMoney(info.getValue<number>())}
+            </div>
+        ),
         footer: (info) => <div className="text-right">€ 1,23</div>,
-    }),
-    columnHelper.accessor("status", {
+    },
+    {
+        id: "cpm",
+        accessorFn: (row) => row.insights?.cpm,
         header: () => <div className="text-right">CPM</div>,
-        cell: (info) => <div className="text-right">€ 12,34</div>,
+        cell: (info) => (
+            <div className="text-right">
+                {formatMoney(info.getValue<number>())}
+            </div>
+        ),
         footer: (info) => <div className="text-right">€ 12,34</div>,
-    }),
-    columnHelper.accessor("status", {
+    },
+    {
+        id: "ctr",
+        accessorFn: (row) => row.insights?.cpm,
         header: () => <div className="text-right">CTR</div>,
         cell: (info) => <div className="text-right">8,24%</div>,
         footer: (info) => <div className="text-right">8,24%</div>,
-    }),
-    columnHelper.accessor("status", {
+    },
+    {
+        id: "conversions",
+        accessorFn: (row) => row.insights?.cpm,
         header: () => <div className="text-right">Conversions</div>,
         cell: (info) => <div className="text-right">12</div>,
         footer: (info) => <div className="text-right">12</div>,
-    }),
-    columnHelper.accessor("status", {
+    },
+    {
+        id: "cpa",
+        accessorFn: (row) => row.insights?.cpm,
         header: () => <div className="text-right">CPA</div>,
         cell: (info) => <div className="text-right">€ 0,47</div>,
         footer: (info) => <div className="text-right">€ 0,47</div>,
-    }),
-    columnHelper.accessor("status", {
+    },
+    {
+        id: "roas",
+        accessorFn: (row) => row.insights?.cpm,
         header: () => <div className="text-right">ROAS</div>,
         cell: (info) => <div className="text-right">2.82</div>,
         footer: (info) => <div className="text-right">2.82</div>,
-    }),
+    },
 ];
 
 const ROW_HEIGHT = cn("h-14");

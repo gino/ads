@@ -1,3 +1,4 @@
+import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { Column, RowSelectionState } from "@tanstack/react-table";
 import { createParser } from "nuqs";
 import { CSSProperties, useMemo } from "react";
@@ -106,3 +107,22 @@ export const useSkeletonLoader = <T, C>({
         columns: skeletonColumns,
     };
 };
+
+export function formatMoney(amount?: number) {
+    const { selectedAdAccount } = useSelectedAdAccount();
+
+    const currency = selectedAdAccount.currency;
+
+    const format = (amount: number) => {
+        return Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: currency,
+        }).format(amount);
+    };
+
+    if (!amount) {
+        return format(0);
+    }
+
+    return format(amount);
+}

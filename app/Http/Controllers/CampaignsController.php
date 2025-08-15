@@ -9,6 +9,7 @@ use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdsRequest;
+use App\Http\Integrations\Requests\GetInsightsRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,14 +22,24 @@ class CampaignsController extends Controller
         $adAccount = $request->adAccount();
 
         $meta = new MetaConnector($request->user()->connection);
+
         $adCampaignsRequest = new GetAdCampaignsRequest($adAccount);
+        $insightsRequest = new GetInsightsRequest($adAccount, 'campaign');
 
         return Inertia::render('campaigns/index', [
-            'campaigns' => Inertia::defer(function () use ($meta, $adCampaignsRequest) {
-                $data = $meta->paginate($adCampaignsRequest);
-                $campaigns = AdCampaignData::collect($data->collect());
+            'campaigns' => Inertia::defer(function () use ($meta, $adCampaignsRequest, $insightsRequest) {
+                $campaigns = collect($meta->paginate($adCampaignsRequest)->collect()->all());
+                $insights = collect($meta->paginate($insightsRequest)->collect()->all());
 
-                return $campaigns;
+                $insightsByCampaign = $insights->keyBy('campaign_id');
+
+                $campaigns = $campaigns->map(function ($campaign) use ($insightsByCampaign) {
+                    $campaign['insights'] = $insightsByCampaign->get($campaign['id'], null);
+
+                    return $campaign;
+                });
+
+                return AdCampaignData::collect($campaigns);
             }),
         ]);
     }

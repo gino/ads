@@ -9,15 +9,16 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
 #[MapInputName(SnakeCaseMapper::class)]
-class AdCampaignData extends Data
+class InsightsData extends Data
 {
-    public string $id;
+    public string $campaignId;
 
-    public string $name;
+    public string $adsetId;
 
-    public string $status;
+    public string $adId;
 
-    public string $dailyBudget;
+    public float $cpm;
 
-    public ?InsightsData $insights;
+    #[MapInputName('cost_per_inline_link_click')]
+    public float $cpc;
 }
