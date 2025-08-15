@@ -48,6 +48,7 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
             'cpm',
             'cost_per_inline_link_click',
             'inline_link_click_ctr',
+            'actions',
         ];
 
         return [

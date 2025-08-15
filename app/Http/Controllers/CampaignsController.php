@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Data\AdCampaignData;
 use App\Data\AdData;
 use App\Data\AdSetData;
+use App\Data\InsightsData;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
@@ -34,7 +35,12 @@ class CampaignsController extends Controller
                 $insightsByCampaign = $insights->keyBy('campaign_id');
 
                 $campaigns = $campaigns->map(function ($campaign) use ($insightsByCampaign) {
-                    $campaign['insights'] = $insightsByCampaign->get($campaign['id'], null);
+                    $rawInsights = $insightsByCampaign->get($campaign['id'], null);
+                    $campaign['insights'] = $rawInsights ? InsightsData::fromRaw($rawInsights) : null;
+
+                    // if ($rawInsights) {
+                    //     dd($rawInsights);
+                    // }
 
                     return $campaign;
                 });
@@ -62,7 +68,8 @@ class CampaignsController extends Controller
                 $insightsByAdSet = $insights->keyBy('adset_id');
 
                 $adSets = $adSets->map(function ($adSet) use ($insightsByAdSet) {
-                    $adSet['insights'] = $insightsByAdSet->get($adSet['id'], null);
+                    $rawInsights = $insightsByAdSet->get($adSet['id'], null);
+                    $adSet['insights'] = $rawInsights ? InsightsData::fromRaw($rawInsights) : null;
 
                     return $adSet;
                 });
@@ -90,7 +97,8 @@ class CampaignsController extends Controller
                 $insightsByAds = $insights->keyBy('ad_id');
 
                 $ads = $ads->map(function ($ad) use ($insightsByAds) {
-                    $ad['insights'] = $insightsByAds->get($ad['id'], null);
+                    $rawInsights = $insightsByAds->get($ad['id'], null);
+                    $ad['insights'] = $rawInsights ? InsightsData::fromRaw($rawInsights) : null;
 
                     return $ad;
                 });

@@ -29,13 +29,15 @@ campaignId: string;
 insights: App.Data.InsightsData | null;
 };
 export type InsightsData = {
-campaignId: string;
-adsetId: string;
-adId: string;
-spend: number;
-cpm: number;
-cpc: number;
-ctr: number;
+campaignId: string | null;
+adsetId: string | null;
+adId: string | null;
+spend: number | null;
+cpm: number | null;
+cpc: number | null;
+ctr: number | null;
+conversions: number | null;
+atc: number | null;
 };
 export type UserData = {
 id: string;

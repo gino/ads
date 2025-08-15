@@ -2,28 +2,41 @@
 
 namespace App\Data;
 
-use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-#[MapInputName(SnakeCaseMapper::class)]
 class InsightsData extends Data
 {
-    public string $campaignId;
+    public function __construct(
+        public ?string $campaignId,
+        public ?string $adsetId,
+        public ?string $adId,
+        public ?float $spend,
+        public ?float $cpm,
+        public ?float $cpc,
+        public ?float $ctr,
+        public ?int $conversions,
+        public ?int $atc,
+    ) {}
 
-    public string $adsetId;
+    public static function fromRaw(array $data): self
+    {
+        $actions = collect($data['actions'] ?? []);
 
-    public string $adId;
+        $conversions = (int) ($actions->firstWhere('action_type', 'purchase')['value'] ?? 0);
+        $addToCarts = (int) ($actions->firstWhere('action_type', 'add_to_cart')['value'] ?? 0);
 
-    public float $spend;
-
-    public float $cpm;
-
-    #[MapInputName('cost_per_inline_link_click')]
-    public float $cpc;
-
-    #[MapInputName('inline_link_click_ctr')]
-    public float $ctr;
+        return new self(
+            campaignId: $data['campaign_id'] ?? null,
+            adsetId: $data['adset_id'] ?? null,
+            adId: $data['ad_id'] ?? null,
+            spend: $data['spend'] ?? null,
+            cpm: $data['cpm'] ?? null,
+            cpc: $data['cost_per_inline_link_click'] ?? null,
+            ctr: $data['inline_link_click_ctr'] ?? null,
+            conversions: $conversions ?? null,
+            atc: $addToCarts ?? null,
+        );
+    }
 }
