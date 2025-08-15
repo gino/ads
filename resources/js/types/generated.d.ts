@@ -11,7 +11,7 @@ id: string;
 name: string;
 status: string;
 dailyBudget: string;
-insights: App.Data.InsightsData;
+insights: App.Data.InsightsData | null;
 };
 export type AdData = {
 id: string;
@@ -19,19 +19,23 @@ name: string;
 status: string;
 adsetId: string;
 campaignId: string;
+insights: App.Data.InsightsData | null;
 };
 export type AdSetData = {
 id: string;
 name: string;
 status: string;
 campaignId: string;
+insights: App.Data.InsightsData | null;
 };
 export type InsightsData = {
-campaignId?: string;
-adsetId?: string;
-adId?: string;
-cpm?: number;
-cpc?: number;
+campaignId: string;
+adsetId: string;
+adId: string;
+spend: number;
+cpm: number;
+cpc: number;
+ctr: number;
 };
 export type UserData = {
 id: string;

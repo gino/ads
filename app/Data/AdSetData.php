@@ -18,4 +18,6 @@ class AdSetData extends Data
     public string $status;
 
     public string $campaignId;
+
+    public ?InsightsData $insights;
 }

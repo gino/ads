@@ -1,5 +1,6 @@
 import { cn } from "@/lib/cn";
 import { useIsScrolled } from "@/lib/hooks/use-is-scrolled";
+import { formatMoney, formatPercentage } from "@/lib/number-utils";
 import { useSelectedCampaigns } from "@/pages/campaigns";
 import {
     ColumnDef,
@@ -11,7 +12,6 @@ import { useRef } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { Switch } from "../ui/switch";
 import {
-    formatMoney,
     getPinnedColumnStyles,
     ShadowSeperator,
     useSkeletonLoader,
@@ -89,38 +89,58 @@ const columns: ColumnDef<App.Data.AdCampaignData>[] = [
     },
     {
         id: "spend",
-        accessorFn: (row) => row.status,
+        accessorFn: (row) => row.insights?.spend,
         header: () => <div className="text-right">Spend</div>,
-        cell: (info) => <div className="text-right">€ 5,67</div>,
+        cell: ({ getValue }) => {
+            const value = getValue<number>();
+            return (
+                <div className="text-right">
+                    {value ? formatMoney(value) : formatMoney(0)}
+                </div>
+            );
+        },
         footer: (info) => <div className="text-right">€ 5,67</div>,
     },
     {
         id: "cpc",
         accessorFn: (row) => row.insights?.cpc,
         header: () => <div className="text-right">CPC</div>,
-        cell: (info) => (
-            <div className="text-right">
-                {formatMoney(info.getValue<number>())}
-            </div>
-        ),
+        cell: ({ getValue }) => {
+            const value = getValue<number>();
+            return (
+                <div className="text-right">
+                    {value ? formatMoney(value) : <>&mdash;</>}
+                </div>
+            );
+        },
         footer: (info) => <div className="text-right">€ 1,23</div>,
     },
     {
         id: "cpm",
         accessorFn: (row) => row.insights?.cpm,
         header: () => <div className="text-right">CPM</div>,
-        cell: (info) => (
-            <div className="text-right">
-                {formatMoney(info.getValue<number>())}
-            </div>
-        ),
+        cell: ({ getValue }) => {
+            const value = getValue<number>();
+            return (
+                <div className="text-right">
+                    {value ? formatMoney(value) : <>&mdash;</>}
+                </div>
+            );
+        },
         footer: (info) => <div className="text-right">€ 12,34</div>,
     },
     {
         id: "ctr",
-        accessorFn: (row) => row.insights?.cpm,
+        accessorFn: (row) => row.insights?.ctr,
         header: () => <div className="text-right">CTR</div>,
-        cell: (info) => <div className="text-right">8,24%</div>,
+        cell: ({ getValue }) => {
+            const value = getValue<number>();
+            return (
+                <div className="text-right">
+                    {value ? formatPercentage(value) : <>&mdash;</>}
+                </div>
+            );
+        },
         footer: (info) => <div className="text-right">8,24%</div>,
     },
     {

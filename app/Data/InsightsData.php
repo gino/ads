@@ -17,8 +17,13 @@ class InsightsData extends Data
 
     public string $adId;
 
+    public float $spend;
+
     public float $cpm;
 
     #[MapInputName('cost_per_inline_link_click')]
     public float $cpc;
+
+    #[MapInputName('inline_link_click_ctr')]
+    public float $ctr;
 }

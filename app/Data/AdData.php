@@ -20,4 +20,6 @@ class AdData extends Data
     public string $adsetId;
 
     public string $campaignId;
+
+    public ?InsightsData $insights;
 }

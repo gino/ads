@@ -44,8 +44,10 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
             'adset_id',
             'ad_id',
             //
+            'spend',
             'cpm',
             'cost_per_inline_link_click',
+            'inline_link_click_ctr',
         ];
 
         return [
@@ -62,6 +64,8 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
 
     public function cacheExpiryInSeconds(): int
     {
-        return 30;
+        // 15 minutes
+        // Insights refresh every 15 minutes anyways, by Meta
+        return 900;
     }
 }

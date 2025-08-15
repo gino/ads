@@ -50,14 +50,24 @@ class CampaignsController extends Controller
         $adAccount = $request->adAccount();
 
         $meta = new MetaConnector($request->user()->connection);
+
         $adSetsRequest = new GetAdSetsRequest($adAccount);
+        $insightsRequest = new GetInsightsRequest($adAccount, 'adset');
 
         return Inertia::render('campaigns/adsets', [
-            'adSets' => Inertia::defer(function () use ($meta, $adSetsRequest) {
-                $data = $meta->paginate($adSetsRequest);
-                $adSets = AdSetData::collect($data->collect());
+            'adSets' => Inertia::defer(function () use ($meta, $adSetsRequest, $insightsRequest) {
+                $adSets = collect($meta->paginate($adSetsRequest)->collect()->all());
+                $insights = collect($meta->paginate($insightsRequest)->collect()->all());
 
-                return $adSets;
+                $insightsByAdSet = $insights->keyBy('adset_id');
+
+                $adSets = $adSets->map(function ($adSet) use ($insightsByAdSet) {
+                    $adSet['insights'] = $insightsByAdSet->get($adSet['id'], null);
+
+                    return $adSet;
+                });
+
+                return AdSetData::collect($adSets);
             }),
         ]);
     }
@@ -68,14 +78,24 @@ class CampaignsController extends Controller
         $adAccount = $request->adAccount();
 
         $meta = new MetaConnector($request->user()->connection);
+
         $adsRequest = new GetAdsRequest($adAccount);
+        $insightsRequest = new GetInsightsRequest($adAccount, 'ad');
 
         return Inertia::render('campaigns/ads', [
-            'ads' => Inertia::defer(function () use ($meta, $adsRequest) {
-                $data = $meta->paginate($adsRequest);
-                $ads = AdData::collect($data->collect());
+            'ads' => Inertia::defer(function () use ($meta, $adsRequest, $insightsRequest) {
+                $ads = collect($meta->paginate($adsRequest)->collect()->all());
+                $insights = collect($meta->paginate($insightsRequest)->collect()->all());
 
-                return $ads;
+                $insightsByAds = $insights->keyBy('ad_id');
+
+                $ads = $ads->map(function ($ad) use ($insightsByAds) {
+                    $ad['insights'] = $insightsByAds->get($ad['id'], null);
+
+                    return $ad;
+                });
+
+                return AdData::collect($ads);
             }),
         ]);
     }
