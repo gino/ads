@@ -26,11 +26,37 @@ export function Layout({ children }: PropsWithChildren) {
     return (
         <AppLayout title="Campaigns">
             <div className="bg-white flex flex-col shadow-base rounded-xl overflow-hidden max-h-full">
-                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-100 overflow-hidden">
+                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-100 overflow-hidden relative">
                     <CampaignsTab />
                     <AdSetsTab />
                     <AdsTab />
+
+                    <div className="ml-auto mr-[5px]">
+                        <button className="bg-white ring-1 ring-gray-200 text-xs pl-3 pr-3.5 min-w-72 py-2.5 flex items-center gap-2 rounded-lg">
+                            <i className="fa-regular fa-calendar text-[14px] text-gray-400" />
+                            <span className="font-semibold flex-1 text-left">
+                                15 Aug 2025 - 16 Aug 2025
+                            </span>
+
+                            <i className="fa-solid fa-chevron-down text-gray-400 text-[12px]" />
+                        </button>
+                    </div>
                 </div>
+
+                {/* <div>
+                    <div>
+                        <div className="p-3 border-b border-gray-200 flex items-center justify-end">
+                            <button className="bg-white ring-1 ring-gray-200 text-xs px-3.5 w-72 py-2.5 flex items-center gap-2 rounded-lg">
+                                <i className="fa-solid fa-calendar text-[14px] text-gray-400" />
+                                <span className="font-semibold flex-1 text-left">
+                                    16 Aug 2025 - 16 Aug 2025
+                                </span>
+
+                                <i className="fa-solid fa-chevron-down text-gray-400 text-[12px]" />
+                            </button>
+                        </div>
+                    </div>
+                </div> */}
 
                 <div className="flex-1 flex flex-col min-h-full">
                     {children}

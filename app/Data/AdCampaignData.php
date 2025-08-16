@@ -15,6 +15,7 @@ class AdCampaignData extends Data
 
     public string $name;
 
+    #[MapInputName('effective_status')]
     public string $status;
 
     public string $dailyBudget;
