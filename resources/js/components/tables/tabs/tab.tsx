@@ -1,0 +1,22 @@
+import { cn } from "@/lib/cn";
+import { ComponentProps } from "react";
+
+interface Props extends ComponentProps<"button"> {
+    isActive: boolean;
+}
+
+export function Tab({ isActive, children, className, ...props }: Props) {
+    return (
+        <button
+            className={cn(
+                "min-w-80 px-5 py-3.5 rounded-t-xl font-semibold flex items-center gap-2.5 cursor-pointer relative",
+                "border-r border-l border-t -ml-px -mt-px",
+                isActive ? "bg-white border-gray-100" : "border-transparent",
+                className
+            )}
+            {...props}
+        >
+            {children}
+        </button>
+    );
+}

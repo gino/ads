@@ -1,4 +1,3 @@
-import { cn } from "@/lib/cn";
 import { formatMoney, formatPercentage } from "@/lib/number-utils";
 import { useSelectedAdSets, useSelectedCampaigns } from "@/pages/campaigns";
 import {
@@ -12,10 +11,6 @@ import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
 import { Table } from "./table";
 import { useSkeletonLoader } from "./utils";
-
-const ROW_HEIGHT = cn("h-14");
-const ROW_PADDING = cn("px-4");
-const CONTAINER_PADDING = cn("px-2");
 
 interface Props {
     isLoading?: boolean;

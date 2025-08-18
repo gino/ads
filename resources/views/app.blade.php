@@ -16,6 +16,10 @@
             });
         } catch (e) {}
     </script>
+    @unless (app()->environment('production'))
+        <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js"></script>
+    @endunless
+
     @routes
     @viteReactRefresh
     @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])

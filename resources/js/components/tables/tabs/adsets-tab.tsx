@@ -1,8 +1,8 @@
-import { cn } from "@/lib/cn";
 import { useSelectedAdSets, useSelectedCampaigns } from "@/pages/campaigns";
 import { Route, SharedData } from "@/types";
 import { router, usePage } from "@inertiajs/react";
 import { useMemo } from "react";
+import { Tab } from "./tab";
 
 export function AdSetsTab() {
     const routeName: Route = "dashboard.campaigns.adSets";
@@ -41,7 +41,8 @@ export function AdSetsTab() {
     }, [selectedCampaignsAmount, selectedAdSetsAmount]);
 
     return (
-        <button
+        <Tab
+            isActive={isActive}
             onClick={() => {
                 if (isActive) {
                     return;
@@ -49,10 +50,6 @@ export function AdSetsTab() {
 
                 router.visit(route(routeName) + location.search);
             }}
-            className={cn(
-                "w-80 px-5 py-3.5 rounded-t-xl font-semibold flex items-center gap-2.5 cursor-pointer relative",
-                isActive && "bg-white shadow-base"
-            )}
         >
             <i className="fa-solid fa-folder text-gray-300" />
             <span>{label}</span>
@@ -71,6 +68,6 @@ export function AdSetsTab() {
                     </div>
                 </div>
             )}
-        </button>
+        </Tab>
     );
 }

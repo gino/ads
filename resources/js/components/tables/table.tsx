@@ -6,7 +6,7 @@ import { getPinnedColumnStyles, ShadowSeperator } from "./utils";
 
 const ROW_HEIGHT = cn("h-14");
 const ROW_PADDING = cn("px-4");
-const CONTAINER_PADDING = cn("px-1");
+const CONTAINER_PADDING = 4;
 
 interface Props<T> {
     table: TableType<T>;
@@ -14,14 +14,14 @@ interface Props<T> {
 
 export function Table<T extends RowData>({ table }: Props<T>) {
     const tableContainerRef = useRef<HTMLTableElement>(null!);
-    const isScrolled = useIsScrolled(tableContainerRef, 4); // 4px (container padding / px-1)
+    const isScrolled = useIsScrolled(tableContainerRef, CONTAINER_PADDING);
 
     return (
         <div
             ref={tableContainerRef}
             className="flex-1 overflow-auto max-h-full"
         >
-            <div className={CONTAINER_PADDING}>
+            <div style={{ padding: `0px ${CONTAINER_PADDING}px` }}>
                 <table className="w-full">
                     <thead className="sticky top-0 z-20 bg-white [box-shadow:0_1px_0_var(--color-gray-200)]">
                         {table.getHeaderGroups().map((headerGroup) => (

@@ -25,9 +25,10 @@
     /* --color-brand: #86a397; */
     /* --color-brand: #006b4e; */
 
+    /* --color-brand: #6c5fa5; */
     --color-brand: var(--color-teal-700);
-    --color-brand-light: #fff;
-    --color-brand-lighter: #fff;
+    --color-brand-light: var(--color-gray-100);
+    --color-brand-lighter: var(--color-gray-100);
 
     --shadow-base: 0 0px 0px 1px rgba(0, 0, 0, 0.06),
         0 1px 1px -0.5px rgba(0, 0, 0, 0.06),

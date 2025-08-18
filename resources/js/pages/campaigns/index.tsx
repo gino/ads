@@ -26,20 +26,13 @@ export function Layout({ children }: PropsWithChildren) {
     return (
         <AppLayout title="Campaigns">
             <div className="bg-white shadow-base flex flex-col rounded-xl overflow-hidden max-h-full">
-                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-100 overflow-hidden relative">
+                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-100 overflow-x-auto relative">
                     <CampaignsTab />
                     <AdSetsTab />
                     <AdsTab />
 
-                    <div className="ml-auto mr-[5px]">
-                        <button className="bg-white text-xs shadow-base pl-3 pr-3.5 min-w-72 py-2.5 flex items-center gap-2 rounded-lg">
-                            <i className="fa-regular fa-calendar text-[14px] text-gray-400" />
-                            <span className="font-semibold flex-1 text-left">
-                                15 Aug 2025 - 16 Aug 2025
-                            </span>
-
-                            <i className="fa-solid fa-chevron-down text-gray-400 text-[12px]" />
-                        </button>
+                    <div className="ml-auto pl-3 mr-[5px] shrink-0">
+                        <DateFilter />
                     </div>
                 </div>
 
@@ -48,6 +41,19 @@ export function Layout({ children }: PropsWithChildren) {
                 </div>
             </div>
         </AppLayout>
+    );
+}
+
+function DateFilter() {
+    return (
+        <button className="bg-white text-xs shadow-base pl-3 pr-3.5 shrink-0 py-2.5 flex items-center gap-2 rounded-lg">
+            <i className="fa-regular fa-calendar text-xs text-gray-400" />
+            <span className="font-semibold flex-1 text-left">
+                Today: 18 Aug 2025
+            </span>
+
+            <i className="fa-solid fa-chevron-down text-gray-400 text-[12px] ml-4" />
+        </button>
     );
 }
 
