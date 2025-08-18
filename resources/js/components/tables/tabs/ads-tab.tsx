@@ -66,11 +66,11 @@ export function AdsTab() {
                 router.visit(route(routeName) + location.search);
             }}
             className={cn(
-                "w-72 px-5 py-3.5 rounded-t-xl font-semibold flex items-center gap-2.5 cursor-pointer relative",
+                "w-80 px-5 py-3.5 rounded-t-xl font-semibold flex items-center gap-2.5 cursor-pointer relative",
                 isActive && "bg-white shadow-base"
             )}
         >
-            <i className="fa-solid fa-folder text-[12px] text-gray-300" />
+            <i className="fa-solid fa-folder text-gray-300" />
             <span>{label}</span>
 
             {selectedAdsAmount > 0 && (

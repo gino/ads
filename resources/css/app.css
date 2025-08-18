@@ -25,9 +25,9 @@
     /* --color-brand: #86a397; */
     /* --color-brand: #006b4e; */
 
-    --color-brand: #0978be;
-    --color-brand-light: #deedfc;
-    --color-brand-lighter: #ecf5ff;
+    --color-brand: var(--color-teal-700);
+    --color-brand-light: #fff;
+    --color-brand-lighter: #fff;
 
     --shadow-base: 0 0px 0px 1px rgba(0, 0, 0, 0.06),
         0 1px 1px -0.5px rgba(0, 0, 0, 0.06),

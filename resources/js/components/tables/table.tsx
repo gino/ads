@@ -1,0 +1,136 @@
+import { cn } from "@/lib/cn";
+import { useIsScrolled } from "@/lib/hooks/use-is-scrolled";
+import { flexRender, RowData, Table as TableType } from "@tanstack/react-table";
+import { useRef } from "react";
+import { getPinnedColumnStyles, ShadowSeperator } from "./utils";
+
+const ROW_HEIGHT = cn("h-14");
+const ROW_PADDING = cn("px-4");
+const CONTAINER_PADDING = cn("px-1");
+
+interface Props<T> {
+    table: TableType<T>;
+}
+
+export function Table<T extends RowData>({ table }: Props<T>) {
+    const tableContainerRef = useRef<HTMLTableElement>(null!);
+    const isScrolled = useIsScrolled(tableContainerRef, 4); // 4px (container padding / px-1)
+
+    return (
+        <div
+            ref={tableContainerRef}
+            className="flex-1 overflow-auto max-h-full"
+        >
+            <div className={CONTAINER_PADDING}>
+                <table className="w-full">
+                    <thead className="sticky top-0 z-20 bg-white [box-shadow:0_1px_0_var(--color-gray-200)]">
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <tr key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <th
+                                        key={header.id}
+                                        style={{
+                                            ...getPinnedColumnStyles(
+                                                header.column
+                                            ),
+                                        }}
+                                        className={cn(
+                                            "font-semibold text-left align-middle whitespace-nowrap border-gray-200 border-r last:border-r-0",
+                                            ROW_HEIGHT,
+                                            ROW_PADDING,
+                                            header.column.getIsPinned() &&
+                                                "bg-white"
+                                        )}
+                                    >
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                  header.column.columnDef
+                                                      .header,
+                                                  header.getContext()
+                                              )}
+
+                                        {header.column.getIsPinned() &&
+                                            isScrolled && <ShadowSeperator />}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </thead>
+                    <tbody>
+                        {table.getRowModel().rows.map((row) => (
+                            <tr
+                                key={row.id}
+                                className={cn(
+                                    "hover:bg-gray-100 group even:bg-gray-50",
+                                    row.getIsSelected() &&
+                                        "bg-brand-lighter even:bg-brand-lighter hover:bg-brand-light"
+                                )}
+                            >
+                                {row.getVisibleCells().map((cell) => (
+                                    <td
+                                        key={cell.id}
+                                        style={{
+                                            ...getPinnedColumnStyles(
+                                                cell.column
+                                            ),
+                                        }}
+                                        className={cn(
+                                            "whitespace-nowrap min-w-32 align-middle relative border-r border-gray-200 last:border-r-0",
+                                            ROW_HEIGHT,
+                                            ROW_PADDING,
+                                            cell.column.getIsPinned() &&
+                                                (cell.row.getIsSelected()
+                                                    ? "bg-brand-lighter group-hover:bg-brand-light"
+                                                    : "bg-white group-even:bg-gray-50 group-hover:bg-gray-100")
+                                        )}
+                                    >
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext()
+                                        )}
+                                        {cell.column.getIsPinned() &&
+                                            isScrolled && <ShadowSeperator />}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                    <tfoot className="sticky bottom-0 z-20 bg-white [box-shadow:0_-1px_0_var(--color-gray-200)]">
+                        {table.getFooterGroups().map((footerGroup) => (
+                            <tr key={footerGroup.id}>
+                                {footerGroup.headers.map((header) => (
+                                    <th
+                                        key={header.id}
+                                        style={{
+                                            ...getPinnedColumnStyles(
+                                                header.column
+                                            ),
+                                        }}
+                                        className={cn(
+                                            "whitespace-nowrap align-middle font-normal text-left border-r border-gray-200 last:border-r-0",
+                                            ROW_HEIGHT,
+                                            ROW_PADDING,
+                                            header.column.getIsPinned() &&
+                                                "bg-white"
+                                        )}
+                                    >
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                  header.column.columnDef
+                                                      .footer,
+                                                  header.getContext()
+                                              )}
+                                        {header.column.getIsPinned() &&
+                                            isScrolled && <ShadowSeperator />}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    );
+}
