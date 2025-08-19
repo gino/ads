@@ -30,7 +30,6 @@ export function AdsTable({ isLoading, ads }: Props) {
         () => Object.keys(selectedCampaigns),
         [selectedCampaigns]
     );
-
     const selectedAdsetIds = useMemo(
         () => Object.keys(selectedAdSets),
         [selectedAdSets]
@@ -215,6 +214,10 @@ export function AdsTable({ isLoading, ads }: Props) {
     });
 
     const filteredAds = useMemo(() => {
+        if (!data || !Array.isArray(data)) {
+            return [];
+        }
+
         if (selectedCampaignIds.length > 0 && selectedAdsetIds.length > 0) {
             return data.filter((ad) => {
                 return (

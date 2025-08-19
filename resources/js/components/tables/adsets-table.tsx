@@ -205,6 +205,10 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
     });
 
     const filteredAdSets = useMemo(() => {
+        if (!data || !Array.isArray(data)) {
+            return [];
+        }
+
         if (selectedCampaignIds.length === 0) {
             return data;
         }

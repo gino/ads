@@ -80,7 +80,7 @@ export const useSkeletonLoader = <T, C>({
         if (isLoading) {
             return Array(skeletonCount).fill({}) as T[];
         }
-        return data;
+        return data || [];
     }, [isLoading, data, skeletonCount]);
 
     const skeletonColumns = useMemo(() => {

@@ -45,23 +45,25 @@ export function Layout({ children }: PropsWithChildren) {
     );
 }
 
+const EMPTY_SELECTION = {};
+
 export function useSelectedCampaigns() {
     return useQueryState(
         "selected_campaign_ids",
-        parseAsRowSelection.withDefault({})
+        parseAsRowSelection.withDefault(EMPTY_SELECTION)
     );
 }
 
 export function useSelectedAdSets() {
     return useQueryState(
         "selected_adset_ids",
-        parseAsRowSelection.withDefault({})
+        parseAsRowSelection.withDefault(EMPTY_SELECTION)
     );
 }
 
 export function useSelectedAds() {
     return useQueryState(
         "selected_ad_ids",
-        parseAsRowSelection.withDefault({})
+        parseAsRowSelection.withDefault(EMPTY_SELECTION)
     );
 }
