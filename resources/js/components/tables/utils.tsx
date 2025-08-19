@@ -1,4 +1,5 @@
 import { Column, RowSelectionState } from "@tanstack/react-table";
+import { isSameDay } from "date-fns";
 import { createParser } from "nuqs";
 import { CSSProperties, useMemo } from "react";
 
@@ -106,3 +107,11 @@ export const useSkeletonLoader = <T, C>({
         columns: skeletonColumns,
     };
 };
+
+export function isRangeEqual(
+    a: { from?: Date; to?: Date } | null,
+    b: { from: Date; to: Date }
+) {
+    if (!a?.from || !a?.to) return false;
+    return isSameDay(a.from, b.from) && isSameDay(a.to, b.to);
+}

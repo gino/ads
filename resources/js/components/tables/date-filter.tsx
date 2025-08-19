@@ -22,6 +22,7 @@ import {
     OnSelectHandler,
     DayPicker as ReactDayPicker,
 } from "react-day-picker";
+import { isRangeEqual } from "./utils";
 
 const presets = {
     Today: (today: Date) => ({
@@ -148,22 +149,48 @@ export function DateFilter() {
                 className="bg-gray-50 rounded-xl shadow-base-popup overflow-hidden"
             >
                 <div className="flex w-full">
-                    <div className="w-56 max-h-[380px] scroll-p-2 overflow-y-auto">
-                        <div className="p-2 space-y-2">
-                            {Object.entries(presets).map(([preset, date]) => (
-                                <button
-                                    key={preset}
-                                    onClick={() => {
-                                        const value = date(today);
-                                        setDraftDate(value);
-                                        setSelectedDate(value);
-                                        setOpen(false);
-                                    }}
-                                    className="hover:bg-gray-100 cursor-pointer flex items-center w-full gap-3 px-3 py-2.5 text-left rounded-lg font-semibold active:scale-[0.99] transition-transform duration-100 ease-in-out"
-                                >
-                                    <span>{preset}</span>
-                                </button>
-                            ))}
+                    <div className="w-56 max-h-[380px] p-2 scroll-p-2 overflow-y-auto">
+                        <div className="space-y-2">
+                            {Object.entries(presets).map(
+                                ([preset, getRange]) => {
+                                    const range = getRange(today);
+
+                                    const isActive = draftDate
+                                        ? isRangeEqual(draftDate, range)
+                                        : isRangeEqual(selectedDate, range);
+
+                                    return (
+                                        <button
+                                            key={preset}
+                                            onClick={() => {
+                                                setDraftDate(range);
+                                                setSelectedDate(range);
+                                                setOpen(false);
+                                            }}
+                                            className={cn(
+                                                "cursor-pointer flex items-center w-full gap-3 px-3 py-2.5 text-left rounded-lg font-semibold active:scale-[0.99] transition-transform duration-100 ease-in-out",
+                                                isActive
+                                                    ? "bg-gray-100 font-semibold"
+                                                    : "hover:bg-gray-100 font-medium"
+                                            )}
+                                        >
+                                            <div
+                                                className={cn(
+                                                    "h-4 w-4 rounded-full flex items-center justify-center",
+                                                    isActive
+                                                        ? "bg-brand ring-1 ring-brand"
+                                                        : "bg-white shadow-base"
+                                                )}
+                                            >
+                                                {isActive && (
+                                                    <div className="h-[7px] w-[7px] bg-white rounded-full" />
+                                                )}
+                                            </div>
+                                            <span>{preset}</span>
+                                        </button>
+                                    );
+                                }
+                            )}
                         </div>
                     </div>
 

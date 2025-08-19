@@ -89,7 +89,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                     const value = getValue<string>();
                     return (
                         <div className="text-right">
-                            <StatusTag status={value}>{value}</StatusTag>
+                            <StatusTag status={value} />
                         </div>
                     );
                 },
