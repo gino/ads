@@ -8,6 +8,13 @@ const ROW_HEIGHT = cn("h-14");
 const ROW_PADDING = cn("px-4");
 const CONTAINER_PADDING = 4;
 
+const SELECTED_ROW_BG = cn(
+    "bg-brand-lighter even:bg-brand-lighter hover:bg-brand-light"
+);
+const PINNED_SELECTED_ROW_BG = cn(
+    "bg-brand-lighter group-hover:bg-brand-light"
+);
+
 interface Props<T> {
     table: TableType<T>;
 }
@@ -69,8 +76,7 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                                 key={row.id}
                                 className={cn(
                                     "hover:bg-gray-100 group even:bg-gray-50",
-                                    row.getIsSelected() &&
-                                        "bg-brand-lighter even:bg-brand-lighter hover:bg-brand-light"
+                                    row.getIsSelected() && SELECTED_ROW_BG
                                 )}
                             >
                                 {row.getVisibleCells().map((cell) => (
@@ -87,7 +93,7 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                                             ROW_PADDING,
                                             cell.column.getIsPinned() &&
                                                 (cell.row.getIsSelected()
-                                                    ? "bg-brand-lighter group-hover:bg-brand-light"
+                                                    ? PINNED_SELECTED_ROW_BG
                                                     : "bg-white group-even:bg-gray-50 group-hover:bg-gray-100")
                                         )}
                                     >
