@@ -1,6 +1,7 @@
 import { cn } from "@/lib/cn";
 import * as Ariakit from "@ariakit/react";
 import { format, isSameDay, isToday, isYesterday } from "date-fns";
+import { parseAsTimestamp, useQueryStates } from "nuqs";
 import { useMemo, useState } from "react";
 import {
     DateRange,
@@ -9,6 +10,7 @@ import {
     DayPicker as ReactDayPicker,
 } from "react-day-picker";
 
+// https://chatgpt.com/c/68a483fc-147c-8322-b4fb-0a532de01a59
 const presets = {
     Today: "",
     Yesterday: "",
@@ -29,10 +31,11 @@ export function DateFilter() {
 
     const today = new Date();
 
-    const [selectedDate, setSelectedDate] = useState<DateRange>({
-        from: today,
-        to: today,
+    const [selectedDate, setSelectedDate] = useQueryStates({
+        from: parseAsTimestamp.withDefault(today),
+        to: parseAsTimestamp.withDefault(today),
     });
+
     const [draftDate, setDraftDate] = useState<DateRange>(selectedDate);
 
     const label = useMemo(() => {
@@ -119,6 +122,7 @@ export function DateFilter() {
                             <button
                                 onClick={() => {
                                     setOpen(false);
+
                                     if (draftDate) {
                                         setSelectedDate(draftDate);
                                     }
