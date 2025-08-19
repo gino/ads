@@ -27,7 +27,7 @@ export function Layout({ children }: PropsWithChildren) {
     return (
         <AppLayout title="Campaigns">
             <div className="bg-white shadow-base flex flex-col rounded-xl overflow-hidden max-h-full">
-                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-100 overflow-x-auto relative">
+                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-200 overflow-x-auto relative">
                     <CampaignsTab />
                     <AdSetsTab />
                     <AdsTab />

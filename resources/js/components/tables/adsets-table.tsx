@@ -54,7 +54,11 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                             className="flex-shrink-0"
                         />
                         <div className="flex items-center gap-5">
-                            <Switch defaultChecked={getValue() === "ACTIVE"} />
+                            <Switch
+                                defaultChecked={
+                                    row.original.status === "ACTIVE"
+                                }
+                            />
                             <div className="font-semibold">
                                 {getValue<string>()}
                             </div>
@@ -70,7 +74,7 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
             },
             {
                 id: "status",
-                accessorFn: (row) => row.status,
+                accessorFn: (row) => row.effectiveStatus,
                 header: () => <div className="text-right">Status</div>,
                 cell: ({ getValue }) => {
                     const value = getValue<string>();

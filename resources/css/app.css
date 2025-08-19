@@ -25,7 +25,10 @@
     /* --color-brand: #86a397; */
     /* --color-brand: #006b4e; */
 
-    /* --color-brand: #6c5fa5; */
+    /* --color-brand: #6c5fa5;
+    --color-brand-light: #f1eff6;
+    --color-brand-lighter: #f1eff6; */
+
     --color-brand: var(--color-teal-700);
     --color-brand-light: #e8f1f1;
     --color-brand-lighter: #e8f1f1;

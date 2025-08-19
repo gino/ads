@@ -1,6 +1,19 @@
 import { cn } from "@/lib/cn";
 import * as Ariakit from "@ariakit/react";
-import { format, isSameDay, isToday, isYesterday } from "date-fns";
+import {
+    endOfMonth,
+    endOfToday,
+    endOfWeek,
+    format,
+    isSameDay,
+    isToday,
+    isYesterday,
+    min,
+    startOfMonth,
+    startOfToday,
+    startOfWeek,
+    subDays,
+} from "date-fns";
 import { parseAsTimestamp, useQueryStates } from "nuqs";
 import { useMemo, useState } from "react";
 import {
@@ -10,20 +23,67 @@ import {
     DayPicker as ReactDayPicker,
 } from "react-day-picker";
 
-// https://chatgpt.com/c/68a483fc-147c-8322-b4fb-0a532de01a59
 const presets = {
-    Today: "",
-    Yesterday: "",
-    "Today and yesterday": "",
-    "Past 7 days": "",
-    "Past 14 days": "",
-    "Past 28 days": "",
-    "Past 30 days": "",
-    "This week": "",
-    "Past week": "",
-    "This month": "",
-    "Past month": "",
-    Maximum: "",
+    Today: (today: Date) => ({
+        from: startOfToday(),
+        to: endOfToday(),
+    }),
+
+    Yesterday: (today: Date) => ({
+        from: subDays(startOfToday(), 1),
+        to: subDays(endOfToday(), 1),
+    }),
+
+    "Today and yesterday": (today: Date) => ({
+        from: subDays(startOfToday(), 1),
+        to: endOfToday(),
+    }),
+
+    "Past 7 days": (today: Date) => ({
+        from: subDays(startOfToday(), 6),
+        to: endOfToday(),
+    }),
+
+    "Past 14 days": (today: Date) => ({
+        from: subDays(startOfToday(), 13),
+        to: endOfToday(),
+    }),
+
+    "Past 28 days": (today: Date) => ({
+        from: subDays(startOfToday(), 27),
+        to: endOfToday(),
+    }),
+
+    "Past 30 days": (today: Date) => ({
+        from: subDays(startOfToday(), 29),
+        to: endOfToday(),
+    }),
+
+    "This week": (today: Date) => ({
+        from: startOfWeek(today, { weekStartsOn: 1 }),
+        to: min([endOfWeek(today, { weekStartsOn: 1 }), endOfToday()]),
+    }),
+
+    "Past week": (today: Date) => ({
+        from: startOfWeek(subDays(today, 7), { weekStartsOn: 1 }),
+        to: min([
+            endOfWeek(subDays(today, 7), { weekStartsOn: 1 }),
+            endOfToday(),
+        ]),
+    }),
+
+    "This month": (today: Date) => ({
+        from: startOfMonth(today),
+        to: min([endOfMonth(today), endOfToday()]),
+    }),
+
+    "Past month": (today: Date) => {
+        const pastMonth = subDays(today, 30);
+        return {
+            from: startOfMonth(pastMonth),
+            to: min([endOfMonth(pastMonth), endOfToday()]),
+        };
+    },
 };
 
 export function DateFilter() {
@@ -84,19 +144,23 @@ export function DateFilter() {
                     className: "!z-50",
                 }}
                 portal
-                // preventBodyScroll
                 gutter={8}
                 className="bg-gray-50 rounded-xl shadow-base-popup overflow-hidden"
             >
                 <div className="flex w-full">
-                    <div className="w-56 max-h-[380px] scroll-p-1.5 overflow-y-auto">
-                        <div className="p-1.5 space-y-1.5">
-                            {Object.entries(presets).map(([preset]) => (
+                    <div className="w-56 max-h-[380px] scroll-p-2 overflow-y-auto">
+                        <div className="p-2 space-y-2">
+                            {Object.entries(presets).map(([preset, date]) => (
                                 <button
                                     key={preset}
-                                    className="hover:bg-gray-100 cursor-pointer flex items-center w-full gap-3 px-3 py-2.5 text-left rounded-lg font-medium text-xs"
+                                    onClick={() => {
+                                        const value = date(today);
+                                        setDraftDate(value);
+                                        setSelectedDate(value);
+                                        setOpen(false);
+                                    }}
+                                    className="hover:bg-gray-100 cursor-pointer flex items-center w-full gap-3 px-3 py-2.5 text-left rounded-lg font-semibold active:scale-[0.99] transition-transform duration-100 ease-in-out"
                                 >
-                                    <div className="h-4 w-4 bg-white shadow-base rounded-full" />
                                     <span>{preset}</span>
                                 </button>
                             ))}
@@ -185,7 +249,7 @@ function DatePicker(props: {
                 ),
                 week_number: cn("select-none", defaultClassNames.week_number),
                 day: cn(
-                    "relative p-0 text-center group/day aspect-square flex items-center justify-center select-none h-8 w-8 font-medium [&>button]:cursor-pointer text-xs",
+                    "relative p-0 text-center group/day aspect-square flex items-center justify-center select-none h-8 w-8 [&>button]:cursor-pointer text-xs hover:not-data-[selected=true]:bg-gray-100 hover:not-data-[selected=true]:rounded-lg",
                     // "[&:first-child[data-selected=true]_button]:rounded-l-lg [&:last-child[data-selected=true]_button]:rounded-r-lg",
                     "[&>button]:w-full [&>button]:h-full",
                     defaultClassNames.day

@@ -16,6 +16,7 @@ insights: App.Data.InsightsData | null;
 export type AdData = {
 id: string;
 name: string;
+effectiveStatus: string;
 status: string;
 adsetId: string;
 campaignId: string;
@@ -24,6 +25,7 @@ insights: App.Data.InsightsData | null;
 export type AdSetData = {
 id: string;
 name: string;
+effectiveStatus: string;
 status: string;
 campaignId: string;
 insights: App.Data.InsightsData | null;
