@@ -23,7 +23,7 @@ export function Table<T extends RowData>({ table }: Props<T>) {
         >
             <div style={{ padding: `0px ${CONTAINER_PADDING}px` }}>
                 <table className="w-full">
-                    <thead className="sticky top-0 z-20 bg-white [box-shadow:0_1px_0_var(--color-gray-200)]">
+                    <thead className="sticky top-0 z-20 bg-white [box-shadow:0_2px_0_var(--color-gray-200)]">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
@@ -42,13 +42,19 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                                                 "bg-white"
                                         )}
                                     >
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                  header.column.columnDef
-                                                      .header,
-                                                  header.getContext()
-                                              )}
+                                        {header.isPlaceholder ? null : (
+                                            <div className="flex items-center justify-between gap-4">
+                                                {flexRender(
+                                                    header.column.columnDef
+                                                        .header,
+                                                    header.getContext()
+                                                )}
+
+                                                <button className="cursor-pointer rounded-sm hover:bg-gray-100 flex items-center justify-center group w-5 h-5 -mr-[5px]">
+                                                    <i className="fa-solid fa-sort-down text-[12px] -mt-1.5 text-gray-400 group-hover:text-black" />
+                                                </button>
+                                            </div>
+                                        )}
 
                                         {header.column.getIsPinned() &&
                                             isScrolled && <ShadowSeperator />}

@@ -42,7 +42,6 @@
 
 @layer base {
     body {
-        /* bg-gray-50/50 before */
-        @apply font-sans text-sm antialiased bg-gray-50;
+        @apply font-sans text-sm antialiased bg-gray-50 overscroll-none;
     }
 }

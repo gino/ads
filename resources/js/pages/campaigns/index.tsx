@@ -1,5 +1,6 @@
 import { Layout as AppLayout } from "@/components/layouts/app-layout";
 import { CampaignsTable } from "@/components/tables/campaigns-table";
+import { DateFilter } from "@/components/tables/date-filter";
 import { AdsTab } from "@/components/tables/tabs/ads-tab";
 import { AdSetsTab } from "@/components/tables/tabs/adsets-tab";
 import { CampaignsTab } from "@/components/tables/tabs/campaigns-tab";
@@ -31,7 +32,7 @@ export function Layout({ children }: PropsWithChildren) {
                     <AdSetsTab />
                     <AdsTab />
 
-                    <div className="ml-auto pl-3 mr-[5px] shrink-0">
+                    <div className="absolute right-0 px-[5px] inset-y-0 flex items-center bg-[inherit]">
                         <DateFilter />
                     </div>
                 </div>
@@ -41,19 +42,6 @@ export function Layout({ children }: PropsWithChildren) {
                 </div>
             </div>
         </AppLayout>
-    );
-}
-
-function DateFilter() {
-    return (
-        <button className="bg-white text-xs shadow-base pl-3 pr-3.5 shrink-0 py-2.5 flex items-center gap-2 rounded-lg">
-            <i className="fa-regular fa-calendar text-xs text-gray-400" />
-            <span className="font-semibold flex-1 text-left">
-                Today: 18 Aug 2025
-            </span>
-
-            <i className="fa-solid fa-chevron-down text-gray-400 text-[12px] ml-4" />
-        </button>
     );
 }
 
