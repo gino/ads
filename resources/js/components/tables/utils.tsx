@@ -2,6 +2,7 @@ import { Column, RowSelectionState } from "@tanstack/react-table";
 import { isSameDay } from "date-fns";
 import { createParser } from "nuqs";
 import { CSSProperties, useMemo } from "react";
+import { DateRange } from "react-day-picker";
 
 // Custom nuqs parser to handle row selection in URL as query param (https://nuqs.47ng.com)
 export const parseAsRowSelection = createParser<RowSelectionState>({
@@ -108,10 +109,7 @@ export const useSkeletonLoader = <T, C>({
     };
 };
 
-export function isRangeEqual(
-    a: { from?: Date; to?: Date } | null,
-    b: { from: Date; to: Date }
-) {
-    if (!a?.from || !a?.to) return false;
+export function isRangeEqual(a: DateRange | undefined, b: DateRange) {
+    if (!a?.from || !a?.to || !b?.from || !b?.to) return false;
     return isSameDay(a.from, b.from) && isSameDay(a.to, b.to);
 }

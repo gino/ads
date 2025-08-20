@@ -3,6 +3,7 @@
 namespace App\Http\Integrations\Requests;
 
 use App\Models\AdAccount;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
@@ -22,9 +23,17 @@ class GetAdsRequest extends Request implements Cacheable, Paginatable
 
     protected AdAccount $adAccount;
 
-    public function __construct(AdAccount $adAccount)
-    {
+    protected string|array|null $dateFrom;
+
+    protected string|array|null $dateTo;
+
+    public function __construct(AdAccount $adAccount,
+        string|array|null $dateFrom,
+        string|array|null $dateTo
+    ) {
         $this->adAccount = $adAccount;
+        $this->dateFrom = $dateFrom;
+        $this->dateTo = $dateTo;
     }
 
     public function resolveEndpoint(): string
@@ -45,9 +54,16 @@ class GetAdsRequest extends Request implements Cacheable, Paginatable
             'campaign_id',
         ];
 
+        $today = now()->format('Y-m-d');
+        $dateFrom = Carbon::parse($this->dateFrom ?? $today)->format('Y-m-d');
+        $dateTo = Carbon::parse($this->dateTo ?? $today)->format('Y-m-d');
+
         return [
             'fields' => implode(',', $fields),
-            'date_preset' => 'maximum',
+            'time_range' => [
+                'since' => $dateFrom,
+                'until' => $dateTo,
+            ],
         ];
     }
 

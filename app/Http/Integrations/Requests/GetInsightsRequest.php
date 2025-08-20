@@ -3,6 +3,7 @@
 namespace App\Http\Integrations\Requests;
 
 use App\Models\AdAccount;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
@@ -24,10 +25,18 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
 
     protected string $level;
 
-    public function __construct(AdAccount $adAccount, string $level)
-    {
+    protected string|array|null $dateFrom;
+
+    protected string|array|null $dateTo;
+
+    public function __construct(AdAccount $adAccount, string $level,
+        string|array|null $dateFrom,
+        string|array|null $dateTo
+    ) {
         $this->adAccount = $adAccount;
         $this->level = $level;
+        $this->dateFrom = $dateFrom;
+        $this->dateTo = $dateTo;
     }
 
     public function resolveEndpoint(): string
@@ -53,10 +62,18 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
             'purchase_roas',
         ];
 
+        $today = now()->format('Y-m-d');
+        $dateFrom = Carbon::parse($this->dateFrom ?? $today)->format('Y-m-d');
+        $dateTo = Carbon::parse($this->dateTo ?? $today)->format('Y-m-d');
+
         return [
             'level' => $this->level,
             'fields' => implode(',', $fields),
-            'date_preset' => 'maximum',
+            // 'date_preset' => 'maximum',
+            'time_range' => [
+                'since' => $dateFrom,
+                'until' => $dateTo,
+            ],
         ];
     }
 

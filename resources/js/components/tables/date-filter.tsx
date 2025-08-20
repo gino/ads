@@ -9,15 +9,18 @@ import {
     format,
     isSameDay,
     isToday,
+    isValid,
     isYesterday,
     min,
+    parse,
+    startOfDay,
     startOfMonth,
-    startOfToday,
     startOfWeek,
     subDays,
+    subMonths,
 } from "date-fns";
-import { parseAsTimestamp, useQueryStates } from "nuqs";
-import { useMemo, useState } from "react";
+import { parseAsString, useQueryStates } from "nuqs";
+import { useCallback, useMemo, useState } from "react";
 import {
     DateRange,
     getDefaultClassNames,
@@ -28,37 +31,37 @@ import { isRangeEqual } from "./utils";
 
 const presets = {
     Today: (today: Date) => ({
-        from: startOfToday(),
+        from: startOfDay(today),
         to: endOfToday(),
     }),
 
     Yesterday: (today: Date) => ({
-        from: subDays(startOfToday(), 1),
+        from: subDays(startOfDay(today), 1),
         to: subDays(endOfToday(), 1),
     }),
 
     "Today and yesterday": (today: Date) => ({
-        from: subDays(startOfToday(), 1),
+        from: subDays(startOfDay(today), 1),
         to: endOfToday(),
     }),
 
     "Past 7 days": (today: Date) => ({
-        from: subDays(startOfToday(), 6),
+        from: subDays(startOfDay(today), 6),
         to: endOfToday(),
     }),
 
     "Past 14 days": (today: Date) => ({
-        from: subDays(startOfToday(), 13),
+        from: subDays(startOfDay(today), 13),
         to: endOfToday(),
     }),
 
     "Past 28 days": (today: Date) => ({
-        from: subDays(startOfToday(), 27),
+        from: subDays(startOfDay(today), 27),
         to: endOfToday(),
     }),
 
     "Past 30 days": (today: Date) => ({
-        from: subDays(startOfToday(), 29),
+        from: subDays(startOfDay(today), 29),
         to: endOfToday(),
     }),
 
@@ -87,6 +90,11 @@ const presets = {
             to: min([endOfMonth(pastMonth), endOfToday()]),
         };
     },
+
+    Maximum: (today: Date) => ({
+        from: subMonths(startOfDay(today), 37), // 37 months ago
+        to: endOfToday(), // up to today
+    }),
 };
 
 export function DateFilter() {
@@ -97,12 +105,23 @@ export function DateFilter() {
 
     const today = new Date();
 
-    const [selectedDate, setSelectedDate] = useQueryStates({
-        from: parseAsTimestamp.withDefault(today),
-        to: parseAsTimestamp.withDefault(today),
+    const parseQueryDate = (value: unknown): Date | undefined => {
+        if (typeof value !== "string" || value.trim() === "") return undefined;
+        const d = parse(value, "yyyy-MM-dd", new Date());
+        return isValid(d) ? d : undefined;
+    };
+
+    const initialFrom = parseQueryDate(ziggy?.query?.from) ?? today;
+    const initialTo = parseQueryDate(ziggy?.query?.to) ?? today;
+
+    const [selectedDate, setSelectedDate] = useState<DateRange>({
+        from: initialFrom,
+        to: initialTo,
     });
 
-    const [draftDate, setDraftDate] = useState<DateRange>(selectedDate);
+    const [draftDate, setDraftDate] = useState<DateRange | undefined>(
+        selectedDate
+    );
 
     const label = useMemo(() => {
         const formatStr = "d MMM yyyy";
@@ -127,16 +146,22 @@ export function DateFilter() {
         )}`;
     }, [selectedDate]);
 
-    const apply = () => {
+    const apply = (range: DateRange | undefined) => {
         const propsToRefresh = {
             "dashboard.campaigns": ["campaigns"],
             "dashboard.campaigns.adSets": ["adSets"],
             "dashboard.campaigns.ads": ["ads"],
         } satisfies Partial<Record<Route, string[]>>;
 
+        if (!range?.from || !range?.to) return;
+
         router.reload({
             // @ts-ignore
             only: propsToRefresh[ziggy.route],
+            data: {
+                from: format(range.from, "yyyy-MM-dd"),
+                to: format(range.to, "yyyy-MM-dd"),
+            },
         });
     };
 
@@ -184,13 +209,13 @@ export function DateFilter() {
                                                 setDraftDate(range);
                                                 setSelectedDate(range);
                                                 setOpen(false);
-                                                apply();
+                                                apply(range);
                                             }}
                                             className={cn(
                                                 "cursor-pointer flex items-center w-full gap-3 px-3 py-2.5 text-left rounded-lg font-semibold active:scale-[0.99] transition-transform duration-100 ease-in-out",
                                                 isActive
                                                     ? "bg-gray-100 font-semibold"
-                                                    : "hover:bg-gray-100 font-medium"
+                                                    : "hover:bg-gray-100 font-semibold"
                                             )}
                                         >
                                             <div
@@ -233,10 +258,11 @@ export function DateFilter() {
                                 onClick={() => {
                                     setOpen(false);
 
-                                    if (draftDate) {
-                                        setSelectedDate(draftDate);
-                                        apply();
-                                    }
+                                    if (!draftDate?.from || !draftDate?.to)
+                                        return;
+
+                                    setSelectedDate(draftDate);
+                                    apply(draftDate);
                                 }}
                                 className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md"
                             >
@@ -354,4 +380,38 @@ function DatePicker(props: {
             }}
         />
     );
+}
+
+function useDateRangeQuery(
+    defaultDate: Date
+): readonly [DateRange | undefined, (range: DateRange | undefined) => void] {
+    const [urlState, setUrlState] = useQueryStates({
+        from: parseAsString.withDefault(format(defaultDate, "yyyy-MM-dd")),
+        to: parseAsString.withDefault(format(defaultDate, "yyyy-MM-dd")),
+    });
+
+    // Convert string dates to DateRange
+    const selectedDate = useMemo<DateRange | undefined>(() => {
+        const fromDate = parse(urlState.from, "yyyy-MM-dd", new Date());
+        const toDate = parse(urlState.to, "yyyy-MM-dd", new Date());
+
+        const from = isValid(fromDate) ? fromDate : undefined;
+        const to = isValid(toDate) ? toDate : undefined;
+
+        if (!from && !to) return undefined;
+        return { from, to };
+    }, [urlState]);
+
+    // Function to update URL state with Date objects
+    const setSelectedDate = useCallback(
+        (range: DateRange | undefined) => {
+            setUrlState({
+                from: range?.from ? format(range.from, "yyyy-MM-dd") : "",
+                to: range?.to ? format(range.to, "yyyy-MM-dd") : "",
+            });
+        },
+        [setUrlState]
+    );
+
+    return [selectedDate, setSelectedDate] as const;
 }

@@ -23,12 +23,15 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
 
     protected AdAccount $adAccount;
 
-    protected Carbon $dateFrom;
+    protected string|array|null $dateFrom;
 
-    protected Carbon $dateTo;
+    protected string|array|null $dateTo;
 
-    public function __construct(AdAccount $adAccount, Carbon $dateFrom, Carbon $dateTo)
-    {
+    public function __construct(
+        AdAccount $adAccount,
+        string|array|null $dateFrom,
+        string|array|null $dateTo
+    ) {
         $this->adAccount = $adAccount;
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
@@ -50,17 +53,16 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
             'daily_budget',
         ];
 
-        // dd($this->dateFrom->format('Y-m-d'));
-        // dd($this->dateFrom->format('Y-m-d'));
+        $today = now()->format('Y-m-d');
+        $dateFrom = Carbon::parse($this->dateFrom ?? $today)->format('Y-m-d');
+        $dateTo = Carbon::parse($this->dateTo ?? $today)->format('Y-m-d');
 
         return [
             'fields' => implode(',', $fields),
-            'date_preset' => 'maximum',
-            // {'since':YYYY-MM-DD,'until':YYYY-MM-DD}
-            // 'time_range' => [
-            //     'since' => '',
-            //     'until' => ''
-            // ]
+            'time_range' => [
+                'since' => $dateFrom,
+                'until' => $dateTo,
+            ],
         ];
     }
 

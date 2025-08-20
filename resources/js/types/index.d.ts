@@ -1,3 +1,5 @@
+import { Config } from "ziggy-js";
+
 // https://github.com/laravel/react-starter-kit/blob/main/resources/js/types/index.d.ts
 
 export interface Auth {
@@ -9,7 +11,11 @@ export interface SharedData {
     adAccounts: App.Data.AdAccountData[];
     selectedAdAccountId: string;
     flash: Record<string, any> | null;
-    ziggy: Config & { location: string; route: string };
+    ziggy: Config & {
+        location: string;
+        route: string;
+        query: Record<string, string>;
+    };
     [key: string]: unknown;
 }
 

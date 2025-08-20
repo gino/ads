@@ -12,7 +12,6 @@ use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdsRequest;
 use App\Http\Integrations\Requests\GetInsightsRequest;
 use App\Models\AdAccount;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -25,16 +24,17 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $today = now()->timestamp;
-        $dateFrom = (int) $request->query('from', $today);
-        $dateTo = (int) $request->query('to', $today);
-
         $adCampaignsRequest = new GetAdCampaignsRequest(
             $adAccount,
-            dateFrom: Carbon::createFromTimestampMs($dateFrom),
-            dateTo: Carbon::createFromTimestampMs($dateTo),
+            dateFrom: $request->query('from'),
+            dateTo: $request->query('to'),
         );
-        $insightsRequest = new GetInsightsRequest($adAccount, 'campaign');
+        $insightsRequest = new GetInsightsRequest(
+            $adAccount,
+            level: 'campaign',
+            dateFrom: $request->query('from'),
+            dateTo: $request->query('to')
+        );
 
         return Inertia::render('campaigns/index', [
             'campaigns' => Inertia::defer(function () use ($meta, $adCampaignsRequest, $insightsRequest) {
@@ -62,8 +62,17 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $adSetsRequest = new GetAdSetsRequest($adAccount);
-        $insightsRequest = new GetInsightsRequest($adAccount, 'adset');
+        $adSetsRequest = new GetAdSetsRequest(
+            adAccount: $adAccount,
+            dateFrom: $request->query('from'),
+            dateTo: $request->query('to')
+        );
+        $insightsRequest = new GetInsightsRequest(
+            adAccount: $adAccount,
+            level: 'adset',
+            dateFrom: $request->query('from'),
+            dateTo: $request->query('to')
+        );
 
         return Inertia::render('campaigns/adsets', [
             'adSets' => Inertia::defer(function () use ($meta, $adSetsRequest, $insightsRequest) {
@@ -91,8 +100,17 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $adsRequest = new GetAdsRequest($adAccount);
-        $insightsRequest = new GetInsightsRequest($adAccount, 'ad');
+        $adsRequest = new GetAdsRequest(
+            adAccount: $adAccount,
+            dateFrom: $request->query('from'),
+            dateTo: $request->query('to')
+        );
+        $insightsRequest = new GetInsightsRequest(
+            adAccount: $adAccount,
+            level: 'ad',
+            dateFrom: $request->query('from'),
+            dateTo: $request->query('to')
+        );
 
         return Inertia::render('campaigns/ads', [
             'ads' => Inertia::defer(function () use ($meta, $adsRequest, $insightsRequest) {
