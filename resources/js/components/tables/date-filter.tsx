@@ -1,5 +1,7 @@
 import { cn } from "@/lib/cn";
+import { Route, SharedData } from "@/types";
 import * as Ariakit from "@ariakit/react";
+import { router, usePage } from "@inertiajs/react";
 import {
     endOfMonth,
     endOfToday,
@@ -88,6 +90,9 @@ const presets = {
 };
 
 export function DateFilter() {
+    const {
+        props: { ziggy },
+    } = usePage<SharedData>();
     const [open, setOpen] = useState(false);
 
     const today = new Date();
@@ -121,6 +126,19 @@ export function DateFilter() {
             formatStr
         )}`;
     }, [selectedDate]);
+
+    const apply = () => {
+        const propsToRefresh = {
+            "dashboard.campaigns": ["campaigns"],
+            "dashboard.campaigns.adSets": ["adSets"],
+            "dashboard.campaigns.ads": ["ads"],
+        } satisfies Partial<Record<Route, string[]>>;
+
+        router.reload({
+            // @ts-ignore
+            only: propsToRefresh[ziggy.route],
+        });
+    };
 
     return (
         <Ariakit.PopoverProvider
@@ -166,6 +184,7 @@ export function DateFilter() {
                                                 setDraftDate(range);
                                                 setSelectedDate(range);
                                                 setOpen(false);
+                                                apply();
                                             }}
                                             className={cn(
                                                 "cursor-pointer flex items-center w-full gap-3 px-3 py-2.5 text-left rounded-lg font-semibold active:scale-[0.99] transition-transform duration-100 ease-in-out",
@@ -216,6 +235,7 @@ export function DateFilter() {
 
                                     if (draftDate) {
                                         setSelectedDate(draftDate);
+                                        apply();
                                     }
                                 }}
                                 className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md"

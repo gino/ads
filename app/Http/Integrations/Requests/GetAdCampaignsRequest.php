@@ -3,6 +3,7 @@
 namespace App\Http\Integrations\Requests;
 
 use App\Models\AdAccount;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
@@ -22,9 +23,15 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
 
     protected AdAccount $adAccount;
 
-    public function __construct(AdAccount $adAccount)
+    protected Carbon $dateFrom;
+
+    protected Carbon $dateTo;
+
+    public function __construct(AdAccount $adAccount, Carbon $dateFrom, Carbon $dateTo)
     {
         $this->adAccount = $adAccount;
+        $this->dateFrom = $dateFrom;
+        $this->dateTo = $dateTo;
     }
 
     public function resolveEndpoint(): string
@@ -43,9 +50,17 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
             'daily_budget',
         ];
 
+        // dd($this->dateFrom->format('Y-m-d'));
+        // dd($this->dateFrom->format('Y-m-d'));
+
         return [
             'fields' => implode(',', $fields),
             'date_preset' => 'maximum',
+            // {'since':YYYY-MM-DD,'until':YYYY-MM-DD}
+            // 'time_range' => [
+            //     'since' => '',
+            //     'until' => ''
+            // ]
         ];
     }
 

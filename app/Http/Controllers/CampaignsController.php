@@ -12,6 +12,7 @@ use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdsRequest;
 use App\Http\Integrations\Requests\GetInsightsRequest;
 use App\Models\AdAccount;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -24,7 +25,15 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $adCampaignsRequest = new GetAdCampaignsRequest($adAccount);
+        $today = now()->timestamp;
+        $dateFrom = (int) $request->query('from', $today);
+        $dateTo = (int) $request->query('to', $today);
+
+        $adCampaignsRequest = new GetAdCampaignsRequest(
+            $adAccount,
+            dateFrom: Carbon::createFromTimestampMs($dateFrom),
+            dateTo: Carbon::createFromTimestampMs($dateTo),
+        );
         $insightsRequest = new GetInsightsRequest($adAccount, 'campaign');
 
         return Inertia::render('campaigns/index', [
@@ -37,10 +46,6 @@ class CampaignsController extends Controller
                 $campaigns = $campaigns->map(function ($campaign) use ($insightsByCampaign) {
                     $rawInsights = $insightsByCampaign->get($campaign['id'], null);
                     $campaign['insights'] = $rawInsights ? InsightsData::fromRaw($rawInsights) : null;
-
-                    // if ($rawInsights) {
-                    //     dd($rawInsights);
-                    // }
 
                     return $campaign;
                 });
