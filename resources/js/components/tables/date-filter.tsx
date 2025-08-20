@@ -155,14 +155,20 @@ export function DateFilter() {
 
         if (!range?.from || !range?.to) return;
 
-        router.reload({
-            // @ts-ignore
-            only: propsToRefresh[ziggy.route],
-            data: {
+        router.get(
+            route(route().current()!),
+            {
+                ...route().params,
                 from: format(range.from, "yyyy-MM-dd"),
                 to: format(range.to, "yyyy-MM-dd"),
             },
-        });
+            {
+                // @ts-ignore
+                only: propsToRefresh[route().current()!],
+                preserveState: true,
+                replace: true,
+            }
+        );
     };
 
     return (
