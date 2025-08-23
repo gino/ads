@@ -27,7 +27,7 @@ export function Layout({ children }: PropsWithChildren) {
     return (
         <AppLayout title="Campaigns">
             <div className="flex flex-col max-h-full">
-                <div className="mb-2">
+                <div className="mb-3">
                     {/* <div className="flex justify-end mb-4 pb-4 border-b border-gray-100">
                         <DateFilter />
                     </div> */}
