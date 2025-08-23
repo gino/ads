@@ -38,7 +38,7 @@ export function AdsTab() {
 
     const label = useMemo(() => {
         if (selectedAdSetsAmount > 0) {
-            return `Ads for ${selectedAdSetsAmount} adset${
+            return `Ads for ${selectedAdSetsAmount} ad set${
                 selectedAdSetsAmount === 1 ? "" : "s"
             }`;
         }

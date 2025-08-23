@@ -16,7 +16,7 @@ export function Switch({ ...props }: Props) {
             data-checked={checked}
             data-focus-visible={focusVisible || undefined}
             className={cn(
-                "bg-gray-100 ring-1 ring-gray-200 w-8 rounded-full flex relative cursor-pointer",
+                "bg-gray-100 ring-1 ring-gray-200 relative h-4 w-8 rounded-full cursor-pointer transition duration-150 ease-in-out",
                 "data-[checked='true']:bg-brand data-[checked='true']:ring-brand"
             )}
         >
@@ -36,16 +36,12 @@ export function Switch({ ...props }: Props) {
             <div
                 data-checked={checked}
                 className={cn(
-                    "h-4 w-4 rounded-full ring-1 ring-gray-200 text-gray-300 bg-white shadow-base transition duration-200 ease-in-out translate-x-0",
-                    "data-[checked='true']:translate-x-[calc(100%)]",
-                    "data-[checked='true']:ring-brand",
-                    "data-[checked='true']:text-brand",
-                    "flex items-center justify-center"
+                    "h-full aspect-square bg-white ring-1 ring-gray-200 data-[checked='true']:translate-x-full transition duration-150 ease-in-out rounded-full data-[checked='true']:ring-brand flex items-center justify-center data-[checked='true']:text-brand text-gray-300"
                 )}
             >
                 {/* <i
                     className={cn(
-                        "fa-solid text-[7px]",
+                        "fa-solid text-[8px]",
                         checked ? "fa-check" : "fa-times"
                     )}
                 /> */}

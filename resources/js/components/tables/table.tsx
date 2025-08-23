@@ -4,9 +4,9 @@ import { flexRender, RowData, Table as TableType } from "@tanstack/react-table";
 import { useRef } from "react";
 import { getPinnedColumnStyles, ShadowSeperator } from "./utils";
 
-const ROW_HEIGHT = cn("h-14");
-const ROW_PADDING = cn("px-4");
-const CONTAINER_PADDING = 4;
+const ROW_HEIGHT = cn("h-13");
+const ROW_PADDING = cn("px-5");
+const CONTAINER_PADDING = 0;
 
 const SELECTED_ROW_BG = cn(
     "bg-brand-lighter even:bg-brand-lighter hover:bg-brand-light"
@@ -30,7 +30,7 @@ export function Table<T extends RowData>({ table }: Props<T>) {
         >
             <div style={{ padding: `0px ${CONTAINER_PADDING}px` }}>
                 <table className="w-full">
-                    <thead className="sticky top-0 z-20 bg-white [box-shadow:0_2px_0_var(--color-gray-200)]">
+                    <thead className="sticky top-0 z-20 bg-white [box-shadow:0_1px_0_var(--color-gray-200)]">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
@@ -42,11 +42,11 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                                             ),
                                         }}
                                         className={cn(
-                                            "font-semibold text-left align-middle whitespace-nowrap border-gray-200 border-r last:border-r-0",
+                                            "font-semibold text-left align-middle whitespace-nowrap bg-gray-50 border-gray-200 border-r last:border-r-0",
                                             ROW_HEIGHT,
                                             ROW_PADDING,
                                             header.column.getIsPinned() &&
-                                                "bg-white"
+                                                "bg-gray-50"
                                         )}
                                     >
                                         {header.isPlaceholder ? null : (

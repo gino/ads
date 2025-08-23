@@ -74,6 +74,6 @@ class GetAdsRequest extends Request implements Cacheable, Paginatable
 
     public function cacheExpiryInSeconds(): int
     {
-        return 5;
+        return 60;
     }
 }

@@ -123,28 +123,53 @@ export function DateFilter() {
         selectedDate
     );
 
+    const activePresetName = useMemo(() => {
+        if (!selectedDate?.from || !selectedDate?.to) return undefined;
+
+        for (const [preset, getRange] of Object.entries(presets)) {
+            const range = getRange(today);
+            if (isRangeEqual(selectedDate, range)) return preset;
+        }
+
+        return undefined;
+    }, [selectedDate, today]);
+
     const label = useMemo(() => {
         const formatStr = "d MMM yyyy";
 
         if (!selectedDate || !selectedDate.from) return "nope";
 
-        if (!selectedDate.to || isSameDay(selectedDate.from, selectedDate.to)) {
+        const isSingleDay =
+            !selectedDate.to || isSameDay(selectedDate.from, selectedDate.to);
+
+        let formatted: string;
+        if (isSingleDay) {
+            formatted = format(selectedDate.from, formatStr);
+        } else {
+            // At this point, selectedDate.to is defined
+            formatted = `${format(selectedDate.from, formatStr)} - ${format(
+                selectedDate.to as Date,
+                formatStr
+            )}`;
+        }
+
+        if (activePresetName) {
+            // return `${activePresetName}: ${formatted}`;
+            return `${formatted}`;
+        }
+
+        if (isSingleDay) {
             if (isToday(selectedDate.from)) {
-                return `Today: ${format(selectedDate.from, formatStr)}`;
+                return `Today: ${formatted}`;
             }
 
             if (isYesterday(selectedDate.from)) {
-                return `Yesterday: ${format(selectedDate.from, formatStr)}`;
+                return `Yesterday: ${formatted}`;
             }
-
-            return format(selectedDate.from, formatStr);
         }
 
-        return `${format(selectedDate.from, formatStr)} - ${format(
-            selectedDate.to,
-            formatStr
-        )}`;
-    }, [selectedDate]);
+        return formatted;
+    }, [selectedDate, activePresetName]);
 
     const apply = (range: DateRange | undefined) => {
         const propsToRefresh = {
@@ -163,8 +188,9 @@ export function DateFilter() {
                 to: format(range.to, "yyyy-MM-dd"),
             },
             {
-                // @ts-ignore
-                only: propsToRefresh[route().current()!],
+                only: propsToRefresh[
+                    route().current() as keyof typeof propsToRefresh
+                ],
                 preserveState: true,
                 replace: true,
             }
@@ -179,12 +205,12 @@ export function DateFilter() {
         >
             <Ariakit.PopoverDisclosure className="bg-white text-xs shadow-base pl-3 pr-3.5 shrink-0 py-2.5 flex items-center gap-2 rounded-lg active:scale-[0.99] transition-transform duration-100 ease-in-out cursor-pointer">
                 <i className="fa-regular fa-calendar text-xs text-gray-400" />
-                <span className="font-semibold flex-1 text-left">
+                <span className="font-semibold flex-1 text-left whitespace-nowrap">
                     {/* Today: 18 Aug 2025 */}
                     {label}
                 </span>
 
-                <i className="fa-solid fa-chevron-down text-gray-400 text-[12px] ml-4" />
+                <i className="fa-solid fa-chevron-down text-gray-400 text-[12px] ml-3" />
             </Ariakit.PopoverDisclosure>
 
             <Ariakit.Popover
@@ -198,8 +224,8 @@ export function DateFilter() {
                 className="bg-gray-50 rounded-xl shadow-base-popup overflow-hidden"
             >
                 <div className="flex w-full">
-                    <div className="w-56 max-h-[380px] p-2 scroll-p-2 overflow-y-auto">
-                        <div className="space-y-2">
+                    <div className="w-56 max-h-[380px] p-1.5 scroll-p-1.5 overflow-y-auto">
+                        <div className="space-y-1.5">
                             {Object.entries(presets).map(
                                 ([preset, getRange]) => {
                                     const range = getRange(today);

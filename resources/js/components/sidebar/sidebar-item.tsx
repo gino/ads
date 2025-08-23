@@ -119,7 +119,6 @@ export function SidebarItem({
                 title={children}
                 className={classes}
                 {...linkProps}
-                preserveState
                 href={disabled ? page.props.ziggy.location : route(props.href)}
                 onClick={
                     disabled ? (e) => e.preventDefault() : linkProps.onClick

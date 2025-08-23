@@ -73,6 +73,6 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
 
     public function cacheExpiryInSeconds(): int
     {
-        return 30;
+        return 60;
     }
 }

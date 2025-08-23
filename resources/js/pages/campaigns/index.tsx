@@ -26,16 +26,63 @@ export default function Campaigns({ campaigns }: Props) {
 export function Layout({ children }: PropsWithChildren) {
     return (
         <AppLayout title="Campaigns">
+            <div className="flex flex-col max-h-full">
+                <div className="mb-2">
+                    {/* <div className="flex justify-end mb-4 pb-4 border-b border-gray-100">
+                        <DateFilter />
+                    </div> */}
+
+                    <div className="bg-gray-100 p-1 rounded-xl flex flex-1 gap-2 items-center">
+                        <button className="bg-white px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg shadow-base flex items-center justify-center">
+                            <span>Campaigns</span>
+                        </button>
+
+                        <button className="px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg flex items-center justify-center">
+                            <span>Ad sets</span>
+                        </button>
+
+                        <button className="px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg flex items-center justify-center">
+                            <span>Ads</span>
+                        </button>
+
+                        <div className="flex items-center">
+                            <div className="mr-px">
+                                <div className="w-px h-6 bg-gray-200 mx-3"></div>
+                            </div>
+
+                            <DateFilter />
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-white flex-1 shadow-base flex flex-col rounded-xl overflow-hidden max-h-full">
+                    <div className="flex-1 flex flex-col min-h-full">
+                        {children}
+                    </div>
+                </div>
+            </div>
+        </AppLayout>
+    );
+
+    return (
+        <AppLayout title="Campaigns">
             <div className="bg-white shadow-base flex flex-col rounded-xl overflow-hidden max-h-full">
-                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-200 overflow-x-auto relative">
+                <div className="flex flex-shrink-0 items-center bg-gray-50 border-b border-gray-100 overflow-x-auto relative">
                     <CampaignsTab />
                     <AdSetsTab />
                     <AdsTab />
 
-                    <div className="absolute right-0 px-[5px] inset-y-0 flex items-center bg-[inherit]">
+                    <div className="ml-auto pl-4 pr-[5px]">
                         <DateFilter />
                     </div>
+
+                    {/* <div className="absolute right-0 px-[5px] inset-y-0 flex items-center bg-[inherit]">
+                        <DateFilter />
+                    </div> */}
                 </div>
+
+                {/* <div className="p-2 border-b border-gray-100 flex justify-end">
+                    <DateFilter />
+                </div> */}
 
                 <div className="flex-1 flex flex-col min-h-full">
                     {children}
