@@ -3,7 +3,6 @@
 namespace App\Http\Integrations\Requests;
 
 use App\Models\AdAccount;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
@@ -17,15 +16,11 @@ use Saloon\PaginationPlugin\Contracts\Paginatable;
 
 class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
 {
-    use HasCaching;
+    use FilteringByDate, HasCaching;
 
     protected Method $method = Method::GET;
 
     protected AdAccount $adAccount;
-
-    protected string|array|null $dateFrom;
-
-    protected string|array|null $dateTo;
 
     public function __construct(
         AdAccount $adAccount,
@@ -33,8 +28,7 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
         string|array|null $dateTo
     ) {
         $this->adAccount = $adAccount;
-        $this->dateFrom = $dateFrom;
-        $this->dateTo = $dateTo;
+        $this->setDateRange($dateFrom, $dateTo);
     }
 
     public function resolveEndpoint(): string
@@ -53,15 +47,11 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
             'daily_budget',
         ];
 
-        $today = now()->format('Y-m-d');
-        $dateFrom = Carbon::parse($this->dateFrom ?? $today)->format('Y-m-d');
-        $dateTo = Carbon::parse($this->dateTo ?? $today)->format('Y-m-d');
-
         return [
             'fields' => implode(',', $fields),
             'time_range' => [
-                'since' => $dateFrom,
-                'until' => $dateTo,
+                'since' => $this->getFormattedDateFrom(),
+                'until' => $this->getFormattedDateTo(),
             ],
         ];
     }

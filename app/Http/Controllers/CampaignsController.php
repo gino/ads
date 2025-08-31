@@ -62,6 +62,11 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
+        // We should somehow min/max the date range on the backend so we can avoid this error, somehow - our frontend allows date filtering from and to any date of course so we wanna limit this on the backend.
+        // Bad Request (400) Response: {"error":{"message":"(#3018) The start date of the time range cannot be beyond 37 months from the current date","type":"OAuthException","code":3018,"fbtrace_id":"AdW8WxBYOpE2KMJhGh9WNFJ"}}
+
+        // We should also make a DateFiltering class that all our requests extend or something
+
         $adSetsRequest = new GetAdSetsRequest(
             adAccount: $adAccount,
             dateFrom: $request->query('from'),

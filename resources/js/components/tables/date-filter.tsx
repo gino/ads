@@ -92,7 +92,7 @@ const presets = {
     },
 
     Maximum: (today: Date) => ({
-        from: subMonths(startOfDay(today), 37), // 37 months ago
+        from: subMonths(startOfDay(today), 37), // 37 months is the maximum for Meta API
         to: endOfToday(), // up to today
     }),
 };

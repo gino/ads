@@ -42,11 +42,11 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                                             ),
                                         }}
                                         className={cn(
-                                            "font-semibold text-left align-middle whitespace-nowrap bg-gray-50 border-gray-200 border-r last:border-r-0",
+                                            "font-semibold text-left align-middle whitespace-nowrap bg-white border-gray-200 border-r last:border-r-0",
                                             ROW_HEIGHT,
                                             ROW_PADDING,
                                             header.column.getIsPinned() &&
-                                                "bg-gray-50"
+                                                "bg-white"
                                         )}
                                     >
                                         {header.isPlaceholder ? null : (
