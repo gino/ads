@@ -1,3 +1,4 @@
+import { router } from "@inertiajs/react";
 import {
     useCallback,
     useEffect,
@@ -24,6 +25,13 @@ export type UseDebouncedBatchOptions<T, R = unknown> = {
     // Optional merge/drop policy when re-enqueuing the same key within the window.
     // Return null to drop (e.g., net no-op), or the merged/next value to keep.
     coalesce?: (prev: T | undefined, next: T) => T | null;
+    // Auto-flush triggers in addition to unmount
+    flushOnBeforeUnload?: boolean; // default false
+    flushOnVisibilityHidden?: boolean; // default true
+    flushOnPageHide?: boolean; // default true
+    flushOnHistoryChange?: boolean; // default false
+    // Inertia.js router navigation (SPA) flush
+    flushOnInertiaNavigate?: boolean; // default true
 };
 
 export type UseDebouncedBatchApi<T, R = unknown> = {
@@ -77,6 +85,11 @@ export function useDebouncedBatch<T, R = unknown>(
         onFlush,
         flushOnUnmount = true,
         coalesce,
+        flushOnBeforeUnload = false,
+        flushOnVisibilityHidden = true,
+        flushOnPageHide = true,
+        flushOnHistoryChange = false,
+        flushOnInertiaNavigate = true,
     } = options;
 
     const storeRef = useRef(createStore<T>());
@@ -218,6 +231,96 @@ export function useDebouncedBatch<T, R = unknown>(
     useEffect(() => {
         flushOnUnmountRef.current = flushOnUnmount;
     }, [flushOnUnmount]);
+
+    // Auto-flush on visibility/page lifecycle
+    useEffect(() => {
+        const handleVisibility = () => {
+            if (
+                document.visibilityState === "hidden" &&
+                flushOnVisibilityHidden
+            ) {
+                void flushRef.current();
+            }
+        };
+        const handlePageHide = () => {
+            if (flushOnPageHide) {
+                void flushRef.current();
+            }
+        };
+        const handleBeforeUnload = () => {
+            if (flushOnBeforeUnload) {
+                void flushRef.current();
+            }
+        };
+
+        if (flushOnVisibilityHidden)
+            document.addEventListener("visibilitychange", handleVisibility);
+        if (flushOnPageHide)
+            window.addEventListener("pagehide", handlePageHide);
+        if (flushOnBeforeUnload)
+            window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            if (flushOnVisibilityHidden)
+                document.removeEventListener(
+                    "visibilitychange",
+                    handleVisibility
+                );
+            if (flushOnPageHide)
+                window.removeEventListener("pagehide", handlePageHide);
+            if (flushOnBeforeUnload)
+                window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [flushOnBeforeUnload, flushOnVisibilityHidden, flushOnPageHide]);
+
+    // Auto-flush on history changes within SPA navigation
+    useEffect(() => {
+        if (!flushOnHistoryChange) return;
+
+        const handlePopState = () => {
+            void flushRef.current();
+        };
+
+        // Monkeypatch pushState/replaceState to emit events
+        const originalPush = history.pushState;
+        const originalReplace = history.replaceState;
+        const wrap = (fn: typeof history.pushState): typeof history.pushState =>
+            function wrapped(
+                this: History,
+                data: any,
+                unused: string,
+                url?: string | URL
+            ) {
+                const result = fn.apply(this, [data, unused, url as any]);
+                void flushRef.current();
+                return result;
+            } as any;
+
+        history.pushState = wrap(originalPush);
+        history.replaceState = wrap(originalReplace);
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            history.pushState = originalPush;
+            history.replaceState = originalReplace;
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [flushOnHistoryChange]);
+
+    // Auto-flush on Inertia.js router navigations
+    useEffect(() => {
+        if (!flushOnInertiaNavigate || !router) return;
+        const offBefore = router.on("before", () => {
+            void flushRef.current();
+        });
+        const offStart = router.on("start", () => {
+            void flushRef.current();
+        });
+        return () => {
+            offBefore?.();
+            offStart?.();
+        };
+    }, [flushOnInertiaNavigate]);
 
     const cancel = useCallback(() => {
         clearTimers();
