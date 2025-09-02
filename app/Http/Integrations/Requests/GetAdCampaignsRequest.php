@@ -2,6 +2,7 @@
 
 namespace App\Http\Integrations\Requests;
 
+use App\Http\Integrations\Requests\Traits\FilteringByDate;
 use App\Models\AdAccount;
 use Illuminate\Support\Facades\Cache;
 use Saloon\CachePlugin\Contracts\Cacheable;

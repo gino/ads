@@ -14,10 +14,12 @@ export function Switch({ ...props }: Props) {
         <label
             role="checkbox"
             data-checked={checked}
+            data-disabled={props.disabled}
             data-focus-visible={focusVisible || undefined}
             className={cn(
                 "bg-gray-100 ring-1 ring-gray-200 relative h-4 w-8 rounded-full cursor-pointer transition duration-150 ease-in-out",
-                "data-[checked='true']:bg-brand data-[checked='true']:ring-brand"
+                "data-[checked='true']:bg-brand data-[checked='true']:ring-brand",
+                "data-[disabled='true']:cursor-not-allowed data-[disabled='true']:opacity-50"
             )}
         >
             <Ariakit.VisuallyHidden>
@@ -41,7 +43,7 @@ export function Switch({ ...props }: Props) {
             >
                 {/* <i
                     className={cn(
-                        "fa-solid text-[8px]",
+                        "fa-solid text-[7px]",
                         checked ? "fa-check" : "fa-times"
                     )}
                 /> */}

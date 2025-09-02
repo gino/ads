@@ -6,6 +6,24 @@ declare module 'ziggy-js' {
     "dashboard.campaigns": [],
     "dashboard.campaigns.adSets": [],
     "dashboard.campaigns.ads": [],
+    "campaigns.status.update": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "adSets.status.update": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
+    "ads.status.update": [
+        {
+            "name": "id",
+            "required": true
+        }
+    ],
     "logout": [],
     "storage.local": [
         {

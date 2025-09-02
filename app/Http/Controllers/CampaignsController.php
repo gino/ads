@@ -11,6 +11,7 @@ use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdsRequest;
 use App\Http\Integrations\Requests\GetInsightsRequest;
+use App\Http\Integrations\Requests\UpdateAdStatusRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -117,6 +118,8 @@ class CampaignsController extends Controller
             dateTo: $request->query('to')
         );
 
+        $cacheKey = $adsRequest->getCacheKey($meta->createPendingRequest($adsRequest));
+
         return Inertia::render('campaigns/ads', [
             'ads' => Inertia::defer(function () use ($meta, $adsRequest, $insightsRequest) {
                 $ads = collect($meta->paginate($adsRequest)->collect()->all());
@@ -133,7 +136,46 @@ class CampaignsController extends Controller
 
                 return AdData::collect($ads);
             }),
+            'cacheKey' => $cacheKey ? hash('sha256', $cacheKey) : null,
         ]);
+    }
+
+    public function updateCampaignStatus(Request $request, string $id)
+    {
+        return response()->json($id);
+    }
+
+    public function updateAdSetStatus(Request $request, string $id)
+    {
+        return response()->json($id);
+    }
+
+    public function updateAdStatus(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:ACTIVE,PAUSED',
+        ]);
+
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+        $updateStatusRequest = new UpdateAdStatusRequest($id, $validated['status']);
+
+        $meta->send($updateStatusRequest);
+
+        // Invalidate cache
+        $cacheKey = $request->input('cacheKey');
+        if ($cacheKey) {
+            $adsRequest = new GetAdsRequest(
+                adAccount: $adAccount,
+                dateFrom: $request->query('from'),
+                dateTo: $request->query('to')
+            );
+            $adsRequest->resolveCacheDriver()->delete($cacheKey);
+        }
+
+        return response()->json($id);
     }
 
     public function refresh()

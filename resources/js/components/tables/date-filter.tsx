@@ -135,7 +135,7 @@ export function DateFilter() {
     }, [selectedDate, today]);
 
     const label = useMemo(() => {
-        const formatStr = "d MMM yyyy";
+        const formatStr = "MMMM d, yyyy";
 
         if (!selectedDate || !selectedDate.from) return "nope";
 
@@ -153,10 +153,10 @@ export function DateFilter() {
             )}`;
         }
 
-        if (activePresetName) {
-            // return `${activePresetName}: ${formatted}`;
-            return `${formatted}`;
-        }
+        // if (activePresetName) {
+        //     return `${activePresetName}: ${formatted}`;
+        //     // return `${formatted}`;
+        // }
 
         if (isSingleDay) {
             if (isToday(selectedDate.from)) {
@@ -203,14 +203,14 @@ export function DateFilter() {
             setOpen={setOpen}
             placement="bottom-end"
         >
-            <Ariakit.PopoverDisclosure className="bg-white text-xs shadow-base pl-3 pr-3.5 shrink-0 py-2.5 flex items-center gap-2 rounded-lg active:scale-[0.99] transition-transform duration-100 ease-in-out cursor-pointer">
-                <i className="fa-regular fa-calendar text-xs text-gray-400" />
+            <Ariakit.PopoverDisclosure className="bg-white text-xs shadow-base pl-3 pr-3.5 shrink-0 py-2.5 flex items-center rounded-lg active:scale-[0.99] transition-transform duration-100 ease-in-out cursor-pointer">
+                <i className="fa-regular fa-calendar text-xs text-gray-400 mr-2" />
                 <span className="font-semibold flex-1 text-left whitespace-nowrap">
                     {/* Today: 18 Aug 2025 */}
                     {label}
                 </span>
 
-                <i className="fa-solid fa-chevron-down text-gray-400 text-[12px] ml-3" />
+                <i className="fa-solid fa-angle-down text-gray-400 text-xs ml-3" />
             </Ariakit.PopoverDisclosure>
 
             <Ariakit.Popover

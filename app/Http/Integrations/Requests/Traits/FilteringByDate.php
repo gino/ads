@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Integrations\Requests;
+namespace App\Http\Integrations\Requests\Traits;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;

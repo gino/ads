@@ -2,6 +2,7 @@
 
 namespace App\Http\Integrations\Requests;
 
+use App\Http\Integrations\Requests\Traits\FilteringByDate;
 use App\Models\AdAccount;
 use Illuminate\Support\Facades\Cache;
 use Saloon\CachePlugin\Contracts\Cacheable;
@@ -9,6 +10,7 @@ use Saloon\CachePlugin\Contracts\Driver;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
 use Saloon\CachePlugin\Traits\HasCaching;
 use Saloon\Enums\Method;
+use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
 
@@ -60,6 +62,22 @@ class GetAdsRequest extends Request implements Cacheable, Paginatable
     public function resolveCacheDriver(): Driver
     {
         return new LaravelCacheDriver(Cache::store('redis'));
+    }
+
+    protected function cacheKey(PendingRequest $pendingRequest): ?string
+    {
+        $query = $pendingRequest->query()->all();
+
+        if (! array_key_exists('limit', $query)) {
+            $query['limit'] = 25;
+        }
+
+        return http_build_query($query);
+    }
+
+    public function getCacheKey(PendingRequest $pendingRequest)
+    {
+        return $this->cacheKey($pendingRequest);
     }
 
     public function cacheExpiryInSeconds(): int
