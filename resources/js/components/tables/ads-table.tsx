@@ -1,3 +1,4 @@
+import { aggregateInsights } from "@/lib/aggregate-insights";
 import { useDebouncedBatch } from "@/lib/hooks/use-debounced-batch";
 import {
     formatMoney,
@@ -70,52 +71,7 @@ export function AdsTable({ isLoading, ads }: Props) {
         flushOnBeforeUnload: false,
     });
 
-    // https://chatgpt.com/c/68b827eb-ee6c-8330-9d88-6fe48c10b6b8
-    const sums = useMemo(() => {
-        if (!ads) {
-            return {
-                spend: 0,
-                cpc: 0,
-                cpm: 0,
-                ctr: 0,
-                clicks: 0,
-                impressions: 0,
-                atc: 0,
-                conversions: 0,
-                cpa: 0,
-                roas: 0,
-            };
-        }
-
-        const spend = ads.reduce((a, b) => a + (b.insights?.spend || 0), 0);
-        const clicks = ads.reduce((a, b) => a + (b.insights?.clicks || 0), 0);
-        const impressions = ads.reduce(
-            (a, b) => a + (b.insights?.impressions || 0),
-            0
-        );
-        const cpc = spend / clicks;
-        const cpm = (spend / impressions) * 1000;
-        const ctr = (clicks / impressions) * 100;
-        const atc = ads.reduce((a, b) => a + (b.insights?.atc || 0), 0);
-        const conversions = ads.reduce(
-            (a, b) => a + (b.insights?.conversions || 0),
-            0
-        );
-        const cpa = Math.min(spend / conversions, 0);
-
-        return {
-            spend,
-            cpc,
-            cpm,
-            ctr,
-            clicks,
-            impressions,
-            atc,
-            conversions,
-            cpa,
-            roas: 0,
-        };
-    }, [ads]);
+    const sums = useMemo(() => aggregateInsights(ads), [ads]);
 
     const columns: ColumnDef<App.Data.AdData>[] = useMemo(
         () => [
@@ -351,11 +307,13 @@ export function AdsTable({ isLoading, ads }: Props) {
                     const value = getValue<number>();
                     return (
                         <div className="text-right">
-                            {value ? value : <>&mdash;</>}
+                            {value ? formatNumber(value) : <>&mdash;</>}
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">2.82</div>,
+                footer: (info) => (
+                    <div className="text-right">{formatNumber(sums.roas)}</div>
+                ),
             },
         ],
         [sums]
