@@ -75,7 +75,7 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
     public function cacheExpiryInSeconds(): int
     {
         // 15 minutes
-        // Insights refresh every 15 minutes anyways, by Meta
-        return 900;
+        // Insights refresh every 15 minutes anyways, by Meta (limitations of the API)
+        return 60 * 15;
     }
 }

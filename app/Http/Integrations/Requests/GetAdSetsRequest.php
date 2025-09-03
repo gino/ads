@@ -50,10 +50,12 @@ class GetAdSetsRequest extends Request implements Cacheable, Paginatable
 
         return [
             'fields' => implode(',', $fields),
-            'time_range' => [
-                'since' => $this->getFormattedDateFrom(),
-                'until' => $this->getFormattedDateTo(),
-            ],
+            // https://chatgpt.com/c/68b80a11-b3e4-8324-9516-5c6b0e08a801
+            // 'time_range' => [
+            //     'since' => $this->getFormattedDateFrom(),
+            //     'until' => $this->getFormattedDateTo(),
+            // ],
+            'date_preset' => 'maximum',
         ];
     }
 
@@ -64,6 +66,7 @@ class GetAdSetsRequest extends Request implements Cacheable, Paginatable
 
     public function cacheExpiryInSeconds(): int
     {
-        return 60;
+        // 5 minutes
+        return 60 * 5;
     }
 }
