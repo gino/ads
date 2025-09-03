@@ -51,11 +51,9 @@ export function AdSetsTab() {
                 router.visit(route(routeName) + location.search);
             }}
         >
-            <i className="fa-solid fa-folder text-gray-300" />
             <span>{label}</span>
-
             {selectedAdSetsAmount > 0 && (
-                <div className="absolute right-5 top-1/2 -translate-y-1/2 bg-brand text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-brand text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
                     <span>{selectedAdSetsAmount} selected</span>
                     <div
                         onClick={(e) => {
@@ -64,7 +62,7 @@ export function AdSetsTab() {
                         }}
                         className="text-[9px] ml-1 cursor-pointer"
                     >
-                        <i className="fa-solid fa-times align-middle" />
+                        <i className="fa-solid fa-times" />
                     </div>
                 </div>
             )}

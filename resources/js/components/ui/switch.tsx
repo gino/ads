@@ -47,6 +47,13 @@ export function Switch({ ...props }: Props) {
                         checked ? "fa-check" : "fa-times"
                     )}
                 /> */}
+
+                <div
+                    className={cn(
+                        "h-1.5 w-1.5 rounded-full shadow-inner",
+                        checked ? "bg-brand" : "bg-gray-100"
+                    )}
+                />
             </div>
         </label>
     );

@@ -357,7 +357,7 @@ function DatePicker(props: {
                 ),
                 week_number: cn("select-none", defaultClassNames.week_number),
                 day: cn(
-                    "relative p-0 text-center group/day aspect-square flex items-center justify-center select-none h-8 w-8 [&>button]:cursor-pointer text-xs hover:not-data-[selected=true]:bg-gray-100 hover:not-data-[selected=true]:rounded-lg",
+                    "relative p-0 text-center group/day aspect-square flex items-center font-medium justify-center select-none h-8 w-8 [&>button]:cursor-pointer text-xs hover:not-data-[selected=true]:bg-gray-100 hover:not-data-[selected=true]:rounded-lg",
                     // "[&:first-child[data-selected=true]_button]:rounded-l-lg [&:last-child[data-selected=true]_button]:rounded-r-lg",
                     "[&>button]:w-full [&>button]:h-full",
                     defaultClassNames.day

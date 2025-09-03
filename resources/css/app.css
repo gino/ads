@@ -35,11 +35,12 @@
 
     /* --color-brand: #053057; */
     /* --color-brand: #86a397; */
-    --color-brand: #b3848f;
+    /* --color-brand: #b3848f; */
+    --color-brand: var(--color-teal-700);
     --color-brand-light: #eaf1f9;
     --color-brand-lighter: #eaf1f9;
 
-    /* --color-brand: var(--color-teal-700);
+    /*
     --color-brand-light: #e8f1f1;
     --color-brand-lighter: #e8f1f1; */
 

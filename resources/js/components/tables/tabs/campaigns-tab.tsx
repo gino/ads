@@ -31,11 +31,9 @@ export function CampaignsTab() {
                 router.visit(route(routeName) + location.search);
             }}
         >
-            <i className="fa-solid fa-folder text-gray-300" />
             <span>Campaigns</span>
-
             {selectedCampaignsAmount > 0 && (
-                <div className="absolute right-5 top-1/2 -translate-y-1/2 bg-brand text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-brand text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
                     <span>{selectedCampaignsAmount} selected</span>
                     <div
                         onClick={(e) => {
@@ -44,7 +42,7 @@ export function CampaignsTab() {
                         }}
                         className="text-[9px] ml-1 cursor-pointer"
                     >
-                        <i className="fa-solid fa-times align-middle" />
+                        <i className="fa-solid fa-times" />
                     </div>
                 </div>
             )}
