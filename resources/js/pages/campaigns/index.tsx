@@ -33,15 +33,15 @@ export function Layout({ children }: PropsWithChildren) {
                     </div> */}
 
                     <div className="bg-gray-100 p-1 rounded-xl flex flex-1 gap-2 items-center">
-                        <button className="bg-white px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg shadow-base flex items-center justify-center">
+                        <button className="bg-white px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg shadow-base flex items-center justify-center active:scale-[0.99] transition-transform duration-100 ease-in-out">
                             <span>Campaigns</span>
                         </button>
 
-                        <button className="px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg flex items-center justify-center">
+                        <button className="px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg flex items-center justify-center active:scale-[0.99] transition-transform duration-100 ease-in-out">
                             <span>Ad sets</span>
                         </button>
 
-                        <button className="px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg flex items-center justify-center">
+                        <button className="px-5 w-full font-semibold cursor-pointer py-2.5 rounded-lg flex items-center justify-center active:scale-[0.99] transition-transform duration-100 ease-in-out">
                             <span>Ads</span>
                         </button>
 

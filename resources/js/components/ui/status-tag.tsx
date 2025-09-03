@@ -1,4 +1,3 @@
-import { cn } from "@/lib/cn";
 import { useMemo } from "react";
 
 interface Props {
@@ -14,6 +13,9 @@ export function StatusTag({ status }: Props) {
             case "inactive": {
                 return "Inactive";
             }
+            case "in_process": {
+                return "Processing";
+            }
             case "active": {
                 return "Campaign inactive";
             }
@@ -23,14 +25,29 @@ export function StatusTag({ status }: Props) {
         }
     }, [status]);
 
+    const Dot = useMemo(() => {
+        switch (status.toLowerCase()) {
+            case "active": {
+                return (
+                    <div className="h-[7px] w-[7px] rounded-full bg-brand" />
+                );
+            }
+            case "in_process": {
+                return (
+                    <div className="h-[8px] w-[8px] rounded-full border-2 border-gray-300" />
+                );
+            }
+            default: {
+                return (
+                    <div className="h-[7px] w-[7px] rounded-full bg-gray-300" />
+                );
+            }
+        }
+    }, [status]);
+
     return (
         <div className="inline-flex items-center font-semibold gap-2 text-xs">
-            <div
-                className={cn(
-                    "h-[7px] w-[7px] rounded-full",
-                    status === "ACTIVE" ? "bg-brand" : "bg-gray-300 "
-                )}
-            />
+            {Dot}
             <span>{label}</span>
         </div>
     );

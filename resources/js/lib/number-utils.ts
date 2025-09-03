@@ -95,3 +95,13 @@ export function formatPercentage(value: number) {
         minimumFractionDigits: 2,
     }).format(value / 100);
 }
+
+export function formatNumber(value: number) {
+    const { selectedAdAccount } = useSelectedAdAccount();
+    const currency = selectedAdAccount.currency;
+
+    // @ts-ignore
+    const locale = currencyLocaleMap[currency];
+
+    return Intl.NumberFormat(locale).format(value);
+}

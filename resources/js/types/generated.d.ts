@@ -38,6 +38,8 @@ spend: number | null;
 cpm: number | null;
 cpc: number | null;
 ctr: number | null;
+clicks: number | null;
+impressions: number | null;
 conversions: number | null;
 atc: number | null;
 cpa: number | null;

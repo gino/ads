@@ -159,9 +159,9 @@ class CampaignsController extends Controller
 
         $meta->send($updateStatusRequest);
 
-        // Invalidate cache
         $cacheKey = $request->input('cacheKey');
         if ($cacheKey) {
+            // Invalidate cache
             $adsRequest = new GetAdsRequest(
                 adAccount: $adAccount,
                 dateFrom: $request->query('from'),

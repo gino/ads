@@ -16,6 +16,8 @@ class InsightsData extends Data
         public ?float $cpm,
         public ?float $cpc,
         public ?float $ctr,
+        public ?int $clicks,
+        public ?int $impressions,
         public ?int $conversions,
         public ?int $atc,
         public ?float $cpa,
@@ -24,6 +26,8 @@ class InsightsData extends Data
 
     public static function fromRaw(array $data): self
     {
+        // dd($data);
+
         $actions = collect($data['actions'] ?? []);
 
         $conversions = (int) ($actions->firstWhere('action_type', 'purchase')['value'] ?? 0);
@@ -42,6 +46,8 @@ class InsightsData extends Data
             cpm: $data['cpm'] ?? null,
             cpc: $data['cost_per_inline_link_click'] ?? null,
             ctr: $data['inline_link_click_ctr'] ?? null,
+            clicks: $data['inline_link_clicks'] ?? null,
+            impressions: $data['impressions'] ?? null,
             conversions: $conversions ?? null,
             atc: $addToCarts ?? null,
             cpa: $data['cost_per_objective_result'] ?? null,

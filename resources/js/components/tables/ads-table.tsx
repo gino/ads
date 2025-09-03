@@ -1,5 +1,9 @@
 import { useDebouncedBatch } from "@/lib/hooks/use-debounced-batch";
-import { formatMoney, formatPercentage } from "@/lib/number-utils";
+import {
+    formatMoney,
+    formatNumber,
+    formatPercentage,
+} from "@/lib/number-utils";
 import {
     useSelectedAds,
     useSelectedAdSets,
@@ -65,6 +69,53 @@ export function AdsTable({ isLoading, ads }: Props) {
         flushOnPageHide: false,
         flushOnBeforeUnload: false,
     });
+
+    // https://chatgpt.com/c/68b827eb-ee6c-8330-9d88-6fe48c10b6b8
+    const sums = useMemo(() => {
+        if (!ads) {
+            return {
+                spend: 0,
+                cpc: 0,
+                cpm: 0,
+                ctr: 0,
+                clicks: 0,
+                impressions: 0,
+                atc: 0,
+                conversions: 0,
+                cpa: 0,
+                roas: 0,
+            };
+        }
+
+        const spend = ads.reduce((a, b) => a + (b.insights?.spend || 0), 0);
+        const clicks = ads.reduce((a, b) => a + (b.insights?.clicks || 0), 0);
+        const impressions = ads.reduce(
+            (a, b) => a + (b.insights?.impressions || 0),
+            0
+        );
+        const cpc = spend / clicks;
+        const cpm = (spend / impressions) * 1000;
+        const ctr = (clicks / impressions) * 100;
+        const atc = ads.reduce((a, b) => a + (b.insights?.atc || 0), 0);
+        const conversions = ads.reduce(
+            (a, b) => a + (b.insights?.conversions || 0),
+            0
+        );
+        const cpa = Math.min(spend / conversions, 0);
+
+        return {
+            spend,
+            cpc,
+            cpm,
+            ctr,
+            clicks,
+            impressions,
+            atc,
+            conversions,
+            cpa,
+            roas: 0,
+        };
+    }, [ads]);
 
     const columns: ColumnDef<App.Data.AdData>[] = useMemo(
         () => [
@@ -152,7 +203,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 5,67</div>,
+                footer: (info) => (
+                    <div className="text-right">{formatMoney(sums.spend)}</div>
+                ),
             },
             {
                 id: "cpc",
@@ -166,7 +219,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 1,23</div>,
+                footer: (info) => (
+                    <div className="text-right">{formatMoney(sums.cpc)}</div>
+                ),
             },
             {
                 id: "cpm",
@@ -180,7 +235,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 12,34</div>,
+                footer: (info) => (
+                    <div className="text-right">{formatMoney(sums.cpm)}</div>
+                ),
             },
             {
                 id: "ctr",
@@ -194,7 +251,47 @@ export function AdsTable({ isLoading, ads }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">8,24%</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {formatPercentage(sums.ctr)}
+                    </div>
+                ),
+            },
+            {
+                id: "clicks",
+                accessorFn: (row) => row.insights?.clicks,
+                header: () => <div className="text-right">Clicks</div>,
+                cell: ({ getValue }) => {
+                    const value = getValue<number>();
+                    return (
+                        <div className="text-right">
+                            {value ? formatNumber(value) : <>&mdash;</>}
+                        </div>
+                    );
+                },
+                footer: (info) => (
+                    <div className="text-right">
+                        {formatNumber(sums.clicks)}
+                    </div>
+                ),
+            },
+            {
+                id: "impressions",
+                accessorFn: (row) => row.insights?.impressions,
+                header: () => <div className="text-right">Impressions</div>,
+                cell: ({ getValue }) => {
+                    const value = getValue<number>();
+                    return (
+                        <div className="text-right">
+                            {value ? formatNumber(value) : <>&mdash;</>}
+                        </div>
+                    );
+                },
+                footer: (info) => (
+                    <div className="text-right">
+                        {formatNumber(sums.impressions)}
+                    </div>
+                ),
             },
             {
                 id: "atc",
@@ -208,7 +305,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">12</div>,
+                footer: (info) => (
+                    <div className="text-right">{formatNumber(sums.atc)}</div>
+                ),
             },
             {
                 id: "conversions",
@@ -222,7 +321,11 @@ export function AdsTable({ isLoading, ads }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">12</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {formatNumber(sums.conversions)}
+                    </div>
+                ),
             },
             {
                 id: "cpa",
@@ -236,7 +339,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 0,47</div>,
+                footer: (info) => (
+                    <div className="text-right">{formatMoney(sums.cpa)}</div>
+                ),
             },
             {
                 id: "roas",
@@ -253,7 +358,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                 footer: (info) => <div className="text-right">2.82</div>,
             },
         ],
-        []
+        [sums]
     );
 
     const { data, columns: _columns } = useSkeletonLoader({
@@ -303,6 +408,12 @@ export function AdsTable({ isLoading, ads }: Props) {
         getRowId: (ad) => ad.id,
         getCoreRowModel: getCoreRowModel(),
     });
+
+    // return (
+    //     <pre className="overflow-y-auto">
+    //         {JSON.stringify(filteredAds, null, 2)}
+    //     </pre>
+    // );
 
     return <Table table={table} />;
 }
