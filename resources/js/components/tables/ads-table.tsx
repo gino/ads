@@ -71,7 +71,34 @@ export function AdsTable({ isLoading, ads }: Props) {
         flushOnBeforeUnload: false,
     });
 
-    const sums = useMemo(() => aggregateInsights(ads), [ads]);
+    const filteredAds = useMemo(() => {
+        if (!ads || !Array.isArray(ads)) {
+            return [];
+        }
+
+        if (selectedCampaignIds.length > 0 && selectedAdsetIds.length > 0) {
+            return ads.filter((ad) => {
+                return (
+                    selectedCampaignIds.includes(ad.campaignId) &&
+                    selectedAdsetIds.includes(ad.adsetId)
+                );
+            });
+        }
+
+        if (selectedCampaignIds.length > 0) {
+            return ads.filter((ad) =>
+                selectedCampaignIds.includes(ad.campaignId)
+            );
+        }
+
+        if (selectedAdsetIds.length > 0) {
+            return ads.filter((ad) => selectedAdsetIds.includes(ad.adsetId));
+        }
+
+        return ads;
+    }, [selectedCampaignIds, selectedAdsetIds, ads]);
+
+    const sums = useMemo(() => aggregateInsights(filteredAds), [filteredAds]);
 
     const columns: ColumnDef<App.Data.AdData>[] = useMemo(
         () => [
@@ -320,40 +347,13 @@ export function AdsTable({ isLoading, ads }: Props) {
     );
 
     const { data, columns: _columns } = useSkeletonLoader({
-        data: ads,
+        data: filteredAds,
         columns,
         isLoading,
     });
 
-    const filteredAds = useMemo(() => {
-        if (!data || !Array.isArray(data)) {
-            return [];
-        }
-
-        if (selectedCampaignIds.length > 0 && selectedAdsetIds.length > 0) {
-            return data.filter((ad) => {
-                return (
-                    selectedCampaignIds.includes(ad.campaignId) &&
-                    selectedAdsetIds.includes(ad.adsetId)
-                );
-            });
-        }
-
-        if (selectedCampaignIds.length > 0) {
-            return data.filter((ad) =>
-                selectedCampaignIds.includes(ad.campaignId)
-            );
-        }
-
-        if (selectedAdsetIds.length > 0) {
-            return data.filter((ad) => selectedAdsetIds.includes(ad.adsetId));
-        }
-
-        return data;
-    }, [selectedCampaignIds, selectedAdsetIds, data]);
-
     const table = useReactTable({
-        data: filteredAds,
+        data,
         columns: _columns,
         state: {
             rowSelection: selectedAds,
