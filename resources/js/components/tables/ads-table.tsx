@@ -12,6 +12,7 @@ import {
     getCoreRowModel,
     useReactTable,
 } from "@tanstack/react-table";
+import axios from "axios";
 import { useMemo, useState } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
@@ -53,12 +54,16 @@ export function AdsTable({ isLoading, ads }: Props) {
         },
         onFlush: async (items) => {
             console.log("Sending batch to backend", items);
-            // TODO: Send batch to backend and handle batch by Meta API
-
-            //   await window.axios.post(route('ads.updateStatusBatch'), {
-            //     entries: items.map(i => ({ id: i.id, status: i.next ? 'ACTIVE' : 'PAUSED' })),
-            //   });
+            await axios.patch(route("ads.status.update"), {
+                entries: items,
+                cacheKey: props.cacheKey,
+            });
         },
+        flushOnInertiaNavigate: true,
+        flushOnHistoryChange: false,
+        flushOnVisibilityHidden: false,
+        flushOnPageHide: false,
+        flushOnBeforeUnload: false,
     });
 
     const columns: ColumnDef<App.Data.AdData>[] = useMemo(
@@ -102,25 +107,6 @@ export function AdsTable({ isLoading, ads }: Props) {
                                                     ? "PAUSED"
                                                     : "ACTIVE",
                                         });
-                                        // setLoading(true);
-                                        // try {
-                                        //     await axios.patch(
-                                        //         route("ads.status.update", {
-                                        //             id: row.original.id,
-                                        //         }) + location.search,
-                                        //         {
-                                        //             cacheKey: props.cacheKey,
-                                        //             status:
-                                        //                 row.original.status ===
-                                        //                 "ACTIVE"
-                                        //                     ? "PAUSED"
-                                        //                     : "ACTIVE",
-                                        //         }
-                                        //     );
-                                        // } catch (err) {
-                                        // } finally {
-                                        //     setLoading(false);
-                                        // }
                                     }}
                                     defaultChecked={
                                         row.original.status === "ACTIVE"

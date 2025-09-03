@@ -63,11 +63,6 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        // We should somehow min/max the date range on the backend so we can avoid this error, somehow - our frontend allows date filtering from and to any date of course so we wanna limit this on the backend.
-        // Bad Request (400) Response: {"error":{"message":"(#3018) The start date of the time range cannot be beyond 37 months from the current date","type":"OAuthException","code":3018,"fbtrace_id":"AdW8WxBYOpE2KMJhGh9WNFJ"}}
-
-        // We should also make a DateFiltering class that all our requests extend or something
-
         $adSetsRequest = new GetAdSetsRequest(
             adAccount: $adAccount,
             dateFrom: $request->query('from'),
@@ -140,27 +135,27 @@ class CampaignsController extends Controller
         ]);
     }
 
-    public function updateCampaignStatus(Request $request, string $id)
+    public function updateCampaignStatus(Request $request)
     {
-        return response()->json($id);
+        return response()->json('OK');
     }
 
-    public function updateAdSetStatus(Request $request, string $id)
+    public function updateAdSetStatus(Request $request)
     {
-        return response()->json($id);
+        return response()->json('OK');
     }
 
-    public function updateAdStatus(Request $request, string $id)
+    public function updateAdStatus(Request $request)
     {
         $validated = $request->validate([
-            'status' => 'required|in:ACTIVE,PAUSED',
+            'entries' => 'array',
         ]);
 
         /** @var AdAccount $adAccount */
         $adAccount = $request->adAccount();
 
         $meta = new MetaConnector($request->user()->connection);
-        $updateStatusRequest = new UpdateAdStatusRequest($id, $validated['status']);
+        $updateStatusRequest = new UpdateAdStatusRequest($validated['entries']);
 
         $meta->send($updateStatusRequest);
 
@@ -175,7 +170,7 @@ class CampaignsController extends Controller
             $adsRequest->resolveCacheDriver()->delete($cacheKey);
         }
 
-        return response()->json($id);
+        return response()->json('OK');
     }
 
     public function refresh()

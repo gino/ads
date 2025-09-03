@@ -33,17 +33,11 @@
     /* --color-gray-900: oklch(0.21 0.006 285.885); */
     /* --color-gray-950: oklch(0.141 0.005 285.823); */
 
-    /* --color-brand: #6c5fa5;
-    --color-brand-light: #f1eff6;
-    --color-brand-lighter: #f1eff6; */
-
-    --color-brand: #053057;
+    /* --color-brand: #053057; */
+    /* --color-brand: #86a397; */
+    --color-brand: #b3848f;
     --color-brand-light: #eaf1f9;
     --color-brand-lighter: #eaf1f9;
-
-    /* --color-brand: #0978be;
-    --color-brand-light: #eaf1f9;
-    --color-brand-lighter: #eaf1f9; */
 
     /* --color-brand: var(--color-teal-700);
     --color-brand-light: #e8f1f1;

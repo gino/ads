@@ -30,9 +30,9 @@ Route::middleware([
     Route::get('/campaigns/ads', [CampaignsController::class, 'ads'])->name('dashboard.campaigns.ads');
 
     // Updating status routes
-    Route::patch('/campaigns/{id}/status', [CampaignsController::class, 'updateCampaignStatus'])->name('campaigns.status.update');
-    Route::patch('/adsets/{id}/status', [CampaignsController::class, 'updateAdSetStatus'])->name('adSets.status.update');
-    Route::patch('/ads/{id}/status', [CampaignsController::class, 'updateAdStatus'])->name('ads.status.update');
+    Route::patch('/campaigns/status', [CampaignsController::class, 'updateCampaignStatus'])->name('campaigns.status.update');
+    Route::patch('/adsets/status', [CampaignsController::class, 'updateAdSetStatus'])->name('adSets.status.update');
+    Route::patch('/ads/status', [CampaignsController::class, 'updateAdStatus'])->name('ads.status.update');
 
     Route::post('/select-ad-account', function (Request $request) {
         $validated = $request->validate([

@@ -13,27 +13,32 @@ class UpdateAdStatusRequest extends Request implements HasBody
 
     protected Method $method = Method::POST;
 
-    protected string $id;
+    protected array $entries;
 
-    protected string $status;
-
-    public function __construct(string $id, string $status)
+    public function __construct(array $entries)
     {
-        $this->id = $id;
-        $this->status = $status;
+        $this->entries = $entries;
     }
 
     public function resolveEndpoint(): string
     {
-        return "{$this->id}";
+        return '';
     }
 
     protected function defaultBody(): array
     {
-        // https://developers.facebook.com/docs/marketing-api/reference/adgroup/#Updating
+        // https://developers.facebook.com/docs/graph-api/batch-requests/#complex-batch-requests
+
+        $mappedEntries = collect($this->entries)->map(function ($entry) {
+            return [
+                'method' => 'POST',
+                'relative_url' => $entry['id'],
+                'body' => "status={$entry['status']}",
+            ];
+        });
 
         return [
-            'status' => $this->status,
+            'batch' => $mappedEntries->toArray(),
         ];
     }
 }

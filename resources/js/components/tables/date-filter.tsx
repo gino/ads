@@ -188,8 +188,11 @@ export function DateFilter() {
                 to: format(range.to, "yyyy-MM-dd"),
             },
             {
-                only: propsToRefresh[
-                    route().current() as keyof typeof propsToRefresh
+                only: [
+                    ...propsToRefresh[
+                        route().current() as keyof typeof propsToRefresh
+                    ],
+                    "cacheKey",
                 ],
                 preserveState: true,
                 replace: true,
