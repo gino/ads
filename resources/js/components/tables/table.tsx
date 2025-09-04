@@ -77,11 +77,11 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                                                         )}
                                                     >
                                                         {header.column.getIsSorted() ===
-                                                            "asc" && (
+                                                            "desc" && (
                                                             <i className="fa-solid fa-arrow-up" />
                                                         )}
                                                         {header.column.getIsSorted() ===
-                                                            "desc" && (
+                                                            "asc" && (
                                                             <i className="fa-solid fa-arrow-down" />
                                                         )}
 

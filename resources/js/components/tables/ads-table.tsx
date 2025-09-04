@@ -1,10 +1,11 @@
-import { aggregateInsights } from "@/lib/aggregate-insights";
 import { useDebouncedBatch } from "@/lib/hooks/use-debounced-batch";
 import {
     formatMoney,
     formatNumber,
     formatPercentage,
 } from "@/lib/number-utils";
+import { aggregateInsights } from "@/lib/table/aggregate-insights";
+import { getSortingFunctions } from "@/lib/table/sorting-functions/sorting-functions";
 import {
     useSelectedAds,
     useSelectedAdSets,
@@ -190,12 +191,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "spend",
                 accessorFn: (row) => row.insights?.spend,
                 header: () => <div className="text-right">Spend</div>,
-                sortingFn: (a, b) => {
-                    return (
-                        Number(a.original.insights?.spend) -
-                        Number(b.original.insights?.spend)
-                    );
-                },
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -212,6 +209,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "cpc",
                 accessorFn: (row) => row.insights?.cpc,
                 header: () => <div className="text-right">CPC</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -230,6 +229,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "cpm",
                 accessorFn: (row) => row.insights?.cpm,
                 header: () => <div className="text-right">CPM</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -248,6 +249,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "ctr",
                 accessorFn: (row) => row.insights?.ctr,
                 header: () => <div className="text-right">CTR</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -270,6 +273,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "clicks",
                 accessorFn: (row) => row.insights?.clicks,
                 header: () => <div className="text-right">Clicks</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -292,6 +297,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "impressions",
                 accessorFn: (row) => row.insights?.impressions,
                 header: () => <div className="text-right">Impressions</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -314,6 +321,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "atc",
                 accessorFn: (row) => row.insights?.atc,
                 header: () => <div className="text-right">ATC</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -332,6 +341,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "conversions",
                 accessorFn: (row) => row.insights?.conversions,
                 header: () => <div className="text-right">Conversions</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -354,6 +365,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "cpa",
                 accessorFn: (row) => row.insights?.cpa,
                 header: () => <div className="text-right">CPA</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -372,6 +385,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "roas",
                 accessorFn: (row) => row.insights?.roas,
                 header: () => <div className="text-right">ROAS</div>,
+                sortingFn: "numberSorting",
+                sortUndefined: 1,
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -412,6 +427,8 @@ export function AdsTable({ isLoading, ads }: Props) {
         getRowId: (ad) => ad.id,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        sortingFns: getSortingFunctions(),
+        sortDescFirst: false,
     });
 
     return <Table table={table} />;
