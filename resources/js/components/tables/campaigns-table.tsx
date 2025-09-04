@@ -11,10 +11,12 @@ import { usePage } from "@inertiajs/react";
 import {
     ColumnDef,
     getCoreRowModel,
+    getSortedRowModel,
+    SortingState,
     useReactTable,
 } from "@tanstack/react-table";
 import axios from "axios";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
@@ -54,6 +56,8 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
     });
 
     const sums = useMemo(() => aggregateInsights(campaigns), [campaigns]);
+
+    const [sorting, setSorting] = useState<SortingState>([]);
 
     const columns = useMemo<ColumnDef<App.Data.AdCampaignData>[]>(
         () => [
@@ -351,11 +355,14 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
             columnPinning: {
                 left: ["campaign"],
             },
+            sorting,
         },
         enableRowSelection: true,
         onRowSelectionChange: setSelectedCampaigns,
+        onSortingChange: setSorting,
         getRowId: (campaign) => campaign.id,
         getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
     });
 
     return <Table table={table} />;

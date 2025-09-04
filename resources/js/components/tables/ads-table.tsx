@@ -15,10 +15,12 @@ import { usePage } from "@inertiajs/react";
 import {
     ColumnDef,
     getCoreRowModel,
+    getSortedRowModel,
+    SortingState,
     useReactTable,
 } from "@tanstack/react-table";
 import axios from "axios";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
@@ -113,6 +115,8 @@ export function AdsTable({ isLoading, ads }: Props) {
 
     const sums = useMemo(() => aggregateInsights(filteredAds), [filteredAds]);
 
+    const [sorting, setSorting] = useState<SortingState>([]);
+
     const columns: ColumnDef<App.Data.AdData>[] = useMemo(
         () => [
             {
@@ -186,6 +190,12 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "spend",
                 accessorFn: (row) => row.insights?.spend,
                 header: () => <div className="text-right">Spend</div>,
+                sortingFn: (a, b) => {
+                    return (
+                        Number(a.original.insights?.spend) -
+                        Number(b.original.insights?.spend)
+                    );
+                },
                 cell: ({ getValue }) => {
                     const value = getValue<number>();
                     return (
@@ -394,18 +404,15 @@ export function AdsTable({ isLoading, ads }: Props) {
             columnPinning: {
                 left: ["ad"],
             },
+            sorting,
         },
         enableRowSelection: true,
         onRowSelectionChange: setSelectedAds,
+        onSortingChange: setSorting,
         getRowId: (ad) => ad.id,
         getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
     });
-
-    // return (
-    //     <pre className="overflow-y-auto">
-    //         {JSON.stringify(filteredAds, null, 2)}
-    //     </pre>
-    // );
 
     return <Table table={table} />;
 }

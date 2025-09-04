@@ -45,6 +45,11 @@ export function StatusTag({ status }: Props) {
                     <div className="h-[8px] w-[8px] rounded-full border-2 border-gray-300" />
                 );
             }
+            case "adset_paused": {
+                return (
+                    <div className="h-[8px] w-[8px] rounded-full border-2 border-gray-300" />
+                );
+            }
             case "in_process": {
                 return (
                     <div className="h-[8px] w-[8px] rounded-full border-2 border-emerald-600" />

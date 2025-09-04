@@ -57,9 +57,39 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                                                     header.getContext()
                                                 )}
 
-                                                <button className="cursor-pointer rounded-sm hover:bg-gray-100 flex items-center justify-center group w-5 h-5 -mr-[5px]">
-                                                    <i className="fa-solid fa-sort-down text-[12px] -mt-1.5 text-gray-400 group-hover:text-black" />
-                                                </button>
+                                                {header.column.getCanSort() && (
+                                                    <button
+                                                        onClick={header.column.getToggleSortingHandler()}
+                                                        title={
+                                                            header.column.getNextSortingOrder() ===
+                                                            "asc"
+                                                                ? "Sort ascending"
+                                                                : header.column.getNextSortingOrder() ===
+                                                                  "desc"
+                                                                ? "Sort descending"
+                                                                : "Clear sort"
+                                                        }
+                                                        className={cn(
+                                                            !header.column.getIsSorted()
+                                                                ? "text-gray-400 hover:text-black hover:bg-gray-100"
+                                                                : "text-black bg-gray-100",
+                                                            "text-[10px] -mr-[5px] h-5 w-5 rounded flex items-center justify-center cursor-pointer"
+                                                        )}
+                                                    >
+                                                        {header.column.getIsSorted() ===
+                                                            "asc" && (
+                                                            <i className="fa-solid fa-arrow-up" />
+                                                        )}
+                                                        {header.column.getIsSorted() ===
+                                                            "desc" && (
+                                                            <i className="fa-solid fa-arrow-down" />
+                                                        )}
+
+                                                        {!header.column.getIsSorted() && (
+                                                            <i className="fa-solid fa-arrow-up-arrow-down" />
+                                                        )}
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
 
