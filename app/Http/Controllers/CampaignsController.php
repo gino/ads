@@ -37,6 +37,8 @@ class CampaignsController extends Controller
             dateTo: $request->query('to')
         );
 
+        $cacheKey = $adCampaignsRequest->getCacheKey($meta->createPendingRequest($adCampaignsRequest));
+
         return Inertia::render('campaigns/index', [
             'campaigns' => Inertia::defer(function () use ($meta, $adCampaignsRequest, $insightsRequest) {
                 $campaigns = collect($meta->paginate($adCampaignsRequest)->collect()->all());
@@ -53,6 +55,7 @@ class CampaignsController extends Controller
 
                 return AdCampaignData::collect($campaigns);
             }),
+            'cacheKey' => $cacheKey ? hash('sha256', $cacheKey) : null,
         ]);
     }
 
@@ -75,6 +78,8 @@ class CampaignsController extends Controller
             dateTo: $request->query('to')
         );
 
+        $cacheKey = $adSetsRequest->getCacheKey($meta->createPendingRequest($adSetsRequest));
+
         return Inertia::render('campaigns/adsets', [
             'adSets' => Inertia::defer(function () use ($meta, $adSetsRequest, $insightsRequest) {
                 $adSets = collect($meta->paginate($adSetsRequest)->collect()->all());
@@ -91,6 +96,7 @@ class CampaignsController extends Controller
 
                 return AdSetData::collect($adSets);
             }),
+            'cacheKey' => $cacheKey ? hash('sha256', $cacheKey) : null,
         ]);
     }
 

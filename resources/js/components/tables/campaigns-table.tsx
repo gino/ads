@@ -1,5 +1,12 @@
-import { formatMoney, formatPercentage } from "@/lib/number-utils";
+import { aggregateInsights } from "@/lib/aggregate-insights";
+import {
+    formatMoney,
+    formatNumber,
+    formatPercentage,
+} from "@/lib/number-utils";
 import { useSelectedCampaigns } from "@/pages/campaigns";
+import { SharedData } from "@/types";
+import { usePage } from "@inertiajs/react";
 import {
     ColumnDef,
     getCoreRowModel,
@@ -19,6 +26,10 @@ interface Props {
 
 export function CampaignsTable({ isLoading, campaigns }: Props) {
     const [selectedCampaigns, setSelectedCampaigns] = useSelectedCampaigns();
+
+    const { props } = usePage<SharedData & { cacheKey: string | null }>();
+
+    const sums = useMemo(() => aggregateInsights(campaigns), [campaigns]);
 
     const columns = useMemo<ColumnDef<App.Data.AdCampaignData>[]>(
         () => [
@@ -89,11 +100,7 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: () => {
-                    return (
-                        <div className="text-right">{formatMoney(12.34)}</div>
-                    );
-                },
+                footer: (info) => <div className="text-right">&mdash;</div>,
             },
             {
                 id: "spend",
@@ -107,24 +114,9 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: ({ column, header }) => {
-                    // const columnId = "spend";
-
-                    // This works, but also can lead to heavy calculations during renders. Consider doing calculations like this in a useMemo based on the data itself:
-                    // (https://github.com/TanStack/table/issues/101#issuecomment-1228717720)
-
-                    // const rows = table
-                    //     .getFilteredRowModel()
-                    //     .rows.filter((r) => r.getValue(columnId) !== undefined);
-                    // const sum = rows.reduce(
-                    //     (total, row) => total + row.getValue<number>(columnId),
-                    //     0
-                    // );
-
-                    // return <div className="text-right">{formatMoney(sum)}</div>;
-
-                    return <div className="text-right">€ 5,67</div>;
-                },
+                footer: (info) => (
+                    <div className="text-right">{formatMoney(sums.spend)}</div>
+                ),
             },
             {
                 id: "cpc",
@@ -138,7 +130,11 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 1,23</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {isNaN(sums.cpc) ? <>&mdash;</> : formatMoney(sums.cpc)}
+                    </div>
+                ),
             },
             {
                 id: "cpm",
@@ -152,7 +148,11 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 12,34</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {isNaN(sums.cpm) ? <>&mdash;</> : formatMoney(sums.cpm)}
+                    </div>
+                ),
             },
             {
                 id: "ctr",
@@ -166,7 +166,59 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">8,24%</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {isNaN(sums.ctr) ? (
+                            <>&mdash;</>
+                        ) : (
+                            formatPercentage(sums.ctr)
+                        )}
+                    </div>
+                ),
+            },
+            {
+                id: "clicks",
+                accessorFn: (row) => row.insights?.clicks,
+                header: () => <div className="text-right">Clicks</div>,
+                cell: ({ getValue }) => {
+                    const value = getValue<number>();
+                    return (
+                        <div className="text-right">
+                            {value ? formatNumber(value) : <>&mdash;</>}
+                        </div>
+                    );
+                },
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.clicks > 0 ? (
+                            formatNumber(sums.clicks)
+                        ) : (
+                            <>&mdash;</>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                id: "impressions",
+                accessorFn: (row) => row.insights?.impressions,
+                header: () => <div className="text-right">Impressions</div>,
+                cell: ({ getValue }) => {
+                    const value = getValue<number>();
+                    return (
+                        <div className="text-right">
+                            {value ? formatNumber(value) : <>&mdash;</>}
+                        </div>
+                    );
+                },
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.impressions > 0 ? (
+                            formatNumber(sums.impressions)
+                        ) : (
+                            <>&mdash;</>
+                        )}
+                    </div>
+                ),
             },
             {
                 id: "atc",
@@ -180,7 +232,11 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">12</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.atc > 0 ? formatNumber(sums.atc) : <>&mdash;</>}
+                    </div>
+                ),
             },
             {
                 id: "conversions",
@@ -194,7 +250,15 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">12</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.conversions > 0 ? (
+                            formatNumber(sums.conversions)
+                        ) : (
+                            <>&mdash;</>
+                        )}
+                    </div>
+                ),
             },
             {
                 id: "cpa",
@@ -208,7 +272,11 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 0,47</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {isNaN(sums.cpa) ? <>&mdash;</> : formatMoney(sums.cpa)}
+                    </div>
+                ),
             },
             {
                 id: "roas",
@@ -222,10 +290,14 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">2.82</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.roas > 0 ? formatNumber(sums.roas) : <>&mdash;</>}
+                    </div>
+                ),
             },
         ],
-        []
+        [sums]
     );
 
     const { data, columns: _columns } = useSkeletonLoader({

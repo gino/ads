@@ -1,5 +1,12 @@
-import { formatMoney, formatPercentage } from "@/lib/number-utils";
+import { aggregateInsights } from "@/lib/aggregate-insights";
+import {
+    formatMoney,
+    formatNumber,
+    formatPercentage,
+} from "@/lib/number-utils";
 import { useSelectedAdSets, useSelectedCampaigns } from "@/pages/campaigns";
+import { SharedData } from "@/types";
+import { usePage } from "@inertiajs/react";
 import {
     ColumnDef,
     getCoreRowModel,
@@ -24,6 +31,27 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
     const selectedCampaignIds = useMemo(
         () => Object.keys(selectedCampaigns),
         [selectedCampaigns]
+    );
+
+    const { props } = usePage<SharedData & { cacheKey: string | null }>();
+
+    const filteredAdSets = useMemo(() => {
+        if (!adSets || !Array.isArray(adSets)) {
+            return [];
+        }
+
+        if (selectedCampaignIds.length === 0) {
+            return adSets;
+        }
+
+        return adSets.filter((adSet) =>
+            selectedCampaignIds.includes(adSet.campaignId)
+        );
+    }, [selectedCampaignIds, adSets]);
+
+    const sums = useMemo(
+        () => aggregateInsights(filteredAdSets),
+        [filteredAdSets]
     );
 
     const columns: ColumnDef<App.Data.AdSetData>[] = useMemo(
@@ -98,7 +126,9 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 5,67</div>,
+                footer: (info) => (
+                    <div className="text-right">{formatMoney(sums.spend)}</div>
+                ),
             },
             {
                 id: "cpc",
@@ -112,7 +142,11 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 1,23</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {isNaN(sums.cpc) ? <>&mdash;</> : formatMoney(sums.cpc)}
+                    </div>
+                ),
             },
             {
                 id: "cpm",
@@ -126,7 +160,11 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 12,34</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {isNaN(sums.cpm) ? <>&mdash;</> : formatMoney(sums.cpm)}
+                    </div>
+                ),
             },
             {
                 id: "ctr",
@@ -140,7 +178,59 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">8,24%</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {isNaN(sums.ctr) ? (
+                            <>&mdash;</>
+                        ) : (
+                            formatPercentage(sums.ctr)
+                        )}
+                    </div>
+                ),
+            },
+            {
+                id: "clicks",
+                accessorFn: (row) => row.insights?.clicks,
+                header: () => <div className="text-right">Clicks</div>,
+                cell: ({ getValue }) => {
+                    const value = getValue<number>();
+                    return (
+                        <div className="text-right">
+                            {value ? formatNumber(value) : <>&mdash;</>}
+                        </div>
+                    );
+                },
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.clicks > 0 ? (
+                            formatNumber(sums.clicks)
+                        ) : (
+                            <>&mdash;</>
+                        )}
+                    </div>
+                ),
+            },
+            {
+                id: "impressions",
+                accessorFn: (row) => row.insights?.impressions,
+                header: () => <div className="text-right">Impressions</div>,
+                cell: ({ getValue }) => {
+                    const value = getValue<number>();
+                    return (
+                        <div className="text-right">
+                            {value ? formatNumber(value) : <>&mdash;</>}
+                        </div>
+                    );
+                },
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.impressions > 0 ? (
+                            formatNumber(sums.impressions)
+                        ) : (
+                            <>&mdash;</>
+                        )}
+                    </div>
+                ),
             },
             {
                 id: "atc",
@@ -154,7 +244,11 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">12</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.atc > 0 ? formatNumber(sums.atc) : <>&mdash;</>}
+                    </div>
+                ),
             },
             {
                 id: "conversions",
@@ -168,7 +262,15 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">12</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.conversions > 0 ? (
+                            formatNumber(sums.conversions)
+                        ) : (
+                            <>&mdash;</>
+                        )}
+                    </div>
+                ),
             },
             {
                 id: "cpa",
@@ -182,7 +284,11 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">€ 0,47</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {isNaN(sums.cpa) ? <>&mdash;</> : formatMoney(sums.cpa)}
+                    </div>
+                ),
             },
             {
                 id: "roas",
@@ -196,34 +302,24 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         </div>
                     );
                 },
-                footer: (info) => <div className="text-right">2.82</div>,
+                footer: (info) => (
+                    <div className="text-right">
+                        {sums.roas > 0 ? formatNumber(sums.roas) : <>&mdash;</>}
+                    </div>
+                ),
             },
         ],
-        []
+        [sums]
     );
 
     const { data, columns: _columns } = useSkeletonLoader({
-        data: adSets,
+        data: filteredAdSets,
         columns,
         isLoading,
     });
 
-    const filteredAdSets = useMemo(() => {
-        if (!data || !Array.isArray(data)) {
-            return [];
-        }
-
-        if (selectedCampaignIds.length === 0) {
-            return data;
-        }
-
-        return data.filter((adSet) =>
-            selectedCampaignIds.includes(adSet.campaignId)
-        );
-    }, [selectedCampaignIds, data]);
-
     const table = useReactTable({
-        data: filteredAdSets,
+        data,
         columns: _columns,
         state: {
             rowSelection: selectedAdSets,

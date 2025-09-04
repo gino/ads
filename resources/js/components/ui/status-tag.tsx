@@ -29,12 +29,22 @@ export function StatusTag({ status }: Props) {
         switch (status.toLowerCase()) {
             case "active": {
                 return (
-                    <div className="h-[7px] w-[7px] rounded-full bg-brand" />
+                    <div className="h-[7px] w-[7px] rounded-full bg-emerald-600" />
+                );
+            }
+            case "inactive": {
+                return (
+                    <div className="h-[7px] w-[7px] rounded-full bg-gray-300" />
+                );
+            }
+            case "campaign_paused": {
+                return (
+                    <div className="h-[8px] w-[8px] rounded-full border-2 border-gray-300" />
                 );
             }
             case "in_process": {
                 return (
-                    <div className="h-[8px] w-[8px] rounded-full border-2 border-gray-300" />
+                    <div className="h-[8px] w-[8px] rounded-full border-2 border-emerald-600" />
                 );
             }
             default: {

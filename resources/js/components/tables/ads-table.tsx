@@ -18,7 +18,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 import axios from "axios";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
@@ -117,42 +117,37 @@ export function AdsTable({ isLoading, ads }: Props) {
                         <div className="font-semibold">Ad</div>
                     </div>
                 ),
-                cell: ({ getValue, row }) => {
-                    const [loading, setLoading] = useState(false);
-
-                    return (
-                        <div className="flex items-center gap-5 min-w-md">
-                            <Checkbox
-                                aria-label="Select row"
-                                checked={row.getIsSelected()}
-                                disabled={!row.getCanSelect()}
-                                indeterminate={row.getIsSomeSelected()}
-                                onChange={row.getToggleSelectedHandler()}
-                                className="flex-shrink-0"
+                cell: ({ getValue, row }) => (
+                    <div className="flex items-center gap-5 min-w-md">
+                        <Checkbox
+                            aria-label="Select row"
+                            checked={row.getIsSelected()}
+                            disabled={!row.getCanSelect()}
+                            indeterminate={row.getIsSomeSelected()}
+                            onChange={row.getToggleSelectedHandler()}
+                            className="flex-shrink-0"
+                        />
+                        <div className="flex items-center gap-5">
+                            <Switch
+                                onChange={async () => {
+                                    enqueue({
+                                        ...row.original,
+                                        status:
+                                            row.original.status === "ACTIVE"
+                                                ? "PAUSED"
+                                                : "ACTIVE",
+                                    });
+                                }}
+                                defaultChecked={
+                                    row.original.status === "ACTIVE"
+                                }
                             />
-                            <div className="flex items-center gap-5">
-                                <Switch
-                                    disabled={loading}
-                                    onChange={async () => {
-                                        enqueue({
-                                            ...row.original,
-                                            status:
-                                                row.original.status === "ACTIVE"
-                                                    ? "PAUSED"
-                                                    : "ACTIVE",
-                                        });
-                                    }}
-                                    defaultChecked={
-                                        row.original.status === "ACTIVE"
-                                    }
-                                />
-                                <div className="font-semibold">
-                                    {getValue<string>()}
-                                </div>
+                            <div className="font-semibold">
+                                {getValue<string>()}
                             </div>
                         </div>
-                    );
-                },
+                    </div>
+                ),
                 footer: ({ table }) => (
                     <div className="font-semibold text-xs">
                         Total of {table.getRowCount()} ads{" "}
@@ -203,7 +198,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                     );
                 },
                 footer: (info) => (
-                    <div className="text-right">{formatMoney(sums.cpc)}</div>
+                    <div className="text-right">
+                        {isNaN(sums.cpc) ? <>&mdash;</> : formatMoney(sums.cpc)}
+                    </div>
                 ),
             },
             {
@@ -219,7 +216,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                     );
                 },
                 footer: (info) => (
-                    <div className="text-right">{formatMoney(sums.cpm)}</div>
+                    <div className="text-right">
+                        {isNaN(sums.cpm) ? <>&mdash;</> : formatMoney(sums.cpm)}
+                    </div>
                 ),
             },
             {
@@ -236,7 +235,11 @@ export function AdsTable({ isLoading, ads }: Props) {
                 },
                 footer: (info) => (
                     <div className="text-right">
-                        {formatPercentage(sums.ctr)}
+                        {isNaN(sums.ctr) ? (
+                            <>&mdash;</>
+                        ) : (
+                            formatPercentage(sums.ctr)
+                        )}
                     </div>
                 ),
             },
@@ -254,7 +257,11 @@ export function AdsTable({ isLoading, ads }: Props) {
                 },
                 footer: (info) => (
                     <div className="text-right">
-                        {formatNumber(sums.clicks)}
+                        {sums.clicks > 0 ? (
+                            formatNumber(sums.clicks)
+                        ) : (
+                            <>&mdash;</>
+                        )}
                     </div>
                 ),
             },
@@ -272,7 +279,11 @@ export function AdsTable({ isLoading, ads }: Props) {
                 },
                 footer: (info) => (
                     <div className="text-right">
-                        {formatNumber(sums.impressions)}
+                        {sums.impressions > 0 ? (
+                            formatNumber(sums.impressions)
+                        ) : (
+                            <>&mdash;</>
+                        )}
                     </div>
                 ),
             },
@@ -289,7 +300,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                     );
                 },
                 footer: (info) => (
-                    <div className="text-right">{formatNumber(sums.atc)}</div>
+                    <div className="text-right">
+                        {sums.atc > 0 ? formatNumber(sums.atc) : <>&mdash;</>}
+                    </div>
                 ),
             },
             {
@@ -306,7 +319,11 @@ export function AdsTable({ isLoading, ads }: Props) {
                 },
                 footer: (info) => (
                     <div className="text-right">
-                        {formatNumber(sums.conversions)}
+                        {sums.conversions > 0 ? (
+                            formatNumber(sums.conversions)
+                        ) : (
+                            <>&mdash;</>
+                        )}
                     </div>
                 ),
             },
@@ -323,7 +340,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                     );
                 },
                 footer: (info) => (
-                    <div className="text-right">{formatMoney(sums.cpa)}</div>
+                    <div className="text-right">
+                        {isNaN(sums.cpa) ? <>&mdash;</> : formatMoney(sums.cpa)}
+                    </div>
                 ),
             },
             {
@@ -339,7 +358,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                     );
                 },
                 footer: (info) => (
-                    <div className="text-right">{formatNumber(sums.roas)}</div>
+                    <div className="text-right">
+                        {sums.roas > 0 ? formatNumber(sums.roas) : <>&mdash;</>}
+                    </div>
                 ),
             },
         ],
