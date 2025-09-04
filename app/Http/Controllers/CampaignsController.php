@@ -11,6 +11,8 @@ use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdsRequest;
 use App\Http\Integrations\Requests\GetInsightsRequest;
+use App\Http\Integrations\Requests\UpdateAdCampaignStatusRequest;
+use App\Http\Integrations\Requests\UpdateAdSetStatusRequest;
 use App\Http\Integrations\Requests\UpdateAdStatusRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
@@ -143,11 +145,57 @@ class CampaignsController extends Controller
 
     public function updateCampaignStatus(Request $request)
     {
+        $validated = $request->validate([
+            'entries' => 'array',
+        ]);
+
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+        $updateAdCampaignStatusRequest = new UpdateAdCampaignStatusRequest($validated['entries']);
+
+        $meta->send($updateAdCampaignStatusRequest);
+
+        $cacheKey = $request->input('cacheKey');
+        if ($cacheKey) {
+            // Invalidate cache
+            $adCampaignsRequest = new GetAdCampaignsRequest(
+                $adAccount,
+                dateFrom: $request->query('from'),
+                dateTo: $request->query('to'),
+            );
+            $adCampaignsRequest->resolveCacheDriver()->delete($cacheKey);
+        }
+
         return response()->json('OK');
     }
 
     public function updateAdSetStatus(Request $request)
     {
+        $validated = $request->validate([
+            'entries' => 'array',
+        ]);
+
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+        $updateAdSetStatusRequest = new UpdateAdSetStatusRequest($validated['entries']);
+
+        $meta->send($updateAdSetStatusRequest);
+
+        $cacheKey = $request->input('cacheKey');
+        if ($cacheKey) {
+            // Invalidate cache
+            $adSetsRequest = new GetAdSetsRequest(
+                adAccount: $adAccount,
+                dateFrom: $request->query('from'),
+                dateTo: $request->query('to')
+            );
+            $adSetsRequest->resolveCacheDriver()->delete($cacheKey);
+        }
+
         return response()->json('OK');
     }
 
@@ -161,9 +209,9 @@ class CampaignsController extends Controller
         $adAccount = $request->adAccount();
 
         $meta = new MetaConnector($request->user()->connection);
-        $updateStatusRequest = new UpdateAdStatusRequest($validated['entries']);
+        $updateAdStatusRequest = new UpdateAdStatusRequest($validated['entries']);
 
-        $meta->send($updateStatusRequest);
+        $meta->send($updateAdStatusRequest);
 
         $cacheKey = $request->input('cacheKey');
         if ($cacheKey) {

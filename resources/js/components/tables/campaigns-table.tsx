@@ -1,4 +1,5 @@
 import { aggregateInsights } from "@/lib/aggregate-insights";
+import useDebouncedBatch from "@/lib/hooks/use-debounced-batch";
 import {
     formatMoney,
     formatNumber,
@@ -12,6 +13,7 @@ import {
     getCoreRowModel,
     useReactTable,
 } from "@tanstack/react-table";
+import axios from "axios";
 import { useMemo } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
@@ -28,6 +30,28 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
     const [selectedCampaigns, setSelectedCampaigns] = useSelectedCampaigns();
 
     const { props } = usePage<SharedData & { cacheKey: string | null }>();
+
+    const { enqueue } = useDebouncedBatch<App.Data.AdCampaignData>({
+        waitMs: 1_500,
+        maxWaitMs: 10_000,
+        key: (campaign) => campaign.id,
+        coalesce: (prev, next) => {
+            if (prev && prev.status === next.status) return null;
+            return next;
+        },
+        onFlush: async (items) => {
+            console.log("Sending batch to backend", items);
+            await axios.patch(route("campaigns.status.update"), {
+                entries: items,
+                cacheKey: props.cacheKey,
+            });
+        },
+        flushOnInertiaNavigate: true,
+        flushOnHistoryChange: false,
+        flushOnVisibilityHidden: false,
+        flushOnPageHide: false,
+        flushOnBeforeUnload: false,
+    });
 
     const sums = useMemo(() => aggregateInsights(campaigns), [campaigns]);
 
@@ -59,7 +83,20 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
                             className="flex-shrink-0"
                         />
                         <div className="flex items-center gap-5">
-                            <Switch defaultChecked={getValue() === "ACTIVE"} />
+                            <Switch
+                                onChange={async () => {
+                                    enqueue({
+                                        ...row.original,
+                                        status:
+                                            row.original.status === "ACTIVE"
+                                                ? "PAUSED"
+                                                : "ACTIVE",
+                                    });
+                                }}
+                                defaultChecked={
+                                    row.original.status === "ACTIVE"
+                                }
+                            />
                             <div className="font-semibold">
                                 {getValue<string>()}
                             </div>
@@ -75,7 +112,7 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
             },
             {
                 id: "status",
-                accessorFn: (row) => row.status,
+                accessorFn: (row) => row.effectiveStatus,
                 header: () => <div className="text-right">Status</div>,
                 cell: ({ getValue }) => {
                     const value = getValue<string>();

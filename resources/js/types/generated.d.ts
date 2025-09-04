@@ -9,6 +9,7 @@ externalId: string;
 export type AdCampaignData = {
 id: string;
 name: string;
+effectiveStatus: string;
 status: string;
 dailyBudget: string;
 insights: App.Data.InsightsData | null;

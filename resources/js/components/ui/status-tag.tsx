@@ -10,6 +10,9 @@ export function StatusTag({ status }: Props) {
             case "campaign_paused": {
                 return "Campaign inactive";
             }
+            case "adset_paused": {
+                return "Ad set inactive";
+            }
             case "inactive": {
                 return "Inactive";
             }
@@ -17,7 +20,7 @@ export function StatusTag({ status }: Props) {
                 return "Processing";
             }
             case "active": {
-                return "Campaign inactive";
+                return "Active";
             }
             default: {
                 return "Inactive";

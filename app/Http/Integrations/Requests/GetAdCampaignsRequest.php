@@ -46,6 +46,7 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
             'id',
             'name',
             'effective_status',
+            'status',
             'daily_budget',
         ];
 

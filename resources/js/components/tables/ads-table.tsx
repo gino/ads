@@ -63,6 +63,19 @@ export function AdsTable({ isLoading, ads }: Props) {
                 entries: items,
                 cacheKey: props.cacheKey,
             });
+
+            // if (response.status === 200) {
+            //     // Refresh data
+            //     router.get(
+            //         route(route().current()!),
+            //         { ...route().params },
+            //         {
+            //             only: ["ads", "cacheKey"],
+            //             preserveState: true,
+            //             replace: true,
+            //         }
+            //     );
+            // }
         },
         flushOnInertiaNavigate: true,
         flushOnHistoryChange: false,

@@ -1,4 +1,5 @@
 import { aggregateInsights } from "@/lib/aggregate-insights";
+import useDebouncedBatch from "@/lib/hooks/use-debounced-batch";
 import {
     formatMoney,
     formatNumber,
@@ -12,6 +13,7 @@ import {
     getCoreRowModel,
     useReactTable,
 } from "@tanstack/react-table";
+import axios from "axios";
 import { useMemo } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
@@ -34,6 +36,28 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
     );
 
     const { props } = usePage<SharedData & { cacheKey: string | null }>();
+
+    const { enqueue } = useDebouncedBatch<App.Data.AdSetData>({
+        waitMs: 1_500,
+        maxWaitMs: 10_000,
+        key: (adSet) => adSet.id,
+        coalesce: (prev, next) => {
+            if (prev && prev.status === next.status) return null;
+            return next;
+        },
+        onFlush: async (items) => {
+            console.log("Sending batch to backend", items);
+            await axios.patch(route("adSets.status.update"), {
+                entries: items,
+                cacheKey: props.cacheKey,
+            });
+        },
+        flushOnInertiaNavigate: true,
+        flushOnHistoryChange: false,
+        flushOnVisibilityHidden: false,
+        flushOnPageHide: false,
+        flushOnBeforeUnload: false,
+    });
 
     const filteredAdSets = useMemo(() => {
         if (!adSets || !Array.isArray(adSets)) {
@@ -83,6 +107,15 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                         />
                         <div className="flex items-center gap-5">
                             <Switch
+                                onChange={async () => {
+                                    enqueue({
+                                        ...row.original,
+                                        status:
+                                            row.original.status === "ACTIVE"
+                                                ? "PAUSED"
+                                                : "ACTIVE",
+                                    });
+                                }}
                                 defaultChecked={
                                     row.original.status === "ACTIVE"
                                 }
