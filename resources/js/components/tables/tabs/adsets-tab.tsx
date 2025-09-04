@@ -1,3 +1,4 @@
+import { cn } from "@/lib/cn";
 import { useSelectedAdSets, useSelectedCampaigns } from "@/pages/campaigns";
 import { Route, SharedData } from "@/types";
 import { router, usePage } from "@inertiajs/react";
@@ -53,6 +54,30 @@ export function AdSetsTab() {
         >
             <span>{label}</span>
             {selectedAdSetsAmount > 0 && (
+                <div
+                    className={cn(
+                        isActive ? "bg-gray-100" : "bg-gray-200",
+                        "font-semibold text-[12px] cursor-default inline-flex items-center pl-2 leading-5 rounded-full text-gray-800 ml-2"
+                    )}
+                >
+                    <span>{selectedAdSetsAmount} selected</span>
+                    <div
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAdSets({});
+                        }}
+                        className={cn(
+                            isActive
+                                ? "hover:bg-gray-200"
+                                : "hover:bg-gray-300",
+                            "h-4.5 w-4.5 mr-px text-[9px] flex items-center justify-center ml-0.5 rounded-full cursor-pointer"
+                        )}
+                    >
+                        <i className="fa-solid fa-times" />
+                    </div>
+                </div>
+            )}
+            {/* {selectedAdSetsAmount > 0 && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-brand text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
                     <span>{selectedAdSetsAmount} selected</span>
                     <div
@@ -65,7 +90,7 @@ export function AdSetsTab() {
                         <i className="fa-solid fa-times" />
                     </div>
                 </div>
-            )}
+            )} */}
         </Tab>
     );
 }

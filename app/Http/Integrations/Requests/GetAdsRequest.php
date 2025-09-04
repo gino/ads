@@ -74,6 +74,8 @@ class GetAdsRequest extends Request implements Cacheable, Paginatable
             $query['limit'] = 25;
         }
 
+        $query['ad_account_id'] = $this->adAccount->id;
+
         return http_build_query($query);
     }
 

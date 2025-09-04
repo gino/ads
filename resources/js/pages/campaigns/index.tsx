@@ -29,7 +29,7 @@ export function Layout({ children }: PropsWithChildren) {
             <div className="flex flex-col max-h-full">
                 <div className="mb-3">
                     <div className="bg-gray-100 p-1 rounded-xl flex flex-1 items-center">
-                        <div className="flex items-center flex-1 gap-2">
+                        <div className="flex items-center flex-1 gap-3">
                             <CampaignsTab />
                             <AdSetsTab />
                             <AdsTab />
@@ -37,7 +37,7 @@ export function Layout({ children }: PropsWithChildren) {
 
                         <div className="flex items-center">
                             <div className="mx-px">
-                                <div className="w-px h-6 bg-gray-200 mx-3"></div>
+                                <div className="w-px h-5 bg-gray-200 mx-3"></div>
                             </div>
                             <DateFilter />
                         </div>

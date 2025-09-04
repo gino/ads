@@ -9,10 +9,10 @@ const ROW_PADDING = cn("px-5");
 const CONTAINER_PADDING = 0;
 
 const SELECTED_ROW_BG = cn(
-    "bg-brand-lighter even:bg-brand-lighter hover:bg-brand-light"
+    "bg-brand-lighter even:bg-brand-light hover:bg-brand-light"
 );
 const PINNED_SELECTED_ROW_BG = cn(
-    "bg-brand-lighter group-hover:bg-brand-light"
+    "bg-brand-lighter group-hover:bg-brand-light group-even:bg-brand-light"
 );
 
 interface Props<T> {
