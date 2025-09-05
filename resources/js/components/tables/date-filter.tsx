@@ -21,7 +21,6 @@ import {
     subDays,
     subMonths,
 } from "date-fns";
-import { parseAsString, useQueryStates } from "nuqs";
 import { useCallback, useMemo, useState } from "react";
 import {
     DateRange,
@@ -105,6 +104,9 @@ export function DateFilter() {
         props: { ziggy },
     } = usePage<SharedData>();
     const [open, setOpen] = useState(false);
+    const [displayMonth, setDisplayMonth] = useState<Date | undefined>(
+        undefined
+    );
 
     const today = new Date();
 
@@ -124,6 +126,22 @@ export function DateFilter() {
 
     const [draftDate, setDraftDate] = useState<DateRange | undefined>(
         selectedDate
+    );
+
+    const handleOpenChange = useCallback(
+        (next: boolean) => {
+            setOpen(next);
+            if (next) {
+                const focusDate =
+                    draftDate?.to ??
+                    draftDate?.from ??
+                    selectedDate?.to ??
+                    selectedDate?.from ??
+                    today;
+                if (focusDate) setDisplayMonth(focusDate);
+            }
+        },
+        [draftDate, selectedDate, today]
     );
 
     const activePresetName = useMemo(() => {
@@ -276,7 +294,7 @@ export function DateFilter() {
     return (
         <Ariakit.PopoverProvider
             open={open}
-            setOpen={setOpen}
+            setOpen={handleOpenChange}
             placement="bottom-end"
         >
             <Ariakit.PopoverDisclosure className="bg-white text-xs shadow-base pl-3 pr-3.5 shrink-0 py-2.5 flex items-center rounded-lg active:scale-[0.99] transition-transform duration-100 ease-in-out cursor-pointer">
@@ -316,7 +334,7 @@ export function DateFilter() {
                                             onClick={() => {
                                                 setDraftDate(range);
                                                 setSelectedDate(range);
-                                                setOpen(false);
+                                                handleOpenChange(false);
                                                 apply(range);
                                             }}
                                             className={cn(
@@ -351,12 +369,14 @@ export function DateFilter() {
                             <DatePicker
                                 selected={draftDate}
                                 setSelected={setDraftDate}
+                                month={displayMonth}
+                                onMonthChange={setDisplayMonth}
                             />
                         </div>
                         <div className="flex items-center justify-end gap-2">
                             <button
                                 onClick={() => {
-                                    setOpen(false);
+                                    handleOpenChange(false);
                                 }}
                                 className="font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
                             >
@@ -364,7 +384,7 @@ export function DateFilter() {
                             </button>
                             <button
                                 onClick={() => {
-                                    setOpen(false);
+                                    handleOpenChange(false);
 
                                     if (!draftDate?.from || !draftDate?.to)
                                         return;
@@ -387,6 +407,8 @@ export function DateFilter() {
 function DatePicker(props: {
     selected: DateRange | undefined;
     setSelected: OnSelectHandler<DateRange>;
+    month?: Date;
+    onMonthChange?: (month: Date) => void;
 }) {
     const defaultClassNames = getDefaultClassNames();
 
@@ -396,6 +418,8 @@ function DatePicker(props: {
             numberOfMonths={2}
             selected={props.selected}
             onSelect={props.setSelected}
+            month={props.month}
+            onMonthChange={props.onMonthChange}
             weekStartsOn={1}
             required
             disabled={{ after: new Date() }}
@@ -488,38 +512,4 @@ function DatePicker(props: {
             }}
         />
     );
-}
-
-function useDateRangeQuery(
-    defaultDate: Date
-): readonly [DateRange | undefined, (range: DateRange | undefined) => void] {
-    const [urlState, setUrlState] = useQueryStates({
-        from: parseAsString.withDefault(format(defaultDate, "yyyy-MM-dd")),
-        to: parseAsString.withDefault(format(defaultDate, "yyyy-MM-dd")),
-    });
-
-    // Convert string dates to DateRange
-    const selectedDate = useMemo<DateRange | undefined>(() => {
-        const fromDate = parse(urlState.from, "yyyy-MM-dd", new Date());
-        const toDate = parse(urlState.to, "yyyy-MM-dd", new Date());
-
-        const from = isValid(fromDate) ? fromDate : undefined;
-        const to = isValid(toDate) ? toDate : undefined;
-
-        if (!from && !to) return undefined;
-        return { from, to };
-    }, [urlState]);
-
-    // Function to update URL state with Date objects
-    const setSelectedDate = useCallback(
-        (range: DateRange | undefined) => {
-            setUrlState({
-                from: range?.from ? format(range.from, "yyyy-MM-dd") : "",
-                to: range?.to ? format(range.to, "yyyy-MM-dd") : "",
-            });
-        },
-        [setUrlState]
-    );
-
-    return [selectedDate, setSelectedDate] as const;
 }
