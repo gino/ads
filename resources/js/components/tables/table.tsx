@@ -197,7 +197,6 @@ function TableBody<T extends RowData>({
                                 isEvenVisualRow && "bg-brand-light",
                             ]
                         )}
-                        style={{ willChange: "transform" }}
                     >
                         {row.getVisibleCells().map((cell) => (
                             <td
