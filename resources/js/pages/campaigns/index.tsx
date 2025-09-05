@@ -4,8 +4,9 @@ import { DateFilter } from "@/components/tables/date-filter";
 import { AdsTab } from "@/components/tables/tabs/ads-tab";
 import { AdSetsTab } from "@/components/tables/tabs/adsets-tab";
 import { CampaignsTab } from "@/components/tables/tabs/campaigns-tab";
-import { parseAsRowSelection } from "@/components/tables/utils";
 import useDeferred from "@/lib/hooks/use-deferred";
+import { parseAsRowSelection } from "@/lib/query-parsers/table-row-selection-parser";
+import { parseAsTableSorting } from "@/lib/query-parsers/table-sorting-parser";
 import { useQueryState } from "nuqs";
 import { PropsWithChildren } from "react";
 
@@ -54,6 +55,7 @@ export function Layout({ children }: PropsWithChildren) {
 }
 
 const EMPTY_SELECTION = {};
+const EMPTY_ARRAY: any[] = [];
 
 export function useSelectedCampaigns() {
     return useQueryState(
@@ -74,4 +76,8 @@ export function useSelectedAds() {
         "selected_ad_ids",
         parseAsRowSelection.withDefault(EMPTY_SELECTION)
     );
+}
+
+export function useSortingState() {
+    return useQueryState("sort", parseAsTableSorting.withDefault(EMPTY_ARRAY));
 }

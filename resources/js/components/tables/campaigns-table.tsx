@@ -6,18 +6,17 @@ import {
 } from "@/lib/number-utils";
 import { aggregateInsights } from "@/lib/table/aggregate-insights";
 import { getSortingFunctions } from "@/lib/table/sorting-functions/sorting-functions";
-import { useSelectedCampaigns } from "@/pages/campaigns";
+import { useSelectedCampaigns, useSortingState } from "@/pages/campaigns";
 import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
 import {
     ColumnDef,
     getCoreRowModel,
     getSortedRowModel,
-    SortingState,
     useReactTable,
 } from "@tanstack/react-table";
 import axios from "axios";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
@@ -28,6 +27,8 @@ interface Props {
     isLoading?: boolean;
     campaigns: App.Data.AdCampaignData[];
 }
+
+const EMPTY_ARRAY: any[] = [];
 
 export function CampaignsTable({ isLoading, campaigns }: Props) {
     const [selectedCampaigns, setSelectedCampaigns] = useSelectedCampaigns();
@@ -58,7 +59,7 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
 
     const sums = useMemo(() => aggregateInsights(campaigns), [campaigns]);
 
-    const [sorting, setSorting] = useState<SortingState>([]);
+    const [sorting, setSorting] = useSortingState();
 
     const columns = useMemo<ColumnDef<App.Data.AdCampaignData>[]>(
         () => [

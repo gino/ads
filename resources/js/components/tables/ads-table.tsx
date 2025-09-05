@@ -10,6 +10,7 @@ import {
     useSelectedAds,
     useSelectedAdSets,
     useSelectedCampaigns,
+    useSortingState,
 } from "@/pages/campaigns";
 import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
@@ -17,11 +18,10 @@ import {
     ColumnDef,
     getCoreRowModel,
     getSortedRowModel,
-    SortingState,
     useReactTable,
 } from "@tanstack/react-table";
 import axios from "axios";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
@@ -116,7 +116,7 @@ export function AdsTable({ isLoading, ads }: Props) {
 
     const sums = useMemo(() => aggregateInsights(filteredAds), [filteredAds]);
 
-    const [sorting, setSorting] = useState<SortingState>([]);
+    const [sorting, setSorting] = useSortingState();
 
     const columns: ColumnDef<App.Data.AdData>[] = useMemo(
         () => [

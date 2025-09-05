@@ -6,18 +6,21 @@ import {
 } from "@/lib/number-utils";
 import { aggregateInsights } from "@/lib/table/aggregate-insights";
 import { getSortingFunctions } from "@/lib/table/sorting-functions/sorting-functions";
-import { useSelectedAdSets, useSelectedCampaigns } from "@/pages/campaigns";
+import {
+    useSelectedAdSets,
+    useSelectedCampaigns,
+    useSortingState,
+} from "@/pages/campaigns";
 import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
 import {
     ColumnDef,
     getCoreRowModel,
     getSortedRowModel,
-    SortingState,
     useReactTable,
 } from "@tanstack/react-table";
 import axios from "axios";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
@@ -81,7 +84,7 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
         [filteredAdSets]
     );
 
-    const [sorting, setSorting] = useState<SortingState>([]);
+    const [sorting, setSorting] = useSortingState();
 
     const columns: ColumnDef<App.Data.AdSetData>[] = useMemo(
         () => [
