@@ -135,6 +135,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                         <div className="font-semibold">Ad</div>
                     </div>
                 ),
+                // size: 300,
                 cell: ({ getValue, row }) => (
                     <div className="flex items-center gap-5 min-w-md">
                         <Checkbox
