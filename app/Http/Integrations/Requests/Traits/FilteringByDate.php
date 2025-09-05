@@ -34,16 +34,18 @@ trait FilteringByDate
     {
         $fallback = Carbon::today()->format('Y-m-d');
         $dateFrom = Carbon::parse($this->dateFrom ?? $fallback);
+        $dateTo = $this->dateTo ? Carbon::parse($this->dateTo) : null;
 
-        return $this->clampDateRange($dateFrom, null)['from'];
+        return $this->clampDateRange($dateFrom, $dateTo)['from'];
     }
 
     public function getFormattedDateTo()
     {
         $fallback = Carbon::today()->format('Y-m-d');
         $dateTo = Carbon::parse($this->dateTo ?? $fallback);
+        $dateFrom = $this->dateFrom ? Carbon::parse($this->dateFrom) : null;
 
-        return $this->clampDateRange(null, $dateTo)['to'];
+        return $this->clampDateRange($dateFrom, $dateTo)['to'];
     }
 
     protected function clampDateRange(?Carbon $dateFrom = null, ?Carbon $dateTo = null): array
@@ -65,6 +67,17 @@ trait FilteringByDate
                     'max_months_range' => $this->maxMonthsRange,
                 ]);
             }
+
+            // Clamp future "from" dates to today
+            if ($dateFrom->gt($today)) {
+                $dateFrom = $today->copy();
+
+                Log::info('Date range adjusted for API limits', [
+                    'original_from' => $originalFrom,
+                    'adjusted_from' => $dateFrom->format('Y-m-d'),
+                    'reason' => 'Date cannot be in the future',
+                ]);
+            }
         }
 
         // Handle dateTo
@@ -81,6 +94,19 @@ trait FilteringByDate
                     'reason' => 'Date cannot be in the future',
                 ]);
             }
+        }
+
+        // Ensure ordering: since (from) must be <= until (to)
+        if ($dateFrom && $dateTo && $dateFrom->gt($dateTo)) {
+            $originalFrom = $dateFrom->format('Y-m-d');
+            $dateFrom = $dateTo->copy();
+
+            Log::info('Date range adjusted for ordering', [
+                'original_from' => $originalFrom,
+                'to' => $dateTo->format('Y-m-d'),
+                'adjusted_from' => $dateFrom->format('Y-m-d'),
+                'reason' => 'from cannot be after to',
+            ]);
         }
 
         return [

@@ -37,7 +37,7 @@ export function CampaignsTab() {
                 <div
                     className={cn(
                         isActive ? "bg-gray-100" : "bg-gray-200",
-                        "font-semibold text-[12px] cursor-default inline-flex items-center pl-2 leading-5 rounded-full text-gray-800 ml-2"
+                        "font-semibold text-[12px] cursor-default inline-flex items-center pl-2 leading-5 rounded-full ml-2"
                     )}
                 >
                     <span>{selectedCampaignsAmount} selected</span>

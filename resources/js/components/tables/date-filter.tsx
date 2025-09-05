@@ -304,7 +304,12 @@ export function DateFilter() {
                     {label}
                 </span>
 
-                <i className="fa-solid fa-angle-down text-gray-400 text-xs ml-3" />
+                <i
+                    className={cn(
+                        "fa-solid fa-angle-down text-gray-400 text-xs ml-3 transition-transform duration-200 ease-in-out",
+                        open && "rotate-180"
+                    )}
+                />
             </Ariakit.PopoverDisclosure>
 
             <Ariakit.Popover

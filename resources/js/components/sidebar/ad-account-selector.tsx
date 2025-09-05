@@ -27,7 +27,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                     {adAccount.name}
                 </div>
                 <div className="absolute flex right-0 top-1/2 -translate-y-1/2">
-                    <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full text-gray-800 leading-5">
+                    <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5">
                         {adAccount.currency}
                     </span>
                 </div>
@@ -94,11 +94,11 @@ export function AdAccountSelector({ adAccounts }: Props) {
                         </div>
                         <div>
                             {adAccount.status !== "active" ? (
-                                <span className="font-semibold bg-gray-100 text-[12px] px-2 capitalize inline-block rounded-full text-gray-800 leading-5 group-data-[active-item]:bg-gray-200">
+                                <span className="font-semibold bg-gray-100 text-[12px] px-2 capitalize inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
                                     {adAccount.status}
                                 </span>
                             ) : (
-                                <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full text-gray-800 leading-5 group-data-[active-item]:bg-gray-200">
+                                <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
                                     {adAccount.currency}
                                 </span>
                             )}

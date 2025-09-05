@@ -29,7 +29,7 @@ export function Sidebar() {
                     <SidebarItem
                         icon="fa-chart-simple"
                         suffix={
-                            <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-enabled:group-hover:bg-gray-200 rounded-full text-gray-800">
+                            <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-enabled:group-hover:bg-gray-200 rounded-full">
                                 Coming soon
                             </span>
                         }
