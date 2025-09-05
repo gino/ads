@@ -24,15 +24,6 @@ export function Table<T extends RowData>({ table }: Props<T>) {
     const tableContainerRef = useRef<HTMLDivElement>(null!);
     const isScrolled = useIsScrolled(tableContainerRef, CONTAINER_PADDING);
 
-    const rows = table.getRowModel().rows;
-    const rowVirtualizer = useVirtualizer({
-        count: rows.length,
-        getScrollElement: () => tableContainerRef.current,
-        estimateSize: () => ROW_HEIGHT,
-        overscan: 10,
-    });
-    const virtualItems = rowVirtualizer.getVirtualItems();
-
     return (
         <div
             ref={tableContainerRef}
@@ -115,94 +106,11 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                             </tr>
                         ))}
                     </thead>
-                    <tbody>
-                        {virtualItems.length > 0 && (
-                            <tr>
-                                <td
-                                    colSpan={
-                                        table.getVisibleLeafColumns().length
-                                    }
-                                    style={{ height: virtualItems[0].start }}
-                                />
-                            </tr>
-                        )}
-                        {virtualItems.map((virtualRow) => {
-                            const row = rows[virtualRow.index];
-                            const isEvenVisualRow = virtualRow.index % 2 === 1;
-                            return (
-                                <tr
-                                    key={row.id}
-                                    data-index={virtualRow.index}
-                                    className={cn(
-                                        "hover:bg-gray-100 group",
-                                        isEvenVisualRow && "bg-gray-50",
-                                        row.getIsSelected() && [
-                                            "hover:bg-brand-light bg-brand-lighter",
-                                            isEvenVisualRow && "bg-brand-light",
-                                        ]
-                                    )}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <td
-                                            key={cell.id}
-                                            style={{
-                                                ...getPinnedColumnStyles(
-                                                    cell.column
-                                                ),
-                                                width:
-                                                    cell.column.columnDef
-                                                        .size !== undefined
-                                                        ? cell.column.getSize()
-                                                        : undefined,
-                                                height: ROW_HEIGHT,
-                                            }}
-                                            className={cn(
-                                                "whitespace-nowrap min-w-32 align-middle relative border-r border-gray-200 last:border-r-0",
-                                                ROW_PADDING,
-                                                cell.column.getIsPinned() &&
-                                                    (cell.row.getIsSelected()
-                                                        ? cn(
-                                                              "bg-brand-lighter group-hover:bg-brand-light",
-                                                              isEvenVisualRow &&
-                                                                  "bg-brand-light"
-                                                          )
-                                                        : cn(
-                                                              "bg-white group-hover:bg-gray-100",
-                                                              isEvenVisualRow &&
-                                                                  "bg-gray-50"
-                                                          ))
-                                            )}
-                                        >
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                            {cell.column.getIsPinned() &&
-                                                isScrolled && (
-                                                    <ShadowSeperator />
-                                                )}
-                                        </td>
-                                    ))}
-                                </tr>
-                            );
-                        })}
-                        {virtualItems.length > 0 && (
-                            <tr>
-                                <td
-                                    colSpan={
-                                        table.getVisibleLeafColumns().length
-                                    }
-                                    style={{
-                                        height:
-                                            rowVirtualizer.getTotalSize() -
-                                            virtualItems[
-                                                virtualItems.length - 1
-                                            ].end,
-                                    }}
-                                />
-                            </tr>
-                        )}
-                    </tbody>
+                    <TableBody
+                        tableContainerRef={tableContainerRef}
+                        table={table}
+                        isScrolled={isScrolled}
+                    />
                     <tfoot className="sticky bottom-0 z-20 bg-white [box-shadow:0_-1px_0_var(--color-gray-200)]">
                         {table.getFooterGroups().map((footerGroup) => (
                             <tr key={footerGroup.id}>
@@ -239,5 +147,110 @@ export function Table<T extends RowData>({ table }: Props<T>) {
                 </table>
             </div>
         </div>
+    );
+}
+
+interface TableBodyProps<T> {
+    table: TableType<T>;
+    tableContainerRef: React.RefObject<HTMLDivElement>;
+    isScrolled: boolean;
+}
+
+function TableBody<T extends RowData>({
+    table,
+    tableContainerRef,
+    isScrolled,
+}: TableBodyProps<T>) {
+    const rows = table.getRowModel().rows;
+    const rowVirtualizer = useVirtualizer({
+        count: rows.length,
+        estimateSize: () => ROW_HEIGHT,
+        getScrollElement: () => tableContainerRef.current,
+        overscan: 5,
+        getItemKey: (index) => rows[index]?.id ?? index,
+    });
+
+    const virtualItems = rowVirtualizer.getVirtualItems();
+
+    return (
+        <tbody>
+            {virtualItems.length > 0 && (
+                <tr>
+                    <td
+                        colSpan={table.getVisibleLeafColumns().length}
+                        style={{ height: virtualItems[0].start }}
+                    />
+                </tr>
+            )}
+            {virtualItems.map((virtualRow) => {
+                const row = rows[virtualRow.index];
+                const isEvenVisualRow = virtualRow.index % 2 === 1;
+                return (
+                    <tr
+                        key={row.id}
+                        data-index={virtualRow.index}
+                        className={cn(
+                            "hover:bg-gray-100 group",
+                            isEvenVisualRow && "bg-gray-50",
+                            row.getIsSelected() && [
+                                "hover:bg-brand-light bg-brand-lighter",
+                                isEvenVisualRow && "bg-brand-light",
+                            ]
+                        )}
+                        style={{ willChange: "transform" }}
+                    >
+                        {row.getVisibleCells().map((cell) => (
+                            <td
+                                key={cell.id}
+                                style={{
+                                    ...getPinnedColumnStyles(cell.column),
+                                    width:
+                                        cell.column.columnDef.size !== undefined
+                                            ? cell.column.getSize()
+                                            : undefined,
+                                    height: ROW_HEIGHT,
+                                }}
+                                className={cn(
+                                    "whitespace-nowrap min-w-32 align-middle relative border-r border-gray-200 last:border-r-0",
+                                    ROW_PADDING,
+                                    cell.column.getIsPinned() &&
+                                        (cell.row.getIsSelected()
+                                            ? cn(
+                                                  "bg-brand-lighter group-hover:bg-brand-light",
+                                                  isEvenVisualRow &&
+                                                      "bg-brand-light"
+                                              )
+                                            : cn(
+                                                  "bg-white group-hover:bg-gray-100",
+                                                  isEvenVisualRow &&
+                                                      "bg-gray-50"
+                                              ))
+                                )}
+                            >
+                                {flexRender(
+                                    cell.column.columnDef.cell,
+                                    cell.getContext()
+                                )}
+                                {cell.column.getIsPinned() && isScrolled && (
+                                    <ShadowSeperator />
+                                )}
+                            </td>
+                        ))}
+                    </tr>
+                );
+            })}
+            {virtualItems.length > 0 && (
+                <tr>
+                    <td
+                        colSpan={table.getVisibleLeafColumns().length}
+                        style={{
+                            height:
+                                rowVirtualizer.getTotalSize() -
+                                virtualItems[virtualItems.length - 1].end,
+                        }}
+                    />
+                </tr>
+            )}
+        </tbody>
     );
 }
