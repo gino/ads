@@ -3,6 +3,8 @@ import { Route, SharedData } from "@/types";
 import * as Ariakit from "@ariakit/react";
 import { router, usePage } from "@inertiajs/react";
 import {
+    addDays,
+    differenceInCalendarDays,
     endOfMonth,
     endOfToday,
     endOfWeek,
@@ -27,6 +29,7 @@ import {
     OnSelectHandler,
     DayPicker as ReactDayPicker,
 } from "react-day-picker";
+import { useHotkeys } from "react-hotkeys-hook";
 import { isRangeEqual } from "./utils";
 
 const presets = {
@@ -199,6 +202,76 @@ export function DateFilter() {
             }
         );
     };
+
+    // Shift current range by deltaDays while preventing going into the future
+    const moveRange = useCallback(
+        (deltaDays: number) => {
+            const current = selectedDate;
+            if (!current?.from && !current?.to) return;
+
+            const from = current?.from ?? current?.to ?? today;
+            const to = current?.to ?? current?.from ?? today;
+
+            let newFrom = addDays(from, deltaDays);
+            let newTo = addDays(to, deltaDays);
+
+            const todayEnd = endOfToday();
+            if (newTo > todayEnd) {
+                const overflow = differenceInCalendarDays(newTo, todayEnd);
+                newFrom = addDays(newFrom, -overflow);
+                newTo = addDays(newTo, -overflow);
+            }
+
+            // Disallow moving into the future when the range length is 0 and delta > 0 from today
+            if (newTo > todayEnd) {
+                newTo = todayEnd;
+            }
+
+            const nextRange: DateRange = { from: newFrom, to: newTo };
+            setSelectedDate(nextRange);
+            setDraftDate(nextRange);
+            apply(nextRange);
+        },
+        [selectedDate]
+    );
+
+    // Hotkeys
+    useHotkeys(
+        "meta+right",
+        (e) => {
+            e.preventDefault();
+            moveRange(1);
+        },
+        { preventDefault: true },
+        [moveRange]
+    );
+    useHotkeys(
+        "meta+left",
+        (e) => {
+            e.preventDefault();
+            moveRange(-1);
+        },
+        { preventDefault: true },
+        [moveRange]
+    );
+    useHotkeys(
+        "meta+shift+right",
+        (e) => {
+            e.preventDefault();
+            moveRange(7);
+        },
+        { preventDefault: true },
+        [moveRange]
+    );
+    useHotkeys(
+        "meta+shift+left",
+        (e) => {
+            e.preventDefault();
+            moveRange(-7);
+        },
+        { preventDefault: true },
+        [moveRange]
+    );
 
     return (
         <Ariakit.PopoverProvider
