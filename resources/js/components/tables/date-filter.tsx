@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { useDebounce } from "@/lib/hooks/use-debounce";
 import { Route, SharedData } from "@/types";
 import * as Ariakit from "@ariakit/react";
 import { router, usePage } from "@inertiajs/react";
@@ -221,6 +222,9 @@ export function DateFilter() {
         );
     };
 
+    // Debounced apply for hotkeys to prevent excessive backend calls
+    const debouncedApply = useDebounce(apply, 500);
+
     // Shift current range by deltaDays while preventing going into the future
     const moveRange = useCallback(
         (deltaDays: number) => {
@@ -248,9 +252,9 @@ export function DateFilter() {
             const nextRange: DateRange = { from: newFrom, to: newTo };
             setSelectedDate(nextRange);
             setDraftDate(nextRange);
-            apply(nextRange);
+            debouncedApply(nextRange);
         },
-        [selectedDate]
+        [selectedDate, debouncedApply]
     );
 
     // Hotkeys
