@@ -27,11 +27,7 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $adCampaignsRequest = new GetAdCampaignsRequest(
-            $adAccount,
-            dateFrom: $request->query('from'),
-            dateTo: $request->query('to'),
-        );
+        $adCampaignsRequest = new GetAdCampaignsRequest($adAccount);
         $insightsRequest = new GetInsightsRequest(
             $adAccount,
             level: 'campaign',
@@ -68,11 +64,7 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $adSetsRequest = new GetAdSetsRequest(
-            adAccount: $adAccount,
-            dateFrom: $request->query('from'),
-            dateTo: $request->query('to')
-        );
+        $adSetsRequest = new GetAdSetsRequest($adAccount);
         $insightsRequest = new GetInsightsRequest(
             adAccount: $adAccount,
             level: 'adset',
@@ -109,11 +101,7 @@ class CampaignsController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $adsRequest = new GetAdsRequest(
-            adAccount: $adAccount,
-            dateFrom: $request->query('from'),
-            dateTo: $request->query('to')
-        );
+        $adsRequest = new GetAdsRequest($adAccount);
         $insightsRequest = new GetInsightsRequest(
             adAccount: $adAccount,
             level: 'ad',

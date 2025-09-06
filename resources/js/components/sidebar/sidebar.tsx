@@ -20,7 +20,10 @@ export function Sidebar() {
                     <SidebarItem icon="fa-grid-2" href="dashboard.index">
                         Dashboard
                     </SidebarItem>
-                    <SidebarItem icon="fa-arrow-up-from-bracket">
+                    <SidebarItem
+                        icon="fa-arrow-up-from-bracket"
+                        href="dashboard.upload"
+                    >
                         Upload
                     </SidebarItem>
                     <SidebarItem icon="fa-list" href="dashboard.campaigns">

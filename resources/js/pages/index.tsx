@@ -10,15 +10,7 @@ export default function Index() {
 
     return (
         <Layout title="Dashboard">
-            <div className="bg-white shadow-base p-6 rounded-xl overflow-y-auto max-h-full">
-                <pre className="font-sans text-xs">
-                    {JSON.stringify(
-                        { user, adAccounts: props.adAccounts },
-                        null,
-                        2
-                    )}
-                </pre>
-
+            <div className="bg-white shadow-base p-5 rounded-xl overflow-y-auto max-h-full">
                 <pre className="font-sans text-xs">
                     {JSON.stringify(
                         { user, adAccounts: props.adAccounts },

@@ -14,10 +14,8 @@ export function useSelectedAdAccount() {
 
     const selectAdAccount = useCallback((id: string) => {
         router.post(
-            "/select-ad-account",
-            {
-                ad_account_id: id,
-            }
+            route("select-ad-account"),
+            { ad_account_id: id }
             // {
             //     only: ["selectedAdAccountId", "adCampaigns"],
             // }

@@ -8,6 +8,7 @@ use App\Http\Integrations\Requests\RenewTokenRequest;
 use App\Models\AdAccount;
 use App\Models\Connection;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
@@ -109,5 +110,16 @@ class AuthController extends Controller
         });
 
         return $results->all();
+    }
+
+    public function selectAdAccount(Request $request)
+    {
+        $validated = $request->validate([
+            'ad_account_id' => 'required',
+        ]);
+
+        $request->session()->put('selected_ad_account_id', $validated['ad_account_id']);
+
+        return redirect()->back();
     }
 }

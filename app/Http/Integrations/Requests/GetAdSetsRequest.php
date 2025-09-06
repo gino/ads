@@ -2,7 +2,6 @@
 
 namespace App\Http\Integrations\Requests;
 
-use App\Http\Integrations\Requests\Traits\FilteringByDate;
 use App\Models\AdAccount;
 use Illuminate\Support\Facades\Cache;
 use Saloon\CachePlugin\Contracts\Cacheable;
@@ -18,18 +17,15 @@ use Saloon\PaginationPlugin\Contracts\Paginatable;
 
 class GetAdSetsRequest extends Request implements Cacheable, Paginatable
 {
-    use FilteringByDate, HasCaching;
+    use HasCaching;
 
     protected Method $method = Method::GET;
 
     protected AdAccount $adAccount;
 
-    public function __construct(AdAccount $adAccount,
-        string|array|null $dateFrom,
-        string|array|null $dateTo
-    ) {
+    public function __construct(AdAccount $adAccount)
+    {
         $this->adAccount = $adAccount;
-        $this->setDateRange($dateFrom, $dateTo);
     }
 
     public function resolveEndpoint(): string
