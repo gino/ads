@@ -1,3 +1,4 @@
+import { toast } from "@/components/ui/toast";
 import { SharedData } from "@/types";
 import { router, usePage } from "@inertiajs/react";
 import { useCallback, useMemo } from "react";
@@ -15,10 +16,13 @@ export function useSelectedAdAccount() {
     const selectAdAccount = useCallback((id: string) => {
         router.post(
             route("select-ad-account"),
-            { ad_account_id: id }
-            // {
-            //     only: ["selectedAdAccountId", "adCampaigns"],
-            // }
+            { ad_account_id: id },
+            {
+                //     only: ["selectedAdAccountId", "adCampaigns"],
+                onSuccess: () => {
+                    toast({ contents: "Default ad account updated" });
+                },
+            }
         );
     }, []);
 

@@ -148,11 +148,7 @@ class CampaignsController extends Controller
         $cacheKey = $request->input('cacheKey');
         if ($cacheKey) {
             // Invalidate cache
-            $adCampaignsRequest = new GetAdCampaignsRequest(
-                $adAccount,
-                dateFrom: $request->query('from'),
-                dateTo: $request->query('to'),
-            );
+            $adCampaignsRequest = new GetAdCampaignsRequest($adAccount);
             $adCampaignsRequest->resolveCacheDriver()->delete($cacheKey);
         }
 
@@ -176,11 +172,7 @@ class CampaignsController extends Controller
         $cacheKey = $request->input('cacheKey');
         if ($cacheKey) {
             // Invalidate cache
-            $adSetsRequest = new GetAdSetsRequest(
-                adAccount: $adAccount,
-                dateFrom: $request->query('from'),
-                dateTo: $request->query('to')
-            );
+            $adSetsRequest = new GetAdSetsRequest($adAccount);
             $adSetsRequest->resolveCacheDriver()->delete($cacheKey);
         }
 
@@ -204,11 +196,7 @@ class CampaignsController extends Controller
         $cacheKey = $request->input('cacheKey');
         if ($cacheKey) {
             // Invalidate cache
-            $adsRequest = new GetAdsRequest(
-                adAccount: $adAccount,
-                dateFrom: $request->query('from'),
-                dateTo: $request->query('to')
-            );
+            $adsRequest = new GetAdsRequest($adAccount);
             $adsRequest->resolveCacheDriver()->delete($cacheKey);
         }
 

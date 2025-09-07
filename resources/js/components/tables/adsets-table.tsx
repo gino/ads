@@ -24,6 +24,7 @@ import { useMemo } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
+import { toast } from "../ui/toast";
 import { Table } from "./table";
 import { useSkeletonLoader } from "./utils";
 
@@ -44,7 +45,7 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
     const { props } = usePage<SharedData & { cacheKey: string | null }>();
 
     const { enqueue } = useDebouncedBatch<App.Data.AdSetData>({
-        waitMs: 1_500,
+        waitMs: 1_250,
         maxWaitMs: 10_000,
         key: (adSet) => adSet.id,
         coalesce: (prev, next) => {
@@ -53,10 +54,18 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
         },
         onFlush: async (items) => {
             console.log("Sending batch to backend", items);
-            await axios.patch(route("adSets.status.update"), {
+            const response = await axios.patch(route("adSets.status.update"), {
                 entries: items,
                 cacheKey: props.cacheKey,
             });
+
+            if (response.status === 200) {
+                toast({
+                    contents: `${items.length} ad set${
+                        items.length === 1 ? "" : "s"
+                    } updated`,
+                });
+            }
         },
         flushOnInertiaNavigate: true,
         flushOnHistoryChange: false,
