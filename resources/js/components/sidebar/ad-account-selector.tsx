@@ -52,7 +52,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                 <Ariakit.SelectValue fallback="">
                     {(value) => renderValue(value)}
                 </Ariakit.SelectValue>
-                <Ariakit.SelectArrow className="absolute right-3 pointer-events-none text-xs top-1/2 -translate-y-1/2 !h-[unset] !w-[unset]">
+                <Ariakit.SelectArrow className="absolute right-3 pointer-events-none text-xs top-1/2 -translate-y-1/2 !h-[unset] !w-[unset] flex">
                     <i
                         className={cn(
                             "fa-solid fa-angle-down text-gray-400 transition-transform duration-200 ease-in-out",

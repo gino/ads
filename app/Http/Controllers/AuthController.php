@@ -55,6 +55,10 @@ class AuthController extends Controller
             ]
         );
 
+        if (! $user->wasRecentlyCreated) {
+            $user->update(['avatar' => $data->avatar]);
+        }
+
         $connection = Connection::updateOrCreate([
             'user_id' => $user->id,
         ], [

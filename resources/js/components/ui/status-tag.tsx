@@ -2,9 +2,10 @@ import { useMemo } from "react";
 
 interface Props {
     status: string;
+    showLabel?: boolean;
 }
 
-export function StatusTag({ status }: Props) {
+export function StatusTag({ status, showLabel = true }: Props) {
     const label = useMemo(() => {
         switch (status.toLowerCase()) {
             case "campaign_paused": {
@@ -65,8 +66,8 @@ export function StatusTag({ status }: Props) {
 
     return (
         <div className="inline-flex items-center font-semibold gap-2 text-xs">
-            {Dot}
-            <span>{label}</span>
+            <div title={label}>{Dot}</div>
+            {showLabel && <span>{label}</span>}
         </div>
     );
 }

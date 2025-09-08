@@ -20,7 +20,7 @@ export function useSelectedAdAccount() {
             {
                 //     only: ["selectedAdAccountId", "adCampaigns"],
                 onSuccess: () => {
-                    toast({ contents: "Default ad account updated" });
+                    toast({ contents: "Ad account updated" });
                 },
             }
         );
