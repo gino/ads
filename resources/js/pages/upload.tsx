@@ -1,7 +1,6 @@
 import { Layout } from "@/components/layouts/app-layout";
 import { Select } from "@/components/ui/select";
 import { StatusTag } from "@/components/ui/status-tag";
-import { toast } from "@/components/ui/toast";
 import useDeferred from "@/lib/hooks/use-deferred";
 import { useMemo, useState } from "react";
 
@@ -23,7 +22,7 @@ export default function Upload({ campaigns, adSets }: Props) {
 
     const filteredAdSets = useMemo(() => {
         if (!selectedCampaign) {
-            return adSets;
+            return [];
         }
 
         return adSets.filter((adSet) => adSet.campaignId === selectedCampaign);
@@ -31,9 +30,9 @@ export default function Upload({ campaigns, adSets }: Props) {
 
     return (
         <Layout title="Upload">
-            <div className="grid grid-cols-2 h-full gap-5">
-                <div className="bg-white shadow-base rounded-xl overflow-y-auto max-h-full">
-                    <div className="p-5 border-b border-gray-100">
+            <div className="bg-white shadow-base rounded-xl overflow-y-auto max-h-full max-w-lg w-full">
+                <div>
+                    <div className="p-5">
                         <div>
                             <Select
                                 label="Campaign"
@@ -56,7 +55,10 @@ export default function Upload({ campaigns, adSets }: Props) {
                                                           }
                                                           showLabel={false}
                                                       />
-                                                      <div className="font-semibold truncate">
+                                                      <div
+                                                          className="font-semibold truncate"
+                                                          title={campaign.name}
+                                                      >
                                                           {campaign.name}
                                                       </div>
                                                   </div>
@@ -65,6 +67,11 @@ export default function Upload({ campaigns, adSets }: Props) {
                                         : []
                                 }
                             />
+                            {/* <div className="mt-1.5 text-xs font-medium leading-relaxed text-gray-500">
+                                You don't have any required action items to
+                                display. If any of your apps need immediate
+                                attention in the future, an item will show here.
+                            </div> */}
                         </div>
                         <div className="mt-5">
                             <Select
@@ -88,7 +95,10 @@ export default function Upload({ campaigns, adSets }: Props) {
                                                           status={adSet.status}
                                                           showLabel={false}
                                                       />
-                                                      <div className="font-semibold">
+                                                      <div
+                                                          className="font-semibold"
+                                                          title={adSet.name}
+                                                      >
                                                           {adSet.name}
                                                       </div>
                                                   </div>
@@ -99,32 +109,7 @@ export default function Upload({ campaigns, adSets }: Props) {
                             />
                         </div>
                     </div>
-
-                    <div className="p-5">
-                        <pre className="font-sans text-xs">
-                            {JSON.stringify(
-                                {
-                                    selectedCampaign,
-                                    selectedAdSet,
-                                    campaigns,
-                                    adSets,
-                                },
-                                null,
-                                2
-                            )}
-                        </pre>
-
-                        <button
-                            onClick={() => {
-                                toast({ contents: "4 ad sets updated" });
-                            }}
-                            className="cursor-pointer mt-5"
-                        >
-                            toast
-                        </button>
-                    </div>
                 </div>
-                <div className="bg-white shadow-base p-5 rounded-xl overflow-y-auto max-h-full"></div>
             </div>
         </Layout>
     );

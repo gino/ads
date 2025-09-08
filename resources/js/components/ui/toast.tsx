@@ -25,7 +25,7 @@ function Toast({ id, contents }: Props) {
             </div>
             <button
                 onClick={() => sonnerToast.dismiss(id)}
-                className="-mr-1 flex items-center justify-center h-6 w-6 text-[11px] cursor-pointer text-gray-400 hover:text-white"
+                className="-mr-1 flex items-center justify-center h-6 w-6 text-[11px] cursor-pointer text-gray-400"
             >
                 <i className="fa-solid fa-close" />
             </button>

@@ -32,7 +32,11 @@ export function Select<T extends SelectItem>({
         }
 
         if (_renderValue) {
-            return _renderValue(items.find((i) => i.value === value)!);
+            const item = items.find((i) => i.value === value);
+
+            if (item) {
+                return _renderValue(item);
+            }
         }
 
         return <div>{value}</div>;
@@ -48,10 +52,10 @@ export function Select<T extends SelectItem>({
                 onChange(value);
             }}
         >
-            <Ariakit.SelectLabel className="font-semibold mb-1.5">
+            <Ariakit.SelectLabel className="font-semibold mb-2">
                 {label}
             </Ariakit.SelectLabel>
-            <Ariakit.Select className="w-full flex items-center cursor-pointer px-3.5 py-2.5 bg-white rounded-lg shadow-base text-sm relative active:scale-[0.99] transition-transform duration-100 ease-in-out">
+            <Ariakit.Select className="w-full flex items-center cursor-pointer pr-8 px-3.5 py-2.5 bg-white rounded-lg shadow-base text-sm relative active:scale-[0.99] transition-transform duration-100 ease-in-out">
                 <Ariakit.SelectValue fallback="">
                     {(value) => renderValue(value)}
                 </Ariakit.SelectValue>
@@ -67,6 +71,7 @@ export function Select<T extends SelectItem>({
             <Ariakit.SelectPopover
                 gutter={8}
                 portal
+                slide={false}
                 sameWidth
                 className="rounded-xl max-h-[var(--popover-available-height)] overflow-y-auto bg-white shadow-base-popup p-1 space-y-1 scroll-p-1"
             >

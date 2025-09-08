@@ -65,6 +65,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                 gutter={8}
                 portal
                 sameWidth
+                slide={false}
                 // unmountOnHide
                 className={cn(
                     "rounded-xl bg-white shadow-base-popup p-1 space-y-1"
