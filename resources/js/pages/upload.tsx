@@ -7,18 +7,23 @@ import { useMemo, useState } from "react";
 interface Props {
     campaigns: App.Data.AdCampaignData[];
     adSets: App.Data.AdSetData[];
+    pixels: App.Data.PixelData[];
 }
 
-export default function Upload({ campaigns, adSets }: Props) {
+export default function Upload({ campaigns, adSets, pixels }: Props) {
     const { isLoading: isLoadingCampaigns } = useDeferred({
         data: "campaigns",
     });
     const { isLoading: isLoadingAdSets } = useDeferred({
         data: "adSets",
     });
+    const { isLoading: isLoadingPixels } = useDeferred({
+        data: "pixels",
+    });
 
     const [selectedCampaign, setSelectedCampaign] = useState("");
     const [selectedAdSet, setSelectedAdSet] = useState("");
+    const [selectedPixel, setSelectedPixel] = useState("");
 
     const filteredAdSets = useMemo(() => {
         if (!selectedCampaign) {
@@ -30,7 +35,7 @@ export default function Upload({ campaigns, adSets }: Props) {
 
     return (
         <Layout title="Upload">
-            <div className="bg-white shadow-base rounded-xl overflow-y-auto max-h-full max-w-lg w-full">
+            <div className="bg-white shadow-base rounded-xl overflow-y-auto max-h-full max-w-xl w-full">
                 <div>
                     <div className="p-5">
                         <div>
@@ -100,6 +105,34 @@ export default function Upload({ campaigns, adSets }: Props) {
                                                           title={adSet.name}
                                                       >
                                                           {adSet.name}
+                                                      </div>
+                                                  </div>
+                                              ),
+                                          }))
+                                        : []
+                                }
+                            />
+                        </div>
+                    </div>
+                    <div className="p-5 border-t border-gray-100">
+                        <div>
+                            <Select
+                                label="Pixel"
+                                placeholder="Select a pixel"
+                                value={selectedPixel}
+                                onChange={(value) => setSelectedPixel(value)}
+                                renderValue={(item) => item.label}
+                                items={
+                                    !isLoadingPixels
+                                        ? pixels.map((pixel) => ({
+                                              value: pixel.id,
+                                              label: (
+                                                  <div className="flex items-center gap-3 truncate">
+                                                      <div
+                                                          className="font-semibold truncate"
+                                                          title={pixel.name}
+                                                      >
+                                                          {pixel.name}
                                                       </div>
                                                   </div>
                                               ),

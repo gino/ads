@@ -46,6 +46,10 @@ atc: number | null;
 cpa: number | null;
 roas: number | null;
 };
+export type PixelData = {
+id: string;
+name: string;
+};
 export type UserData = {
 id: string;
 name: string;
