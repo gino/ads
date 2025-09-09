@@ -29,14 +29,14 @@ export function Layout({ children }: PropsWithChildren) {
         <AppLayout title="Campaigns">
             <div className="flex flex-col max-h-full">
                 <div className="mb-3">
-                    <div className="bg-gray-100 p-1 rounded-xl flex flex-1 items-center">
+                    <div className="bg-gray-100 p-1 rounded-xl ring-inset ring-1 ring-gray-200/30 flex flex-1 items-center">
                         <div className="flex items-center flex-1 gap-3">
                             <CampaignsTab />
                             <AdSetsTab />
                             <AdsTab />
                         </div>
 
-                        <div className="flex items-center">
+                        <div className="flex items-center mr-px">
                             <div className="mx-px">
                                 <div className="w-px h-5 bg-gray-200 mx-3"></div>
                             </div>

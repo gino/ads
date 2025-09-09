@@ -5,6 +5,7 @@ import { ReactNode, useState } from "react";
 interface SelectItem {
     label: ReactNode | string;
     value: string;
+    disabled?: boolean;
 }
 
 interface Props<T extends SelectItem> {
@@ -79,9 +80,15 @@ export function Select<T extends SelectItem>({
                     <Ariakit.SelectItem
                         key={item.value}
                         value={item.value}
-                        className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-xs"
+                        disabled={item.disabled}
+                        className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-xs group aria-disabled:opacity-50 flex items-center gap-3"
                     >
-                        {item.label}
+                        <div className="w-[16px] -ml-1">
+                            {value === item.value && (
+                                <i className="fa-solid fa-check text-[12px] text-gray-400" />
+                            )}
+                        </div>
+                        <div className="flex-1 truncate">{item.label}</div>
                     </Ariakit.SelectItem>
                 ))}
             </Ariakit.SelectPopover>

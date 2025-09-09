@@ -38,7 +38,8 @@ class GetPixelsRequest extends Request implements Cacheable, Paginatable
         $fields = [
             'id',
             'name',
-            'creation_time',
+            'is_unavailable',
+            'last_fired_time',
         ];
 
         return [

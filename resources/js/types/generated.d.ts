@@ -49,6 +49,8 @@ roas: number | null;
 export type PixelData = {
 id: string;
 name: string;
+isUnavailable: boolean;
+lastFiredTime: string;
 };
 export type UserData = {
 id: string;
