@@ -19,7 +19,7 @@ class AdCampaignData extends Data
 
     public string $status;
 
-    public string $dailyBudget;
+    public ?string $dailyBudget;
 
     public ?InsightsData $insights;
 }

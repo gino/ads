@@ -11,7 +11,7 @@ id: string;
 name: string;
 effectiveStatus: string;
 status: string;
-dailyBudget: string;
+dailyBudget: string | null;
 insights: App.Data.InsightsData | null;
 };
 export type AdData = {

@@ -387,7 +387,7 @@ export function DateFilter() {
                                 onClick={() => {
                                     handleOpenChange(false);
                                 }}
-                                className="font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
+                                className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
                             >
                                 Cancel
                             </button>

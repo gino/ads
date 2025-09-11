@@ -81,7 +81,7 @@ export function Select<T extends SelectItem>({
                         key={item.value}
                         value={item.value}
                         disabled={item.disabled}
-                        className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-xs group aria-disabled:opacity-50 flex items-center gap-3"
+                        className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3"
                     >
                         <div className="w-[16px] -ml-1">
                             {value === item.value && (
