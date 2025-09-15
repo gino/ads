@@ -1,9 +1,22 @@
 import { Layout } from "@/components/layouts/app-layout";
 import { Select } from "@/components/ui/select";
 import { StatusTag } from "@/components/ui/status-tag";
+import { cn } from "@/lib/cn";
 import useDeferred from "@/lib/hooks/use-deferred";
+import { router, useForm } from "@inertiajs/react";
 import { formatDistanceToNowStrict } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { useDropzone } from "react-dropzone";
+
+type UploadedCreative = {
+    id: string;
+    name: string;
+    size: string;
+    file: File;
+    preview: string;
+    type: string;
+    thumbnail: string | null;
+};
 
 interface Props {
     campaigns: App.Data.AdCampaignData[];
@@ -22,50 +35,114 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
         data: "pixels",
     });
 
-    const [selectedCampaign, setSelectedCampaign] = useState("");
-    const [selectedAdSet, setSelectedAdSet] = useState("");
-    const [selectedPixel, setSelectedPixel] = useState("");
+    const form = useForm({
+        campaignId: "",
+        adSetId: "",
+        pixelId: "",
+        websiteUrl: "",
+        creatives: [] as UploadedCreative[],
+    });
 
     const filteredAdSets = useMemo(() => {
-        if (!selectedCampaign) {
+        if (!form.data.campaignId) {
             return [];
         }
 
-        return adSets.filter((adSet) => adSet.campaignId === selectedCampaign);
-    }, [selectedCampaign, adSets]);
+        return adSets.filter(
+            (adSet) => adSet.campaignId === form.data.campaignId
+        );
+    }, [form.data.campaignId, adSets]);
+
+    useEffect(() => {
+        const unsubscribe = router.on("before", () => {
+            if (form.isDirty) {
+                return confirm(
+                    "Are you sure you wish to leave the page? Any unsaved changes will be lost."
+                );
+            }
+        });
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (form.isDirty) {
+                e.preventDefault();
+                e.returnValue = ""; // required for Chrome
+            }
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            unsubscribe();
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [form.isDirty]);
+
+    const {
+        getRootProps,
+        getInputProps,
+        isDragActive,
+        isDragAccept,
+        isDragReject,
+    } = useDropzone({
+        accept: {
+            "image/jpeg": [],
+            "image/png": [],
+            "video/mp4": [],
+            "video/quicktime": [],
+        },
+        onDrop: async (files) => {
+            const creatives = await Promise.all(
+                files.map(async (file): Promise<UploadedCreative> => {
+                    let thumbnail = null;
+
+                    if (file.type.startsWith("video/")) {
+                        thumbnail = await getVideoThumbnail(file);
+                    } else {
+                        thumbnail = URL.createObjectURL(file);
+                    }
+
+                    console.log(file);
+
+                    return {
+                        id: crypto.randomUUID().toString(),
+                        name: file.name,
+                        size: formatFileSize(file.size),
+                        file,
+                        preview: thumbnail,
+                        type: file.type,
+                        thumbnail,
+                    };
+                })
+            );
+
+            form.setData("creatives", [...form.data.creatives, ...creatives]);
+        },
+    });
+
+    useEffect(() => {
+        // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
+        // From: https://react-dropzone.js.org/#section-previews
+        return () => {
+            form.data.creatives.forEach((file) =>
+                URL.revokeObjectURL(file.preview)
+            );
+        };
+    }, [form.data.creatives]);
 
     return (
         <Layout title="Upload">
-            <div className="max-w-3xl mx-auto w-full">
-                <div className="mb-5 flex items-center">
-                    <div className="flex-1">
-                        <h1 className="font-semibold text-lg mb-1">
-                            Upload creatives
-                        </h1>
-                        <h2 className="font-medium text-sm text-gray-500">
-                            Select a campaign, upload your creatives and launch
-                            your ads.
-                        </h2>
-                    </div>
-                    <div>
-                        <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
-                            Configure defaults
-                        </button>
-                    </div>
-                </div>
-
-                <div className="p-1 bg-gray-100 rounded-2xl ring-inset ring-1 ring-gray-200/30 w-full">
-                    <div className="bg-white shadow-base rounded-xl">
-                        <div>
+            <div className="grid grid-cols-2 h-full gap-5">
+                <div className="p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
+                    <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
+                        <div className="flex-1 min-h-0 overflow-y-auto">
                             <div className="p-5">
                                 <div>
                                     <Select
                                         label="Campaign"
                                         placeholder="Select a campaign"
-                                        value={selectedCampaign}
+                                        value={form.data.campaignId}
                                         onChange={(value) => {
-                                            setSelectedCampaign(value);
-                                            setSelectedAdSet("");
+                                            form.setData("campaignId", value);
+                                            form.reset("adSetId");
                                         }}
                                         renderValue={(item) => item.label}
                                         items={
@@ -107,11 +184,6 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
                                                 : []
                                         }
                                     />
-                                    {/* <div className="mt-1.5 text-xs font-medium leading-relaxed text-gray-500">
-                                You don't have any required action items to
-                                display. If any of your apps need immediate
-                                attention in the future, an item will show here.
-                            </div> */}
                                 </div>
                                 <div className="mt-5">
                                     <Select
@@ -122,9 +194,9 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
                                                 <div>Create new ad sets</div>
                                             </div>
                                         }
-                                        value={selectedAdSet}
+                                        value={form.data.adSetId}
                                         onChange={(value) =>
-                                            setSelectedAdSet(value)
+                                            form.setData("adSetId", value)
                                         }
                                         renderValue={(item) => item.label}
                                         items={
@@ -166,9 +238,9 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
                                     <Select
                                         label="Pixel"
                                         placeholder="Select a pixel"
-                                        value={selectedPixel}
+                                        value={form.data.pixelId}
                                         onChange={(value) =>
-                                            setSelectedPixel(value)
+                                            form.setData("pixelId", value)
                                         }
                                         renderValue={(item) => item.label}
                                         items={
@@ -225,41 +297,156 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
                                 </div>
                             </div>
                             <div className="p-5 border-t border-gray-100">
-                                <label>
-                                    <span className="block font-semibold mb-2">
-                                        Upload creatives
-                                    </span>
+                                <div>
+                                    <label>
+                                        <div className="flex items-center justify-between">
+                                            <span className="block font-semibold">
+                                                Upload creatives
+                                            </span>
 
-                                    <div className="h-48 flex items-center justify-center flex-col rounded-lg border-2 border-dashed border-gray-200 hover:bg-gray-50 hover:border-gray-300 cursor-pointer group">
-                                        {/* <div className="mb-3 text-base bg-gray-100 h-8 w-8 flex items-center justify-center rounded-full group-hover:bg-gray-200 text-brand">
-                                        <i className="fa-regular fa-upload" />
-                                    </div> */}
-
-                                        <div className="mb-2 text-xl">
-                                            <i className="fa-regular fa-file-arrow-up" />
+                                            <div>
+                                                <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                                                    Choose from ad library
+                                                </button>
+                                            </div>
                                         </div>
 
-                                        <div className="font-semibold mb-0.5">
-                                            Click to upload creatives
+                                        <div className="my-3">
+                                            <div
+                                                className={cn(
+                                                    "h-48 flex items-center justify-center flex-col rounded-lg border-2 border-dashed border-gray-200 hover:bg-gray-50 hover:border-gray-300 group",
+                                                    isDragActive &&
+                                                        isDragAccept &&
+                                                        "bg-gray-50 border-gray-300 ring-2 ring-offset-2 ring-blue-100",
+                                                    isDragReject
+                                                        ? "cursor-not-allowed"
+                                                        : "cursor-pointer"
+                                                )}
+                                                {...getRootProps()}
+                                            >
+                                                <input
+                                                    className="hidden"
+                                                    {...getInputProps()}
+                                                />
+
+                                                <div className="mb-2 text-xl">
+                                                    <i className="fa-regular fa-circle-arrow-up" />
+                                                </div>
+
+                                                <div className="font-semibold mb-0.5">
+                                                    {isDragActive &&
+                                                    isDragAccept
+                                                        ? "Drop your creatives here"
+                                                        : "Click to upload creatives"}
+                                                </div>
+                                                <div className="text-xs font-medium text-gray-500 mb-3">
+                                                    or drag and drop your
+                                                    creatives here
+                                                </div>
+                                                <div className="text-[12px] font-medium text-gray-400">
+                                                    Accepts images (JPG & PNG)
+                                                    and videos (MP4 & MOV) up to
+                                                    4GB
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="text-xs font-medium text-gray-500 mb-3">
-                                            or drag and drop your creatives here
-                                        </div>
-                                        <div className="text-[12px] font-medium text-gray-400">
-                                            Accepts images (JPG & PNG) and
-                                            videos (MP4 & MOV) up to 4GB
-                                        </div>
+                                    </label>
+
+                                    <div className="grid grid-cols-2 items-center gap-3">
+                                        <button className="bg-white font-semibold flex justify-center items-center gap-2 shadow-base px-3.5 py-2.5 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                                            <i className="-ml-0.5 fa-brands fa-dropbox text-[#0061FE]" />
+                                            <span>Choose from Dropbox</span>
+                                        </button>
+
+                                        <button className="bg-white font-semibold flex justify-center items-center gap-2 shadow-base px-3.5 py-2.5 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                                            <i className="-ml-0.5 fa-brands fa-google-drive text-[#4285F4]" />
+                                            <span>
+                                                Choose from Google Drive
+                                            </span>
+                                        </button>
                                     </div>
-                                </label>
-
-                                <div className="flex items-center justify-end gap-2 mt-5">
-                                    <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
-                                        Save as template
-                                    </button>
-                                    <button className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md">
-                                        Button
-                                    </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex-1 min-w-0 min-h-0">
+                    <div className="shadow-base bg-white rounded-xl h-full flex flex-col">
+                        <div className="flex-1 min-h-0">
+                            <div className="h-full overflow-y-auto">
+                                <div className="divide-y divide-gray-100 border-b border-gray-100">
+                                    {form.data.creatives.map((creative) => (
+                                        <div
+                                            key={creative.id}
+                                            className="px-4 py-4 gap-4 flex items-center truncate"
+                                        >
+                                            <div className="h-12 w-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                                                {creative.thumbnail ? (
+                                                    <div className="relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-lg after:ring-black/5 h-full w-full">
+                                                        <img
+                                                            src={
+                                                                creative.thumbnail
+                                                            }
+                                                            onLoad={() => {
+                                                                URL.revokeObjectURL(
+                                                                    creative.preview
+                                                                );
+                                                            }}
+                                                            className="object-cover object-center h-full w-full"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <i className="fa-regular fa-file" />
+                                                )}
+                                            </div>
+
+                                            <div className="truncate">
+                                                <div className="flex items-center mb-0.5 gap-1.5 truncate">
+                                                    <i
+                                                        className={cn(
+                                                            "fa-regular text-[12px] shrink-0",
+                                                            creative.type.startsWith(
+                                                                "video/"
+                                                            )
+                                                                ? "fa-video"
+                                                                : creative.type.startsWith(
+                                                                      "image/"
+                                                                  )
+                                                                ? "fa-image"
+                                                                : "fa-file"
+                                                        )}
+                                                    />
+                                                    <div className="font-semibold truncate">
+                                                        {creative.name}
+                                                    </div>
+                                                </div>
+                                                <div className="text-[12px] font-medium text-gray-500 flex items-center gap-1.5">
+                                                    <div>{creative.size}</div>
+                                                    <div className="text-gray-300">
+                                                        &bull;
+                                                    </div>
+                                                    <div>
+                                                        {creative.type
+                                                            .split("/")[1]
+                                                            .toUpperCase()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-5 border-t border-gray-100">
+                            <div className="flex items-center justify-end gap-2">
+                                <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                                    Save as template
+                                </button>
+                                <button className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md">
+                                    Launch ads
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -267,4 +454,135 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
             </div>
         </Layout>
     );
+
+    return (
+        <Layout title="Upload">
+            <div className="grid grid-cols-2 h-full w-full gap-5">
+                <div className="p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30">
+                    <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
+                        <div className="overflow-y-auto bg-red-50 flex-1 min-h-0">
+                            yeet
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex-1 min-w-0 min-h-0">
+                    <div className="shadow-base bg-white rounded-xl h-full flex flex-col">
+                        <div className="flex-1 min-h-0">
+                            <div className="h-full overflow-y-auto">
+                                <div className="divide-y divide-gray-100 border-b border-gray-100">
+                                    {form.data.creatives.map((creative) => (
+                                        <div
+                                            key={creative.id}
+                                            className="px-4 py-4 gap-4 flex items-center truncate"
+                                        >
+                                            <div className="h-12 w-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                                                {creative.thumbnail ? (
+                                                    <div className="relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-lg after:ring-black/5 h-full w-full">
+                                                        <img
+                                                            src={
+                                                                creative.thumbnail
+                                                            }
+                                                            onLoad={() => {
+                                                                URL.revokeObjectURL(
+                                                                    creative.preview
+                                                                );
+                                                            }}
+                                                            className="object-cover object-center h-full w-full"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <i className="fa-regular fa-file" />
+                                                )}
+                                            </div>
+
+                                            <div className="truncate">
+                                                <div className="flex items-center mb-0.5 gap-1.5 truncate">
+                                                    <i
+                                                        className={cn(
+                                                            "fa-regular text-[12px] shrink-0",
+                                                            creative.type.startsWith(
+                                                                "video/"
+                                                            )
+                                                                ? "fa-video"
+                                                                : creative.type.startsWith(
+                                                                      "image/"
+                                                                  )
+                                                                ? "fa-image"
+                                                                : "fa-file"
+                                                        )}
+                                                    />
+                                                    <div className="font-semibold truncate">
+                                                        {creative.name}
+                                                    </div>
+                                                </div>
+                                                <div className="text-[12px] font-medium text-gray-500 flex items-center gap-1.5">
+                                                    <div>{creative.size}</div>
+                                                    <div className="text-gray-300">
+                                                        &bull;
+                                                    </div>
+                                                    <div>
+                                                        {creative.type
+                                                            .split("/")[1]
+                                                            .toUpperCase()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-5 border-t border-gray-100">
+                            <div className="flex items-center justify-end gap-2">
+                                <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                                    Save as template
+                                </button>
+                                <button className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md">
+                                    Launch ads
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Layout>
+    );
+}
+
+function getVideoThumbnail(file: File, seekTime = 1): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const video = document.createElement("video");
+        video.src = URL.createObjectURL(file);
+        video.crossOrigin = "anonymous"; // optional, if needed
+
+        video.onloadeddata = () => {
+            video.currentTime = seekTime;
+        };
+
+        video.onseeked = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d")!;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const base64 = canvas.toDataURL("image/png");
+            resolve(base64);
+            URL.revokeObjectURL(video.src); // clean up
+        };
+
+        video.onerror = (err) => {
+            reject(err);
+        };
+    });
+}
+
+function formatFileSize(bytes: number, decimals = 1) {
+    if (bytes === 0) return "0 bytes";
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["bytes", "KB", "MB", "GB", "TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
