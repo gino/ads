@@ -38,7 +38,7 @@ export function Layout({ children }: PropsWithChildren) {
 
                         <div className="flex items-center mr-px">
                             <div className="mx-px">
-                                <div className="w-px h-5 bg-gray-200 mx-3"></div>
+                                <div className="w-px h-5 bg-gray-200 mx-3" />
                             </div>
                             <DateFilter />
                         </div>

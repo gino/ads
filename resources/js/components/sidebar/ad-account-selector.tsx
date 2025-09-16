@@ -23,7 +23,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                         {adAccount.name[0].toUpperCase()}
                     </div>
                 </div>
-                <div className="max-w-36 text-left ml-[34px] truncate">
+                <div className="max-w-33 text-left ml-[34px] truncate">
                     {adAccount.name}
                 </div>
                 <div className="absolute flex right-0 top-1/2 -translate-y-1/2">
@@ -68,7 +68,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                 slide={false}
                 // unmountOnHide
                 className={cn(
-                    "rounded-xl bg-white shadow-base-popup p-1 space-y-1"
+                    "rounded-xl bg-white shadow-base-popup p-1 space-y-1 max-h-[var(--popover-available-height)]"
                     // "opacity-0 -translate-y-1 scale-[0.98] transition-[opacity,scale,translate] duration-150 ease-in-out origin-top",
                     // "data-[enter]:opacity-100 data-[enter]:translate-y-0 data-[enter]:scale-[1]"
                 )}
