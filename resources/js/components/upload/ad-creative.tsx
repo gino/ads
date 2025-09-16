@@ -1,33 +1,23 @@
 import { cn } from "@/lib/cn";
-import { UploadedCreative, UploadForm as UploadFormType } from "@/pages/upload";
+import { UploadedCreative } from "@/pages/upload";
 import { useDraggable } from "@dnd-kit/core";
-import { InertiaFormProps } from "@inertiajs/react";
-import { useCallback } from "react";
 import { FolderType } from "./adset-group";
+import { useUploadContext } from "./upload-context";
+import { useUploadedCreativesContext } from "./uploaded-creatives";
 
 interface Props {
-    form: InertiaFormProps<UploadFormType>;
     creative: UploadedCreative;
     type?: FolderType;
     isDragging?: boolean;
 }
 
-export function AdCreative({
-    form,
-    creative,
-    type = "ADSET",
-    isDragging,
-}: Props) {
+export function AdCreative({ creative, type = "ADSET", isDragging }: Props) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: creative.id,
     });
 
-    const deleteCreative = useCallback((creativeId: string) => {
-        form.setData(
-            "creatives",
-            form.data.creatives.filter((creative) => creative.id !== creativeId)
-        );
-    }, []);
+    const { deleteCreative } = useUploadContext();
+    const { deleteFromGroup } = useUploadedCreativesContext();
 
     return (
         <div
@@ -50,9 +40,6 @@ export function AdCreative({
                     <div className="relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-lg after:ring-black/5 h-full w-full">
                         <img
                             src={creative.thumbnail}
-                            onLoad={() => {
-                                URL.revokeObjectURL(creative.thumbnail!);
-                            }}
                             className="h-full w-full object-center object-cover"
                         />
                     </div>
@@ -85,7 +72,10 @@ export function AdCreative({
             </div>
 
             {!isDragging && (
-                <div className="flex items-center gap-1 pointer-events-auto">
+                <div
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="flex items-center gap-1 pointer-events-auto"
+                >
                     <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
                         <i className="fa-regular fa-pencil" />
                     </button>
@@ -94,9 +84,16 @@ export function AdCreative({
                             <i className="fa-regular fa-folder-plus" />
                         </button>
                     )}
+                    {type === "ADSET" && (
+                        <button
+                            onClick={() => deleteFromGroup(creative.id)}
+                            className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white"
+                        >
+                            <i className="fa-regular fa-folder-xmark" />
+                        </button>
+                    )}
                     <button
-                        onClick={(e) => {
-                            e.stopPropagation();
+                        onClick={() => {
                             deleteCreative(creative.id);
                         }}
                         className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"

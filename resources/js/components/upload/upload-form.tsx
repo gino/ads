@@ -1,16 +1,15 @@
 import { cn } from "@/lib/cn";
-import { formatFileSize, getVideoThumbnail } from "@/lib/utils";
-import { UploadedCreative, UploadForm as UploadFormType } from "@/pages/upload";
-import { InertiaFormProps, router } from "@inertiajs/react";
+import { formatFileSize, getBase64, getVideoThumbnail } from "@/lib/utils";
+import { UploadedCreative } from "@/pages/upload";
+import { router } from "@inertiajs/react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useEffect, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { Select } from "../ui/select";
 import { StatusTag } from "../ui/status-tag";
+import { useUploadContext } from "./upload-context";
 
 interface Props {
-    form: InertiaFormProps<UploadFormType>;
-    //
     campaigns: App.Data.AdCampaignData[];
     adSets: App.Data.AdSetData[];
     pixels: App.Data.PixelData[];
@@ -21,7 +20,6 @@ interface Props {
 }
 
 export function UploadForm({
-    form,
     campaigns,
     adSets,
     pixels,
@@ -29,6 +27,8 @@ export function UploadForm({
     isLoadingAdSets,
     isLoadingPixels,
 }: Props) {
+    const { form } = useUploadContext();
+
     const filteredAdSets = useMemo(() => {
         if (!form.data.campaignId) {
             return [];
@@ -83,7 +83,7 @@ export function UploadForm({
                     if (file.type.startsWith("video/")) {
                         thumbnail = await getVideoThumbnail(file);
                     } else {
-                        thumbnail = URL.createObjectURL(file);
+                        thumbnail = await getBase64(file);
                     }
 
                     return {
@@ -101,16 +101,6 @@ export function UploadForm({
             form.setData("creatives", [...form.data.creatives, ...creatives]);
         },
     });
-
-    useEffect(() => {
-        // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
-        // From: https://react-dropzone.js.org/#section-previews
-        return () => {
-            form.data.creatives.forEach((file) =>
-                URL.revokeObjectURL(file.preview)
-            );
-        };
-    }, [form.data.creatives]);
 
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">

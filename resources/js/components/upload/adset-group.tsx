@@ -1,32 +1,25 @@
 import { cn } from "@/lib/cn";
-import { UploadForm as UploadFormType } from "@/pages/upload";
 import { useDroppable } from "@dnd-kit/core";
-import { InertiaFormProps } from "@inertiajs/react";
 import { useMemo } from "react";
 import { AdCreative } from "./ad-creative";
+import { useUploadContext } from "./upload-context";
 
 export type FolderType = "ADSET" | "UNGROUPED";
 
 interface Props {
-    form: InertiaFormProps<UploadFormType>;
     label: string;
-    id: string;
+    id: string | "ungrouped";
     type: FolderType;
     creativeIds: string[];
     className?: string;
 }
 
-export function AdSetGroup({
-    form,
-    id,
-    label,
-    type,
-    creativeIds,
-    className,
-}: Props) {
+export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
     const { isOver, setNodeRef } = useDroppable({
         id,
     });
+
+    const { form } = useUploadContext();
 
     const creatives = useMemo(() => {
         return form.data.creatives.filter((creative) => {
@@ -87,7 +80,6 @@ export function AdSetGroup({
                         {creatives.map((creative) => (
                             <AdCreative
                                 key={creative.id}
-                                form={form}
                                 creative={creative}
                                 type={type}
                             />

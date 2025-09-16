@@ -1,8 +1,8 @@
 import { Layout } from "@/components/layouts/app-layout";
+import { UploadProvider } from "@/components/upload/upload-context";
 import { UploadForm } from "@/components/upload/upload-form";
 import { UploadedCreatives } from "@/components/upload/uploaded-creatives";
 import useDeferred from "@/lib/hooks/use-deferred";
-import { useForm } from "@inertiajs/react";
 
 export type UploadedCreative = {
     id: string;
@@ -39,29 +39,22 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
         data: "pixels",
     });
 
-    const form = useForm<UploadForm>({
-        campaignId: "",
-        adSetId: "",
-        pixelId: "",
-        websiteUrl: "",
-        creatives: [],
-    });
-
     return (
         <Layout title="Upload">
-            <div className="grid grid-cols-2 h-full gap-2.5">
-                <UploadForm
-                    form={form}
-                    campaigns={campaigns}
-                    adSets={adSets}
-                    pixels={pixels}
-                    isLoadingCampaigns={isLoadingCampaigns}
-                    isLoadingAdSets={isLoadingAdSets}
-                    isLoadingPixels={isLoadingPixels}
-                />
+            <UploadProvider>
+                <div className="grid grid-cols-2 h-full gap-2.5">
+                    <UploadForm
+                        campaigns={campaigns}
+                        adSets={adSets}
+                        pixels={pixels}
+                        isLoadingCampaigns={isLoadingCampaigns}
+                        isLoadingAdSets={isLoadingAdSets}
+                        isLoadingPixels={isLoadingPixels}
+                    />
 
-                <UploadedCreatives form={form} />
-            </div>
+                    <UploadedCreatives />
+                </div>
+            </UploadProvider>
         </Layout>
     );
 }
