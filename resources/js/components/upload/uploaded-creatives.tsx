@@ -113,7 +113,21 @@ export function UploadedCreatives() {
                 <div className="flex-1 min-h-0 overflow-y-auto">
                     <div className="p-5 border-b border-gray-100">
                         <div className="flex justify-end">
-                            <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                            <button
+                                onClick={() => {
+                                    setAdSetGroups((adSetGroups) => [
+                                        ...adSetGroups,
+                                        {
+                                            id: crypto.randomUUID(),
+                                            label: `Ad set ${
+                                                adSetGroups.length + 1
+                                            }`,
+                                            creatives: [],
+                                        },
+                                    ]);
+                                }}
+                                className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
+                            >
                                 Create ad set
                             </button>
                         </div>
@@ -176,7 +190,6 @@ export function UploadedCreatives() {
                                     {activeId && (
                                         <AdCreative
                                             creative={draggingCreative}
-                                            isDragging
                                         />
                                     )}
                                 </DragOverlay>

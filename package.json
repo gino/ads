@@ -27,12 +27,14 @@
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
         "date-fns-tz": "^3.2.0",
+        "motion": "^12.23.13",
         "nuqs": "^2.4.3",
         "react": "^19.1.1",
         "react-day-picker": "^9.9.0",
         "react-dom": "^19.1.1",
         "react-dropzone": "^14.3.8",
         "react-hotkeys-hook": "^5.1.0",
+        "react-use-measure": "^2.1.7",
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.3.1"
     }

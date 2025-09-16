@@ -8,13 +8,13 @@ import { useUploadedCreativesContext } from "./uploaded-creatives";
 interface Props {
     creative: UploadedCreative;
     type?: FolderType;
-    isDragging?: boolean;
 }
 
-export function AdCreative({ creative, type = "ADSET", isDragging }: Props) {
-    const { attributes, listeners, setNodeRef, transform } = useDraggable({
-        id: creative.id,
-    });
+export function AdCreative({ creative, type = "ADSET" }: Props) {
+    const { attributes, listeners, setNodeRef, transform, isDragging } =
+        useDraggable({
+            id: creative.id,
+        });
 
     const { deleteCreative } = useUploadContext();
     const { deleteFromGroup } = useUploadedCreativesContext();
@@ -22,14 +22,13 @@ export function AdCreative({ creative, type = "ADSET", isDragging }: Props) {
     return (
         <div
             ref={setNodeRef}
-            style={
-                transform
-                    ? {
-                          transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-                      }
-                    : undefined
-            }
-            className="bg-white rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shadow-base"
+            style={{
+                transform: transform
+                    ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+                    : undefined,
+                opacity: isDragging ? 0 : 1,
+            }}
+            className="bg-white rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shadow-base shrink-0"
             {...listeners}
             {...attributes}
         >
@@ -60,9 +59,7 @@ export function AdCreative({ creative, type = "ADSET", isDragging }: Props) {
                                 : "fa-file"
                         )}
                     />
-                    <div className="font-semibold truncate">
-                        {creative.name}
-                    </div>
+                    <div className="font-semibold truncate">{creative.id}</div>
                 </div>
                 <div className="text-[12px] font-medium text-gray-500 flex items-center gap-1.5">
                     <div>{creative.size}</div>
