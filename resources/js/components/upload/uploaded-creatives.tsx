@@ -1,13 +1,30 @@
 import { cn } from "@/lib/cn";
 import { UploadForm as UploadFormType } from "@/pages/upload";
+import { DndContext } from "@dnd-kit/core";
 import { InertiaFormProps } from "@inertiajs/react";
-import { AdSet } from "./adset";
+import { useState } from "react";
+import { AdSetGroup } from "./adset-group";
 
 interface Props {
     form: InertiaFormProps<UploadFormType>;
 }
 
 export function UploadedCreatives({ form }: Props) {
+    const [adSetGroups, setAdSetGroups] = useState([
+        {
+            id: "adset-1",
+            label: "Ad set 1",
+        },
+        {
+            id: "adset-2",
+            label: "Ad set 2",
+        },
+        {
+            id: "adset-3",
+            label: "Ad set 3",
+        },
+    ]);
+
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
             <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
@@ -18,15 +35,22 @@ export function UploadedCreatives({ form }: Props) {
                         </button>
                     </div>
                 </div>
-                <div className="flex-1 min-h-0 overflow-y-auto">
-                    <div className="p-5 flex flex-col">
-                        <div className="flex flex-col">
-                            {Array(2)
-                                .fill(null)
-                                .map((_, index) => (
-                                    <AdSet
-                                        key={index}
-                                        label={`Ad set ${index + 1}`}
+                <DndContext
+                    onDragEnd={(event) => {
+                        const creative = event.active;
+                        const adSetGroup = event.over;
+
+                        console.log({ creative, adSetGroup });
+                    }}
+                >
+                    <div className="flex-1 min-h-0 overflow-y-auto">
+                        <div className="p-5 flex flex-col">
+                            <div className="flex flex-col">
+                                {adSetGroups.map((adSetGroup) => (
+                                    <AdSetGroup
+                                        key={adSetGroup.id}
+                                        id={adSetGroup.id}
+                                        label={adSetGroup.label}
                                         type="ADSET"
                                         creatives={form.data.creatives}
                                         className={cn(
@@ -37,17 +61,19 @@ export function UploadedCreatives({ form }: Props) {
                                         )}
                                     />
                                 ))}
-                        </div>
+                            </div>
 
-                        <div className="border-t border-gray-100 pt-5 mt-5">
-                            <AdSet
-                                label="Ungrouped creatives"
-                                type="UNGROUPED"
-                                creatives={form.data.creatives}
-                            />
+                            <div className="border-t border-gray-100 pt-5 mt-5">
+                                <AdSetGroup
+                                    id="ungrouped"
+                                    label="Ungrouped creatives"
+                                    type="UNGROUPED"
+                                    creatives={form.data.creatives}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </DndContext>
             </div>
         </div>
     );
