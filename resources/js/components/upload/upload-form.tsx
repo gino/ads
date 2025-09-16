@@ -86,8 +86,6 @@ export function UploadForm({
                         thumbnail = URL.createObjectURL(file);
                     }
 
-                    console.log(file);
-
                     return {
                         id: crypto.randomUUID().toString(),
                         name: file.name,

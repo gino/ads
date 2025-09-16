@@ -1,30 +1,47 @@
 import { cn } from "@/lib/cn";
-import { UploadedCreative } from "@/pages/upload";
+import { UploadedCreative, UploadForm as UploadFormType } from "@/pages/upload";
 import { useDraggable } from "@dnd-kit/core";
+import { InertiaFormProps } from "@inertiajs/react";
+import { useCallback } from "react";
 import { FolderType } from "./adset-group";
 
 interface Props {
+    form: InertiaFormProps<UploadFormType>;
     creative: UploadedCreative;
-    type: FolderType;
+    type?: FolderType;
+    isDragging?: boolean;
 }
 
-export function Creative({ creative, type }: Props) {
+export function AdCreative({
+    form,
+    creative,
+    type = "ADSET",
+    isDragging,
+}: Props) {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: creative.id,
     });
-    const style = transform
-        ? {
-              transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-          }
-        : undefined;
+
+    const deleteCreative = useCallback((creativeId: string) => {
+        form.setData(
+            "creatives",
+            form.data.creatives.filter((creative) => creative.id !== creativeId)
+        );
+    }, []);
 
     return (
         <div
             ref={setNodeRef}
-            style={style}
+            style={
+                transform
+                    ? {
+                          transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+                      }
+                    : undefined
+            }
+            className="bg-white rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shadow-base"
             {...listeners}
             {...attributes}
-            className="bg-white shadow-base rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab"
         >
             <i className="fa-solid fa-grip-dots-vertical text-[10px] text-gray-300" />
 
@@ -67,19 +84,27 @@ export function Creative({ creative, type }: Props) {
                 </div>
             </div>
 
-            <div className="flex items-center gap-1">
-                <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
-                    <i className="fa-regular fa-pencil" />
-                </button>
-                {type === "UNGROUPED" && (
+            {!isDragging && (
+                <div className="flex items-center gap-1 pointer-events-auto">
                     <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
-                        <i className="fa-regular fa-folder-plus" />
+                        <i className="fa-regular fa-pencil" />
                     </button>
-                )}
-                <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white">
-                    <i className="fa-regular fa-trash-can" />
-                </button>
-            </div>
+                    {type === "UNGROUPED" && (
+                        <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
+                            <i className="fa-regular fa-folder-plus" />
+                        </button>
+                    )}
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            deleteCreative(creative.id);
+                        }}
+                        className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"
+                    >
+                        <i className="fa-regular fa-trash-can" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

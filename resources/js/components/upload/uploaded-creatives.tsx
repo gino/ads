@@ -1,8 +1,10 @@
 import { cn } from "@/lib/cn";
 import { UploadForm as UploadFormType } from "@/pages/upload";
-import { DndContext } from "@dnd-kit/core";
+import { Portal } from "@ariakit/react";
+import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { InertiaFormProps } from "@inertiajs/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { AdCreative } from "./ad-creative";
 import { AdSetGroup } from "./adset-group";
 
 interface Props {
@@ -14,16 +16,37 @@ export function UploadedCreatives({ form }: Props) {
         {
             id: "adset-1",
             label: "Ad set 1",
+            creatives: [] as string[],
         },
         {
             id: "adset-2",
             label: "Ad set 2",
+            creatives: [] as string[],
         },
         {
             id: "adset-3",
             label: "Ad set 3",
+            creatives: [] as string[],
         },
     ]);
+
+    const ungroupedCreatives = useMemo(() => {
+        return form.data.creatives
+            .map((creative) => creative.id)
+            .filter((id) => {
+                return !adSetGroups.some((adSetGroup) => {
+                    return adSetGroup.creatives.includes(id);
+                });
+            });
+    }, [form.data.creatives, adSetGroups]);
+
+    const [activeId, setActiveId] = useState<string | null>(null);
+
+    const draggingCreative = useMemo(() => {
+        return form.data.creatives.find(
+            (creative) => creative.id === activeId
+        )!;
+    }, [form.data.creatives, activeId]);
 
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
@@ -36,11 +59,44 @@ export function UploadedCreatives({ form }: Props) {
                     </div>
                 </div>
                 <DndContext
+                    onDragStart={(event) =>
+                        setActiveId(event.active.id as string)
+                    }
+                    onDragCancel={() => setActiveId(null)}
                     onDragEnd={(event) => {
-                        const creative = event.active;
-                        const adSetGroup = event.over;
+                        setActiveId(null);
 
-                        console.log({ creative, adSetGroup });
+                        const { over, active } = event;
+                        if (!over) return;
+
+                        const creativeId = active.id as string;
+                        const targetAdSetId = over.id as string;
+
+                        if (!creativeId || !targetAdSetId) return;
+
+                        setAdSetGroups((prev) => {
+                            const cleared = prev.map((group) => ({
+                                ...group,
+                                creatives: group.creatives.filter(
+                                    (id) => id !== creativeId
+                                ),
+                            }));
+
+                            // if dropped on ungrouped, don’t add to any adset
+                            if (targetAdSetId === "ungrouped") return cleared;
+
+                            return cleared.map((group) =>
+                                group.id === targetAdSetId
+                                    ? {
+                                          ...group,
+                                          creatives: [
+                                              ...group.creatives,
+                                              creativeId,
+                                          ],
+                                      }
+                                    : group
+                            );
+                        });
                     }}
                 >
                     <div className="flex-1 min-h-0 overflow-y-auto">
@@ -49,12 +105,13 @@ export function UploadedCreatives({ form }: Props) {
                                 {adSetGroups.map((adSetGroup) => (
                                     <AdSetGroup
                                         key={adSetGroup.id}
+                                        form={form}
                                         id={adSetGroup.id}
                                         label={adSetGroup.label}
                                         type="ADSET"
-                                        creatives={form.data.creatives}
+                                        creativeIds={adSetGroup.creatives}
                                         className={cn(
-                                            form.data.creatives.length === 0
+                                            adSetGroup.creatives.length === 0
                                                 ? "mb-2.5"
                                                 : "mb-5",
                                             "last:mb-0"
@@ -66,13 +123,25 @@ export function UploadedCreatives({ form }: Props) {
                             <div className="border-t border-gray-100 pt-5 mt-5">
                                 <AdSetGroup
                                     id="ungrouped"
+                                    form={form}
                                     label="Ungrouped creatives"
                                     type="UNGROUPED"
-                                    creatives={form.data.creatives}
+                                    creativeIds={ungroupedCreatives}
                                 />
                             </div>
                         </div>
                     </div>
+                    <Portal>
+                        <DragOverlay>
+                            {activeId && (
+                                <AdCreative
+                                    form={form}
+                                    creative={draggingCreative}
+                                    isDragging
+                                />
+                            )}
+                        </DragOverlay>
+                    </Portal>
                 </DndContext>
             </div>
         </div>
