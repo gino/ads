@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { useDroppable } from "@dnd-kit/core";
 import { AnimatePresence, motion } from "motion/react";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import useMeasure from "react-use-measure";
 import { AdCreative } from "./ad-creative";
 import { useUploadContext } from "./upload-context";
@@ -37,6 +37,18 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
     const [editingLabel, setEditingLabel] = useState(false);
     const [newLabel, setNewLabel] = useState(label);
 
+    const updateLabel = useCallback(() => {
+        setEditingLabel(false);
+
+        const trimmedLabel = newLabel.trim();
+
+        if (trimmedLabel.length > 0) {
+            updateGroupLabel(id, trimmedLabel);
+        } else {
+            setNewLabel(label);
+        }
+    }, [id, label, newLabel, updateGroupLabel]);
+
     return (
         <div
             className={cn(
@@ -71,21 +83,26 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                             <div className="truncate flex-1">
                                 <div className="font-semibold truncate">
                                     {!editingLabel ? (
-                                        <span
-                                            onClick={(e) => {
-                                                if (type === "ADSET") {
-                                                    e.stopPropagation();
-                                                    setEditingLabel(true);
-                                                }
-                                            }}
-                                            className={cn(
-                                                "truncate",
-                                                type === "ADSET" &&
-                                                    "cursor-text"
+                                        <>
+                                            <span
+                                                onClick={(e) => {
+                                                    if (type === "ADSET") {
+                                                        e.stopPropagation();
+                                                        setEditingLabel(true);
+                                                    }
+                                                }}
+                                                className={cn(
+                                                    "truncate",
+                                                    type === "ADSET" &&
+                                                        "cursor-text peer"
+                                                )}
+                                            >
+                                                {label}
+                                            </span>
+                                            {type === "ADSET" && (
+                                                <i className="fa-regular fa-pencil text-[12px] ml-2 text-gray-400 invisible peer-hover:visible" />
                                             )}
-                                        >
-                                            {label}
-                                        </span>
+                                        </>
                                     ) : (
                                         <div className="p-px">
                                             <input
@@ -96,46 +113,23 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                                                 className="px-3 py-1.5 w-full bg-white rounded-lg ring-1 ring-gray-200 outline-none text-xs placeholder-gray-400"
                                                 value={newLabel}
                                                 placeholder={label}
-                                                onChange={(e) => {
-                                                    setNewLabel(e.target.value);
-                                                }}
+                                                onChange={(e) =>
+                                                    setNewLabel(e.target.value)
+                                                }
                                                 onKeyDown={(e) => {
                                                     if (e.key === "Enter") {
+                                                        updateLabel();
+                                                        return;
+                                                    }
+
+                                                    if (e.key === "Escape") {
+                                                        // Cancel edit
                                                         setEditingLabel(false);
-
-                                                        const trimmedLabel =
-                                                            newLabel.trim();
-
-                                                        if (
-                                                            trimmedLabel.length >
-                                                            0
-                                                        ) {
-                                                            updateGroupLabel(
-                                                                id,
-                                                                trimmedLabel
-                                                            );
-                                                        } else {
-                                                            setNewLabel(label);
-                                                        }
-                                                    }
-                                                }}
-                                                onBlur={() => {
-                                                    setEditingLabel(false);
-
-                                                    const trimmedLabel =
-                                                        newLabel.trim();
-
-                                                    if (
-                                                        trimmedLabel.length > 0
-                                                    ) {
-                                                        updateGroupLabel(
-                                                            id,
-                                                            trimmedLabel
-                                                        );
-                                                    } else {
                                                         setNewLabel(label);
+                                                        return;
                                                     }
                                                 }}
+                                                onBlur={() => updateLabel()}
                                                 autoFocus
                                             />
                                         </div>
