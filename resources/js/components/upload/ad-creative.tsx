@@ -1,6 +1,7 @@
 import { cn } from "@/lib/cn";
 import { UploadedCreative } from "@/pages/upload";
 import { useDraggable } from "@dnd-kit/core";
+import { useMemo } from "react";
 import { FolderType } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
@@ -10,12 +11,14 @@ interface Props {
     type?: FolderType;
     className?: string;
     isDraggingCreative?: boolean;
+    hoveringAdSetId?: string | null;
 }
 
 export function AdCreative({
     creative,
     type = "ADSET",
     isDraggingCreative,
+    hoveringAdSetId,
     className,
 }: Props) {
     const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -24,7 +27,14 @@ export function AdCreative({
         });
 
     const { deleteCreative } = useUploadContext();
-    const { deleteFromGroup } = useUploadedCreativesContext();
+    const { adSetGroups, deleteFromGroup } = useUploadedCreativesContext();
+
+    const hoveringAdSet = useMemo(() => {
+        if (!isDraggingCreative) return null;
+        if (!hoveringAdSetId) return null;
+
+        return adSetGroups.find((group) => group.id === hoveringAdSetId)!;
+    }, [isDraggingCreative, hoveringAdSetId, adSetGroups]);
 
     return (
         <div
@@ -83,6 +93,13 @@ export function AdCreative({
                         <div>{creative.size}</div>
                         <div className="text-gray-300">&bull;</div>
                         <div>{creative.type.split("/")[1].toUpperCase()}</div>
+
+                        {hoveringAdSet && (
+                            <>
+                                <div className="text-gray-300">&bull;</div>
+                                <div>{hoveringAdSet.label}</div>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -109,6 +126,7 @@ export function AdCreative({
                         )}
                         <button
                             onClick={() => {
+                                deleteFromGroup(creative.id);
                                 deleteCreative(creative.id);
                             }}
                             className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"

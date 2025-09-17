@@ -39,16 +39,6 @@ export function UploadedCreatives() {
             label: "Ad set 1",
             creatives: [] as string[],
         },
-        {
-            id: "adset-2",
-            label: "Ad set 2",
-            creatives: [] as string[],
-        },
-        {
-            id: "adset-3",
-            label: "Ad set 3",
-            creatives: [] as string[],
-        },
     ]);
 
     const ungroupedCreatives = useMemo(() => {
@@ -62,6 +52,7 @@ export function UploadedCreatives() {
     }, [form.data.creatives, adSetGroups]);
 
     const [activeId, setActiveId] = useState<string | null>(null);
+    const [hoveringAdSetId, setHoveringAdSetId] = useState<string | null>(null);
 
     const draggingCreative = useMemo(() => {
         return form.data.creatives.find(
@@ -140,6 +131,17 @@ export function UploadedCreatives() {
                                 setActiveId(event.active.id as string)
                             }
                             onDragCancel={() => setActiveId(null)}
+                            onDragOver={(event) => {
+                                if (!event.active || !event.over) return;
+
+                                if (event.over.id === "ungrouped") {
+                                    setHoveringAdSetId(null);
+                                } else {
+                                    setHoveringAdSetId(
+                                        event.over.id.toString()
+                                    );
+                                }
+                            }}
                             onDragEnd={(event) => {
                                 setActiveId(null);
 
@@ -178,7 +180,7 @@ export function UploadedCreatives() {
                                     ))}
                                 </div>
 
-                                <div className="border-t border-gray-100 pt-5 mt-5">
+                                <div className="border-t border-gray-100 pt-5 mt-5 -mx-5 px-5">
                                     <AdSetGroup
                                         id="ungrouped"
                                         label="Ungrouped creatives"
@@ -202,6 +204,9 @@ export function UploadedCreatives() {
                                         >
                                             <AdCreative
                                                 creative={draggingCreative}
+                                                hoveringAdSetId={
+                                                    hoveringAdSetId
+                                                }
                                                 isDraggingCreative
                                             />
                                         </motion.div>

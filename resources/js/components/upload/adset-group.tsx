@@ -40,13 +40,15 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                 className="bg-gray-50 ring-inset ring-1 ring-gray-200/30 rounded-xl"
             >
                 <div className="flex px-3 items-center h-12">
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex items-center gap-2 flex-1 truncate">
                         <i className="fa-regular fa-angle-down text-gray-300" />
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 truncate">
                             {type === "ADSET" && (
                                 <i className="fa-regular text-gray-400 fa-folder" />
                             )}
-                            <div className="font-semibold">{label}</div>
+                            <div className="font-semibold truncate">
+                                {label}
+                            </div>
                         </div>
                     </div>
 

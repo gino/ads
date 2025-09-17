@@ -4,11 +4,12 @@ import { UploadedCreative } from "@/pages/upload";
 import { router } from "@inertiajs/react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useEffect, useMemo } from "react";
-import DropboxChooser from "react-dropbox-chooser";
 import { useDropzone } from "react-dropzone";
 import { Select } from "../ui/select";
 import { StatusTag } from "../ui/status-tag";
-import { allowedFileExtensions, allowedFileTypes } from "./constants";
+import { allowedFileTypes } from "./constants";
+import { DropboxButton } from "./integrations/dropbox";
+import { GoogleDriveButton } from "./integrations/google-drive";
 import { useUploadContext } from "./upload-context";
 
 interface Props {
@@ -281,53 +282,8 @@ export function UploadForm({
                             </label>
 
                             <div className="grid grid-cols-2 items-center gap-3">
-                                <DropboxChooser
-                                    appKey={
-                                        import.meta.env.VITE_DROPBOX_API_KEY
-                                    }
-                                    success={async (files) => {
-                                        const creatives = await Promise.all(
-                                            files.map(async (dbFile) => {
-                                                const response = await fetch(
-                                                    dbFile.link
-                                                );
-                                                const blob =
-                                                    await response.blob();
-                                                const file = new File(
-                                                    [blob],
-                                                    dbFile.name,
-                                                    {
-                                                        type:
-                                                            blob.type ||
-                                                            "application/octet-stream",
-                                                    }
-                                                );
-
-                                                return createUploadedCreative(
-                                                    file
-                                                );
-                                            })
-                                        );
-
-                                        form.setData("creatives", [
-                                            ...form.data.creatives,
-                                            ...creatives,
-                                        ]);
-                                    }}
-                                    multiselect={true}
-                                    linkType="direct"
-                                    extensions={allowedFileExtensions}
-                                >
-                                    <button className="bg-white font-semibold flex justify-center items-center gap-2 shadow-base px-3.5 py-2.5 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out w-full">
-                                        <i className="-ml-0.5 fa-brands fa-dropbox text-[#0061FE]" />
-                                        <span>Choose from Dropbox</span>
-                                    </button>
-                                </DropboxChooser>
-
-                                <button className="bg-white font-semibold flex justify-center items-center gap-2 shadow-base px-3.5 py-2.5 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
-                                    <i className="-ml-0.5 fa-brands fa-google-drive text-[#4285F4]" />
-                                    <span>Choose from Google Drive</span>
-                                </button>
+                                <DropboxButton />
+                                <GoogleDriveButton />
                             </div>
                         </div>
                     </div>
@@ -337,7 +293,9 @@ export function UploadForm({
     );
 }
 
-async function createUploadedCreative(file: File): Promise<UploadedCreative> {
+export async function createUploadedCreative(
+    file: File
+): Promise<UploadedCreative> {
     let thumbnail: string | null = null;
 
     if (file.type.startsWith("video/")) {

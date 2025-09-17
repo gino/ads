@@ -6,3 +6,4 @@ export const allowedFileTypes = {
 };
 
 export const allowedFileExtensions = Object.values(allowedFileTypes).flat();
+export const allowedFileMimeTypes = Object.keys(allowedFileTypes).flat();
