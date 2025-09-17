@@ -1,7 +1,6 @@
 import { cn } from "@/lib/cn";
 import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-
 import { motion } from "motion/react";
 import {
     createContext,
@@ -24,6 +23,7 @@ interface UploadedCreativesContextType {
     adSetGroups: AdSetGroup[];
     deleteFromGroup: (creativeId: string) => void;
     addToGroup: (creativeId: string, groupId: string) => void;
+    updateGroupLabel: (groupId: string, label: string) => void;
 }
 
 const UploadedCreativesContext = createContext<UploadedCreativesContextType>(
@@ -91,13 +91,22 @@ export function UploadedCreatives() {
         [setAdSetGroups]
     );
 
+    const updateGroupLabel = useCallback((groupId: string, label: string) => {
+        setAdSetGroups((prev) =>
+            prev.map((group) =>
+                group.id === groupId ? { ...group, label } : group
+            )
+        );
+    }, []);
+
     const memoizedValue = useMemo<UploadedCreativesContextType>(
         () => ({
             adSetGroups,
             deleteFromGroup,
             addToGroup,
+            updateGroupLabel,
         }),
-        [adSetGroups, deleteFromGroup, addToGroup]
+        [adSetGroups, deleteFromGroup, addToGroup, updateGroupLabel]
     );
 
     return (
@@ -190,7 +199,13 @@ export function UploadedCreatives() {
                                 </div>
                             </div>
                             <Portal>
-                                <DragOverlay dropAnimation={null}>
+                                <DragOverlay
+                                    dropAnimation={null}
+                                    // dropAnimation={{
+                                    //     duration: 300,
+                                    //     easing: "ease-in-out",
+                                    // }}
+                                >
                                     {activeId && (
                                         <motion.div
                                             initial={{ scale: 1 }}

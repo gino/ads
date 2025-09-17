@@ -1,8 +1,11 @@
 import { cn } from "@/lib/cn";
 import { useDroppable } from "@dnd-kit/core";
-import { useMemo } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useMemo, useState } from "react";
+import useMeasure from "react-use-measure";
 import { AdCreative } from "./ad-creative";
 import { useUploadContext } from "./upload-context";
+import { useUploadedCreativesContext } from "./uploaded-creatives";
 
 export type FolderType = "ADSET" | "UNGROUPED";
 
@@ -20,12 +23,19 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
     });
 
     const { form } = useUploadContext();
+    const { updateGroupLabel } = useUploadedCreativesContext();
 
     const creatives = useMemo(() => {
         return form.data.creatives.filter((creative) => {
             return creativeIds.includes(creative.id);
         });
     }, [form.data.creatives, creativeIds]);
+
+    const [measureRef, { height }] = useMeasure();
+    const [folded, setFolded] = useState(false);
+
+    const [editingLabel, setEditingLabel] = useState(false);
+    const [newLabel, setNewLabel] = useState(label);
 
     return (
         <div
@@ -37,17 +47,100 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
         >
             <div
                 ref={setNodeRef}
-                className="bg-gray-50 ring-inset ring-1 ring-gray-200/30 rounded-xl"
+                className="bg-gray-50 ring-inset ring-1 ring-gray-200/30 rounded-xl select-none"
             >
-                <div className="flex px-3 items-center h-12">
-                    <div className="flex items-center gap-2 flex-1 truncate">
-                        <i className="fa-regular fa-angle-down text-gray-300" />
-                        <div className="flex items-center gap-2.5 truncate">
+                <div
+                    onClick={() => setFolded((v) => !v)}
+                    className="flex px-3 gap-3 items-center h-12 cursor-pointer"
+                >
+                    <div className="flex items-center flex-1 truncate">
+                        <div className="flex items-center justify-center mr-2">
+                            <i
+                                className={cn(
+                                    "fa-regular fa-angle-down text-gray-300 transition-transform duration-200 ease-in-out",
+                                    isOver
+                                        ? "-rotate-90"
+                                        : folded && "-rotate-180"
+                                )}
+                            />
+                        </div>
+                        <div className="flex items-center gap-2.5 truncate flex-1">
                             {type === "ADSET" && (
-                                <i className="fa-regular text-gray-400 fa-folder" />
+                                <i className="fa-regular text-gray-400 fa-folder shrink-0" />
                             )}
-                            <div className="font-semibold truncate">
-                                {label}
+                            <div className="truncate flex-1">
+                                <div className="font-semibold truncate">
+                                    {!editingLabel ? (
+                                        <span
+                                            onClick={(e) => {
+                                                if (type === "ADSET") {
+                                                    e.stopPropagation();
+                                                    setEditingLabel(true);
+                                                }
+                                            }}
+                                            className={cn(
+                                                "truncate",
+                                                type === "ADSET" &&
+                                                    "cursor-text"
+                                            )}
+                                        >
+                                            {label}
+                                        </span>
+                                    ) : (
+                                        <div className="p-px">
+                                            <input
+                                                type="text"
+                                                onClick={(e) =>
+                                                    e.stopPropagation()
+                                                }
+                                                className="px-3 py-1.5 w-full bg-white rounded-lg ring-1 ring-gray-200 outline-none text-xs placeholder-gray-400"
+                                                value={newLabel}
+                                                placeholder={label}
+                                                onChange={(e) => {
+                                                    setNewLabel(e.target.value);
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        setEditingLabel(false);
+
+                                                        const trimmedLabel =
+                                                            newLabel.trim();
+
+                                                        if (
+                                                            trimmedLabel.length >
+                                                            0
+                                                        ) {
+                                                            updateGroupLabel(
+                                                                id,
+                                                                trimmedLabel
+                                                            );
+                                                        } else {
+                                                            setNewLabel(label);
+                                                        }
+                                                    }
+                                                }}
+                                                onBlur={() => {
+                                                    setEditingLabel(false);
+
+                                                    const trimmedLabel =
+                                                        newLabel.trim();
+
+                                                    if (
+                                                        trimmedLabel.length > 0
+                                                    ) {
+                                                        updateGroupLabel(
+                                                            id,
+                                                            trimmedLabel
+                                                        );
+                                                    } else {
+                                                        setNewLabel(label);
+                                                    }
+                                                }}
+                                                autoFocus
+                                            />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -62,13 +155,28 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                             <>
                                 <div className="w-px h-4 bg-gray-200/50 mx-3" />
                                 <div className="flex items-center gap-1">
-                                    <button className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                        }}
+                                        className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
+                                    >
                                         <i className="fa-regular fa-cog" />
                                     </button>
-                                    <button className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                        }}
+                                        className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
+                                    >
                                         <i className="fa-regular fa-clone" />
                                     </button>
-                                    <button className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-red-700 h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                        }}
+                                        className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-red-700 h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
+                                    >
                                         <i className="fa-regular fa-trash-can" />
                                     </button>
                                 </div>
@@ -77,17 +185,48 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                     </div>
                 </div>
 
-                {creatives.length > 0 && (
-                    <div className="flex flex-col gap-2 p-2 -mt-2">
-                        {creatives.map((creative) => (
-                            <AdCreative
-                                key={creative.id}
-                                creative={creative}
-                                type={type}
-                            />
-                        ))}
-                    </div>
-                )}
+                <div>
+                    <AnimatePresence initial={false}>
+                        {!folded && creatives.length > 0 && (
+                            <motion.div
+                                className="overflow-hidden will-change-[height,margin-top,opacity,filter]"
+                                initial={{
+                                    height: 0,
+                                    marginTop: 0,
+                                    opacity: 0,
+                                }}
+                                animate={{
+                                    height,
+                                    marginTop: -8,
+                                    opacity: 1,
+                                    filter: "blur(0px)",
+                                }}
+                                exit={{
+                                    height: 0,
+                                    marginTop: 0,
+                                    opacity: 0,
+                                    filter: "blur(1px)",
+                                }}
+                                // transition={{
+                                //     duration: 0.3,
+                                //     ease: "easeOut",
+                                // }}
+                            >
+                                <div ref={measureRef} className="relative">
+                                    <div className="flex flex-col gap-2 p-2">
+                                        {creatives.map((creative) => (
+                                            <AdCreative
+                                                key={creative.id}
+                                                creative={creative}
+                                                type={type}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
         </div>
     );

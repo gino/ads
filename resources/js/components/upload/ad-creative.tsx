@@ -92,7 +92,7 @@ export function AdCreative({
                     <div className="text-[12px] font-medium text-gray-500 flex items-center gap-1.5">
                         <div>{creative.size}</div>
                         <div className="text-gray-300">&bull;</div>
-                        <div>{creative.type.split("/")[1].toUpperCase()}</div>
+                        <div>{creative.extension.toUpperCase()}</div>
 
                         {hoveringAdSet && (
                             <>

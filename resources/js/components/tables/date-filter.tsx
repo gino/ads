@@ -304,7 +304,6 @@ export function DateFilter() {
             <Ariakit.PopoverDisclosure className="bg-white text-xs shadow-base pl-3 pr-3.5 shrink-0 py-2.5 flex items-center rounded-lg active:scale-[0.99] transition-transform duration-100 ease-in-out cursor-pointer">
                 <i className="fa-regular fa-calendar text-xs text-gray-400 mr-2" />
                 <span className="font-semibold flex-1 text-left whitespace-nowrap">
-                    {/* Today: 18 Aug 2025 */}
                     {label}
                 </span>
 

@@ -7,6 +7,7 @@ import useDeferred from "@/lib/hooks/use-deferred";
 export type UploadedCreative = {
     id: string;
     name: string;
+    extension: string;
     size: string;
     file: File;
     preview: string;

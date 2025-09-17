@@ -306,7 +306,8 @@ export async function createUploadedCreative(
 
     return {
         id: crypto.randomUUID().toString(),
-        name: file.name,
+        name: file.name.substring(0, file.name.lastIndexOf(".")),
+        extension: file.name.split(".").pop()!,
         size: formatFileSize(file.size),
         file,
         preview: thumbnail,
