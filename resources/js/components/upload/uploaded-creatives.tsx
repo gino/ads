@@ -1,6 +1,8 @@
 import { cn } from "@/lib/cn";
 import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
+
+import { motion } from "motion/react";
 import {
     createContext,
     useCallback,
@@ -186,11 +188,23 @@ export function UploadedCreatives() {
                                 </div>
                             </div>
                             <Portal>
-                                <DragOverlay>
+                                <DragOverlay dropAnimation={null}>
                                     {activeId && (
-                                        <AdCreative
-                                            creative={draggingCreative}
-                                        />
+                                        <motion.div
+                                            initial={{ scale: 1 }}
+                                            animate={{
+                                                scale: 1.05,
+                                            }}
+                                            transition={{
+                                                duration: 0.15,
+                                                ease: "easeInOut",
+                                            }}
+                                        >
+                                            <AdCreative
+                                                creative={draggingCreative}
+                                                isDraggingCreative
+                                            />
+                                        </motion.div>
                                     )}
                                 </DragOverlay>
                             </Portal>
