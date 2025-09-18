@@ -49,8 +49,7 @@ export function Select<T extends SelectItem>({
             setOpen={(value) => setIsOpen(value)}
             value={value}
             setValue={(value) => {
-                // @ts-ignore
-                onChange(value);
+                onChange(value as any);
             }}
         >
             <Ariakit.SelectLabel className="font-semibold mb-2">

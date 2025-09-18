@@ -15,6 +15,10 @@ import { AdCreative } from "./ad-creative";
 import { AdSetGroup } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 
+// Multi select
+// https://github.com/clauderic/dnd-kit/pull/588/files
+// https://5fc05e08a4a65d0021ae0bf2-yivpqsvbcy.chromatic.com/?path=/docs/presets-sortable-multiple-containers--multi-select
+
 interface UploadedCreativesContextType {
     adSetGroups: AdSetGroupType[];
     createGroup: (label: string) => void;
