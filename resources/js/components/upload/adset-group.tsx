@@ -51,17 +51,22 @@ export function AdSetGroup({
         const trimmedLabel = newLabel.trim();
 
         if (trimmedLabel.length > 0) {
-            updateGroupLabel(id, trimmedLabel);
+            if (!isExistingAdSet) {
+                updateGroupLabel(id, trimmedLabel);
+            }
         } else {
             setNewLabel(label);
         }
-    }, [id, label, newLabel, updateGroupLabel]);
+    }, [id, label, newLabel, updateGroupLabel, isExistingAdSet]);
 
     const isOverGroup = useMemo(() => {
         if (!active) return;
 
         return isOver && !creativeIds.includes(active?.id.toString());
     }, [isOver, creativeIds, active]);
+
+    // const isAbleToEdit = type === "ADSET" && !isExistingAdSet;
+    const isAbleToEdit = type === "ADSET";
 
     return (
         <div
@@ -101,20 +106,22 @@ export function AdSetGroup({
                                         <>
                                             <span
                                                 onClick={(e) => {
-                                                    if (type === "ADSET") {
+                                                    if (isAbleToEdit) {
                                                         e.stopPropagation();
                                                         setEditingLabel(true);
                                                     }
                                                 }}
                                                 className={cn(
                                                     "truncate",
-                                                    type === "ADSET" &&
+                                                    isAbleToEdit &&
                                                         "cursor-text peer"
                                                 )}
                                             >
-                                                {label}
+                                                {isExistingAdSet
+                                                    ? newLabel
+                                                    : label}
                                             </span>
-                                            {type === "ADSET" && (
+                                            {isAbleToEdit && (
                                                 <i className="fa-regular fa-pencil text-[12px] ml-2 text-gray-400 invisible peer-hover:visible" />
                                             )}
                                         </>
