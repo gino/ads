@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { AdSetGroup as AdSetGroupType } from "@/pages/upload";
 import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { motion } from "motion/react";
@@ -13,14 +14,8 @@ import { AdCreative } from "./ad-creative";
 import { AdSetGroup } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 
-interface AdSetGroup {
-    id: string;
-    label: string;
-    creatives: string[];
-}
-
 interface UploadedCreativesContextType {
-    adSetGroups: AdSetGroup[];
+    adSetGroups: AdSetGroupType[];
     deleteFromGroup: (creativeId: string) => void;
     addToGroup: (creativeId: string, groupId: string) => void;
     updateGroupLabel: (groupId: string, label: string) => void;
@@ -134,40 +129,40 @@ export function UploadedCreatives() {
                             </button>
                         </div>
                     </div>
-                    <UploadedCreativesContext.Provider value={memoizedValue}>
-                        <DndContext
-                            onDragStart={(event) =>
-                                setActiveId(event.active.id as string)
+                    <DndContext
+                        onDragStart={(event) =>
+                            setActiveId(event.active.id as string)
+                        }
+                        onDragCancel={() => setActiveId(null)}
+                        onDragOver={(event) => {
+                            if (!event.active || !event.over) return;
+
+                            if (event.over.id === "ungrouped") {
+                                setHoveringAdSetId(null);
+                            } else {
+                                setHoveringAdSetId(event.over.id.toString());
                             }
-                            onDragCancel={() => setActiveId(null)}
-                            onDragOver={(event) => {
-                                if (!event.active || !event.over) return;
+                        }}
+                        onDragEnd={(event) => {
+                            setActiveId(null);
 
-                                if (event.over.id === "ungrouped") {
-                                    setHoveringAdSetId(null);
-                                } else {
-                                    setHoveringAdSetId(
-                                        event.over.id.toString()
-                                    );
-                                }
-                            }}
-                            onDragEnd={(event) => {
-                                setActiveId(null);
+                            const { over, active } = event;
+                            if (!over) return;
 
-                                const { over, active } = event;
-                                if (!over) return;
+                            const creativeId = active.id as string;
+                            const targetGroupId = over.id as string;
 
-                                const creativeId = active.id as string;
-                                const targetGroupId = over.id as string;
+                            if (!creativeId || !targetGroupId) return;
 
-                                if (!creativeId || !targetGroupId) return;
+                            // ✅ remove from all groups first
+                            deleteFromGroup(creativeId);
 
-                                // ✅ remove from all groups first
-                                deleteFromGroup(creativeId);
-
-                                // ✅ add to target if not ungrouped
-                                addToGroup(creativeId, targetGroupId);
-                            }}
+                            // ✅ add to target if not ungrouped
+                            addToGroup(creativeId, targetGroupId);
+                        }}
+                    >
+                        <UploadedCreativesContext.Provider
+                            value={memoizedValue}
                         >
                             <div className="p-5 flex flex-col">
                                 <div className="flex flex-col">
@@ -228,8 +223,8 @@ export function UploadedCreatives() {
                                     )}
                                 </DragOverlay>
                             </Portal>
-                        </DndContext>
-                    </UploadedCreativesContext.Provider>
+                        </UploadedCreativesContext.Provider>
+                    </DndContext>
                 </div>
             </div>
         </div>

@@ -112,9 +112,7 @@ export function AdCreative({
                                             e.stopPropagation()
                                         }
                                         onClick={(e) => {
-                                            e.stopPropagation();
                                             setEditingLabel(true);
-                                            console.log("yeet");
                                         }}
                                         className="truncate cursor-text peer"
                                     >
@@ -126,9 +124,9 @@ export function AdCreative({
                                 <div className="p-px">
                                     <input
                                         type="text"
-                                        onPointerDown={(e) =>
-                                            e.stopPropagation()
-                                        }
+                                        onPointerDown={(e) => {
+                                            e.stopPropagation();
+                                        }}
                                         onClick={(e) => e.stopPropagation()}
                                         className="px-3 py-1.5 w-full bg-white rounded-lg ring-1 ring-gray-200 outline-none text-xs placeholder-gray-400"
                                         value={newLabel}

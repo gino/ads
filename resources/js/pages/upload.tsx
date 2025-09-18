@@ -16,6 +16,12 @@ export type UploadedCreative = {
     thumbnail: string | null;
 };
 
+export type AdSetGroup = {
+    id: string;
+    label: string;
+    creatives: string[];
+};
+
 export type UploadForm = {
     campaignId: string;
     adSetId: string;
