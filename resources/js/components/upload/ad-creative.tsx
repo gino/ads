@@ -6,6 +6,8 @@ import { FolderType } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
 
+export const HEIGHT = 72;
+
 interface Props {
     creative: UploadedCreative;
     type?: FolderType;
@@ -40,7 +42,8 @@ export function AdCreative({
         <div
             className={cn(
                 "rounded-lg",
-                isDraggingCreative && "ring-2 ring-offset-3 ring-blue-100 "
+                isDraggingCreative &&
+                    "ring-2 ring-offset-3 ring-blue-100 opacity-90"
             )}
         >
             <div
@@ -50,6 +53,7 @@ export function AdCreative({
                         ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
                         : undefined,
                     opacity: isDragging ? 0 : 1,
+                    height: HEIGHT,
                 }}
                 className={cn(
                     "bg-white rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shadow-base shrink-0",

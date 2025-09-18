@@ -210,7 +210,7 @@ export function UploadedCreatives() {
                                         <motion.div
                                             initial={{ scale: 1 }}
                                             animate={{
-                                                scale: 1.05,
+                                                scale: 1.02,
                                             }}
                                             transition={{
                                                 duration: 0.15,

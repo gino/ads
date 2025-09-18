@@ -3,7 +3,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import useMeasure from "react-use-measure";
-import { AdCreative } from "./ad-creative";
+import { AdCreative, HEIGHT as ADCREATIVE_HEIGHT } from "./ad-creative";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
 
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
-    const { isOver, setNodeRef } = useDroppable({
+    const { isOver, setNodeRef, active, over } = useDroppable({
         id,
     });
 
@@ -49,11 +49,17 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
         }
     }, [id, label, newLabel, updateGroupLabel]);
 
+    const isOverGroup = useMemo(() => {
+        if (!active) return;
+
+        return isOver && !creativeIds.includes(active?.id.toString());
+    }, [isOver, creativeIds, active]);
+
     return (
         <div
             className={cn(
                 "rounded-xl",
-                isOver && "ring-2 ring-offset-2 ring-blue-100",
+                isOverGroup && "ring-2 ring-offset-2 ring-blue-100",
                 className
             )}
         >
@@ -70,7 +76,7 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                             <i
                                 className={cn(
                                     "fa-regular fa-angle-down text-gray-300 transition-transform duration-200 ease-in-out",
-                                    isOver
+                                    isOverGroup
                                         ? "-rotate-90"
                                         : folded && "-rotate-180"
                                 )}
@@ -181,7 +187,7 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
 
                 <div>
                     <AnimatePresence initial={false}>
-                        {!folded && creatives.length > 0 && (
+                        {!folded && (
                             <motion.div
                                 className="overflow-hidden will-change-[height,margin-top,opacity,filter]"
                                 initial={{
@@ -190,8 +196,14 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                                     opacity: 0,
                                 }}
                                 animate={{
-                                    height,
-                                    marginTop: -8,
+                                    height: isOverGroup
+                                        ? height + ADCREATIVE_HEIGHT
+                                        : creatives.length > 0
+                                        ? height
+                                        : 0,
+                                    marginTop: creatives.length > 0 ? -8 : 0,
+                                    // height,
+                                    // marginTop: -8,
                                     opacity: 1,
                                     filter: "blur(0px)",
                                 }}
@@ -201,10 +213,10 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                                     opacity: 0,
                                     filter: "blur(1px)",
                                 }}
-                                // transition={{
-                                //     duration: 0.3,
-                                //     ease: "easeOut",
-                                // }}
+                                transition={{
+                                    duration: 0.25,
+                                    ease: "easeOut",
+                                }}
                             >
                                 <div ref={measureRef} className="relative">
                                     <div className="flex flex-col gap-2 p-2">
