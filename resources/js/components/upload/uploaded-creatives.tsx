@@ -6,15 +6,20 @@ import {
     createContext,
     useCallback,
     useContext,
+    useEffect,
     useMemo,
     useState,
 } from "react";
+import { toast } from "../ui/toast";
 import { AdCreative } from "./ad-creative";
 import { AdSetGroup } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 
 interface UploadedCreativesContextType {
     adSetGroups: AdSetGroupType[];
+    createGroup: (label: string) => void;
+    cloneGroup: (groupId: string) => void;
+    deleteGroup: (groupId: string) => void;
     deleteFromGroup: (creativeId: string) => void;
     addToGroup: (creativeId: string, groupId: string) => void;
     updateGroupLabel: (groupId: string, label: string) => void;
@@ -31,13 +36,7 @@ interface Props {
 export function UploadedCreatives({ adSets }: Props) {
     const { form } = useUploadContext();
 
-    const [adSetGroups, setAdSetGroups] = useState([
-        {
-            id: "adset-1",
-            label: "Ad set 1",
-            creatives: [] as string[],
-        },
-    ]);
+    const [adSetGroups, setAdSetGroups] = useState<AdSetGroupType[]>([]);
 
     const hasSelectedAdSet = useMemo(() => {
         return !!form.data.adSetId;
@@ -51,6 +50,16 @@ export function UploadedCreatives({ adSets }: Props) {
     const [selectedAdSetCreatives, setSelectedAdSetCreatives] = useState<
         string[]
     >([]);
+
+    useEffect(() => {
+        if (!form.data.adSetId) return;
+
+        // Reset adSetGroups if user selects an existing adset
+        setAdSetGroups([]);
+
+        // It might be nice/convenient to not reset this
+        setSelectedAdSetCreatives([]);
+    }, [form.data.adSetId]);
 
     const ungroupedCreatives = useMemo(() => {
         if (hasSelectedAdSet) {
@@ -76,7 +85,6 @@ export function UploadedCreatives({ adSets }: Props) {
     ]);
 
     const [activeId, setActiveId] = useState<string | null>(null);
-    const [hoveringAdSetId, setHoveringAdSetId] = useState<string | null>(null);
 
     const draggingCreative = useMemo(() => {
         return form.data.creatives.find(
@@ -84,22 +92,59 @@ export function UploadedCreatives({ adSets }: Props) {
         )!;
     }, [form.data.creatives, activeId]);
 
+    const createGroup = useCallback(
+        (label: string) => {
+            setAdSetGroups((adSetGroups) => [
+                ...adSetGroups,
+                {
+                    id: crypto.randomUUID(),
+                    label,
+                    creatives: [],
+                },
+            ]);
+        },
+        [setAdSetGroups, adSetGroups]
+    );
+
+    const cloneGroup = useCallback(
+        (groupId: string) => {
+            const group = adSetGroups.find((group) => group.id === groupId)!;
+
+            createGroup(`${group.label} - Copy`);
+        },
+        [createGroup, adSetGroups]
+    );
+
+    const deleteGroup = useCallback(
+        (groupId: string) => {
+            setAdSetGroups((groups) =>
+                groups.filter((group) => group.id !== groupId)
+            );
+        },
+        [setAdSetGroups]
+    );
+
     const deleteFromGroup = useCallback(
         (creativeId: string) => {
             if (hasSelectedAdSet) {
-                setSelectedAdSetCreatives((creatives) =>
-                    creatives.filter((id) => id !== creativeId)
-                );
+                setSelectedAdSetCreatives((creatives) => {
+                    // ✅ Only update if the ID actually exists
+                    if (!creatives.includes(creativeId)) return creatives;
+                    return creatives.filter((id) => id !== creativeId);
+                });
                 return;
             }
 
             setAdSetGroups((prev) =>
-                prev.map((group) => ({
-                    ...group,
-                    creatives: group.creatives.filter(
-                        (id) => id !== creativeId
-                    ),
-                }))
+                prev.map((group) => {
+                    if (!group.creatives.includes(creativeId)) return group; // ✅ skip if not found
+                    return {
+                        ...group,
+                        creatives: group.creatives.filter(
+                            (id) => id !== creativeId
+                        ),
+                    };
+                })
             );
         },
         [setAdSetGroups, setSelectedAdSetCreatives, hasSelectedAdSet]
@@ -110,22 +155,23 @@ export function UploadedCreatives({ adSets }: Props) {
             if (groupId === "ungrouped") return;
 
             if (hasSelectedAdSet) {
-                setSelectedAdSetCreatives((creatives) => [
-                    ...creatives,
-                    creativeId,
-                ]);
+                setSelectedAdSetCreatives((creatives) => {
+                    // ✅ Only update if not already in list
+                    if (creatives.includes(creativeId)) return creatives;
+                    return [...creatives, creativeId];
+                });
                 return;
             }
 
             setAdSetGroups((prev) =>
-                prev.map((group) =>
-                    group.id === groupId
-                        ? {
-                              ...group,
-                              creatives: [...group.creatives, creativeId],
-                          }
-                        : group
-                )
+                prev.map((group) => {
+                    if (group.id !== groupId) return group;
+                    if (group.creatives.includes(creativeId)) return group; // ✅ skip if already in group
+                    return {
+                        ...group,
+                        creatives: [...group.creatives, creativeId],
+                    };
+                })
             );
         },
         [setAdSetGroups, setSelectedAdSetCreatives, hasSelectedAdSet]
@@ -145,11 +191,22 @@ export function UploadedCreatives({ adSets }: Props) {
     const memoizedValue = useMemo<UploadedCreativesContextType>(
         () => ({
             adSetGroups,
+            createGroup,
+            cloneGroup,
+            deleteGroup,
             deleteFromGroup,
             addToGroup,
             updateGroupLabel,
         }),
-        [adSetGroups, deleteFromGroup, addToGroup, updateGroupLabel]
+        [
+            adSetGroups,
+            createGroup,
+            cloneGroup,
+            deleteGroup,
+            deleteFromGroup,
+            addToGroup,
+            updateGroupLabel,
+        ]
     );
 
     return (
@@ -158,23 +215,23 @@ export function UploadedCreatives({ adSets }: Props) {
                 <div className="flex-1 min-h-0 overflow-y-auto">
                     {!hasSelectedAdSet && (
                         <div className="p-5 border-b border-gray-100">
-                            <div className="flex justify-end">
+                            <div className="flex justify-end items-center gap-2">
                                 <button
                                     onClick={() => {
-                                        setAdSetGroups((adSetGroups) => [
-                                            ...adSetGroups,
-                                            {
-                                                id: crypto.randomUUID(),
-                                                label: `Ad set ${
-                                                    adSetGroups.length + 1
-                                                }`,
-                                                creatives: [],
-                                            },
-                                        ]);
+                                        createGroup(
+                                            `Ad set ${adSetGroups.length + 1}`
+                                        );
                                     }}
                                     className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
                                 >
                                     Create ad set
+                                </button>
+
+                                <button
+                                    disabled
+                                    className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 disabled:cursor-not-allowed bg-brand ring-brand px-3.5 py-2 rounded-md disabled:opacity-50"
+                                >
+                                    Launch {form.data.creatives.length} ads
                                 </button>
                             </div>
                         </div>
@@ -184,15 +241,6 @@ export function UploadedCreatives({ adSets }: Props) {
                             setActiveId(event.active.id as string)
                         }
                         onDragCancel={() => setActiveId(null)}
-                        onDragOver={(event) => {
-                            if (!event.active || !event.over) return;
-
-                            if (event.over.id === "ungrouped") {
-                                setHoveringAdSetId(null);
-                            } else {
-                                setHoveringAdSetId(event.over.id.toString());
-                            }
-                        }}
                         onDragEnd={(event) => {
                             setActiveId(null);
 
@@ -204,42 +252,66 @@ export function UploadedCreatives({ adSets }: Props) {
 
                             if (!creativeId || !targetGroupId) return;
 
+                            // ✅ figure out where the creative currently lives
+                            const currentGroupId = hasSelectedAdSet
+                                ? selectedAdSetCreatives.includes(creativeId)
+                                    ? selectedAdSet!.id
+                                    : "ungrouped"
+                                : adSetGroups.find((g) =>
+                                      g.creatives.includes(creativeId)
+                                  )?.id ?? "ungrouped";
+
+                            // ✅ skip if it's dropped back into the same group
+                            if (currentGroupId === targetGroupId) return;
+
                             // ✅ remove from all groups first
                             deleteFromGroup(creativeId);
 
-                            // ✅ add to target if not ungrouped
+                            // ✅ add to target group
                             addToGroup(creativeId, targetGroupId);
+
+                            if (targetGroupId !== "ungrouped") {
+                                toast({
+                                    contents: "1 creative added to ad set",
+                                });
+                            }
                         }}
                     >
                         <UploadedCreativesContext.Provider
                             value={memoizedValue}
                         >
-                            <div className="p-5 flex flex-col">
-                                <div className="flex flex-col">
-                                    {hasSelectedAdSet ? (
-                                        <AdSetGroup
-                                            id={selectedAdSet!.id}
-                                            label={selectedAdSet!.name}
-                                            type="ADSET"
-                                            creativeIds={selectedAdSetCreatives}
-                                            isExistingAdSet
-                                        />
-                                    ) : (
-                                        adSetGroups.map((adSetGroup) => (
+                            <div className="flex flex-col">
+                                {(hasSelectedAdSet
+                                    ? true
+                                    : adSetGroups.length > 0) && (
+                                    <div className="p-5 flex flex-col border-b border-gray-100">
+                                        {hasSelectedAdSet ? (
                                             <AdSetGroup
-                                                key={adSetGroup.id}
-                                                id={adSetGroup.id}
-                                                label={adSetGroup.label}
+                                                id={selectedAdSet!.id}
+                                                label={selectedAdSet!.name}
                                                 type="ADSET"
                                                 creativeIds={
-                                                    adSetGroup.creatives
+                                                    selectedAdSetCreatives
                                                 }
+                                                isExistingAdSet
                                             />
-                                        ))
-                                    )}
-                                </div>
+                                        ) : (
+                                            adSetGroups.map((adSetGroup) => (
+                                                <AdSetGroup
+                                                    key={adSetGroup.id}
+                                                    id={adSetGroup.id}
+                                                    label={adSetGroup.label}
+                                                    type="ADSET"
+                                                    creativeIds={
+                                                        adSetGroup.creatives
+                                                    }
+                                                />
+                                            ))
+                                        )}
+                                    </div>
+                                )}
 
-                                <div className="border-t border-gray-100 pt-5 mt-5 -mx-5 px-5">
+                                <div className="p-5">
                                     <AdSetGroup
                                         id="ungrouped"
                                         label="Ungrouped creatives"
@@ -269,9 +341,6 @@ export function UploadedCreatives({ adSets }: Props) {
                                         >
                                             <AdCreative
                                                 creative={draggingCreative}
-                                                hoveringAdSetId={
-                                                    hoveringAdSetId
-                                                }
                                                 isDraggingCreative
                                             />
                                         </motion.div>

@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { UploadedCreative } from "@/pages/upload";
 import { useDraggable } from "@dnd-kit/core";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { FolderType } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
@@ -13,14 +13,12 @@ interface Props {
     type?: FolderType;
     className?: string;
     isDraggingCreative?: boolean;
-    hoveringAdSetId?: string | null;
 }
 
 export function AdCreative({
     creative,
     type = "ADSET",
     isDraggingCreative,
-    hoveringAdSetId,
     className,
 }: Props) {
     const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -29,14 +27,7 @@ export function AdCreative({
         });
 
     const { deleteCreative, setCreativeLabel } = useUploadContext();
-    const { adSetGroups, deleteFromGroup } = useUploadedCreativesContext();
-
-    const hoveringAdSet = useMemo(() => {
-        if (!isDraggingCreative) return null;
-        if (!hoveringAdSetId) return null;
-
-        return adSetGroups.find((group) => group.id === hoveringAdSetId)!;
-    }, [isDraggingCreative, hoveringAdSetId, adSetGroups]);
+    const { deleteFromGroup } = useUploadedCreativesContext();
 
     const [editingLabel, setEditingLabel] = useState(false);
     const [newLabel, setNewLabel] = useState(creative.name);
@@ -94,16 +85,18 @@ export function AdCreative({
 
                 <div className="flex-1 truncate">
                     <div className="flex items-center mb-1 gap-1.5 truncate">
-                        <i
-                            className={cn(
-                                "fa-regular text-[12px] shrink-0",
-                                creative.type.startsWith("video/")
-                                    ? "fa-video"
-                                    : creative.type.startsWith("image/")
-                                    ? "fa-image"
-                                    : "fa-file"
-                            )}
-                        />
+                        {!editingLabel && (
+                            <i
+                                className={cn(
+                                    "fa-regular text-[12px] shrink-0",
+                                    creative.type.startsWith("video/")
+                                        ? "fa-video"
+                                        : creative.type.startsWith("image/")
+                                        ? "fa-image"
+                                        : "fa-file"
+                                )}
+                            />
+                        )}
                         <div className="font-semibold flex-1 truncate">
                             {!editingLabel ? (
                                 <>
@@ -165,13 +158,6 @@ export function AdCreative({
                         <div>{creative.size}</div>
                         <div className="text-gray-300">&bull;</div>
                         <div>{creative.extension.toUpperCase()}</div>
-
-                        {hoveringAdSet && (
-                            <>
-                                <div className="text-gray-300">&bull;</div>
-                                <div>{hoveringAdSet.label}</div>
-                            </>
-                        )}
                     </div>
                 </div>
 
@@ -198,8 +184,14 @@ export function AdCreative({
                         )}
                         <button
                             onClick={() => {
-                                deleteFromGroup(creative.id);
-                                deleteCreative(creative.id);
+                                if (
+                                    confirm(
+                                        "Are you sure you want to delete this creative? Any unsaved changes will be lost."
+                                    )
+                                ) {
+                                    deleteFromGroup(creative.id);
+                                    deleteCreative(creative.id);
+                                }
                             }}
                             className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"
                         >

@@ -31,7 +31,8 @@ export function AdSetGroup({
     });
 
     const { form } = useUploadContext();
-    const { updateGroupLabel } = useUploadedCreativesContext();
+    const { updateGroupLabel, deleteGroup, cloneGroup } =
+        useUploadedCreativesContext();
 
     const creatives = useMemo(() => {
         return form.data.creatives.filter((creative) => {
@@ -65,15 +66,14 @@ export function AdSetGroup({
         return isOver && !creativeIds.includes(active?.id.toString());
     }, [isOver, creativeIds, active]);
 
-    // const isAbleToEdit = type === "ADSET" && !isExistingAdSet;
-    const isAbleToEdit = type === "ADSET";
+    const isAbleToEdit = type === "ADSET" && !isExistingAdSet;
 
     return (
         <div
             className={cn(
                 "rounded-xl",
                 isOverGroup && "ring-2 ring-offset-2 ring-blue-100",
-                "mb-5 last:mb-0",
+                "mb-2.5 last:mb-0",
                 className
             )}
         >
@@ -117,9 +117,7 @@ export function AdSetGroup({
                                                         "cursor-text peer"
                                                 )}
                                             >
-                                                {isExistingAdSet
-                                                    ? newLabel
-                                                    : label}
+                                                {label}
                                             </span>
                                             {isAbleToEdit && (
                                                 <i className="fa-regular fa-pencil text-[12px] ml-2 text-gray-400 invisible peer-hover:visible" />
@@ -185,6 +183,7 @@ export function AdSetGroup({
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
+                                                    cloneGroup(id);
                                                 }}
                                                 className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
                                             >
@@ -193,6 +192,19 @@ export function AdSetGroup({
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
+
+                                                    if (creatives.length > 0) {
+                                                        if (
+                                                            confirm(
+                                                                "Are you sure you want to delete this ad set? Any attached creatives will be ungrouped."
+                                                            )
+                                                        ) {
+                                                            deleteGroup(id);
+                                                        }
+                                                        return;
+                                                    }
+
+                                                    deleteGroup(id);
                                                 }}
                                                 className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-red-700 h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
                                             >
