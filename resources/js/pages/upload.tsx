@@ -55,6 +55,7 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
                         campaigns={campaigns}
                         adSets={adSets}
                         pixels={pixels}
+                        //
                         isLoadingCampaigns={isLoadingCampaigns}
                         isLoadingAdSets={isLoadingAdSets}
                         isLoadingPixels={isLoadingPixels}

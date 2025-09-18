@@ -1,4 +1,3 @@
-import { cn } from "@/lib/cn";
 import { AdSetGroup as AdSetGroupType } from "@/pages/upload";
 import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
@@ -108,27 +107,29 @@ export function UploadedCreatives() {
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
             <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
                 <div className="flex-1 min-h-0 overflow-y-auto">
-                    <div className="p-5 border-b border-gray-100">
-                        <div className="flex justify-end">
-                            <button
-                                onClick={() => {
-                                    setAdSetGroups((adSetGroups) => [
-                                        ...adSetGroups,
-                                        {
-                                            id: crypto.randomUUID(),
-                                            label: `Ad set ${
-                                                adSetGroups.length + 1
-                                            }`,
-                                            creatives: [],
-                                        },
-                                    ]);
-                                }}
-                                className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
-                            >
-                                Create ad set
-                            </button>
+                    {!form.data.adSetId && (
+                        <div className="p-5 border-b border-gray-100">
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => {
+                                        setAdSetGroups((adSetGroups) => [
+                                            ...adSetGroups,
+                                            {
+                                                id: crypto.randomUUID(),
+                                                label: `Ad set ${
+                                                    adSetGroups.length + 1
+                                                }`,
+                                                creatives: [],
+                                            },
+                                        ]);
+                                    }}
+                                    className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
+                                >
+                                    Create ad set
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                     <DndContext
                         onDragStart={(event) =>
                             setActiveId(event.active.id as string)
@@ -173,13 +174,6 @@ export function UploadedCreatives() {
                                             label={adSetGroup.label}
                                             type="ADSET"
                                             creativeIds={adSetGroup.creatives}
-                                            className={cn(
-                                                adSetGroup.creatives.length ===
-                                                    0
-                                                    ? "mb-2.5"
-                                                    : "mb-5",
-                                                "last:mb-0"
-                                            )}
                                         />
                                     ))}
                                 </div>

@@ -60,6 +60,7 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
             className={cn(
                 "rounded-xl",
                 isOverGroup && "ring-2 ring-offset-2 ring-blue-100",
+                "mb-5 last:mb-0",
                 className
             )}
         >
@@ -75,10 +76,10 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                         <div className="flex items-center justify-center mr-2">
                             <i
                                 className={cn(
-                                    "fa-regular fa-angle-down text-gray-300 transition-transform duration-200 ease-in-out",
+                                    "fa-regular fa-angle-up text-gray-300 transition-transform duration-200 ease-in-out",
                                     isOverGroup
-                                        ? "-rotate-90"
-                                        : folded && "-rotate-180"
+                                        ? "rotate-90"
+                                        : folded && "rotate-180"
                                 )}
                             />
                         </div>
