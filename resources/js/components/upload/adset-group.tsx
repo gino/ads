@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
-    const { isOver, setNodeRef, active, over } = useDroppable({
+    const { isOver, setNodeRef, active } = useDroppable({
         id,
     });
 

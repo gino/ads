@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { UploadedCreative } from "@/pages/upload";
 import { useDraggable } from "@dnd-kit/core";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FolderType } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
@@ -28,7 +28,7 @@ export function AdCreative({
             id: creative.id,
         });
 
-    const { deleteCreative } = useUploadContext();
+    const { deleteCreative, setCreativeLabel } = useUploadContext();
     const { adSetGroups, deleteFromGroup } = useUploadedCreativesContext();
 
     const hoveringAdSet = useMemo(() => {
@@ -37,6 +37,21 @@ export function AdCreative({
 
         return adSetGroups.find((group) => group.id === hoveringAdSetId)!;
     }, [isDraggingCreative, hoveringAdSetId, adSetGroups]);
+
+    const [editingLabel, setEditingLabel] = useState(false);
+    const [newLabel, setNewLabel] = useState(creative.name);
+
+    const updateLabel = useCallback(() => {
+        setEditingLabel(false);
+
+        const trimmedLabel = newLabel.trim();
+
+        if (trimmedLabel.length > 0) {
+            setCreativeLabel(creative.id, trimmedLabel);
+        } else {
+            setNewLabel(creative.label || creative.name);
+        }
+    }, [creative, newLabel, setCreativeLabel]);
 
     return (
         <div
@@ -78,7 +93,7 @@ export function AdCreative({
                 </div>
 
                 <div className="flex-1 truncate">
-                    <div className="flex items-center mb-0.5 gap-1.5 truncate">
+                    <div className="flex items-center mb-1 gap-1.5 truncate">
                         <i
                             className={cn(
                                 "fa-regular text-[12px] shrink-0",
@@ -89,8 +104,63 @@ export function AdCreative({
                                     : "fa-file"
                             )}
                         />
-                        <div className="font-semibold truncate">
-                            {creative.name}
+                        <div className="font-semibold flex-1 truncate">
+                            {!editingLabel ? (
+                                <>
+                                    <span
+                                        onPointerDown={(e) =>
+                                            e.stopPropagation()
+                                        }
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setEditingLabel(true);
+                                            console.log("yeet");
+                                        }}
+                                        className="truncate cursor-text peer"
+                                    >
+                                        {creative.label || creative.name}
+                                    </span>
+                                    <i className="fa-regular fa-pencil text-[12px] ml-2 text-gray-400 invisible peer-hover:visible" />
+                                </>
+                            ) : (
+                                <div className="p-px">
+                                    <input
+                                        type="text"
+                                        onPointerDown={(e) =>
+                                            e.stopPropagation()
+                                        }
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="px-3 py-1.5 w-full bg-white rounded-lg ring-1 ring-gray-200 outline-none text-xs placeholder-gray-400"
+                                        value={newLabel}
+                                        placeholder={
+                                            creative.label || creative.name
+                                        }
+                                        onChange={(e) =>
+                                            setNewLabel(e.target.value)
+                                        }
+                                        onKeyDown={(e) => {
+                                            e.stopPropagation();
+
+                                            if (e.key === "Enter") {
+                                                updateLabel();
+                                                return;
+                                            }
+
+                                            if (e.key === "Escape") {
+                                                // Cancel edit
+                                                setEditingLabel(false);
+                                                setNewLabel(
+                                                    creative.label ||
+                                                        creative.name
+                                                );
+                                                return;
+                                            }
+                                        }}
+                                        onBlur={() => updateLabel()}
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="text-[12px] font-medium text-gray-500 flex items-center gap-1.5">

@@ -47,6 +47,8 @@ export function UploadProvider({ children }: PropsWithChildren) {
     return (
         <UploadContext.Provider value={memoizedValue}>
             {children}
+
+            <pre>{JSON.stringify(form.data, null, 2)}</pre>
         </UploadContext.Provider>
     );
 }
