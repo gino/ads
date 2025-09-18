@@ -15,9 +15,17 @@ interface Props {
     type: FolderType;
     creativeIds: string[];
     className?: string;
+    isExistingAdSet?: boolean;
 }
 
-export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
+export function AdSetGroup({
+    id,
+    label,
+    type,
+    creativeIds,
+    isExistingAdSet,
+    className,
+}: Props) {
     const { isOver, setNodeRef, active } = useDroppable({
         id,
     });
@@ -164,22 +172,27 @@ export function AdSetGroup({ id, label, type, creativeIds, className }: Props) {
                                     >
                                         <i className="fa-regular fa-cog" />
                                     </button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                        className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
-                                    >
-                                        <i className="fa-regular fa-clone" />
-                                    </button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                        className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-red-700 h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
-                                    >
-                                        <i className="fa-regular fa-trash-can" />
-                                    </button>
+
+                                    {!isExistingAdSet && (
+                                        <>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                }}
+                                                className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
+                                            >
+                                                <i className="fa-regular fa-clone" />
+                                            </button>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                }}
+                                                className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-red-700 h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
+                                            >
+                                                <i className="fa-regular fa-trash-can" />
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </>
                         )}

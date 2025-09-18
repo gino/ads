@@ -39,7 +39,28 @@ export function UploadedCreatives({ adSets }: Props) {
         },
     ]);
 
+    const hasSelectedAdSet = useMemo(() => {
+        return !!form.data.adSetId;
+    }, [form.data.adSetId]);
+
+    const selectedAdSet = useMemo(() => {
+        if (!hasSelectedAdSet) return null;
+
+        return adSets.find((adSet) => adSet.id === form.data.adSetId);
+    }, [hasSelectedAdSet, form.data.adSetId, adSets]);
+    const [selectedAdSetCreatives, setSelectedAdSetCreatives] = useState<
+        string[]
+    >([]);
+
     const ungroupedCreatives = useMemo(() => {
+        if (hasSelectedAdSet) {
+            return form.data.creatives
+                .map((creative) => creative.id)
+                .filter((id) => {
+                    return !selectedAdSetCreatives.includes(id);
+                });
+        }
+
         return form.data.creatives
             .map((creative) => creative.id)
             .filter((id) => {
@@ -47,7 +68,12 @@ export function UploadedCreatives({ adSets }: Props) {
                     return adSetGroup.creatives.includes(id);
                 });
             });
-    }, [form.data.creatives, adSetGroups]);
+    }, [
+        form.data.creatives,
+        adSetGroups,
+        hasSelectedAdSet,
+        selectedAdSetCreatives,
+    ]);
 
     const [activeId, setActiveId] = useState<string | null>(null);
     const [hoveringAdSetId, setHoveringAdSetId] = useState<string | null>(null);
@@ -60,6 +86,13 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const deleteFromGroup = useCallback(
         (creativeId: string) => {
+            if (hasSelectedAdSet) {
+                setSelectedAdSetCreatives((creatives) =>
+                    creatives.filter((id) => id !== creativeId)
+                );
+                return;
+            }
+
             setAdSetGroups((prev) =>
                 prev.map((group) => ({
                     ...group,
@@ -69,12 +102,21 @@ export function UploadedCreatives({ adSets }: Props) {
                 }))
             );
         },
-        [setAdSetGroups]
+        [setAdSetGroups, setSelectedAdSetCreatives, hasSelectedAdSet]
     );
 
     const addToGroup = useCallback(
         (creativeId: string, groupId: string) => {
             if (groupId === "ungrouped") return;
+
+            if (hasSelectedAdSet) {
+                setSelectedAdSetCreatives((creatives) => [
+                    ...creatives,
+                    creativeId,
+                ]);
+                return;
+            }
+
             setAdSetGroups((prev) =>
                 prev.map((group) =>
                     group.id === groupId
@@ -86,16 +128,19 @@ export function UploadedCreatives({ adSets }: Props) {
                 )
             );
         },
-        [setAdSetGroups]
+        [setAdSetGroups, setSelectedAdSetCreatives, hasSelectedAdSet]
     );
 
-    const updateGroupLabel = useCallback((groupId: string, label: string) => {
-        setAdSetGroups((prev) =>
-            prev.map((group) =>
-                group.id === groupId ? { ...group, label } : group
-            )
-        );
-    }, []);
+    const updateGroupLabel = useCallback(
+        (groupId: string, label: string) => {
+            setAdSetGroups((prev) =>
+                prev.map((group) =>
+                    group.id === groupId ? { ...group, label } : group
+                )
+            );
+        },
+        [setAdSetGroups]
+    );
 
     const memoizedValue = useMemo<UploadedCreativesContextType>(
         () => ({
@@ -106,10 +151,6 @@ export function UploadedCreatives({ adSets }: Props) {
         }),
         [adSetGroups, deleteFromGroup, addToGroup, updateGroupLabel]
     );
-
-    const hasSelectedAdSet = useMemo(() => {
-        return !!form.data.adSetId;
-    }, [form.data.adSetId]);
 
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
@@ -175,15 +216,27 @@ export function UploadedCreatives({ adSets }: Props) {
                         >
                             <div className="p-5 flex flex-col">
                                 <div className="flex flex-col">
-                                    {adSetGroups.map((adSetGroup) => (
+                                    {hasSelectedAdSet ? (
                                         <AdSetGroup
-                                            key={adSetGroup.id}
-                                            id={adSetGroup.id}
-                                            label={adSetGroup.label}
+                                            id={selectedAdSet!.id}
+                                            label={selectedAdSet!.name}
                                             type="ADSET"
-                                            creativeIds={adSetGroup.creatives}
+                                            creativeIds={selectedAdSetCreatives}
+                                            isExistingAdSet
                                         />
-                                    ))}
+                                    ) : (
+                                        adSetGroups.map((adSetGroup) => (
+                                            <AdSetGroup
+                                                key={adSetGroup.id}
+                                                id={adSetGroup.id}
+                                                label={adSetGroup.label}
+                                                type="ADSET"
+                                                creativeIds={
+                                                    adSetGroup.creatives
+                                                }
+                                            />
+                                        ))
+                                    )}
                                 </div>
 
                                 <div className="border-t border-gray-100 pt-5 mt-5 -mx-5 px-5">
