@@ -24,7 +24,11 @@ const UploadedCreativesContext = createContext<UploadedCreativesContextType>(
     null!
 );
 
-export function UploadedCreatives() {
+interface Props {
+    adSets: App.Data.AdSetData[];
+}
+
+export function UploadedCreatives({ adSets }: Props) {
     const { form } = useUploadContext();
 
     const [adSetGroups, setAdSetGroups] = useState([
@@ -103,11 +107,15 @@ export function UploadedCreatives() {
         [adSetGroups, deleteFromGroup, addToGroup, updateGroupLabel]
     );
 
+    const hasSelectedAdSet = useMemo(() => {
+        return !!form.data.adSetId;
+    }, [form.data.adSetId]);
+
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
             <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
                 <div className="flex-1 min-h-0 overflow-y-auto">
-                    {!form.data.adSetId && (
+                    {!hasSelectedAdSet && (
                         <div className="p-5 border-b border-gray-100">
                             <div className="flex justify-end">
                                 <button

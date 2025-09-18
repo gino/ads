@@ -61,7 +61,7 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
                         isLoadingPixels={isLoadingPixels}
                     />
 
-                    <UploadedCreatives />
+                    <UploadedCreatives adSets={adSets} />
                 </div>
             </UploadProvider>
         </Layout>
