@@ -3,7 +3,9 @@ import { Portal } from "@ariakit/react";
 import {
     DndContext,
     DragOverlay,
+    MouseSensor,
     PointerSensor,
+    TouchSensor,
     useSensor,
 } from "@dnd-kit/core";
 import { motion } from "motion/react";
@@ -34,6 +36,7 @@ interface UploadedCreativesContextType {
     addToGroup: (creativeId: string, groupId: string) => void;
     updateGroupLabel: (groupId: string, label: string) => void;
     //
+    activeId: string | null;
     selectedIds: string[];
     toggleSelection: (id: string, e: MouseEvent) => void;
 }
@@ -58,13 +61,15 @@ export function UploadedCreatives({ adSets }: Props) {
                 prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
             );
         } else {
-            setSelectedIds([id]);
+            setSelectedIds((prev) =>
+                prev.length === 1 && prev[0] === id ? [] : [id]
+            );
         }
     }, []);
 
     const clearSelection = useCallback(() => {
         setSelectedIds([]);
-    }, []);
+    }, [setSelectedIds]);
 
     const hasSelectedAdSet = useMemo(() => {
         return !!form.data.adSetId;
@@ -87,6 +92,9 @@ export function UploadedCreatives({ adSets }: Props) {
 
         // It might be nice/convenient to not reset this
         setSelectedAdSetCreatives([]);
+
+        // Clear selection
+        clearSelection();
     }, [form.data.adSetId]);
 
     const ungroupedCreatives = useMemo(() => {
@@ -114,12 +122,6 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const [activeId, setActiveId] = useState<string | null>(null);
 
-    // const draggingCreative = useMemo(() => {
-    //     return form.data.creatives.find(
-    //         (creative) => creative.id === activeId
-    //     )!;
-    // }, [form.data.creatives, activeId]);
-
     const draggingCreatives = useMemo(() => {
         if (!activeId) return [];
         if (selectedIds.includes(activeId)) {
@@ -140,8 +142,9 @@ export function UploadedCreatives({ adSets }: Props) {
                     creatives: [],
                 },
             ]);
+            clearSelection();
         },
-        [setAdSetGroups, adSetGroups]
+        [setAdSetGroups, clearSelection]
     );
 
     const cloneGroup = useCallback(
@@ -149,8 +152,9 @@ export function UploadedCreatives({ adSets }: Props) {
             const group = adSetGroups.find((group) => group.id === groupId)!;
 
             createGroup(`${group.label} - Copy`);
+            clearSelection();
         },
-        [createGroup, adSetGroups]
+        [createGroup, adSetGroups, clearSelection]
     );
 
     const deleteGroup = useCallback(
@@ -158,8 +162,9 @@ export function UploadedCreatives({ adSets }: Props) {
             setAdSetGroups((groups) =>
                 groups.filter((group) => group.id !== groupId)
             );
+            clearSelection();
         },
-        [setAdSetGroups]
+        [setAdSetGroups, clearSelection]
     );
 
     const deleteFromGroup = useCallback(
@@ -170,6 +175,7 @@ export function UploadedCreatives({ adSets }: Props) {
                     if (!creatives.includes(creativeId)) return creatives;
                     return creatives.filter((id) => id !== creativeId);
                 });
+                clearSelection();
                 return;
             }
 
@@ -184,8 +190,14 @@ export function UploadedCreatives({ adSets }: Props) {
                     };
                 })
             );
+            clearSelection();
         },
-        [setAdSetGroups, setSelectedAdSetCreatives, hasSelectedAdSet]
+        [
+            setAdSetGroups,
+            setSelectedAdSetCreatives,
+            hasSelectedAdSet,
+            clearSelection,
+        ]
     );
 
     const addToGroup = useCallback(
@@ -198,6 +210,7 @@ export function UploadedCreatives({ adSets }: Props) {
                     if (creatives.includes(creativeId)) return creatives;
                     return [...creatives, creativeId];
                 });
+                clearSelection();
                 return;
             }
 
@@ -211,8 +224,14 @@ export function UploadedCreatives({ adSets }: Props) {
                     };
                 })
             );
+            clearSelection();
         },
-        [setAdSetGroups, setSelectedAdSetCreatives, hasSelectedAdSet]
+        [
+            setAdSetGroups,
+            setSelectedAdSetCreatives,
+            hasSelectedAdSet,
+            clearSelection,
+        ]
     );
 
     const updateGroupLabel = useCallback(
@@ -235,6 +254,7 @@ export function UploadedCreatives({ adSets }: Props) {
             deleteFromGroup,
             addToGroup,
             updateGroupLabel,
+            activeId,
             selectedIds,
             toggleSelection,
         }),
@@ -246,10 +266,24 @@ export function UploadedCreatives({ adSets }: Props) {
             deleteFromGroup,
             addToGroup,
             updateGroupLabel,
+            activeId,
             selectedIds,
             toggleSelection,
         ]
     );
+
+    const activationConstraint = { distance: 3 };
+    const sensors = [
+        useSensor(PointerSensor, {
+            activationConstraint,
+        }),
+        useSensor(MouseSensor, {
+            activationConstraint,
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint,
+        }),
+    ];
 
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
@@ -279,13 +313,7 @@ export function UploadedCreatives({ adSets }: Props) {
                         </div>
                     )}
                     <DndContext
-                        sensors={[
-                            useSensor(PointerSensor, {
-                                activationConstraint: {
-                                    distance: 5, // must move 5px before drag starts
-                                },
-                            }),
-                        ]}
+                        sensors={sensors}
                         onDragStart={({ active }) => {
                             if (!selectedIds.includes(active.id as string)) {
                                 setSelectedIds([active.id as string]);
@@ -317,8 +345,6 @@ export function UploadedCreatives({ adSets }: Props) {
                                 deleteFromGroup(creativeId);
                                 addToGroup(creativeId, targetGroupId);
                             });
-
-                            clearSelection();
 
                             if (targetGroupId !== "ungrouped") {
                                 toast({
@@ -392,9 +418,6 @@ export function UploadedCreatives({ adSets }: Props) {
                                                     <AdCreative
                                                         creative={
                                                             draggingCreatives[0]
-                                                        }
-                                                        draggingCreatives={
-                                                            draggingCreatives.length
                                                         }
                                                         isDraggingCreative
                                                     />

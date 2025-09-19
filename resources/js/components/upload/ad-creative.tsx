@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { UploadedCreative } from "@/pages/upload";
 import { useDraggable } from "@dnd-kit/core";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { FolderType } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
@@ -13,14 +13,12 @@ interface Props {
     type?: FolderType;
     className?: string;
     isDraggingCreative?: boolean;
-    draggingCreatives?: number;
 }
 
 export function AdCreative({
     creative,
     type = "ADSET",
     isDraggingCreative,
-    draggingCreatives,
     className,
 }: Props) {
     const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -29,12 +27,15 @@ export function AdCreative({
         });
 
     const { deleteCreative, setCreativeLabel } = useUploadContext();
-    const { deleteFromGroup, toggleSelection, selectedIds } =
+    const { deleteFromGroup, toggleSelection, selectedIds, activeId } =
         useUploadedCreativesContext();
 
-    const isSelected = useMemo(() => {
-        return selectedIds.includes(creative.id);
-    }, [selectedIds, creative]);
+    const isSelected = selectedIds.includes(creative.id);
+    const isActive = activeId === creative.id;
+
+    const shouldHide =
+        !isDraggingCreative &&
+        (isActive || (activeId && isSelected && selectedIds.length > 1));
 
     const [editingLabel, setEditingLabel] = useState(false);
     const [newLabel, setNewLabel] = useState(creative.name);
@@ -68,21 +69,20 @@ export function AdCreative({
                     transform: transform
                         ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
                         : undefined,
-                    opacity: isDragging ? 0 : 1,
+                    opacity: isDragging ? 0 : shouldHide ? 0 : 1,
                     height: HEIGHT,
                 }}
                 className={cn(
-                    "bg-white rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shadow-base shrink-0",
+                    "rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shadow-base shrink-0",
+                    isSelected && !isDraggingCreative
+                        ? "bg-gray-100"
+                        : "bg-white",
                     className
                 )}
                 {...listeners}
                 {...attributes}
             >
-                {isSelected ? (
-                    <i className="fa-solid fa-check-circle text-[10px] text-gray-300" />
-                ) : (
-                    <i className="fa-solid fa-grip-dots-vertical text-[10px] text-gray-300" />
-                )}
+                <i className="fa-solid fa-grip-dots-vertical text-[10px] text-gray-300" />
 
                 <div className="h-12 w-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                     {creative.thumbnail !== null ? (
@@ -212,6 +212,10 @@ export function AdCreative({
                             <i className="fa-regular fa-trash-can" />
                         </button>
                     </div>
+                )}
+
+                {isDraggingCreative && selectedIds.length > 1 && (
+                    <div>{selectedIds.length}</div>
                 )}
             </div>
         </div>
