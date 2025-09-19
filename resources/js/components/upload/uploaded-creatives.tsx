@@ -1,9 +1,15 @@
 import { AdSetGroup as AdSetGroupType } from "@/pages/upload";
 import { Portal } from "@ariakit/react";
-import { DndContext, DragOverlay } from "@dnd-kit/core";
+import {
+    DndContext,
+    DragOverlay,
+    PointerSensor,
+    useSensor,
+} from "@dnd-kit/core";
 import { motion } from "motion/react";
 import {
     createContext,
+    MouseEvent,
     useCallback,
     useContext,
     useEffect,
@@ -27,6 +33,9 @@ interface UploadedCreativesContextType {
     deleteFromGroup: (creativeId: string) => void;
     addToGroup: (creativeId: string, groupId: string) => void;
     updateGroupLabel: (groupId: string, label: string) => void;
+    //
+    selectedIds: string[];
+    toggleSelection: (id: string, e: MouseEvent) => void;
 }
 
 const UploadedCreativesContext = createContext<UploadedCreativesContextType>(
@@ -41,6 +50,21 @@ export function UploadedCreatives({ adSets }: Props) {
     const { form } = useUploadContext();
 
     const [adSetGroups, setAdSetGroups] = useState<AdSetGroupType[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+    const toggleSelection = useCallback((id: string, e: MouseEvent) => {
+        if (e.shiftKey) {
+            setSelectedIds((prev) =>
+                prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+            );
+        } else {
+            setSelectedIds([id]);
+        }
+    }, []);
+
+    const clearSelection = useCallback(() => {
+        setSelectedIds([]);
+    }, []);
 
     const hasSelectedAdSet = useMemo(() => {
         return !!form.data.adSetId;
@@ -90,11 +114,21 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const [activeId, setActiveId] = useState<string | null>(null);
 
-    const draggingCreative = useMemo(() => {
-        return form.data.creatives.find(
-            (creative) => creative.id === activeId
-        )!;
-    }, [form.data.creatives, activeId]);
+    // const draggingCreative = useMemo(() => {
+    //     return form.data.creatives.find(
+    //         (creative) => creative.id === activeId
+    //     )!;
+    // }, [form.data.creatives, activeId]);
+
+    const draggingCreatives = useMemo(() => {
+        if (!activeId) return [];
+        if (selectedIds.includes(activeId)) {
+            return form.data.creatives.filter((c) =>
+                selectedIds.includes(c.id)
+            );
+        }
+        return [form.data.creatives.find((c) => c.id === activeId)!];
+    }, [activeId, selectedIds, form.data.creatives]);
 
     const createGroup = useCallback(
         (label: string) => {
@@ -201,6 +235,8 @@ export function UploadedCreatives({ adSets }: Props) {
             deleteFromGroup,
             addToGroup,
             updateGroupLabel,
+            selectedIds,
+            toggleSelection,
         }),
         [
             adSetGroups,
@@ -210,6 +246,8 @@ export function UploadedCreatives({ adSets }: Props) {
             deleteFromGroup,
             addToGroup,
             updateGroupLabel,
+            selectedIds,
+            toggleSelection,
         ]
     );
 
@@ -241,42 +279,54 @@ export function UploadedCreatives({ adSets }: Props) {
                         </div>
                     )}
                     <DndContext
-                        onDragStart={(event) =>
-                            setActiveId(event.active.id as string)
-                        }
+                        sensors={[
+                            useSensor(PointerSensor, {
+                                activationConstraint: {
+                                    distance: 5, // must move 5px before drag starts
+                                },
+                            }),
+                        ]}
+                        onDragStart={({ active }) => {
+                            if (!selectedIds.includes(active.id as string)) {
+                                setSelectedIds([active.id as string]);
+                            }
+                            setActiveId(active.id as string);
+                        }}
                         onDragCancel={() => setActiveId(null)}
-                        onDragEnd={(event) => {
+                        onDragEnd={({ over }) => {
                             setActiveId(null);
-
-                            const { over, active } = event;
                             if (!over) return;
 
-                            const creativeId = active.id as string;
                             const targetGroupId = over.id as string;
+                            if (!targetGroupId) return;
 
-                            if (!creativeId || !targetGroupId) return;
+                            draggingCreatives.forEach((creative) => {
+                                const creativeId = creative.id;
+                                const currentGroupId = hasSelectedAdSet
+                                    ? selectedAdSetCreatives.includes(
+                                          creativeId
+                                      )
+                                        ? selectedAdSet!.id
+                                        : "ungrouped"
+                                    : adSetGroups.find((g) =>
+                                          g.creatives.includes(creativeId)
+                                      )?.id ?? "ungrouped";
 
-                            // ✅ figure out where the creative currently lives
-                            const currentGroupId = hasSelectedAdSet
-                                ? selectedAdSetCreatives.includes(creativeId)
-                                    ? selectedAdSet!.id
-                                    : "ungrouped"
-                                : adSetGroups.find((g) =>
-                                      g.creatives.includes(creativeId)
-                                  )?.id ?? "ungrouped";
+                                if (currentGroupId === targetGroupId) return;
 
-                            // ✅ skip if it's dropped back into the same group
-                            if (currentGroupId === targetGroupId) return;
+                                deleteFromGroup(creativeId);
+                                addToGroup(creativeId, targetGroupId);
+                            });
 
-                            // ✅ remove from all groups first
-                            deleteFromGroup(creativeId);
-
-                            // ✅ add to target group
-                            addToGroup(creativeId, targetGroupId);
+                            clearSelection();
 
                             if (targetGroupId !== "ungrouped") {
                                 toast({
-                                    contents: "1 creative added to ad set",
+                                    contents: `${draggingCreatives.length} ${
+                                        draggingCreatives.length > 1
+                                            ? `creatives`
+                                            : `creative`
+                                    } added to ad set`,
                                 });
                             }
                         }}
@@ -284,6 +334,7 @@ export function UploadedCreatives({ adSets }: Props) {
                         <UploadedCreativesContext.Provider
                             value={memoizedValue}
                         >
+                            {/* <div>{JSON.stringify(selectedIds)}</div> */}
                             <div className="flex flex-col">
                                 {(hasSelectedAdSet
                                     ? true
@@ -325,30 +376,38 @@ export function UploadedCreatives({ adSets }: Props) {
                                 </div>
                             </div>
                             <Portal>
-                                <DragOverlay
-                                    dropAnimation={null}
-                                    // dropAnimation={{
-                                    //     duration: 300,
-                                    //     easing: "ease-in-out",
-                                    // }}
-                                >
-                                    {activeId && (
-                                        <motion.div
-                                            initial={{ scale: 1 }}
-                                            animate={{
-                                                scale: 1.02,
-                                            }}
-                                            transition={{
-                                                duration: 0.15,
-                                                ease: "easeInOut",
-                                            }}
-                                        >
-                                            <AdCreative
-                                                creative={draggingCreative}
-                                                isDraggingCreative
-                                            />
-                                        </motion.div>
-                                    )}
+                                <DragOverlay dropAnimation={null}>
+                                    {activeId &&
+                                        draggingCreatives.length > 0 && (
+                                            <motion.div
+                                                initial={{ scale: 1 }}
+                                                animate={{ scale: 1.02 }}
+                                                transition={{
+                                                    duration: 0.15,
+                                                    ease: "easeInOut",
+                                                }}
+                                            >
+                                                {draggingCreatives.length >
+                                                1 ? (
+                                                    <AdCreative
+                                                        creative={
+                                                            draggingCreatives[0]
+                                                        }
+                                                        draggingCreatives={
+                                                            draggingCreatives.length
+                                                        }
+                                                        isDraggingCreative
+                                                    />
+                                                ) : (
+                                                    <AdCreative
+                                                        creative={
+                                                            draggingCreatives[0]
+                                                        }
+                                                        isDraggingCreative
+                                                    />
+                                                )}
+                                            </motion.div>
+                                        )}
                                 </DragOverlay>
                             </Portal>
                         </UploadedCreativesContext.Provider>

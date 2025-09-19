@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { UploadedCreative } from "@/pages/upload";
 import { useDraggable } from "@dnd-kit/core";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FolderType } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
@@ -13,12 +13,14 @@ interface Props {
     type?: FolderType;
     className?: string;
     isDraggingCreative?: boolean;
+    draggingCreatives?: number;
 }
 
 export function AdCreative({
     creative,
     type = "ADSET",
     isDraggingCreative,
+    draggingCreatives,
     className,
 }: Props) {
     const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -27,7 +29,12 @@ export function AdCreative({
         });
 
     const { deleteCreative, setCreativeLabel } = useUploadContext();
-    const { deleteFromGroup } = useUploadedCreativesContext();
+    const { deleteFromGroup, toggleSelection, selectedIds } =
+        useUploadedCreativesContext();
+
+    const isSelected = useMemo(() => {
+        return selectedIds.includes(creative.id);
+    }, [selectedIds, creative]);
 
     const [editingLabel, setEditingLabel] = useState(false);
     const [newLabel, setNewLabel] = useState(creative.name);
@@ -54,6 +61,9 @@ export function AdCreative({
         >
             <div
                 ref={setNodeRef}
+                onClick={(e) => {
+                    toggleSelection(creative.id, e);
+                }}
                 style={{
                     transform: transform
                         ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
@@ -68,7 +78,11 @@ export function AdCreative({
                 {...listeners}
                 {...attributes}
             >
-                <i className="fa-solid fa-grip-dots-vertical text-[10px] text-gray-300" />
+                {isSelected ? (
+                    <i className="fa-solid fa-check-circle text-[10px] text-gray-300" />
+                ) : (
+                    <i className="fa-solid fa-grip-dots-vertical text-[10px] text-gray-300" />
+                )}
 
                 <div className="h-12 w-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                     {creative.thumbnail !== null ? (
