@@ -1,7 +1,9 @@
 import { cn } from "@/lib/cn";
 import { UploadedCreative } from "@/pages/upload";
+import * as Ariakit from "@ariakit/react";
 import { useDraggable } from "@dnd-kit/core";
 import { useCallback, useState } from "react";
+import { AdCreativePreview } from "./ad-creative-preview";
 import { FolderType } from "./adset-group";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
@@ -90,18 +92,32 @@ export function AdCreative({
             >
                 <i className="fa-solid fa-grip-dots-vertical text-[10px] text-gray-300" />
 
-                <div className="h-12 w-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                    {creative.thumbnail !== null ? (
-                        <div className="cursor-pointer relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-lg after:ring-black/5 h-full w-full">
-                            <img
-                                src={creative.thumbnail}
-                                className="h-full w-full object-center object-cover"
-                            />
+                <Ariakit.HovercardProvider>
+                    <Ariakit.HovercardAnchor>
+                        <div className="h-12 w-12 bg-gray-100 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                            {creative.thumbnail !== null ? (
+                                <div className="cursor-pointer relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-lg after:ring-black/5 h-full w-full">
+                                    <img
+                                        src={creative.thumbnail}
+                                        className="h-full w-full object-center object-cover"
+                                    />
+                                </div>
+                            ) : (
+                                <i className="fa-regular fa-file" />
+                            )}
                         </div>
-                    ) : (
-                        <i className="fa-regular fa-file" />
+                    </Ariakit.HovercardAnchor>
+
+                    {creative.thumbnail !== null && (
+                        <Ariakit.Hovercard
+                            portal
+                            gutter={4}
+                            className="bg-white p-0.5 shadow-base-popup rounded-lg w-40"
+                        >
+                            <AdCreativePreview creative={creative} />
+                        </Ariakit.Hovercard>
                     )}
-                </div>
+                </Ariakit.HovercardProvider>
 
                 <div className="flex-1 truncate">
                     <div className="flex items-center mb-1 gap-1.5 truncate">

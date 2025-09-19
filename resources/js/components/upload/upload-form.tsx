@@ -89,6 +89,17 @@ export function UploadForm({
         },
     });
 
+    useEffect(() => {
+        // Cleanup function to revoke all previews
+        return () => {
+            form.data.creatives.forEach((creative) => {
+                if (creative.preview) {
+                    URL.revokeObjectURL(creative.preview);
+                }
+            });
+        };
+    }, [form.data.creatives]);
+
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
             <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
@@ -318,7 +329,7 @@ export async function createUploadedCreative(
         extension: file.name.split(".").pop()!,
         size: formatFileSize(file.size),
         file,
-        preview: thumbnail,
+        preview: URL.createObjectURL(file),
         type: file.type,
         thumbnail,
     };
