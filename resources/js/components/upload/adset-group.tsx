@@ -83,7 +83,7 @@ export function AdSetGroup({
             >
                 <div
                     onClick={() => setFolded((v) => !v)}
-                    className="flex px-3 gap-3 items-center h-12 cursor-pointer"
+                    className="flex px-3.5 gap-3 items-center h-12 cursor-pointer"
                 >
                     <div className="flex items-center flex-1 truncate">
                         <div className="flex items-center justify-center mr-2">

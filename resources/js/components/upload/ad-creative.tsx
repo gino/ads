@@ -222,7 +222,7 @@ export function AdCreative({
 
                 {isDraggingCreative && selectedIds.length > 1 && (
                     <div className="absolute -top-3 -left-3">
-                        <div className="bg-red-500 flex items-center justify-center rounded-full text-[12px] h-7 w-7 text-white border-2 border-white font-bold">
+                        <div className="bg-blue-500 flex items-center justify-center rounded-full text-[12px] h-6 w-6 text-white ring-2 ring-white font-bold">
                             {selectedIds.length}
                         </div>
                     </div>
