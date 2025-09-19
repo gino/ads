@@ -56,8 +56,7 @@ export function AdCreative({
         <div
             className={cn(
                 "rounded-lg",
-                isDraggingCreative &&
-                    "ring-2 ring-offset-3 ring-blue-100 opacity-90"
+                isDraggingCreative && "ring-2 ring-offset-3 ring-blue-100"
             )}
         >
             <div
@@ -73,10 +72,13 @@ export function AdCreative({
                     height: HEIGHT,
                 }}
                 className={cn(
-                    "rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shadow-base shrink-0",
+                    "rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shrink-0 focus-visible:outline outline-none bg-white",
+
                     isSelected && !isDraggingCreative
-                        ? "bg-gray-100"
-                        : "bg-white",
+                        ? "bg-blue-50 shadow-base"
+                        : isDraggingCreative
+                        ? "shadow-base-popup"
+                        : "shadow-base",
                     className
                 )}
                 {...listeners}
@@ -215,7 +217,9 @@ export function AdCreative({
                 )}
 
                 {isDraggingCreative && selectedIds.length > 1 && (
-                    <div>{selectedIds.length}</div>
+                    <div className="bg-red-500 flex items-center justify-center rounded-full h-10 w-10 text-white text-lg font-semibold">
+                        {selectedIds.length}
+                    </div>
                 )}
             </div>
         </div>

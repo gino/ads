@@ -328,6 +328,8 @@ export function UploadedCreatives({ adSets }: Props) {
                             const targetGroupId = over.id as string;
                             if (!targetGroupId) return;
 
+                            let anyMoved = false; // track if any creative was actually moved
+
                             draggingCreatives.forEach((creative) => {
                                 const creativeId = creative.id;
                                 const currentGroupId = hasSelectedAdSet
@@ -344,14 +346,19 @@ export function UploadedCreatives({ adSets }: Props) {
 
                                 deleteFromGroup(creativeId);
                                 addToGroup(creativeId, targetGroupId);
+
+                                anyMoved = true; // mark that something changed
                             });
 
-                            if (targetGroupId !== "ungrouped") {
+                            // Only show toast if at least one creative actually moved
+                            if (anyMoved && targetGroupId !== "ungrouped") {
+                                clearSelection();
+
                                 toast({
                                     contents: `${draggingCreatives.length} ${
                                         draggingCreatives.length > 1
-                                            ? `creatives`
-                                            : `creative`
+                                            ? "creatives"
+                                            : "creative"
                                     } added to ad set`,
                                 });
                             }
@@ -360,7 +367,6 @@ export function UploadedCreatives({ adSets }: Props) {
                         <UploadedCreativesContext.Provider
                             value={memoizedValue}
                         >
-                            {/* <div>{JSON.stringify(selectedIds)}</div> */}
                             <div className="flex flex-col">
                                 {(hasSelectedAdSet
                                     ? true
