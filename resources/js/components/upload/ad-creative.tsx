@@ -55,9 +55,14 @@ export function AdCreative({
     return (
         <div
             className={cn(
-                "rounded-lg",
-                isDraggingCreative && "ring-2 ring-offset-3 ring-blue-100"
+                "rounded-lg relative",
+                isDraggingCreative
+                    ? "ring-3 ring-offset-0 ring-blue-100"
+                    : isSelected &&
+                          !isDraggingCreative &&
+                          "ring-3 ring-offset-0 ring-blue-100"
             )}
+            style={{ opacity: isDragging ? 0 : shouldHide ? 0 : 1 }}
         >
             <div
                 ref={setNodeRef}
@@ -68,14 +73,13 @@ export function AdCreative({
                     transform: transform
                         ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
                         : undefined,
-                    opacity: isDragging ? 0 : shouldHide ? 0 : 1,
                     height: HEIGHT,
                 }}
                 className={cn(
                     "rounded-lg px-3 py-3 gap-3 flex items-center cursor-grab shrink-0 focus-visible:outline outline-none bg-white",
 
                     isSelected && !isDraggingCreative
-                        ? "bg-blue-50 shadow-base"
+                        ? "shadow-base"
                         : isDraggingCreative
                         ? "shadow-base-popup"
                         : "shadow-base",
@@ -217,8 +221,10 @@ export function AdCreative({
                 )}
 
                 {isDraggingCreative && selectedIds.length > 1 && (
-                    <div className="bg-red-500 flex items-center justify-center rounded-full h-10 w-10 text-white text-lg font-semibold">
-                        {selectedIds.length}
+                    <div className="absolute -top-3 -left-3">
+                        <div className="bg-red-500 flex items-center justify-center rounded-full text-[12px] h-7 w-7 text-white border-2 border-white font-bold">
+                            {selectedIds.length}
+                        </div>
                     </div>
                 )}
             </div>
