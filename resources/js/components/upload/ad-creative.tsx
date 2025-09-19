@@ -133,16 +133,15 @@ export function AdCreative({
                                 )}
                             />
                         )}
-                        <div className="font-semibold flex-1 truncate">
+                        <div className="font-semibold flex-1 min-w-0 flex items-center">
                             {!editingLabel ? (
                                 <>
                                     <span
-                                        onPointerDown={(e) => {
-                                            e.stopPropagation();
-                                        }}
                                         onClick={(e) => {
                                             e.stopPropagation();
-
+                                        }}
+                                        onDoubleClick={(e) => {
+                                            e.stopPropagation();
                                             setEditingLabel(true);
                                         }}
                                         className="truncate cursor-text peer"
@@ -200,41 +199,44 @@ export function AdCreative({
                 </div>
 
                 {!isDraggingCreative && (
-                    <div
-                        onPointerDown={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1 pointer-events-auto"
-                    >
-                        <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
-                            <i className="fa-regular fa-pencil" />
-                        </button>
-                        {type === "UNGROUPED" && (
-                            <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
-                                <i className="fa-regular fa-folder-plus" />
-                            </button>
-                        )}
-                        {type === "ADSET" && (
-                            <button
-                                onClick={() => deleteFromGroup(creative.id)}
-                                className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white"
-                            >
-                                <i className="fa-regular fa-folder-xmark" />
-                            </button>
-                        )}
-                        <button
-                            onClick={() => {
-                                if (
-                                    confirm(
-                                        "Are you sure you want to delete this creative? Any unsaved changes will be lost."
-                                    )
-                                ) {
-                                    deleteFromGroup(creative.id);
-                                    deleteCreative(creative.id);
-                                }
-                            }}
-                            className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"
+                    <div className="flex items-center">
+                        <div className="w-px h-4 bg-gray-100 mr-3" />
+                        <div
+                            onPointerDown={(e) => e.stopPropagation()}
+                            className="flex items-center gap-1 pointer-events-auto"
                         >
-                            <i className="fa-regular fa-trash-can" />
-                        </button>
+                            <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
+                                <i className="fa-regular fa-pencil" />
+                            </button>
+                            {type === "UNGROUPED" && (
+                                <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
+                                    <i className="fa-regular fa-folder-plus" />
+                                </button>
+                            )}
+                            {type === "ADSET" && (
+                                <button
+                                    onClick={() => deleteFromGroup(creative.id)}
+                                    className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white"
+                                >
+                                    <i className="fa-regular fa-folder-xmark" />
+                                </button>
+                            )}
+                            <button
+                                onClick={() => {
+                                    if (
+                                        confirm(
+                                            "Are you sure you want to delete this creative? Any unsaved changes will be lost."
+                                        )
+                                    ) {
+                                        deleteFromGroup(creative.id);
+                                        deleteCreative(creative.id);
+                                    }
+                                }}
+                                className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"
+                            >
+                                <i className="fa-regular fa-trash-can" />
+                            </button>
+                        </div>
                     </div>
                 )}
 

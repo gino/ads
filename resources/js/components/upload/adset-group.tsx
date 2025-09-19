@@ -108,6 +108,11 @@ export function AdSetGroup({
                                                 onClick={(e) => {
                                                     if (isAbleToEdit) {
                                                         e.stopPropagation();
+                                                    }
+                                                }}
+                                                onDoubleClick={(e) => {
+                                                    if (isAbleToEdit) {
+                                                        e.stopPropagation();
                                                         setEditingLabel(true);
                                                     }
                                                 }}
