@@ -1,3 +1,4 @@
+import { toast } from "@/components/ui/toast";
 import DropboxChooser from "react-dropbox-chooser";
 import { allowedFileExtensions } from "../constants";
 import { useUploadContext } from "../upload-context";
@@ -22,7 +23,11 @@ export function DropboxButton() {
                     })
                 );
 
-                // Add toast
+                toast({
+                    contents: `Uploaded ${creatives.length} ${
+                        creatives.length > 1 ? "creatives" : "creative"
+                    }`,
+                });
 
                 form.setData("creatives", [
                     ...form.data.creatives,

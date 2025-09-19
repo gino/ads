@@ -92,7 +92,7 @@ export function AdCreative({
 
                 <div className="h-12 w-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
                     {creative.thumbnail !== null ? (
-                        <div className="relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-lg after:ring-black/5 h-full w-full">
+                        <div className="cursor-pointer relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-lg after:ring-black/5 h-full w-full">
                             <img
                                 src={creative.thumbnail}
                                 className="h-full w-full object-center object-cover"

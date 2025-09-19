@@ -7,6 +7,7 @@ import { useEffect, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import { Select } from "../ui/select";
 import { StatusTag } from "../ui/status-tag";
+import { toast } from "../ui/toast";
 import { allowedFileTypes } from "./constants";
 import { DropboxButton } from "./integrations/dropbox";
 import { GoogleDriveButton } from "./integrations/google-drive";
@@ -78,7 +79,11 @@ export function UploadForm({
                 files.map(createUploadedCreative)
             );
 
-            // Add toast
+            toast({
+                contents: `Uploaded ${creatives.length} ${
+                    creatives.length > 1 ? "creatives" : "creative"
+                }`,
+            });
 
             form.setData("creatives", [...form.data.creatives, ...creatives]);
         },

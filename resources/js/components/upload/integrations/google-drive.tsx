@@ -1,3 +1,4 @@
+import { toast } from "@/components/ui/toast";
 import { useEffect, useRef } from "react";
 import useDrivePicker from "react-google-drive-picker";
 import { allowedFileMimeTypes } from "../constants";
@@ -55,7 +56,13 @@ export function GoogleDriveButton() {
                                 })
                             );
 
-                            // Add toast
+                            toast({
+                                contents: `Uploaded ${creatives.length} ${
+                                    creatives.length > 1
+                                        ? "creatives"
+                                        : "creative"
+                                }`,
+                            });
 
                             form.setData("creatives", [
                                 ...form.data.creatives,
