@@ -77,6 +77,9 @@ export function UploadForm({
             const creatives = await Promise.all(
                 files.map(createUploadedCreative)
             );
+
+            // Add toast
+
             form.setData("creatives", [...form.data.creatives, ...creatives]);
         },
     });

@@ -121,10 +121,12 @@ export function AdCreative({
                             {!editingLabel ? (
                                 <>
                                     <span
-                                        onPointerDown={(e) =>
-                                            e.stopPropagation()
-                                        }
+                                        onPointerDown={(e) => {
+                                            e.stopPropagation();
+                                        }}
                                         onClick={(e) => {
+                                            e.stopPropagation();
+
                                             setEditingLabel(true);
                                         }}
                                         className="truncate cursor-text peer"
@@ -221,8 +223,8 @@ export function AdCreative({
                 )}
 
                 {isDraggingCreative && selectedIds.length > 1 && (
-                    <div className="absolute -top-3 -left-3">
-                        <div className="bg-blue-500 flex items-center justify-center rounded-full text-[12px] h-6 w-6 text-white ring-2 ring-white font-bold">
+                    <div className="absolute -top-2.5 -left-2.5">
+                        <div className="bg-white shadow-base flex items-center justify-center rounded-full text-[12px] h-6 w-6 text-whitde dring-2 ring-white font-semibold">
                             {selectedIds.length}
                         </div>
                     </div>

@@ -18,6 +18,7 @@ import {
     useMemo,
     useState,
 } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "../ui/toast";
 import { AdCreative } from "./ad-creative";
 import { AdSetGroup } from "./adset-group";
@@ -84,6 +85,62 @@ export function UploadedCreatives({ adSets }: Props) {
         string[]
     >([]);
 
+    const getCreativesInCurrentGroup = useCallback(() => {
+        if (selectedIds.length === 0) return [];
+
+        const referenceId = selectedIds[0];
+
+        // Check selected ad set first
+        if (hasSelectedAdSet) {
+            if (selectedAdSetCreatives.includes(referenceId))
+                return selectedAdSetCreatives;
+            return form.data.creatives
+                .map((c) => c.id)
+                .filter((id) => !selectedAdSetCreatives.includes(id)); // ungrouped
+        }
+
+        // Otherwise, check adSetGroups
+        for (const group of adSetGroups) {
+            if (group.creatives.includes(referenceId)) return group.creatives;
+        }
+
+        // Ungrouped
+        return form.data.creatives
+            .map((c) => c.id)
+            .filter((id) => !adSetGroups.some((g) => g.creatives.includes(id)));
+    }, [
+        selectedIds,
+        adSetGroups,
+        selectedAdSetCreatives,
+        hasSelectedAdSet,
+        form.data.creatives,
+    ]);
+
+    const extendSelection = useCallback(
+        (direction: "up" | "down") => {
+            const currentGroup = getCreativesInCurrentGroup();
+            if (currentGroup.length === 0) return;
+
+            const lastSelectedId = selectedIds[selectedIds.length - 1];
+            const currentIndex = currentGroup.findIndex(
+                (id) => id === lastSelectedId
+            );
+
+            let nextIndex =
+                direction === "up" ? currentIndex - 1 : currentIndex + 1;
+            nextIndex = Math.max(
+                0,
+                Math.min(nextIndex, currentGroup.length - 1)
+            );
+
+            const nextId = currentGroup[nextIndex];
+            setSelectedIds((prev) =>
+                prev.includes(nextId) ? prev : [...prev, nextId]
+            );
+        },
+        [selectedIds, getCreativesInCurrentGroup]
+    );
+
     useEffect(() => {
         if (!form.data.adSetId) return;
 
@@ -142,7 +199,7 @@ export function UploadedCreatives({ adSets }: Props) {
                     creatives: [],
                 },
             ]);
-            clearSelection();
+            // clearSelection();
         },
         [setAdSetGroups, clearSelection]
     );
@@ -152,7 +209,7 @@ export function UploadedCreatives({ adSets }: Props) {
             const group = adSetGroups.find((group) => group.id === groupId)!;
 
             createGroup(`${group.label} - Copy`);
-            clearSelection();
+            // clearSelection();
         },
         [createGroup, adSetGroups, clearSelection]
     );
@@ -284,6 +341,44 @@ export function UploadedCreatives({ adSets }: Props) {
             activationConstraint,
         }),
     ];
+
+    // Hot keys
+    useHotkeys(["esc"], (e) => {
+        e.preventDefault();
+        clearSelection();
+    });
+    useHotkeys(
+        ["meta+a", "ctrl+a"],
+        (e) => {
+            e.preventDefault();
+
+            const allIds = form.data.creatives.map((c) => c.id);
+
+            // If all are already selected, clear; otherwise, select all
+            if (selectedIds.length === allIds.length) {
+                setSelectedIds([]);
+            } else {
+                setSelectedIds(allIds);
+            }
+        },
+        [form.data.creatives, selectedIds]
+    );
+    useHotkeys(
+        "shift+arrowup",
+        (e) => {
+            e.preventDefault();
+            extendSelection("up");
+        },
+        [extendSelection]
+    );
+    useHotkeys(
+        "shift+arrowdown",
+        (e) => {
+            e.preventDefault();
+            extendSelection("down");
+        },
+        [extendSelection]
+    );
 
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">

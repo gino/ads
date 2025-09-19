@@ -259,7 +259,7 @@ export function DateFilter() {
 
     // Hotkeys
     useHotkeys(
-        "meta+right",
+        ["meta+right", "ctrl+right"],
         (e) => {
             e.preventDefault();
             moveRange(1);
@@ -268,7 +268,7 @@ export function DateFilter() {
         [moveRange]
     );
     useHotkeys(
-        "meta+left",
+        ["meta+left", "ctrl+left"],
         (e) => {
             e.preventDefault();
             moveRange(-1);
@@ -277,7 +277,7 @@ export function DateFilter() {
         [moveRange]
     );
     useHotkeys(
-        "meta+shift+right",
+        ["meta+shift+right", "ctrl+shift+right"],
         (e) => {
             e.preventDefault();
             moveRange(7);
@@ -286,7 +286,7 @@ export function DateFilter() {
         [moveRange]
     );
     useHotkeys(
-        "meta+shift+left",
+        ["meta+shift+left", "ctrl+shift+left"],
         (e) => {
             e.preventDefault();
             moveRange(-7);
