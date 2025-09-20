@@ -206,12 +206,24 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const cloneGroup = useCallback(
         (groupId: string) => {
-            const group = adSetGroups.find((group) => group.id === groupId)!;
+            setAdSetGroups((groups) => {
+                const index = groups.findIndex((g) => g.id === groupId);
+                if (index === -1) return groups;
 
-            createGroup(`${group.label} - Copy`);
-            // clearSelection();
+                const group = groups[index];
+                const newGroup = {
+                    id: crypto.randomUUID(),
+                    label: `${group.label} - Copy`,
+                    // creatives: [...group.creatives], // ✅ copy creatives too?
+                    creatives: [],
+                };
+
+                const newGroups = [...groups];
+                newGroups.splice(index + 1, 0, newGroup); // insert right after
+                return newGroups;
+            });
         },
-        [createGroup, adSetGroups, clearSelection]
+        [setAdSetGroups]
     );
 
     const deleteGroup = useCallback(
@@ -329,7 +341,9 @@ export function UploadedCreatives({ adSets }: Props) {
         ]
     );
 
-    const activationConstraint = { distance: 3 };
+    // const activationConstraint = { delay: 100, tolerance: 5 };
+    const activationConstraint = { distance: 1 };
+
     const sensors = [
         useSensor(PointerSensor, {
             activationConstraint,

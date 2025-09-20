@@ -112,7 +112,7 @@ export function AdCreative({
                         <Ariakit.Hovercard
                             portal
                             gutter={4}
-                            className="bg-white p-0.5 shadow-base-popup rounded-lg w-40"
+                            className="bg-white p-0.5 shadow-base-popup rounded-lg w-48"
                         >
                             <AdCreativePreview creative={creative} />
                         </Ariakit.Hovercard>
