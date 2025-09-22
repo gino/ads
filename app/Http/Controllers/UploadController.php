@@ -9,6 +9,7 @@ use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetPixelsRequest;
+use App\Http\Integrations\Requests\GetTargetingCountries;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,6 +27,8 @@ class UploadController extends Controller
         $adSetsRequest = new GetAdSetsRequest($adAccount);
         $pixelsRequest = new GetPixelsRequest($adAccount);
 
+        $targetCountriesRequest = new GetTargetingCountries;
+
         return Inertia::render('upload', [
             'campaigns' => Inertia::defer(function () use ($meta, $adCampaignsRequest) {
                 $campaigns = collect($meta->paginate($adCampaignsRequest)->collect()->all());
@@ -41,6 +44,11 @@ class UploadController extends Controller
                 $pixels = collect($meta->paginate($pixelsRequest)->collect()->all());
 
                 return PixelData::collect($pixels);
+            }),
+            'countries' => Inertia::defer(function () use ($meta, $targetCountriesRequest) {
+                $countries = $meta->send($targetCountriesRequest)->json('data', []);
+
+                return $countries;
             }),
         ]);
     }

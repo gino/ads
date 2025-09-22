@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import useMeasure from "react-use-measure";
 import { AdCreative, HEIGHT as ADCREATIVE_HEIGHT } from "./ad-creative";
+import { AdSetGroupSettingsPopup } from "./popups/adset-group-settings";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
 
@@ -67,6 +68,8 @@ export function AdSetGroup({
     }, [isOver, creativeIds, active]);
 
     const isAbleToEdit = type === "ADSET" && !isExistingAdSet;
+
+    const [settingsPopupOpen, setSettingsPopupOpen] = useState(false);
 
     return (
         <div
@@ -177,6 +180,7 @@ export function AdSetGroup({
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
+                                            setSettingsPopupOpen((v) => !v);
                                         }}
                                         className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
                                     >
@@ -272,6 +276,13 @@ export function AdSetGroup({
                     </AnimatePresence>
                 </div>
             </div>
+
+            <AdSetGroupSettingsPopup
+                id={id}
+                label={label}
+                open={settingsPopupOpen}
+                setOpen={setSettingsPopupOpen}
+            />
         </div>
     );
 }

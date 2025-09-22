@@ -128,12 +128,7 @@ export function UploadForm({
                                                               }
                                                               showLabel={false}
                                                           />
-                                                          <div
-                                                              className="font-semibold truncate"
-                                                              title={
-                                                                  campaign.name
-                                                              }
-                                                          >
+                                                          <div className="font-semibold truncate">
                                                               {campaign.name}
                                                           </div>
                                                       </div>
@@ -175,10 +170,7 @@ export function UploadForm({
                                                           status={adSet.status}
                                                           showLabel={false}
                                                       />
-                                                      <div
-                                                          className="font-semibold"
-                                                          title={adSet.name}
-                                                      >
+                                                      <div className="font-semibold">
                                                           {adSet.name}
                                                       </div>
                                                   </div>
@@ -207,10 +199,7 @@ export function UploadForm({
                                               label: (
                                                   <div className="flex items-center text-left gap-3 flex-1 truncate mr-1">
                                                       <div className="flex-1 truncate">
-                                                          <div
-                                                              className="font-semibold truncate"
-                                                              title={pixel.name}
-                                                          >
+                                                          <div className="font-semibold truncate">
                                                               {pixel.name}
                                                           </div>
                                                       </div>

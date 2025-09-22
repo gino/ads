@@ -14,10 +14,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
         const adAccount = adAccounts.find((adAccount) => adAccount.id === id)!;
 
         return (
-            <div
-                title={`${adAccount.name} (${adAccount.currency})`}
-                className="flex items-center w-full mr-6 relative"
-            >
+            <div className="flex items-center w-full mr-6 relative">
                 <div className="absolute flex left-0 top-1/2 -translate-y-1/2">
                     <div className="flex justify-center items-center w-6 h-6 text-[12px] font-bold bg-blue-600/5 rounded text-blue-950 mr-3">
                         {adAccount.name[0].toUpperCase()}

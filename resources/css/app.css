@@ -34,6 +34,7 @@
     /* --color-gray-950: oklch(0.141 0.005 285.823); */
 
     --color-brand: #053057;
+    /* --color-brand: #0060cc; */
     /* --color-brand: #86a397; */
     /* --color-brand: #b3848f; */
     /* --color-brand: var(--color-teal-700); */
@@ -46,13 +47,22 @@
     --shadow-base: 0 0px 0px 1px rgba(0, 0, 0, 0.06),
         0 1px 1px -0.5px rgba(0, 0, 0, 0.06),
         0 3px 3px -1.5px rgba(0, 0, 0, 0.06),
-        inset 0 -1px 1px -0.5px rgba(0, 0, 0, 0.04);
+        inset 0 -1px 1px -0.5px rgba(0, 0, 0, 0.06);
     --shadow-base-popup: 0px 0px 0px 1px rgba(0, 0, 0, 0.06),
         0px 4px 8px rgba(0, 0, 0, 0.08), 0px 8px 16px rgba(0, 0, 0, 0.08),
-        inset 0 -1px 1px -0.5px rgba(0, 0, 0, 0.04);
+        inset 0 -1px 1px -0.5px rgba(0, 0, 0, 0.06);
 
     --shadow-popup: 0px 4px 8px rgba(0, 0, 0, 0.08),
         0px 8px 16px rgba(0, 0, 0, 0.08);
+
+    --shadow-dialog: 0 0px 0px 1px rgba(0, 0, 0, 0.06),
+        inset 0 -1px 1px -0.5px rgba(0, 0, 0, 0.06),
+        0px 0px 0px 7px var(--tw-shadow-color, #ffffff4d),
+        0px 64px 24px 0px var(--tw-shadow-color, #0000),
+        0px 44px 22px 0px var(--tw-shadow-color, #00000005),
+        0px 28px 20px 0px var(--tw-shadow-color, #00000014),
+        0px 17px 17px 0px var(--tw-shadow-color, #00000021),
+        0px 10px 13px 0px var(--tw-shadow-color, #00000026);
 
     --text-xs: 14px;
     --text-sm: 15px;

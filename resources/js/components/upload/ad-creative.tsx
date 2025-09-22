@@ -203,6 +203,7 @@ export function AdCreative({
                         <div className="w-px h-4 bg-gray-100 mr-3" />
                         <div
                             onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
                             className="flex items-center gap-1 pointer-events-auto"
                         >
                             <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
