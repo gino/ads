@@ -1,4 +1,4 @@
-import { MultiComboboxVirtualized } from "@/components/ui/multi-combobox-virtualized";
+import { MultiComboboxVirtualized } from "@/components/ui/multi-combobox";
 
 export default function Test() {
     return (

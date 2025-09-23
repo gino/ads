@@ -52,6 +52,10 @@ name: string;
 isUnavailable: boolean;
 lastFiredTime: string;
 };
+export type TargetingCountryData = {
+countryCode: string;
+name: string;
+};
 export type UserData = {
 id: string;
 name: string;

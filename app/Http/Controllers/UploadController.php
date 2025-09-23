@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Data\AdCampaignData;
 use App\Data\AdSetData;
 use App\Data\PixelData;
+use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
@@ -48,7 +49,7 @@ class UploadController extends Controller
             'countries' => Inertia::defer(function () use ($meta, $targetCountriesRequest) {
                 $countries = $meta->send($targetCountriesRequest)->json('data', []);
 
-                return $countries;
+                return TargetingCountryData::collect($countries);
             }),
         ]);
     }

@@ -1,23 +1,16 @@
-import { MultiComboboxVirtualized } from "@/components/ui/multi-combobox-virtualized";
+import { MultiCombobox } from "@/components/ui/multi-combobox";
 import useDeferred from "@/lib/hooks/use-deferred";
-import { SharedData } from "@/types";
 import * as Ariakit from "@ariakit/react";
 import { usePage } from "@inertiajs/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
-
-interface Props {
-    //
-}
 
 export function AdSetGroupSettingsPopup() {
     const { settingsPopupOpen: open, setSettingsPopupOpen: setOpen } =
         useUploadedCreativesContext();
 
-    const { props } = usePage<
-        SharedData & { countries: { country_code: string; name: string }[] }
-    >();
+    const { props } = usePage<{ countries: App.Data.TargetingCountryData[] }>();
 
     const { isLoading: isLoadingCountries } = useDeferred({
         data: ["countries"],
@@ -36,30 +29,28 @@ export function AdSetGroupSettingsPopup() {
                         </div>
                     </div>
                     <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
-                        {country.country_code}
+                        {country.countryCode}
                     </div>
                 </div>
             ),
             rawLabel: country.name,
-            value: country.country_code,
+            value: country.countryCode,
         }));
     }, [props.countries, isLoadingCountries]);
 
-    const handleLocationsChange = useCallback((values: string[]) => {
-        setLocations(values);
-    }, []);
-
-    // const namedLocations = useMemo(() => {
-    //     return locations.map((value) => {
-    //         return countries.find((c) => c.country_code === value)!;
-    //     });
-    // }, [locations]);
+    const namedLocations = useMemo(() => {
+        return locations.map((value) => {
+            return props.countries.find((c) => c.countryCode === value)!;
+        });
+    }, [locations, props.countries]);
 
     const dialog = Ariakit.useDialogStore({
         open,
         setOpen: setOpen,
     });
     const mounted = Ariakit.useStoreState(dialog, "mounted");
+
+    console.log(props.countries);
 
     return (
         <AnimatePresence>
@@ -123,19 +114,16 @@ export function AdSetGroupSettingsPopup() {
                                 <div>todo - todo</div>
                             </div>
                             <div className="p-5">
-                                <MultiComboboxVirtualized items={countries} />
-                            </div>
-                            <div className="p-5">
                                 <div>
                                     <div className="font-semibold mb-2">
-                                        Locations {JSON.stringify(locations)}
+                                        Locations
                                     </div>
 
-                                    {/* {locations.length > 0 && (
+                                    {locations.length > 0 && (
                                         <div className="flex items-center flex-wrap mb-3 gap-1.5">
                                             {namedLocations.map((location) => (
                                                 <div
-                                                    key={location.country_code}
+                                                    key={location.countryCode}
                                                     className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5"
                                                 >
                                                     <div>{location.name}</div>
@@ -146,7 +134,7 @@ export function AdSetGroupSettingsPopup() {
                                                                     return locations.filter(
                                                                         (l) =>
                                                                             l !==
-                                                                            location.country_code
+                                                                            location.countryCode
                                                                     );
                                                                 }
                                                             );
@@ -158,13 +146,13 @@ export function AdSetGroupSettingsPopup() {
                                                 </div>
                                             ))}
                                         </div>
-                                    )} */}
+                                    )}
 
-                                    {/* <MultiCombobox
+                                    <MultiCombobox
                                         items={countries}
                                         value={locations}
-                                        onChange={handleLocationsChange}
-                                    /> */}
+                                        onChange={setLocations}
+                                    />
                                 </div>
                             </div>
 

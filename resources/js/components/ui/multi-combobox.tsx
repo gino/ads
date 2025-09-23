@@ -1,4 +1,5 @@
 import * as Ariakit from "@ariakit/react";
+import { SelectRenderer } from "@ariakit/react-core/select/select-renderer";
 import { matchSorter } from "match-sorter";
 import {
     ReactNode,
@@ -8,42 +9,43 @@ import {
     useTransition,
 } from "react";
 
+const ITEM_HEIGHT = 45;
+
 interface SelectItem {
-    label: ReactNode | string;
+    label: ReactNode;
     rawLabel: string;
     value: string;
-    disabled?: boolean;
 }
 
 interface Props<T extends SelectItem> {
     items: T[];
-    value: T["value"][];
-    onChange: (values: T["value"][]) => void;
     label?: string;
+    onChange: (values: T["value"][]) => void;
+    value: T["value"][];
 }
 
 export function MultiCombobox<T extends SelectItem>({
-    items,
-    value,
-    onChange,
     label,
+    items,
+    onChange,
+    value: _value,
 }: Props<T>) {
-    const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
     const [searchValue, setSearchValue] = useState("");
 
+    const getItem = (option: T) => ({
+        id: `item-${option.value}`,
+        value: option.value as string | undefined,
+        label: option.label,
+    });
+
     const matches = useMemo(() => {
-        return matchSorter(items, searchValue, {
+        const filtered = matchSorter(items, searchValue, {
             keys: ["rawLabel", "value"],
         });
-    }, [items, searchValue]);
 
-    const handleSelectedValueChange = useCallback(
-        (newValue: T["value"][]) => {
-            onChange(newValue);
-        },
-        [onChange]
-    );
+        return filtered.map(getItem);
+    }, [searchValue, items]);
 
     const handleValueChange = useCallback((newValue: string) => {
         startTransition(() => {
@@ -51,19 +53,19 @@ export function MultiCombobox<T extends SelectItem>({
         });
     }, []);
 
-    const selectedValues = useMemo(() => new Set(value), [value]);
-
     return (
         <Ariakit.ComboboxProvider
-            open={open}
-            setOpen={setOpen}
-            selectedValue={value}
-            setSelectedValue={handleSelectedValueChange}
             setValue={handleValueChange}
+            value={searchValue}
+            setSelectedValue={(values) => {
+                onChange(values);
+            }}
+            selectedValue={_value}
+            resetValueOnSelect={false}
         >
             {label && (
                 <Ariakit.ComboboxLabel className="font-semibold mb-2 block">
-                    {label}
+                    Locations
                 </Ariakit.ComboboxLabel>
             )}
             <Ariakit.Combobox
@@ -72,30 +74,44 @@ export function MultiCombobox<T extends SelectItem>({
                 className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold"
             />
             <Ariakit.ComboboxPopover
-                slide={false}
-                sameWidth
+                unmountOnHide
                 gutter={8}
                 flip={false}
+                slide={false}
                 portal
                 aria-busy={isPending}
-                className="rounded-xl max-h-[var(--popover-available-height)] overflow-y-auto bg-white shadow-base-popup p-1 space-y-1 scroll-p-1"
+                sameWidth
+                className="max-h-[min(var(--popover-available-height))] bg-white rounded-xl shadow-base-popup flex flex-col relative overflow-auto overscroll-contain p-1 scroll-p-1"
             >
-                {matches.map((item) => (
-                    <Ariakit.ComboboxItem
-                        key={item.value}
-                        value={item.value}
-                        disabled={item.disabled}
-                        focusOnHover
-                        className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3"
-                    >
-                        <div className="w-[16px] -ml-1">
-                            {selectedValues.has(item.value) && (
-                                <i className="fa-solid fa-check text-[12px] text-gray-400" />
-                            )}
-                        </div>
-                        <div className="flex-1 truncate">{item.label}</div>
-                    </Ariakit.ComboboxItem>
-                ))}
+                <SelectRenderer
+                    items={matches}
+                    itemSize={ITEM_HEIGHT}
+                    overscan={5}
+                    gap={4}
+                >
+                    {({ label, value, ...item }) => {
+                        return (
+                            <Ariakit.ComboboxItem
+                                key={item.id}
+                                {...item}
+                                style={{
+                                    ...item.style,
+                                    height: ITEM_HEIGHT,
+                                }}
+                                focusOnHover
+                                className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3 w-full outline-none group"
+                                value={value}
+                            >
+                                <div className="w-[16px] -ml-1">
+                                    {_value.includes(value!) && (
+                                        <i className="fa-solid fa-check text-[12px] text-gray-400 hidden group-aria-selected:block" />
+                                    )}
+                                </div>
+                                <div className="flex-1 truncate">{label}</div>
+                            </Ariakit.ComboboxItem>
+                        );
+                    }}
+                </SelectRenderer>
 
                 {!matches.length && (
                     <div className="text-sm font-semibold flex items-center justify-center p-4 text-center">
