@@ -1,6 +1,12 @@
 import * as Ariakit from "@ariakit/react";
 import { matchSorter } from "match-sorter";
-import { ReactNode, useMemo, useState, useTransition } from "react";
+import {
+    ReactNode,
+    useCallback,
+    useMemo,
+    useState,
+    useTransition,
+} from "react";
 
 interface SelectItem {
     label: ReactNode | string;
@@ -13,43 +19,63 @@ interface Props<T extends SelectItem> {
     items: T[];
     value: T["value"][];
     onChange: (values: T["value"][]) => void;
+    label?: string;
 }
 
 export function MultiCombobox<T extends SelectItem>({
     items,
     value,
     onChange,
+    label,
 }: Props<T>) {
+    const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
-
     const [searchValue, setSearchValue] = useState("");
 
-    const matches = useMemo(
-        () => matchSorter(items, searchValue, { keys: ["rawLabel", "value"] }),
-        [searchValue]
+    const matches = useMemo(() => {
+        return matchSorter(items, searchValue, {
+            keys: ["rawLabel", "value"],
+        });
+    }, [items, searchValue]);
+
+    const handleSelectedValueChange = useCallback(
+        (newValue: T["value"][]) => {
+            onChange(newValue);
+        },
+        [onChange]
     );
+
+    const handleValueChange = useCallback((newValue: string) => {
+        startTransition(() => {
+            setSearchValue(newValue);
+        });
+    }, []);
+
+    const selectedValues = useMemo(() => new Set(value), [value]);
 
     return (
         <Ariakit.ComboboxProvider
+            open={open}
+            setOpen={setOpen}
             selectedValue={value}
-            setSelectedValue={onChange}
-            setValue={(value) => {
-                startTransition(() => {
-                    setSearchValue(value);
-                });
-            }}
+            setSelectedValue={handleSelectedValueChange}
+            setValue={handleValueChange}
         >
-            <Ariakit.ComboboxLabel className="font-semibold block mb-2">
-                Locations
-            </Ariakit.ComboboxLabel>
+            {label && (
+                <Ariakit.ComboboxLabel className="font-semibold mb-2 block">
+                    {label}
+                </Ariakit.ComboboxLabel>
+            )}
             <Ariakit.Combobox
                 placeholder="Search locations..."
+                autoSelect
                 className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold"
             />
             <Ariakit.ComboboxPopover
                 slide={false}
                 sameWidth
                 gutter={8}
+                flip={false}
                 portal
                 aria-busy={isPending}
                 className="rounded-xl max-h-[var(--popover-available-height)] overflow-y-auto bg-white shadow-base-popup p-1 space-y-1 scroll-p-1"
@@ -63,7 +89,7 @@ export function MultiCombobox<T extends SelectItem>({
                         className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3"
                     >
                         <div className="w-[16px] -ml-1">
-                            {value.includes(item.value) && (
+                            {selectedValues.has(item.value) && (
                                 <i className="fa-solid fa-check text-[12px] text-gray-400" />
                             )}
                         </div>

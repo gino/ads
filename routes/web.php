@@ -7,6 +7,7 @@ use App\Http\Controllers\ViewController;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 // https://developers.facebook.com/docs/marketing-api/get-started/basic-ad-creation
 
@@ -36,4 +37,8 @@ Route::middleware([
 
     Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/test', function () {
+        return Inertia::render('test');
+    });
 });

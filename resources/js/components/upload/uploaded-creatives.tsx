@@ -11,7 +11,9 @@ import {
 import { motion } from "motion/react";
 import {
     createContext,
+    Dispatch,
     MouseEvent,
+    SetStateAction,
     useCallback,
     useContext,
     useEffect,
@@ -22,6 +24,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "../ui/toast";
 import { AdCreative } from "./ad-creative";
 import { AdSetGroup } from "./adset-group";
+import { AdSetGroupSettingsPopup } from "./popups/adset-group-settings";
 import { useUploadContext } from "./upload-context";
 
 // Multi select
@@ -40,11 +43,15 @@ interface UploadedCreativesContextType {
     activeId: string | null;
     selectedIds: string[];
     toggleSelection: (id: string, e: MouseEvent) => void;
+    //
+    settingsPopupOpen: boolean;
+    setSettingsPopupOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const UploadedCreativesContext = createContext<UploadedCreativesContextType>(
     null!
 );
+UploadedCreativesContext.displayName = "UploadedCreativesContext";
 
 interface Props {
     adSets: App.Data.AdSetData[];
@@ -314,6 +321,8 @@ export function UploadedCreatives({ adSets }: Props) {
         [setAdSetGroups]
     );
 
+    const [settingsPopupOpen, setSettingsPopupOpen] = useState(false);
+
     const memoizedValue = useMemo<UploadedCreativesContextType>(
         () => ({
             adSetGroups,
@@ -326,6 +335,8 @@ export function UploadedCreatives({ adSets }: Props) {
             activeId,
             selectedIds,
             toggleSelection,
+            settingsPopupOpen,
+            setSettingsPopupOpen,
         }),
         [
             adSetGroups,
@@ -338,6 +349,8 @@ export function UploadedCreatives({ adSets }: Props) {
             activeId,
             selectedIds,
             toggleSelection,
+            settingsPopupOpen,
+            setSettingsPopupOpen,
         ]
     );
 
@@ -357,10 +370,14 @@ export function UploadedCreatives({ adSets }: Props) {
     ];
 
     // Hot keys
-    useHotkeys(["esc"], (e) => {
-        e.preventDefault();
-        clearSelection();
-    });
+    useHotkeys(
+        ["esc"],
+        (e) => {
+            e.preventDefault();
+            clearSelection();
+        },
+        { enabled: !settingsPopupOpen }
+    );
     useHotkeys(
         ["meta+a", "ctrl+a"],
         (e) => {
@@ -375,6 +392,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 setSelectedIds(allIds);
             }
         },
+        { enabled: !settingsPopupOpen },
         [form.data.creatives, selectedIds]
     );
     useHotkeys(
@@ -383,6 +401,7 @@ export function UploadedCreatives({ adSets }: Props) {
             e.preventDefault();
             extendSelection("up");
         },
+        { enabled: !settingsPopupOpen },
         [extendSelection]
     );
     useHotkeys(
@@ -391,6 +410,7 @@ export function UploadedCreatives({ adSets }: Props) {
             e.preventDefault();
             extendSelection("down");
         },
+        { enabled: !settingsPopupOpen },
         [extendSelection]
     );
 
@@ -548,6 +568,8 @@ export function UploadedCreatives({ adSets }: Props) {
                                         )}
                                 </DragOverlay>
                             </Portal>
+
+                            <AdSetGroupSettingsPopup />
                         </UploadedCreativesContext.Provider>
                     </DndContext>
                 </div>

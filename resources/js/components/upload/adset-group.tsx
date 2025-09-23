@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import useMeasure from "react-use-measure";
 import { AdCreative, HEIGHT as ADCREATIVE_HEIGHT } from "./ad-creative";
-import { AdSetGroupSettingsPopup } from "./popups/adset-group-settings";
 import { useUploadContext } from "./upload-context";
 import { useUploadedCreativesContext } from "./uploaded-creatives";
 
@@ -32,7 +31,7 @@ export function AdSetGroup({
     });
 
     const { form } = useUploadContext();
-    const { updateGroupLabel, deleteGroup, cloneGroup } =
+    const { updateGroupLabel, deleteGroup, cloneGroup, setSettingsPopupOpen } =
         useUploadedCreativesContext();
 
     const creatives = useMemo(() => {
@@ -68,8 +67,6 @@ export function AdSetGroup({
     }, [isOver, creativeIds, active]);
 
     const isAbleToEdit = type === "ADSET" && !isExistingAdSet;
-
-    const [settingsPopupOpen, setSettingsPopupOpen] = useState(false);
 
     return (
         <div
@@ -276,13 +273,6 @@ export function AdSetGroup({
                     </AnimatePresence>
                 </div>
             </div>
-
-            <AdSetGroupSettingsPopup
-                id={id}
-                label={label}
-                open={settingsPopupOpen}
-                setOpen={setSettingsPopupOpen}
-            />
         </div>
     );
 }

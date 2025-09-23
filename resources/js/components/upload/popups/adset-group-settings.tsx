@@ -1,22 +1,21 @@
-import { MultiCombobox } from "@/components/ui/multi-combobox";
+import { MultiComboboxVirtualized } from "@/components/ui/multi-combobox-virtualized";
 import useDeferred from "@/lib/hooks/use-deferred";
 import { SharedData } from "@/types";
 import * as Ariakit from "@ariakit/react";
 import { usePage } from "@inertiajs/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useUploadedCreativesContext } from "../uploaded-creatives";
 
 interface Props {
-    id: string;
-    label: string;
-    open: boolean;
-    setOpen: (value: boolean) => void;
+    //
 }
 
-export function AdSetGroupSettingsPopup({ id, label, open, setOpen }: Props) {
-    const {
-        props: { countries },
-    } = usePage<
+export function AdSetGroupSettingsPopup() {
+    const { settingsPopupOpen: open, setSettingsPopupOpen: setOpen } =
+        useUploadedCreativesContext();
+
+    const { props } = usePage<
         SharedData & { countries: { country_code: string; name: string }[] }
     >();
 
@@ -26,7 +25,40 @@ export function AdSetGroupSettingsPopup({ id, label, open, setOpen }: Props) {
 
     const [locations, setLocations] = useState<string[]>([]);
 
-    const dialog = Ariakit.useDialogStore({ open, setOpen });
+    const countries = useMemo(() => {
+        if (isLoadingCountries) return [];
+        return props.countries.map((country) => ({
+            label: (
+                <div className="flex items-center text-left gap-3 flex-1 truncate mr-1">
+                    <div className="flex-1 truncate">
+                        <div className="font-semibold truncate">
+                            {country.name}
+                        </div>
+                    </div>
+                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
+                        {country.country_code}
+                    </div>
+                </div>
+            ),
+            rawLabel: country.name,
+            value: country.country_code,
+        }));
+    }, [props.countries, isLoadingCountries]);
+
+    const handleLocationsChange = useCallback((values: string[]) => {
+        setLocations(values);
+    }, []);
+
+    // const namedLocations = useMemo(() => {
+    //     return locations.map((value) => {
+    //         return countries.find((c) => c.country_code === value)!;
+    //     });
+    // }, [locations]);
+
+    const dialog = Ariakit.useDialogStore({
+        open,
+        setOpen: setOpen,
+    });
     const mounted = Ariakit.useStoreState(dialog, "mounted");
 
     return (
@@ -36,14 +68,14 @@ export function AdSetGroupSettingsPopup({ id, label, open, setOpen }: Props) {
                     store={dialog}
                     portal
                     alwaysVisible
-                    autoFocus={false}
+                    autoFocusOnShow={false}
                     render={(props) => (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             hidden={!open}
-                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            transition={{ duration: 0.2, ease: "easeIn" }}
                             className="fixed inset-0 bg-black/10 flex items-center justify-center"
                         >
                             <div {...props} />
@@ -70,7 +102,7 @@ export function AdSetGroupSettingsPopup({ id, label, open, setOpen }: Props) {
                             translateY: 8,
                             filter: "blur(1px)",
                         }}
-                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        transition={{ duration: 0.2, ease: "easeIn" }}
                         className="w-full shadow-xs bg-white/60 p-2 rounded-3xl backdrop-blur-[1px] flex flex-col h-full min-h-0 origin-bottom"
                     >
                         <div className="bg-white w-full rounded-2xl shadow-dialog overflow-y-auto divide-y divide-gray-100">
@@ -88,39 +120,52 @@ export function AdSetGroupSettingsPopup({ id, label, open, setOpen }: Props) {
                                 </div>
                             </Ariakit.DialogHeading> */}
                             <div className="p-5">
-                                <div>
-                                    {label} - {id}
-                                </div>
+                                <div>todo - todo</div>
                             </div>
                             <div className="p-5">
-                                <MultiCombobox
-                                    items={
-                                        isLoadingCountries
-                                            ? []
-                                            : countries.map((country) => ({
-                                                  label: (
-                                                      <div className="flex items-center text-left gap-3 flex-1 truncate mr-1">
-                                                          <div className="flex-1 truncate">
-                                                              <div className="font-semibold truncate">
-                                                                  {country.name}
-                                                              </div>
-                                                          </div>
+                                <MultiComboboxVirtualized items={countries} />
+                            </div>
+                            <div className="p-5">
+                                <div>
+                                    <div className="font-semibold mb-2">
+                                        Locations {JSON.stringify(locations)}
+                                    </div>
 
-                                                          <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
-                                                              {
-                                                                  country.country_code
-                                                              }
-                                                          </div>
-                                                      </div>
-                                                  ),
-                                                  rawLabel: country.name,
-                                                  value: country.country_code,
-                                              }))
-                                    }
-                                    value={locations}
-                                    onChange={(values) => setLocations(values)}
-                                />
-                                {JSON.stringify(locations)}
+                                    {/* {locations.length > 0 && (
+                                        <div className="flex items-center flex-wrap mb-3 gap-1.5">
+                                            {namedLocations.map((location) => (
+                                                <div
+                                                    key={location.country_code}
+                                                    className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5"
+                                                >
+                                                    <div>{location.name}</div>
+                                                    <button
+                                                        onClick={() => {
+                                                            setLocations(
+                                                                (locations) => {
+                                                                    return locations.filter(
+                                                                        (l) =>
+                                                                            l !==
+                                                                            location.country_code
+                                                                    );
+                                                                }
+                                                            );
+                                                        }}
+                                                        className="cursor-pointer text-[8px] flex mt-px ml-0.5"
+                                                    >
+                                                        <i className="fa-solid fa-times" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )} */}
+
+                                    {/* <MultiCombobox
+                                        items={countries}
+                                        value={locations}
+                                        onChange={handleLocationsChange}
+                                    /> */}
+                                </div>
                             </div>
 
                             <div className="p-5">

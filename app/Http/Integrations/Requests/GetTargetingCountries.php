@@ -27,6 +27,7 @@ class GetTargetingCountries extends Request implements Cacheable
             'location_types' => ['country'],
             'type' => 'adgeolocation',
             'q' => '',
+            'locale' => 'en_US',
             'limit' => 1000,
         ];
     }
@@ -43,7 +44,7 @@ class GetTargetingCountries extends Request implements Cacheable
 
     public function cacheExpiryInSeconds(): int
     {
-        // 60 minutes
-        return 60 * 60;
+        // 24 hours - no need to cache this for anything shorter
+        return 60 * 60 * 24;
     }
 }

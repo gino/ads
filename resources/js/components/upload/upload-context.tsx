@@ -15,6 +15,7 @@ interface UploadContextType {
 }
 
 const UploadContext = createContext<UploadContextType>(null!);
+UploadContext.displayName = "UploadContext";
 
 export function UploadProvider({ children }: PropsWithChildren) {
     const form = useForm<UploadForm>({
