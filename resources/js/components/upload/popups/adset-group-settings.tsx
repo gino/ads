@@ -130,9 +130,9 @@ export function AdSetGroupSettingsPopup() {
                         <Ariakit.DialogDismiss className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
                             Cancel
                         </Ariakit.DialogDismiss>
-                        <button className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md">
+                        <Ariakit.DialogDismiss className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md">
                             Save changes
-                        </button>
+                        </Ariakit.DialogDismiss>
                     </div>
                 </div>
             </div>

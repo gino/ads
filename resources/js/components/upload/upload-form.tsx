@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { Select } from "../ui/select";
 import { StatusTag } from "../ui/status-tag";
+import { Switch } from "../ui/switch";
 import { toast } from "../ui/toast";
 import { allowedFileTypes } from "./constants";
 import { DropboxButton } from "./integrations/dropbox";
@@ -303,6 +304,74 @@ export function UploadForm({
                                 <DropboxButton />
                                 <GoogleDriveButton />
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="p-5 border-t border-gray-100">
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="block font-semibold">
+                                Advanced settings
+                            </span>
+
+                            <div>
+                                <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                                    Configure defaults
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="ring ring-gray-200 rounded-lg divide-y divide-gray-200">
+                            <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
+                                <Switch className="mt-1" />
+                                <div className="flex-1">
+                                    <div className="font-semibold mb-1">
+                                        Default ads to paused
+                                    </div>
+                                    <div className="text-gray-500 font-medium text-xs">
+                                        Newly created ads are paused by default,
+                                        instead of the active state.
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5">
+                                        Recommended
+                                    </div>
+                                </div>
+                            </label>
+                            <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
+                                <Switch className="mt-1" />
+                                <div className="flex-1">
+                                    <div className="font-semibold mb-1">
+                                        Disable all Advantage+ enhancements
+                                    </div>
+                                    <div className="text-gray-500 font-medium text-xs">
+                                        Turns off all automated Advantage+
+                                        optimizations for newly created ads.
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5">
+                                        Recommended
+                                    </div>
+                                </div>
+                            </label>
+                            <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
+                                <Switch className="mt-1" />
+                                <div className="flex-1">
+                                    <div className="font-semibold mb-1">
+                                        Turn off promo codes
+                                    </div>
+                                    <div className="text-gray-500 font-medium text-xs">
+                                        Automatically disables promo codes on
+                                        newly created ads.
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5">
+                                        Recommended
+                                    </div>
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </div>

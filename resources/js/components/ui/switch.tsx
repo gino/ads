@@ -6,7 +6,7 @@ interface Props extends ComponentPropsWithoutRef<"input"> {
     //
 }
 
-export function Switch({ ...props }: Props) {
+export function Switch({ className, ...props }: Props) {
     const [checked, setChecked] = useState(props.defaultChecked ?? false);
     const [focusVisible, setFocusVisible] = useState(false);
 
@@ -19,7 +19,8 @@ export function Switch({ ...props }: Props) {
             className={cn(
                 "bg-gray-100 ring-1 ring-gray-200 relative h-4 w-8 rounded-full cursor-pointer transition duration-150 ease-in-out",
                 "data-[checked='true']:bg-brand data-[checked='true']:ring-brand",
-                "data-[disabled='true']:cursor-not-allowed data-[disabled='true']:opacity-50"
+                "data-[disabled='true']:cursor-not-allowed data-[disabled='true']:opacity-50",
+                className
             )}
         >
             <Ariakit.VisuallyHidden>

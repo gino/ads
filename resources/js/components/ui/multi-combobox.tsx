@@ -99,6 +99,7 @@ export function MultiCombobox<T extends SelectItem>({
                                     height: ITEM_HEIGHT,
                                 }}
                                 focusOnHover
+                                resetValueOnSelect
                                 className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3 w-full outline-none group"
                                 value={value}
                             >

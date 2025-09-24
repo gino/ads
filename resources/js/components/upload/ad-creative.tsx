@@ -151,7 +151,7 @@ export function AdCreative({
                                         <i className="fa-regular fa-pencil text-[12px] ml-2 text-gray-400 invisible peer-hover:visible" />
                                     </>
                                 ) : (
-                                    <div className="p-px">
+                                    <div className="p-px flex-1">
                                         <input
                                             type="text"
                                             onPointerDown={(e) => {

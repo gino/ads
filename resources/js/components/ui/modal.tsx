@@ -1,6 +1,7 @@
 import * as Ariakit from "@ariakit/react";
 import { AnimatePresence, motion } from "motion/react";
 import { ReactNode } from "react";
+import useMeasure from "react-use-measure";
 
 interface Props {
     open: boolean;
@@ -14,6 +15,8 @@ export function Modal({ open, setOpen, children }: Props) {
         setOpen,
     });
     const mounted = Ariakit.useStoreState(dialog, "mounted");
+
+    const [measureRef, { height }] = useMeasure();
 
     return (
         <AnimatePresence>
@@ -62,8 +65,8 @@ export function Modal({ open, setOpen, children }: Props) {
                         }}
                         className="w-full shadow-xs bg-white/60 p-2 rounded-3xl backdrop-blur-[1px] flex flex-col h-full min-h-0 origin-bottom"
                     >
-                        <div className="bg-white w-full rounded-2xl shadow-dialog overflow-y-auto divide-y divide-gray-100">
-                            {children}
+                        <div className="bg-white w-full rounded-2xl shadow-dialog overflow-hidden divide-y divide-gray-100">
+                            <div className="overflow-y-auto">{children}</div>
                         </div>
                     </motion.div>
                 </Ariakit.Dialog>
