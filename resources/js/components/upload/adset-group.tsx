@@ -173,18 +173,20 @@ export function AdSetGroup({
 
                     <div className="flex items-center relative">
                         <div className="flex items-center gap-1.5">
-                            {settings.locations.length > 0 && (
-                                <div className="font-semibold bg-gray-200/50 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5">
-                                    <i className="fa-regular fa-location-dot mr-1 text-[10px]" />
-                                    <span>
-                                        {settings.locations[0]}
-                                        {settings.locations.length > 1 &&
-                                            ` +${
-                                                settings.locations.length - 1
-                                            }`}
-                                    </span>
-                                </div>
-                            )}
+                            {settings.locations.length > 0 &&
+                                type === "ADSET" && (
+                                    <div className="font-semibold text-purple-950 bg-purple-500/10 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-purple-900/10">
+                                        <i className="fa-regular fa-location-dot mr-0.5 text-[10px]" />
+                                        <span>
+                                            {settings.locations[0]}
+                                            {settings.locations.length > 1 &&
+                                                ` +${
+                                                    settings.locations.length -
+                                                    1
+                                                }`}
+                                        </span>
+                                    </div>
+                                )}
 
                             <div className="font-semibold bg-gray-200/50 text-[12px] px-2 inline-block rounded-full leading-5">
                                 {creatives.length} creative

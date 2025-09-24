@@ -1,8 +1,8 @@
+import { Modal } from "@/components/ui/modal";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
 import useDeferred from "@/lib/hooks/use-deferred";
 import * as Ariakit from "@ariakit/react";
 import { usePage } from "@inertiajs/react";
-import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
@@ -39,68 +39,23 @@ export function AdSetGroupSettingsPopup() {
     }, [props.countries, isLoadingCountries]);
 
     const namedLocations = useMemo(() => {
-        if (!locations) return [];
+        if (!locations || !popupAdSetId) return [];
         return locations.map((value) => {
             return props.countries.find((c) => c.countryCode === value)!;
         });
-    }, [locations, props.countries]);
-
-    const dialog = Ariakit.useDialogStore({
-        open: popupAdSetId !== null,
-        setOpen: (value) => {
-            if (!value) {
-                setPopupAdSetId(null);
-            }
-        },
-    });
-    const mounted = Ariakit.useStoreState(dialog, "mounted");
+    }, [popupAdSetId, locations, props.countries]);
 
     return (
-        <AnimatePresence>
-            {mounted && (
-                <Ariakit.Dialog
-                    store={dialog}
-                    portal
-                    alwaysVisible
-                    autoFocusOnShow={false}
-                    render={(props) => (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            hidden={!open}
-                            transition={{ duration: 0.2, ease: "easeIn" }}
-                            className="fixed inset-0 bg-black/10 flex items-center justify-center"
-                        >
-                            <div {...props} />
-                        </motion.div>
-                    )}
-                    className="max-w-lg w-full flex flex-col max-h-[var(--dialog-viewport-height)] py-4 outline-none"
-                >
-                    <motion.div
-                        initial={{
-                            opacity: 0,
-                            scale: 0.98,
-                            translateY: 8,
-                            filter: "blur(1px)",
-                        }}
-                        animate={{
-                            opacity: 1,
-                            scale: 1,
-                            translateY: 0,
-                            filter: "blur(0px)",
-                        }}
-                        exit={{
-                            opacity: 0,
-                            scale: 0.98,
-                            translateY: 8,
-                            filter: "blur(1px)",
-                        }}
-                        transition={{ duration: 0.2, ease: "easeIn" }}
-                        className="w-full shadow-xs bg-white/60 p-2 rounded-3xl backdrop-blur-[1px] flex flex-col h-full min-h-0 origin-bottom"
-                    >
-                        <div className="bg-white w-full rounded-2xl shadow-dialog overflow-y-auto divide-y divide-gray-100">
-                            {/* <Ariakit.DialogHeading className="p-5 sticky top-0 bg-white border-b border-gray-100">
+        <Modal
+            open={popupAdSetId !== null}
+            setOpen={(value) => {
+                if (!value) {
+                    setPopupAdSetId(null);
+                }
+            }}
+        >
+            <div className="bg-white w-full rounded-2xl shadow-dialog overflow-y-auto divide-y divide-gray-100">
+                {/* <Ariakit.DialogHeading className="p-5 sticky top-0 bg-white border-b border-gray-100">
                                 <div>
                                     <div className="font-semibold text-base">
                                         Audience targeting
@@ -113,81 +68,74 @@ export function AdSetGroupSettingsPopup() {
                                     </div>
                                 </div>
                             </Ariakit.DialogHeading> */}
-                            <div className="p-5">
-                                <div>{popupAdSetId}</div>
-                            </div>
-                            <div className="p-5">
-                                <div>
-                                    <div className="font-semibold mb-2">
-                                        Locations
+                <div className="p-5">
+                    <div>{popupAdSetId}</div>
+                </div>
+                <div className="p-5">
+                    <div>
+                        <div className="font-semibold mb-2">Locations</div>
+
+                        {locations.length > 0 && (
+                            <div className="flex items-center flex-wrap mb-3 gap-1.5">
+                                {namedLocations.map((location) => (
+                                    <div
+                                        key={location.countryCode}
+                                        className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5"
+                                    >
+                                        <div>{location.name}</div>
+                                        <button
+                                            onClick={() => {
+                                                const filtered =
+                                                    locations.filter(
+                                                        (code) =>
+                                                            code !==
+                                                            location.countryCode
+                                                    );
+                                                updateSetting(
+                                                    popupAdSetId!,
+                                                    "locations",
+                                                    filtered
+                                                );
+                                            }}
+                                            className="cursor-pointer text-[8px] flex mt-px ml-0.5"
+                                        >
+                                            <i className="fa-solid fa-times" />
+                                        </button>
                                     </div>
-
-                                    {locations.length > 0 && (
-                                        <div className="flex items-center flex-wrap mb-3 gap-1.5">
-                                            {namedLocations.map((location) => (
-                                                <div
-                                                    key={location.countryCode}
-                                                    className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5"
-                                                >
-                                                    <div>{location.name}</div>
-                                                    <button
-                                                        onClick={() => {
-                                                            const filtered =
-                                                                locations.filter(
-                                                                    (code) =>
-                                                                        code !==
-                                                                        location.countryCode
-                                                                );
-                                                            updateSetting(
-                                                                popupAdSetId!,
-                                                                "locations",
-                                                                filtered
-                                                            );
-                                                        }}
-                                                        className="cursor-pointer text-[8px] flex mt-px ml-0.5"
-                                                    >
-                                                        <i className="fa-solid fa-times" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    <MultiCombobox
-                                        items={countries}
-                                        value={locations}
-                                        onChange={(values) =>
-                                            updateSetting(
-                                                popupAdSetId!,
-                                                "locations",
-                                                values
-                                            )
-                                        }
-                                    />
-                                </div>
+                                ))}
                             </div>
-                            <div className="p-5">
-                                <div>
-                                    <div className="font-semibold mb-2">
-                                        Age range
-                                    </div>
-                                </div>
-                            </div>
+                        )}
 
-                            <div className="p-5">
-                                <div className="flex items-center justify-end gap-2">
-                                    <Ariakit.DialogDismiss className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
-                                        Cancel
-                                    </Ariakit.DialogDismiss>
-                                    <button className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md">
-                                        Save changes
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                </Ariakit.Dialog>
-            )}
-        </AnimatePresence>
+                        <MultiCombobox
+                            items={countries}
+                            value={locations}
+                            onChange={(values) =>
+                                updateSetting(
+                                    popupAdSetId!,
+                                    "locations",
+                                    values
+                                )
+                            }
+                        />
+                    </div>
+                </div>
+                <div className="p-5">
+                    <div>
+                        <div className="font-semibold mb-2">Age range</div>
+                    </div>
+                </div>
+
+                <div className="p-5">
+                    <div className="flex items-center justify-end gap-2">
+                        <Ariakit.DialogDismiss className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                            Cancel
+                        </Ariakit.DialogDismiss>
+                        <button className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md">
+                            Save changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Modal>
     );
 }

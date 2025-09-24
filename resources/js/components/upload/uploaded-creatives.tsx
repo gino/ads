@@ -103,7 +103,7 @@ export function UploadedCreatives({ adSets }: Props) {
         string[]
     >([]);
 
-    const defaultSettings: AdSetGroupSettings = { locations: [] };
+    const defaultSettings: AdSetGroupSettings = { locations: ["US"] };
     const [selectedAdSetSettings, setSelectedAdSetSettings] =
         useState<AdSetGroupSettings>(defaultSettings);
 
