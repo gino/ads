@@ -226,14 +226,14 @@ export function AdCreative({
                                 )}
                                 <button
                                     onClick={() => {
-                                        if (
-                                            confirm(
-                                                "Are you sure you want to delete this creative? Any unsaved changes will be lost."
-                                            )
-                                        ) {
-                                            deleteFromGroup(creative.id);
-                                            deleteCreative(creative.id);
-                                        }
+                                        // if (
+                                        //     confirm(
+                                        //         "Are you sure you want to delete this creative? Any unsaved changes will be lost."
+                                        //     )
+                                        // ) {
+                                        deleteFromGroup(creative.id);
+                                        deleteCreative(creative.id);
+                                        // }
                                     }}
                                     className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"
                                 >

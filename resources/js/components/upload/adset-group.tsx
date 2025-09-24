@@ -31,8 +31,13 @@ export function AdSetGroup({
     });
 
     const { form } = useUploadContext();
-    const { updateGroupLabel, deleteGroup, cloneGroup, setSettingsPopupOpen } =
-        useUploadedCreativesContext();
+    const {
+        updateGroupLabel,
+        deleteGroup,
+        cloneGroup,
+        setPopupAdSetId,
+        getSettings,
+    } = useUploadedCreativesContext();
 
     const creatives = useMemo(() => {
         return form.data.creatives.filter((creative) => {
@@ -67,6 +72,8 @@ export function AdSetGroup({
     }, [isOver, creativeIds, active]);
 
     const isAbleToEdit = type === "ADSET" && !isExistingAdSet;
+
+    const settings = getSettings(id);
 
     return (
         <div
@@ -165,9 +172,24 @@ export function AdSetGroup({
                     </div>
 
                     <div className="flex items-center relative">
-                        <div className="font-semibold bg-gray-200/50 text-[12px] px-2 inline-block rounded-full leading-5">
-                            {creatives.length} creative
-                            {creatives.length === 1 ? "" : "s"}
+                        <div className="flex items-center gap-1.5">
+                            {settings.locations.length > 0 && (
+                                <div className="font-semibold bg-gray-200/50 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5">
+                                    <i className="fa-regular fa-location-dot mr-1 text-[10px]" />
+                                    <span>
+                                        {settings.locations[0]}
+                                        {settings.locations.length > 1 &&
+                                            ` +${
+                                                settings.locations.length - 1
+                                            }`}
+                                    </span>
+                                </div>
+                            )}
+
+                            <div className="font-semibold bg-gray-200/50 text-[12px] px-2 inline-block rounded-full leading-5">
+                                {creatives.length} creative
+                                {creatives.length === 1 ? "" : "s"}
+                            </div>
                         </div>
 
                         {type === "ADSET" && (
@@ -177,7 +199,7 @@ export function AdSetGroup({
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setSettingsPopupOpen((v) => !v);
+                                            setPopupAdSetId(id);
                                         }}
                                         className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
                                     >

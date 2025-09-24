@@ -3,11 +3,11 @@ import useDeferred from "@/lib/hooks/use-deferred";
 import * as Ariakit from "@ariakit/react";
 import { usePage } from "@inertiajs/react";
 import { AnimatePresence, motion } from "motion/react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
 export function AdSetGroupSettingsPopup() {
-    const { settingsPopupOpen: open, setSettingsPopupOpen: setOpen } =
+    const { popupAdSetId, setPopupAdSetId, getSettings, updateSetting } =
         useUploadedCreativesContext();
 
     const { props } = usePage<{ countries: App.Data.TargetingCountryData[] }>();
@@ -16,7 +16,7 @@ export function AdSetGroupSettingsPopup() {
         data: ["countries"],
     });
 
-    const [locations, setLocations] = useState<string[]>([]);
+    const { locations } = getSettings(popupAdSetId!);
 
     const countries = useMemo(() => {
         if (isLoadingCountries) return [];
@@ -39,18 +39,21 @@ export function AdSetGroupSettingsPopup() {
     }, [props.countries, isLoadingCountries]);
 
     const namedLocations = useMemo(() => {
+        if (!locations) return [];
         return locations.map((value) => {
             return props.countries.find((c) => c.countryCode === value)!;
         });
     }, [locations, props.countries]);
 
     const dialog = Ariakit.useDialogStore({
-        open,
-        setOpen: setOpen,
+        open: popupAdSetId !== null,
+        setOpen: (value) => {
+            if (!value) {
+                setPopupAdSetId(null);
+            }
+        },
     });
     const mounted = Ariakit.useStoreState(dialog, "mounted");
-
-    console.log(props.countries);
 
     return (
         <AnimatePresence>
@@ -111,7 +114,7 @@ export function AdSetGroupSettingsPopup() {
                                 </div>
                             </Ariakit.DialogHeading> */}
                             <div className="p-5">
-                                <div>todo - todo</div>
+                                <div>{popupAdSetId}</div>
                             </div>
                             <div className="p-5">
                                 <div>
@@ -129,14 +132,16 @@ export function AdSetGroupSettingsPopup() {
                                                     <div>{location.name}</div>
                                                     <button
                                                         onClick={() => {
-                                                            setLocations(
-                                                                (locations) => {
-                                                                    return locations.filter(
-                                                                        (l) =>
-                                                                            l !==
-                                                                            location.countryCode
-                                                                    );
-                                                                }
+                                                            const filtered =
+                                                                locations.filter(
+                                                                    (code) =>
+                                                                        code !==
+                                                                        location.countryCode
+                                                                );
+                                                            updateSetting(
+                                                                popupAdSetId!,
+                                                                "locations",
+                                                                filtered
                                                             );
                                                         }}
                                                         className="cursor-pointer text-[8px] flex mt-px ml-0.5"
@@ -151,8 +156,21 @@ export function AdSetGroupSettingsPopup() {
                                     <MultiCombobox
                                         items={countries}
                                         value={locations}
-                                        onChange={setLocations}
+                                        onChange={(values) =>
+                                            updateSetting(
+                                                popupAdSetId!,
+                                                "locations",
+                                                values
+                                            )
+                                        }
                                     />
+                                </div>
+                            </div>
+                            <div className="p-5">
+                                <div>
+                                    <div className="font-semibold mb-2">
+                                        Age range
+                                    </div>
                                 </div>
                             </div>
 

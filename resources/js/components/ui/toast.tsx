@@ -16,7 +16,7 @@ interface Props {
 
 function Toast({ id, contents }: Props) {
     return (
-        <div className="bg-gray-950 text-white rounded-xl px-4 py-3 w-[var(--width)] flex items-center relative antialiased font-sans">
+        <div className="shadow-base-popup bg-white rounded-xl px-4 py-3 w-[var(--width)] flex items-center relative antialiased font-sans">
             <div className="flex-1 flex items-center gap-4">
                 <div className="flex items-center justify-center h-[15px] w-[15px] rounded-full bg-white text-base">
                     <i className="fa-solid fa-check-circle text-emerald-600" />

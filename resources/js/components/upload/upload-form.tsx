@@ -231,7 +231,7 @@ export function UploadForm({
                                 <input
                                     type="text"
                                     placeholder="Use default website URL"
-                                    className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold"
+                                    className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                                 />
                             </label>
                         </div>

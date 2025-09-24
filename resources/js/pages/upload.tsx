@@ -16,10 +16,15 @@ export type UploadedCreative = {
     thumbnail: string | null;
 };
 
+export type AdSetGroupSettings = {
+    locations: string[];
+};
+
 export type AdSetGroup = {
     id: string;
     label: string;
     creatives: string[];
+    settings: AdSetGroupSettings;
 };
 
 export type UploadForm = {

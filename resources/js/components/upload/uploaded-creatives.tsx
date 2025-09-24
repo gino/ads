@@ -1,4 +1,7 @@
-import { AdSetGroup as AdSetGroupType } from "@/pages/upload";
+import {
+    AdSetGroupSettings,
+    AdSetGroup as AdSetGroupType,
+} from "@/pages/upload";
 import { Portal } from "@ariakit/react";
 import {
     DndContext,
@@ -44,8 +47,15 @@ interface UploadedCreativesContextType {
     selectedIds: string[];
     toggleSelection: (id: string, e: MouseEvent) => void;
     //
-    settingsPopupOpen: boolean;
-    setSettingsPopupOpen: Dispatch<SetStateAction<boolean>>;
+    popupAdSetId: string | null;
+    setPopupAdSetId: Dispatch<SetStateAction<string | null>>;
+    //
+    updateSetting: <T extends keyof AdSetGroupSettings>(
+        id: string,
+        key: T,
+        value: AdSetGroupSettings[T]
+    ) => void;
+    getSettings: (id: string) => AdSetGroupSettings;
 }
 
 const UploadedCreativesContext = createContext<UploadedCreativesContextType>(
@@ -88,9 +98,14 @@ export function UploadedCreatives({ adSets }: Props) {
 
         return adSets.find((adSet) => adSet.id === form.data.adSetId);
     }, [hasSelectedAdSet, form.data.adSetId, adSets]);
+
     const [selectedAdSetCreatives, setSelectedAdSetCreatives] = useState<
         string[]
     >([]);
+
+    const defaultSettings: AdSetGroupSettings = { locations: [] };
+    const [selectedAdSetSettings, setSelectedAdSetSettings] =
+        useState<AdSetGroupSettings>(defaultSettings);
 
     const getCreativesInCurrentGroup = useCallback(() => {
         if (selectedIds.length === 0) return [];
@@ -159,7 +174,11 @@ export function UploadedCreatives({ adSets }: Props) {
 
         // Clear selection
         clearSelection();
-    }, [form.data.adSetId]);
+
+        if (selectedAdSet) {
+            setSelectedAdSetSettings({ ...defaultSettings });
+        }
+    }, [form.data.adSetId, selectedAdSet, clearSelection]);
 
     const ungroupedCreatives = useMemo(() => {
         if (hasSelectedAdSet) {
@@ -204,6 +223,7 @@ export function UploadedCreatives({ adSets }: Props) {
                     id: crypto.randomUUID(),
                     label,
                     creatives: [],
+                    settings: defaultSettings,
                 },
             ]);
             // clearSelection();
@@ -221,8 +241,9 @@ export function UploadedCreatives({ adSets }: Props) {
                 const newGroup = {
                     id: crypto.randomUUID(),
                     label: `${group.label} - Copy`,
-                    // creatives: [...group.creatives], // ✅ copy creatives too?
+                    // creatives: [...group.creatives], // copy creatives too?
                     creatives: [],
+                    settings: group.settings,
                 };
 
                 const newGroups = [...groups];
@@ -321,7 +342,50 @@ export function UploadedCreatives({ adSets }: Props) {
         [setAdSetGroups]
     );
 
-    const [settingsPopupOpen, setSettingsPopupOpen] = useState(false);
+    const [popupAdSetId, setPopupAdSetId] = useState<string | null>(null);
+
+    const updateSetting = useCallback(
+        <T extends keyof AdSetGroupSettings>(
+            id: string,
+            key: T,
+            value: AdSetGroupSettings[T]
+        ) => {
+            if (hasSelectedAdSet && id === selectedAdSet!.id) {
+                setSelectedAdSetSettings((prev) => ({
+                    ...prev,
+                    [key]: value,
+                }));
+                return;
+            }
+
+            setAdSetGroups((prev) =>
+                prev.map((group) =>
+                    group.id === id
+                        ? {
+                              ...group,
+                              settings: {
+                                  ...(group.settings as AdSetGroupSettings),
+                                  [key]: value,
+                              },
+                          }
+                        : group
+                )
+            );
+        },
+        [hasSelectedAdSet, setAdSetGroups]
+    );
+
+    const getSettings = useCallback(
+        (id: string): AdSetGroupSettings => {
+            if (hasSelectedAdSet && id === selectedAdSet!.id) {
+                return selectedAdSetSettings;
+            }
+
+            const group = adSetGroups.find((g) => g.id === id);
+            return group ? group.settings : defaultSettings;
+        },
+        [hasSelectedAdSet, selectedAdSet, selectedAdSetSettings, adSetGroups]
+    );
 
     const memoizedValue = useMemo<UploadedCreativesContextType>(
         () => ({
@@ -335,8 +399,10 @@ export function UploadedCreatives({ adSets }: Props) {
             activeId,
             selectedIds,
             toggleSelection,
-            settingsPopupOpen,
-            setSettingsPopupOpen,
+            popupAdSetId,
+            setPopupAdSetId,
+            updateSetting,
+            getSettings,
         }),
         [
             adSetGroups,
@@ -349,8 +415,10 @@ export function UploadedCreatives({ adSets }: Props) {
             activeId,
             selectedIds,
             toggleSelection,
-            settingsPopupOpen,
-            setSettingsPopupOpen,
+            popupAdSetId,
+            setPopupAdSetId,
+            updateSetting,
+            getSettings,
         ]
     );
 
@@ -376,7 +444,7 @@ export function UploadedCreatives({ adSets }: Props) {
             e.preventDefault();
             clearSelection();
         },
-        { enabled: !settingsPopupOpen }
+        { enabled: popupAdSetId === null }
     );
     useHotkeys(
         ["meta+a", "ctrl+a"],
@@ -392,7 +460,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 setSelectedIds(allIds);
             }
         },
-        { enabled: !settingsPopupOpen },
+        { enabled: popupAdSetId === null },
         [form.data.creatives, selectedIds]
     );
     useHotkeys(
@@ -401,7 +469,7 @@ export function UploadedCreatives({ adSets }: Props) {
             e.preventDefault();
             extendSelection("up");
         },
-        { enabled: !settingsPopupOpen },
+        { enabled: popupAdSetId === null },
         [extendSelection]
     );
     useHotkeys(
@@ -410,7 +478,7 @@ export function UploadedCreatives({ adSets }: Props) {
             e.preventDefault();
             extendSelection("down");
         },
-        { enabled: !settingsPopupOpen },
+        { enabled: popupAdSetId === null },
         [extendSelection]
     );
 
