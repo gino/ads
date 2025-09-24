@@ -3,7 +3,7 @@ import { formatFileSize, getBase64, getVideoThumbnail } from "@/lib/utils";
 import { UploadedCreative } from "@/pages/upload";
 import { router } from "@inertiajs/react";
 import { formatDistanceToNowStrict } from "date-fns";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { Select } from "../ui/select";
 import { StatusTag } from "../ui/status-tag";
@@ -89,16 +89,26 @@ export function UploadForm({
         },
     });
 
+    const previewsRef = useRef<Set<string>>(new Set());
+
     useEffect(() => {
-        // Cleanup function to revoke all previews
-        return () => {
-            form.data.creatives.forEach((creative) => {
-                if (creative.preview) {
-                    URL.revokeObjectURL(creative.preview);
-                }
-            });
-        };
+        // Track new previews
+        form.data.creatives.forEach((creative) => {
+            if (creative.preview) {
+                previewsRef.current.add(creative.preview);
+            }
+        });
     }, [form.data.creatives]);
+
+    useEffect(() => {
+        // Revoke all previews on unmount
+        return () => {
+            previewsRef.current.forEach((preview) => {
+                URL.revokeObjectURL(preview);
+            });
+            previewsRef.current.clear();
+        };
+    }, []);
 
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
