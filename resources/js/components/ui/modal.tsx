@@ -29,7 +29,7 @@ export function Modal({ open, setOpen, children }: Props) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             hidden={!open}
-                            transition={{ duration: 0.2, ease: "easeIn" }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
                             className="fixed inset-0 bg-black/10 flex items-center justify-center"
                         >
                             <div {...props} />
@@ -56,7 +56,10 @@ export function Modal({ open, setOpen, children }: Props) {
                             translateY: 8,
                             filter: "blur(1px)",
                         }}
-                        transition={{ duration: 0.2, ease: "easeIn" }}
+                        transition={{
+                            duration: 0.2,
+                            ease: "easeInOut",
+                        }}
                         className="w-full shadow-xs bg-white/60 p-2 rounded-3xl backdrop-blur-[1px] flex flex-col h-full min-h-0 origin-bottom"
                     >
                         <div className="bg-white w-full rounded-2xl shadow-dialog overflow-y-auto divide-y divide-gray-100">

@@ -486,9 +486,9 @@ export function UploadedCreatives({ adSets }: Props) {
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
             <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
                 <div className="flex-1 min-h-0 overflow-y-auto">
-                    {!hasSelectedAdSet && (
-                        <div className="p-5 border-b border-gray-100">
-                            <div className="flex justify-end items-center gap-2">
+                    <div className="p-5 border-b border-gray-100">
+                        <div className="flex justify-end items-center gap-2">
+                            {!hasSelectedAdSet && (
                                 <button
                                     onClick={() => {
                                         createGroup(
@@ -499,16 +499,16 @@ export function UploadedCreatives({ adSets }: Props) {
                                 >
                                     Create ad set
                                 </button>
+                            )}
 
-                                <button
-                                    disabled
-                                    className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 disabled:cursor-not-allowed bg-brand ring-brand px-3.5 py-2 rounded-md disabled:opacity-50"
-                                >
-                                    Launch {form.data.creatives.length} ads
-                                </button>
-                            </div>
+                            <button
+                                disabled
+                                className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 disabled:cursor-not-allowed bg-brand ring-brand px-3.5 py-2 rounded-md disabled:opacity-50"
+                            >
+                                Launch {form.data.creatives.length} ads
+                            </button>
                         </div>
-                    )}
+                    </div>
                     <DndContext
                         sensors={sensors}
                         onDragStart={({ active }) => {

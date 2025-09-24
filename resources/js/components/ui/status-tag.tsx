@@ -33,7 +33,7 @@ export function StatusTag({ status, showLabel = true }: Props) {
         switch (status.toLowerCase()) {
             case "active": {
                 return (
-                    <div className="h-[7px] w-[7px] rounded-full bg-emerald-600" />
+                    <div className="h-[7px] w-[7px] rounded-full bg-teal-700" />
                 );
             }
             case "inactive": {
@@ -53,7 +53,7 @@ export function StatusTag({ status, showLabel = true }: Props) {
             }
             case "in_process": {
                 return (
-                    <div className="h-[8px] w-[8px] rounded-full border-2 border-emerald-600" />
+                    <div className="h-[8px] w-[8px] rounded-full border-2 border-teal-700" />
                 );
             }
             default: {
