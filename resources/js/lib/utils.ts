@@ -1,4 +1,4 @@
-export function formatFileSize(bytes: number, decimals = 1) {
+export function formatFileSize(bytes: number, decimals = 2) {
     if (bytes === 0) return "0 bytes";
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;

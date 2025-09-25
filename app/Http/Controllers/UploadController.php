@@ -11,8 +11,11 @@ use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetPixelsRequest;
 use App\Http\Integrations\Requests\GetTargetingCountries;
+use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
 class UploadController extends Controller
@@ -56,12 +59,38 @@ class UploadController extends Controller
 
     public function uploadCreative(Request $request)
     {
-        $request->validate([
+        $types = ['jpeg', 'jpg', 'png', 'gif', 'mp4', 'mov', 'avi', 'm4v'];
+        $maxSize = '4gb';
+
+        $validated = $request->validate([
             'id' => ['required', 'uuid'],
-            'name' => ['required', 'uuid'],
+            'name' => ['required', 'string'],
+            'file' => [
+                'required',
+                File::types($types)
+                    ->min('1kb')
+                    ->max($maxSize),
+            ],
         ]);
 
-        // Here we wanna upload the request file to Meta
-        dd($request->all());
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+
+        $uploadAdCreativeRequest = new UploadAdCreativeRequest(
+            $adAccount,
+            $request->file('file'),
+            $validated['name']
+        );
+
+        $response = $meta->send($uploadAdCreativeRequest);
+
+        $images = collect($response->json('images'));
+        $hash = $images->first()['hash'];
+
+        Log::debug($hash);
+
+        return redirect()->back();
     }
 }

@@ -1,6 +1,7 @@
 import { Modal } from "@/components/ui/modal";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
 import useDeferred from "@/lib/hooks/use-deferred";
+import { AdSetGroupSettings } from "@/pages/upload";
 import { useForm, usePage } from "@inertiajs/react";
 import { useEffect, useMemo } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
@@ -17,7 +18,7 @@ export function AdSetGroupSettingsPopup() {
 
     const { locations } = getSettings(popupAdSetId!);
 
-    const form = useForm({
+    const form = useForm<AdSetGroupSettings>({
         locations,
     });
 
@@ -31,7 +32,7 @@ export function AdSetGroupSettingsPopup() {
         if (isLoadingCountries) return [];
         return props.countries.map((country) => ({
             label: (
-                <div className="flex items-center text-left gap-3 flex-1 truncate mr-1">
+                <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
                     <div className="flex-1 truncate">
                         <div className="font-semibold truncate">
                             {country.name}
@@ -72,13 +73,13 @@ export function AdSetGroupSettingsPopup() {
             }}
             hideOnInteractOutside={false}
         >
-            <div className="bg-white w-full rounded-2xl shadow-dialog overflow-y-auto divide-y divide-gray-100">
+            <div className="overflow-y-auto w-full bg-white rounded-2xl divide-y divide-gray-100 shadow-dialog">
                 <div className="p-5">
                     <div>{popupAdSetId}</div>
                 </div>
                 <div className="p-5">
                     <div>
-                        <div className="font-semibold mb-2">Locations</div>
+                        <div className="mb-2 font-semibold">Locations</div>
 
                         {form.data.locations.length > 0 && (
                             <div className="flex items-center flex-wrap mb-3 gap-1.5">
@@ -120,12 +121,12 @@ export function AdSetGroupSettingsPopup() {
                 </div>
                 <div className="p-5">
                     <div>
-                        <div className="font-semibold mb-2">Age range</div>
+                        <div className="mb-2 font-semibold">Age range</div>
                     </div>
                 </div>
 
                 <div className="p-5">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex gap-2 justify-end items-center">
                         <button
                             onClick={() => {
                                 setPopupAdSetId(null);

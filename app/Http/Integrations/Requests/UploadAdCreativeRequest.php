@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Integrations\Requests;
+
+use App\Models\AdAccount;
+use Illuminate\Http\UploadedFile;
+use Saloon\Contracts\Body\HasBody;
+use Saloon\Data\MultipartValue;
+use Saloon\Enums\Method;
+use Saloon\Http\Request;
+use Saloon\Traits\Body\HasMultipartBody;
+
+// https://developers.facebook.com/docs/marketing-api/reference/ad-image/#Creating
+// https://developers.facebook.com/docs/marketing-api/reference/adgroup search for: image_hash
+
+// https://docs.saloon.dev/the-basics/request-body-data/multipart-form-body
+
+class UploadAdCreativeRequest extends Request implements HasBody
+{
+    use HasMultipartBody;
+
+    protected Method $method = Method::POST;
+
+    protected AdAccount $adAccount;
+
+    protected UploadedFile $creative;
+
+    protected string $label;
+
+    public function __construct(AdAccount $adAccount, UploadedFile $creative, string $label)
+    {
+        $this->adAccount = $adAccount;
+        $this->creative = $creative;
+        $this->label = $label;
+    }
+
+    public function resolveEndpoint(): string
+    {
+        return "{$this->adAccount->external_id}/adimages";
+    }
+
+    protected function defaultBody(): array
+    {
+        return [
+            new MultipartValue(
+                name: 'creative',
+                value: fopen($this->creative->getPathname(), 'r'),
+                filename: $this->label.'.'.$this->creative->extension()
+            ),
+        ];
+    }
+}

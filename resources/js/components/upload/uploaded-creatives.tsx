@@ -502,37 +502,78 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const submit = useCallback(() => {
+    const submit = useCallback(async () => {
         setIsLoading(true);
 
-        // We have to make a request per creative to upload it
-        for (const creative of form.data.creatives) {
-            router.post(
-                route("dashboard.upload.creative"),
-                { ...creative },
-                {
-                    onError: (error) => {
-                        console.log("YEET", error);
-                    },
-                    onFinish: () => {
-                        setIsLoading(false);
-                    },
-                }
-            );
+        const failedCreatives: {
+            creative: (typeof form.data.creatives)[number];
+            error: unknown;
+        }[] = [];
+
+        // Create ad sets
+        try {
+            // Here we will make a request with the ad sets that will actually create them and this endpoint will also return the created adset IDs - these IDs we will eventually send along with our creatives - https://chatgpt.com/c/68d520c2-a044-8326-8c2e-2fff2281f933
+            // This response should return the ID that we get from Meta, but also the ID that we know on our frontend - so we can identify which creatives belong to it
+        } finally {
+            setIsLoading(false);
         }
-    }, [
-        form.data.campaignId,
-        form.data.adSetId,
-        form.data.pixelId,
-        form.data.creatives,
-    ]);
+
+        // Upload creatives one by one (maybe we can send the ad set ids along here and attach them to each other)
+        try {
+            for (const creative of form.data.creatives) {
+                try {
+                    await new Promise<void>((resolve, reject) => {
+                        router.post(
+                            route("dashboard.upload.creative"),
+                            {
+                                id: creative.id,
+                                name: creative.label || creative.name,
+                                file: creative.file,
+                                adSetId:
+                                    adSetGroups.find((g) =>
+                                        g.creatives.includes(creative.id)
+                                    )!.id ?? null,
+                            },
+                            {
+                                onSuccess: () => resolve(),
+                                onError: (error) => reject(error),
+                                preserveScroll: true,
+                                preserveState: true,
+                            }
+                        );
+                    });
+                } catch (error) {
+                    // Track which creative failed
+                    failedCreatives.push({ creative, error });
+                }
+            }
+
+            // Reset form & ad set groups
+            form.reset();
+            setAdSetGroups([]);
+
+            const successCount =
+                form.data.creatives.length - failedCreatives.length;
+            toast({
+                contents: `${successCount} ad${
+                    successCount !== 1 ? "s" : ""
+                } launched successfully`,
+            });
+
+            if (failedCreatives.length > 0) {
+                console.error("Some uploads failed:", failedCreatives);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    }, [form, form.data.creatives, setAdSetGroups, toast]);
 
     return (
-        <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
-            <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
-                <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">
+            <div className="flex overflow-hidden flex-col h-full min-h-0 bg-white rounded-xl shadow-base">
+                <div className="overflow-y-auto flex-1 min-h-0">
                     <div className="p-5 border-b border-gray-100">
-                        <div className="flex justify-end items-center gap-2">
+                        <div className="flex gap-2 justify-end items-center">
                             {!hasSelectedAdSet && (
                                 <Button
                                     onClick={() => {
@@ -631,7 +672,7 @@ export function UploadedCreatives({ adSets }: Props) {
                                 {(hasSelectedAdSet
                                     ? true
                                     : adSetGroups.length > 0) && (
-                                    <div className="p-5 flex flex-col border-b border-gray-100">
+                                    <div className="flex flex-col p-5 border-b border-gray-100">
                                         {hasSelectedAdSet ? (
                                             <AdSetGroup
                                                 id={selectedAdSet!.id}
