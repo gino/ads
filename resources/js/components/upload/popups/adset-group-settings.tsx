@@ -1,9 +1,8 @@
 import { Modal } from "@/components/ui/modal";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
 import useDeferred from "@/lib/hooks/use-deferred";
-import * as Ariakit from "@ariakit/react";
-import { usePage } from "@inertiajs/react";
-import { useMemo } from "react";
+import { useForm, usePage } from "@inertiajs/react";
+import { useEffect, useMemo } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
 export function AdSetGroupSettingsPopup() {
@@ -17,6 +16,16 @@ export function AdSetGroupSettingsPopup() {
     });
 
     const { locations } = getSettings(popupAdSetId!);
+
+    const form = useForm({
+        locations,
+    });
+
+    useEffect(() => {
+        if (!popupAdSetId) return;
+        // Do this for every property inside of `form`
+        form.setData("locations", locations);
+    }, [popupAdSetId, locations]);
 
     const countries = useMemo(() => {
         if (isLoadingCountries) return [];
@@ -39,11 +48,19 @@ export function AdSetGroupSettingsPopup() {
     }, [props.countries, isLoadingCountries]);
 
     const namedLocations = useMemo(() => {
-        if (!locations || !popupAdSetId) return [];
-        return locations.map((value) => {
+        if (!form.data.locations || !popupAdSetId) return [];
+        return form.data.locations.map((value) => {
             return props.countries.find((c) => c.countryCode === value)!;
         });
-    }, [popupAdSetId, locations, props.countries]);
+    }, [popupAdSetId, form.data.locations, props.countries]);
+
+    const isDisabled = useMemo(() => {
+        if (form.data.locations.length > 0) {
+            return false;
+        }
+
+        return true;
+    }, [form.data.locations]);
 
     return (
         <Modal
@@ -53,21 +70,9 @@ export function AdSetGroupSettingsPopup() {
                     setPopupAdSetId(null);
                 }
             }}
+            hideOnInteractOutside={false}
         >
             <div className="bg-white w-full rounded-2xl shadow-dialog overflow-y-auto divide-y divide-gray-100">
-                {/* <Ariakit.DialogHeading className="p-5 sticky top-0 bg-white border-b border-gray-100">
-                                <div>
-                                    <div className="font-semibold text-base">
-                                        Audience targeting
-                                    </div>
-                                    <div className="font-medium text-gray-500 text-sm">
-                                        Configuring{" "}
-                                        <span className="text-black font-semibold">
-                                            {label}
-                                        </span>
-                                    </div>
-                                </div>
-                            </Ariakit.DialogHeading> */}
                 <div className="p-5">
                     <div>{popupAdSetId}</div>
                 </div>
@@ -75,7 +80,7 @@ export function AdSetGroupSettingsPopup() {
                     <div>
                         <div className="font-semibold mb-2">Locations</div>
 
-                        {locations.length > 0 && (
+                        {form.data.locations.length > 0 && (
                             <div className="flex items-center flex-wrap mb-3 gap-1.5">
                                 {namedLocations.map((location) => (
                                     <div
@@ -85,17 +90,15 @@ export function AdSetGroupSettingsPopup() {
                                         <div>{location.name}</div>
                                         <button
                                             onClick={() => {
-                                                const filtered =
-                                                    locations.filter(
-                                                        (code) =>
-                                                            code !==
-                                                            location.countryCode
-                                                    );
-                                                updateSetting(
-                                                    popupAdSetId!,
-                                                    "locations",
-                                                    filtered
-                                                );
+                                                form.setData((obj) => ({
+                                                    ...obj,
+                                                    locations:
+                                                        obj.locations.filter(
+                                                            (code) =>
+                                                                code !==
+                                                                location.countryCode
+                                                        ),
+                                                }));
                                             }}
                                             className="cursor-pointer text-[8px] flex mt-px ml-0.5"
                                         >
@@ -108,14 +111,10 @@ export function AdSetGroupSettingsPopup() {
 
                         <MultiCombobox
                             items={countries}
-                            value={locations}
-                            onChange={(values) =>
-                                updateSetting(
-                                    popupAdSetId!,
-                                    "locations",
-                                    values
-                                )
-                            }
+                            value={form.data.locations}
+                            onChange={(values) => {
+                                form.setData("locations", values);
+                            }}
                         />
                     </div>
                 </div>
@@ -127,12 +126,33 @@ export function AdSetGroupSettingsPopup() {
 
                 <div className="p-5">
                     <div className="flex items-center justify-end gap-2">
-                        <Ariakit.DialogDismiss className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
+                        <button
+                            onClick={() => {
+                                setPopupAdSetId(null);
+                                form.setData("locations", locations);
+                            }}
+                            className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
+                        >
                             Cancel
-                        </Ariakit.DialogDismiss>
-                        <Ariakit.DialogDismiss className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md">
+                        </button>
+                        <button
+                            disabled={isDisabled}
+                            onClick={() => {
+                                if (isDisabled) {
+                                    return;
+                                }
+
+                                updateSetting(
+                                    popupAdSetId!,
+                                    "locations",
+                                    form.data.locations
+                                );
+                                setPopupAdSetId(null);
+                            }}
+                            className="font-semibold cursor-pointer enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                             Save changes
-                        </Ariakit.DialogDismiss>
+                        </button>
                     </div>
                 </div>
             </div>

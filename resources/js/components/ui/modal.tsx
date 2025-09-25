@@ -1,22 +1,25 @@
 import * as Ariakit from "@ariakit/react";
 import { AnimatePresence, motion } from "motion/react";
 import { ReactNode } from "react";
-import useMeasure from "react-use-measure";
 
 interface Props {
     open: boolean;
     setOpen: (value: boolean) => void;
     children: ReactNode;
+    hideOnInteractOutside?: boolean;
 }
 
-export function Modal({ open, setOpen, children }: Props) {
+export function Modal({
+    open,
+    setOpen,
+    children,
+    hideOnInteractOutside = true,
+}: Props) {
     const dialog = Ariakit.useDialogStore({
         open,
         setOpen,
     });
     const mounted = Ariakit.useStoreState(dialog, "mounted");
-
-    const [measureRef, { height }] = useMeasure();
 
     return (
         <AnimatePresence>
@@ -25,6 +28,7 @@ export function Modal({ open, setOpen, children }: Props) {
                     store={dialog}
                     portal
                     alwaysVisible
+                    hideOnInteractOutside={hideOnInteractOutside}
                     autoFocusOnShow={false}
                     render={(props) => (
                         <motion.div

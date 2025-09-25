@@ -7,7 +7,6 @@ use App\Http\Controllers\ViewController;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 // https://developers.facebook.com/docs/marketing-api/get-started/basic-ad-creation
 
@@ -24,7 +23,10 @@ Route::middleware([
     HandleSelectedAdAccount::class,
 ])->group(function () {
     Route::get('/', [ViewController::class, 'index'])->name('dashboard.index');
+
+    // Upload
     Route::get('/upload', [UploadController::class, 'index'])->name('dashboard.upload');
+    Route::post('/upload/creative', [UploadController::class, 'uploadCreative'])->name('dashboard.upload.creative');
 
     Route::get('/campaigns', [CampaignsController::class, 'campaigns'])->name('dashboard.campaigns');
     Route::get('/campaigns/adsets', [CampaignsController::class, 'adSets'])->name('dashboard.campaigns.adSets');
@@ -37,8 +39,4 @@ Route::middleware([
 
     Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    Route::get('/test', function () {
-        return Inertia::render('test');
-    });
 });

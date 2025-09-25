@@ -1,0 +1,26 @@
+This call runs for every uploaded creative
+
+fetch("https://rfsfmvbgarfgnhxnbxgr.supabase.co/functions/v1/post-new-media", {
+  "headers": {
+    "accept": "*/*",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8,nl;q=0.7",
+    "apikey": "api key",
+    "content-type": "application/json",
+    "priority": "u=1, i",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "x-client-info": "supabase-js-web/2.49.4"
+  },
+  "referrer": "https://rapid-ads.com/",
+  "body": "{\"file\":\"data:image/png;base64,<file (i replaced the long base64 string here)>",\"fileName\":\"svraka_00459_stickman_trying_to_weightlifting_simple_in_black_a_8c868729-2bc3-4890-b7f3-f42c8092a7bf.png\",\"fileType\":\"image/png\",\"adAccountId\":\"act_1589203318418789\",\"adSetId\":\"120233160561440156\"}",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "include"
+});
+
+Response:
+{"success":true,"mediaType":"image","mediaId":"2c0bc8be86cd33260b3c218c8ee62e28","hash":"2c0bc8be86cd33260b3c218c8ee62e28","originalFileName":"svraka_00459_stickman_trying_to_weightlifting_simple_in_black_a_8c868729-2bc3-4890-b7f3-f42c8092a7bf.png","uploadId":"c8262a44-0268-4bbe-bbe7-89de51b6d70d"}

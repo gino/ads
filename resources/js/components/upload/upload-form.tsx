@@ -5,6 +5,7 @@ import { router } from "@inertiajs/react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useEffect, useMemo, useRef } from "react";
 import { useDropzone } from "react-dropzone";
+import { Button } from "../ui/button";
 import { Select } from "../ui/select";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
@@ -45,8 +46,15 @@ export function UploadForm({
     }, [form.data.campaignId, adSets]);
 
     useEffect(() => {
-        const unsubscribe = router.on("before", () => {
-            if (form.isDirty) {
+        const unsubscribe = router.on("before", (event) => {
+            const visit = event.detail.visit;
+
+            // Only trigger confirm for user-initiated navigations
+            if (
+                form.isDirty &&
+                visit.method === "get" &&
+                !visit.preserveState
+            ) {
                 return confirm(
                     "Are you sure you wish to leave the page? Any unsaved changes will be lost."
                 );
@@ -256,9 +264,10 @@ export function UploadForm({
                                     </span>
 
                                     <div>
-                                        <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
-                                            Choose from ad library
-                                        </button>
+                                        {/* https://chatgpt.com/c/68d51d71-a918-8332-b642-a591d2891117 */}
+                                        <Button>
+                                            Import from media library
+                                        </Button>
                                     </div>
                                 </div>
 
@@ -314,9 +323,7 @@ export function UploadForm({
                             </span>
 
                             <div>
-                                <button className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out">
-                                    Configure defaults
-                                </button>
+                                <Button>Configure defaults</Button>
                             </div>
                         </div>
 
@@ -362,7 +369,7 @@ export function UploadForm({
                                         Turn off promo codes
                                     </div>
                                     <div className="text-gray-500 font-medium text-xs">
-                                        Automatically disables promo codes on
+                                        Automatically disables promo codes for
                                         newly created ads.
                                     </div>
                                 </div>

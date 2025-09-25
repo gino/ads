@@ -53,4 +53,15 @@ class UploadController extends Controller
             }),
         ]);
     }
+
+    public function uploadCreative(Request $request)
+    {
+        $request->validate([
+            'id' => ['required', 'uuid'],
+            'name' => ['required', 'uuid'],
+        ]);
+
+        // Here we wanna upload the request file to Meta
+        dd($request->all());
+    }
 }

@@ -11,6 +11,7 @@ import {
     TouchSensor,
     useSensor,
 } from "@dnd-kit/core";
+import { router } from "@inertiajs/react";
 import { motion } from "motion/react";
 import {
     createContext,
@@ -24,6 +25,7 @@ import {
     useState,
 } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { Button } from "../ui/button";
 import { toast } from "../ui/toast";
 import { AdCreative } from "./ad-creative";
 import { AdSetGroup } from "./adset-group";
@@ -423,7 +425,7 @@ export function UploadedCreatives({ adSets }: Props) {
     );
 
     // const activationConstraint = { delay: 100, tolerance: 5 };
-    const activationConstraint = { distance: 1 };
+    const activationConstraint = { distance: 0.5 };
 
     const sensors = [
         useSensor(PointerSensor, {
@@ -482,6 +484,49 @@ export function UploadedCreatives({ adSets }: Props) {
         [extendSelection]
     );
 
+    const isDisabled = useMemo(() => {
+        // Disable if no creatives at all
+        if (form.data.creatives.length === 0) return true;
+
+        // Disable if any creatives are ungrouped
+        if (ungroupedCreatives.length > 0) return true;
+
+        // Disable if any ad set group is empty
+        const hasEmptyGroup = adSetGroups.some(
+            (group) => group.creatives.length === 0
+        );
+        if (hasEmptyGroup) return true;
+
+        return false; // All checks passed
+    }, [form.data.creatives, ungroupedCreatives, adSetGroups]);
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    const submit = useCallback(() => {
+        setIsLoading(true);
+
+        // We have to make a request per creative to upload it
+        for (const creative of form.data.creatives) {
+            router.post(
+                route("dashboard.upload.creative"),
+                { ...creative },
+                {
+                    onError: (error) => {
+                        console.log("YEET", error);
+                    },
+                    onFinish: () => {
+                        setIsLoading(false);
+                    },
+                }
+            );
+        }
+    }, [
+        form.data.campaignId,
+        form.data.adSetId,
+        form.data.pixelId,
+        form.data.creatives,
+    ]);
+
     return (
         <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
             <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
@@ -489,24 +534,42 @@ export function UploadedCreatives({ adSets }: Props) {
                     <div className="p-5 border-b border-gray-100">
                         <div className="flex justify-end items-center gap-2">
                             {!hasSelectedAdSet && (
-                                <button
+                                <Button
                                     onClick={() => {
                                         createGroup(
                                             `Ad set ${adSetGroups.length + 1}`
                                         );
                                     }}
-                                    className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
                                 >
                                     Create ad set
-                                </button>
+                                </Button>
                             )}
 
-                            <button
-                                disabled
-                                className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 disabled:cursor-not-allowed bg-brand ring-brand px-3.5 py-2 rounded-md disabled:opacity-50"
+                            <Button
+                                disabled={isDisabled}
+                                loading={isLoading}
+                                loadingText={`Launching ${
+                                    form.data.creatives.length
+                                } ad${
+                                    form.data.creatives.length === 1 ? "" : "s"
+                                }...`}
+                                onClick={() => {
+                                    if (isDisabled || isLoading) {
+                                        return;
+                                    }
+
+                                    submit();
+                                }}
+                                variant="primary"
                             >
-                                Launch {form.data.creatives.length} ads
-                            </button>
+                                {form.data.creatives.length > 0
+                                    ? `Launch ${form.data.creatives.length} ad${
+                                          form.data.creatives.length === 1
+                                              ? ""
+                                              : "s"
+                                      }`
+                                    : "Launch ads"}
+                            </Button>
                         </div>
                     </div>
                     <DndContext

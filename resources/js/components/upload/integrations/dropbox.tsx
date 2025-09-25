@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import DropboxChooser from "react-dropbox-chooser";
 import { allowedFileExtensions } from "../constants";
@@ -38,10 +39,12 @@ export function DropboxButton() {
             linkType="direct"
             extensions={allowedFileExtensions}
         >
-            <button className="bg-white font-semibold flex justify-center items-center gap-2 shadow-base px-3.5 py-2.5 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out w-full">
-                <i className="-ml-0.5 fa-brands fa-dropbox text-[#0061FE]" />
-                <span>Choose from Dropbox</span>
-            </button>
+            <Button
+                icon="fa-brands fa-dropbox text-[#0061FE]"
+                className="w-full py-2.5"
+            >
+                Choose from Dropbox
+            </Button>
         </DropboxChooser>
     );
 }

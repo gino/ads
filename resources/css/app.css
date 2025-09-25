@@ -38,8 +38,8 @@
     /* --color-brand: #3d5a9a; */
     --color-brand: #053057;
     /* --color-brand: #0060cc; */
-    /* --color-brand: #86a397; */
-    /* --color-brand: #b3848f; */
+    /* --color-brand: #1a1a1a; */
+    /* --color-brand: var(--color-pink-950); */
     /* --color-brand: var(--color-teal-700); */
     --color-brand-light: #f2f8ff;
     --color-brand-lighter: #f2f8ff;
@@ -75,6 +75,6 @@
 
 @layer base {
     body {
-        @apply font-sans text-sm antialiased bg-gray-50 overscroll-none;
+        @apply font-sans text-sm antialiased bg-gray-50;
     }
 }

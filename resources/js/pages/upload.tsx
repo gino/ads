@@ -3,6 +3,7 @@ import { UploadProvider } from "@/components/upload/upload-context";
 import { UploadForm } from "@/components/upload/upload-form";
 import { UploadedCreatives } from "@/components/upload/uploaded-creatives";
 import useDeferred from "@/lib/hooks/use-deferred";
+import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 
 export type UploadedCreative = {
     id: string;
@@ -52,9 +53,12 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
         data: "pixels",
     });
 
+    const { selectedAdAccountId } = useSelectedAdAccount();
+
     return (
         <Layout title="Upload">
-            <UploadProvider>
+            {/* We're resetting the full component state since a lot of data depend on this selected ad account - easiest and best way */}
+            <UploadProvider key={selectedAdAccountId}>
                 <div className="grid grid-cols-2 h-full gap-2.5">
                     <UploadForm
                         campaigns={campaigns}

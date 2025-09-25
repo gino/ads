@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import { useEffect, useRef } from "react";
 import useDrivePicker from "react-google-drive-picker";
@@ -18,7 +19,7 @@ export function GoogleDriveButton() {
     }, [authResponse?.access_token]);
 
     return (
-        <button
+        <Button
             onClick={() => {
                 openPicker({
                     clientId: import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID,
@@ -72,10 +73,10 @@ export function GoogleDriveButton() {
                     },
                 });
             }}
-            className="bg-white font-semibold flex justify-center items-center gap-2 shadow-base px-3.5 py-2.5 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
+            icon="fa-brands fa-google-drive text-[#4285F4]"
+            className="w-full py-2.5"
         >
-            <i className="-ml-0.5 fa-brands fa-google-drive text-[#4285F4]" />
-            <span>Choose from Google Drive</span>
-        </button>
+            Choose from Google Drive
+        </Button>
     );
 }

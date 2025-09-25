@@ -4,6 +4,7 @@ declare module 'ziggy-js' {
     "login": [],
     "dashboard.index": [],
     "dashboard.upload": [],
+    "dashboard.upload.creative": [],
     "dashboard.campaigns": [],
     "dashboard.campaigns.adSets": [],
     "dashboard.campaigns.ads": [],

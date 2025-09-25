@@ -1,0 +1,25 @@
+fetch("https://rfsfmvbgarfgnhxnbxgr.supabase.co/functions/v1/post-publish-ads", {
+  "headers": {
+    "accept": "*/*",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8,nl;q=0.7",
+    "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmc2ZtdmJnYXJmZ25oeG5ieGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ5MjQ3MTIsImV4cCI6MjA2MDUwMDcxMn0.p2HHGVkNzYDodlzFWkL9kqjgP85p-1uUkx4dNaCHWeI",
+    "authorization": "api key",
+    "content-type": "application/json",
+    "priority": "u=1, i",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "x-client-info": "supabase-js-web/2.49.4"
+  },
+  "referrer": "https://rapid-ads.com/",
+  "body": "{\"adAccountId\":\"act_1589203318418789\",\"ads\":[{\"name\":\"svraka_00459_stickman_trying_to_weightlifting_simple_in_black_a_8c868729-2bc3-4890-b7f3-f42c8092a7bf\",\"adsetId\":\"120233160561440156\",\"creativeId\":\"776606325151195\"}]}",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "include"
+});
+
+Response:
+{"success":true,"results":[{"name":"svraka_00459_stickman_trying_to_weightlifting_simple_in_black_a_8c868729-2bc3-4890-b7f3-f42c8092a7bf","success":true,"adId":"120233160565460156"}]}

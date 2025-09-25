@@ -13,12 +13,11 @@ export function useSelectedAdAccount() {
         return adAccounts.find((account) => account.id === selectedAdAccountId);
     }, [selectedAdAccountId])!;
 
-    const selectAdAccount = useCallback((id: string) => {
+    const selectAdAccount = useCallback(async (id: string) => {
         router.post(
             route("select-ad-account"),
             { ad_account_id: id },
             {
-                //     only: ["selectedAdAccountId", "adCampaigns"],
                 replace: true,
                 onSuccess: () => {
                     toast({ contents: "Ad account updated" });
