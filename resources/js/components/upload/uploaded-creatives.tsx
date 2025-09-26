@@ -515,6 +515,8 @@ export function UploadedCreatives({ adSets }: Props) {
     const submit = useCallback(async () => {
         setIsLoading(true);
 
+        const adSetMap = new Map<string, string>();
+
         try {
             const response = await axios.post<string[]>(
                 route("dashboard.upload.create-adsets"),
@@ -532,12 +534,14 @@ export function UploadedCreatives({ adSets }: Props) {
             const createdAdSetIds = response.data;
 
             // This works but I'm not sure how consistent this is. Since this heavily depends on the order we get the IDs returned from Meta API - is this order always the same?
-            // > The ordering of responses correspond with the ordering of operations in the request. You should process responses accordingly to determine which operations were successful and which should be retried in a subsequent operation. TLDR: We can most likely do this
+            // > The ordering of responses correspond with the ordering of operations in the request. You should process responses accordingly to determine which operations were successful and which should be retried in a subsequent operation. TLDR: We can most likely do it this way (based on indexes)
             // https://developers.facebook.com/docs/graph-api/batch-requests/#complex-batch-requests
             for (const [index, createdAdSetId] of createdAdSetIds.entries()) {
+                const adSetGroup = adSetGroups[index]!;
+                adSetMap.set(adSetGroup.id, createdAdSetId);
                 console.log({
                     a: createdAdSetId,
-                    b: adSetGroups[index],
+                    b: adSetGroup,
                 });
             }
         } catch (err) {
@@ -602,6 +606,9 @@ export function UploadedCreatives({ adSets }: Props) {
         //                         id: creative.id,
         //                         name: creative.label || creative.name,
         //                         file: creative.file,
+        //                         Get from map: adSetMap.get(adSetGroups.find((g) =>
+        //                                 g.creatives.includes(creative.id)
+        //                             )!.id)
         //                         adSetId:
         //                             adSetGroups.find((g) =>
         //                                 g.creatives.includes(creative.id)
