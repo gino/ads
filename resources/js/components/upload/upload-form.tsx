@@ -257,7 +257,7 @@ export function UploadForm({
                     </div>
                     <div className="p-5 border-t border-gray-100">
                         <div>
-                            <label>
+                            <div>
                                 <div className="flex justify-between items-center">
                                     <span className="block font-semibold">
                                         Upload creatives
@@ -307,7 +307,7 @@ export function UploadForm({
                                         </div>
                                     </div>
                                 </div>
-                            </label>
+                            </div>
 
                             <div className="grid grid-cols-2 gap-3 items-center">
                                 <DropboxButton />

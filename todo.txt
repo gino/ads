@@ -1,0 +1,6 @@
+We might wanna disable caching for:
+- Get campaigns
+- Get ad sets
+- Get ads
+
+(only have it enabled for insights - but need to look into the rate limits)

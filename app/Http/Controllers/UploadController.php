@@ -107,6 +107,7 @@ class UploadController extends Controller
             'adSets.*.settings.locations.*' => ['required', 'string'],
             //
             'campaignId' => ['required', 'string'],
+            'pixelId' => ['required', 'string'],
         ]);
 
         /** @var AdAccount $adAccount */
@@ -125,17 +126,20 @@ class UploadController extends Controller
         $createAdSetsRequest = new CreateAdSetsRequest(
             adAccount: $adAccount,
             adSets: AdSetInput::collect($adSets)->toArray(),
-            campaignId: $validated['campaignId']
+            campaignId: $validated['campaignId'],
+            pixelId: $validated['pixelId']
         );
+
+        $ids = [];
 
         $response = $meta->send($createAdSetsRequest);
 
-        Log::debug($response->json());
+        foreach ($response->json() as $createdAdSet) {
+            $data = json_decode($createdAdSet['body']);
+            $id = $data->id;
+            $ids[] = $id;
+        }
 
-        // Make CreateAdSet request with all ad sets
-        // Then we have to return all created IDs in some sort of map with our IDs (so both IDs are sent to the frontend)
-        // dd($validated);
-
-        return redirect()->back();
+        return response()->json($ids);
     }
 }

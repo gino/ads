@@ -12,6 +12,7 @@ import {
     useSensor,
 } from "@dnd-kit/core";
 import { router } from "@inertiajs/react";
+import axios from "axios";
 import { motion } from "motion/react";
 import {
     createContext,
@@ -486,6 +487,7 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const isDisabled = useMemo(() => {
         if (!form.data.campaignId) return true;
+        if (!form.data.pixelId) return true;
 
         // Disable if no creatives at all
         if (form.data.creatives.length === 0) return true;
@@ -502,6 +504,7 @@ export function UploadedCreatives({ adSets }: Props) {
         return false; // All checks passed
     }, [
         form.data.campaignId,
+        form.data.pixelId,
         form.data.creatives,
         ungroupedCreatives,
         adSetGroups,
@@ -511,6 +514,37 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const submit = useCallback(async () => {
         setIsLoading(true);
+
+        try {
+            const response = await axios.post<string[]>(
+                route("dashboard.upload.create-adsets"),
+                {
+                    adSets: adSetGroups.map((adSet) => ({
+                        id: adSet.id,
+                        label: adSet.label,
+                        settings: adSet.settings,
+                    })),
+                    campaignId: form.data.campaignId,
+                    pixelId: form.data.pixelId,
+                }
+            );
+
+            const createdAdSetIds = response.data;
+
+            // This works but I'm not sure how consistent this is. Since this heavily depends on the order we get the IDs returned from Meta API - is this order always the same?
+            for (const [index, createdAdSetId] of createdAdSetIds.entries()) {
+                console.log({
+                    a: createdAdSetId,
+                    b: adSetGroups[index],
+                });
+            }
+        } catch (err) {
+            //
+        } finally {
+            setIsLoading(false);
+        }
+
+        return;
 
         const failedCreatives: {
             creative: (typeof form.data.creatives)[number];
@@ -525,6 +559,7 @@ export function UploadedCreatives({ adSets }: Props) {
             // This response should return the ID that we get from Meta, but also the ID that we know on our frontend - so we can identify which creatives belong to it
 
             const response = await new Promise<void>((resolve, reject) => {
+                // We probably wanna just use axios here since we wont do any inertia responses either
                 router.post(
                     route("dashboard.upload.create-adsets"),
                     {
@@ -534,11 +569,11 @@ export function UploadedCreatives({ adSets }: Props) {
                             settings: adSet.settings,
                         })),
                         campaignId: form.data.campaignId,
+                        pixelId: form.data.pixelId,
                     },
                     {
                         onSuccess: (data) => resolve(data),
                         onError: (error) => reject(error),
-                        preserveScroll: true,
                         preserveState: true,
                     }
                 );
@@ -605,6 +640,7 @@ export function UploadedCreatives({ adSets }: Props) {
     }, [
         form,
         form.data.campaignId,
+        form.data.pixelId,
         form.data.creatives,
         adSetGroups,
         setAdSetGroups,

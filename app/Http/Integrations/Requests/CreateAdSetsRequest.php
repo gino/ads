@@ -24,7 +24,8 @@ class CreateAdSetsRequest extends Request implements HasBody
     public function __construct(
         public AdAccount $adAccount,
         public array $adSets,
-        public string $campaignId
+        public string $campaignId,
+        public string $pixelId
     ) {}
 
     public function resolveEndpoint(): string
@@ -42,7 +43,21 @@ class CreateAdSetsRequest extends Request implements HasBody
                 'relative_url' => "{$this->adAccount->external_id}/adsets",
                 'body' => http_build_query([
                     'name' => $adSet['label'],
+                    'status' => 'PAUSED',
                     'campaign_id' => $this->campaignId,
+                    'billing_event' => 'IMPRESSIONS',
+                    'optimization_goal' => 'OFFSITE_CONVERSIONS',
+                    'promoted_object' => [
+                        'pixel_id' => $this->pixelId,
+                        'custom_event_type' => 'PURCHASE',
+                    ],
+                    'targeting' => [
+                        'age_min' => 18,
+                        'age_max' => 65,
+                        'geo_locations' => [
+                            'countries' => $adSet['countries'],
+                        ],
+                    ],
                 ]),
             ];
         });
