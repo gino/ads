@@ -532,6 +532,8 @@ export function UploadedCreatives({ adSets }: Props) {
             const createdAdSetIds = response.data;
 
             // This works but I'm not sure how consistent this is. Since this heavily depends on the order we get the IDs returned from Meta API - is this order always the same?
+            // > The ordering of responses correspond with the ordering of operations in the request. You should process responses accordingly to determine which operations were successful and which should be retried in a subsequent operation. TLDR: We can most likely do this
+            // https://developers.facebook.com/docs/graph-api/batch-requests/#complex-batch-requests
             for (const [index, createdAdSetId] of createdAdSetIds.entries()) {
                 console.log({
                     a: createdAdSetId,
