@@ -1,20 +1,22 @@
 import { cn } from "@/lib/cn";
 import * as Ariakit from "@ariakit/react";
-import { ComponentPropsWithoutRef, useState } from "react";
+import { useState } from "react";
 
-interface Props extends ComponentPropsWithoutRef<"input"> {
-    //
+interface Props {
+    checked: boolean;
+    onChange: (value: boolean) => void;
+    className?: string;
+    disabled?: boolean;
 }
 
-export function Switch({ className, ...props }: Props) {
-    const [checked, setChecked] = useState(props.defaultChecked ?? false);
+export function Switch({ checked, onChange, disabled, className }: Props) {
     const [focusVisible, setFocusVisible] = useState(false);
 
     return (
         <label
             role="checkbox"
             data-checked={checked}
-            data-disabled={props.disabled}
+            data-disabled={disabled}
             data-focus-visible={focusVisible || undefined}
             className={cn(
                 "bg-gray-400 rounded-full relative p-1 h-5 w-8 cursor-pointer flex items-center",
@@ -25,14 +27,13 @@ export function Switch({ className, ...props }: Props) {
         >
             <Ariakit.VisuallyHidden>
                 <Ariakit.Checkbox
-                    {...props}
                     clickOnEnter
                     onFocusVisible={() => setFocusVisible(true)}
                     onBlur={() => setFocusVisible(false)}
                     onChange={(event) => {
-                        setChecked(event.target.checked);
-                        props.onChange?.(event);
+                        onChange(event.target.checked);
                     }}
+                    checked={checked}
                 />
             </Ariakit.VisuallyHidden>
 

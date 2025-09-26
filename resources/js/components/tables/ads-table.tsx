@@ -133,7 +133,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                 id: "ad",
                 accessorFn: (row) => row.name,
                 header: ({ table }) => (
-                    <div className="flex items-center gap-5">
+                    <div className="flex gap-5 items-center">
                         <Checkbox
                             aria-label="Select all rows"
                             checked={table.getIsAllRowsSelected()}
@@ -146,7 +146,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                 ),
                 // size: 300,
                 cell: ({ getValue, row }) => (
-                    <div className="flex items-center gap-5 min-w-md">
+                    <div className="flex gap-5 items-center min-w-md">
                         <Checkbox
                             aria-label="Select row"
                             checked={row.getIsSelected()}
@@ -155,7 +155,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                             onChange={row.getToggleSelectedHandler()}
                             className="flex-shrink-0"
                         />
-                        <div className="flex items-center gap-5">
+                        <div className="flex gap-5 items-center">
                             <Switch
                                 onChange={async () => {
                                     enqueue({
@@ -166,9 +166,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                                                 : "ACTIVE",
                                     });
                                 }}
-                                defaultChecked={
-                                    row.original.status === "ACTIVE"
-                                }
+                                checked={row.original.status === "ACTIVE"}
                             />
                             <div className="font-semibold">
                                 {getValue<string>()}
@@ -177,7 +175,7 @@ export function AdsTable({ isLoading, ads }: Props) {
                     </div>
                 ),
                 footer: ({ table }) => (
-                    <div className="font-semibold text-xs">
+                    <div className="text-xs font-semibold">
                         Total of {table.getRowCount()} ads{" "}
                         <i className="fa-solid fa-circle-info align-middle ml-1 text-[12px] text-gray-300" />
                     </div>

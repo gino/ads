@@ -34,6 +34,11 @@ export type UploadForm = {
     pixelId: string;
     websiteUrl: string;
     creatives: UploadedCreative[];
+    settings: {
+        paused_by_default: boolean;
+        disable_enhancements: boolean;
+        disable_promo_codes: boolean;
+    };
 };
 
 interface Props {

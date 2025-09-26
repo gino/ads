@@ -528,6 +528,13 @@ export function UploadedCreatives({ adSets }: Props) {
                     })),
                     campaignId: form.data.campaignId,
                     pixelId: form.data.pixelId,
+                    settings: {
+                        pausedByDefault: form.data.settings.paused_by_default,
+                        disableEnhancements:
+                            form.data.settings.disable_enhancements,
+                        disablePromoCodes:
+                            form.data.settings.disable_promo_codes,
+                    },
                 }
             );
 
@@ -651,6 +658,7 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.campaignId,
         form.data.pixelId,
         form.data.creatives,
+        form.data.settings.paused_by_default,
         adSetGroups,
         setAdSetGroups,
         toast,

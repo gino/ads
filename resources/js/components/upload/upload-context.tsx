@@ -24,6 +24,11 @@ export function UploadProvider({ children }: PropsWithChildren) {
         pixelId: "",
         websiteUrl: "",
         creatives: [],
+        settings: {
+            paused_by_default: true,
+            disable_enhancements: true,
+            disable_promo_codes: true,
+        },
     });
 
     const deleteCreative = useCallback(

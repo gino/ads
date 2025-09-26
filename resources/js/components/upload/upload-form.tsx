@@ -329,7 +329,18 @@ export function UploadForm({
 
                         <div className="rounded-lg divide-y divide-gray-200 ring ring-gray-200">
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
-                                <Switch className="mt-1" />
+                                <Switch
+                                    checked={
+                                        form.data.settings.paused_by_default
+                                    }
+                                    onChange={(value) => {
+                                        form.setData(
+                                            "settings.paused_by_default",
+                                            value
+                                        );
+                                    }}
+                                    className="mt-1"
+                                />
                                 <div className="flex-1">
                                     <div className="mb-1 font-semibold">
                                         Default ads to paused
@@ -346,7 +357,18 @@ export function UploadForm({
                                 </div>
                             </label>
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
-                                <Switch className="mt-1" />
+                                <Switch
+                                    checked={
+                                        form.data.settings.disable_enhancements
+                                    }
+                                    onChange={(value) => {
+                                        form.setData(
+                                            "settings.disable_enhancements",
+                                            value
+                                        );
+                                    }}
+                                    className="mt-1"
+                                />
                                 <div className="flex-1">
                                     <div className="mb-1 font-semibold">
                                         Disable all Advantage+ enhancements
@@ -363,7 +385,18 @@ export function UploadForm({
                                 </div>
                             </label>
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
-                                <Switch className="mt-1" />
+                                <Switch
+                                    checked={
+                                        form.data.settings.disable_promo_codes
+                                    }
+                                    onChange={(value) => {
+                                        form.setData(
+                                            "settings.disable_promo_codes",
+                                            value
+                                        );
+                                    }}
+                                    className="mt-1"
+                                />
                                 <div className="flex-1">
                                     <div className="mb-1 font-semibold">
                                         Turn off promo codes

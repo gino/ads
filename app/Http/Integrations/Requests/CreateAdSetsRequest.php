@@ -2,7 +2,7 @@
 
 namespace App\Http\Integrations\Requests;
 
-use App\Http\Integrations\Requests\Data\AdSetInput;
+use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Models\AdAccount;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
@@ -25,7 +25,9 @@ class CreateAdSetsRequest extends Request implements HasBody
         public AdAccount $adAccount,
         public array $adSets,
         public string $campaignId,
-        public string $pixelId
+        public string $pixelId,
+        //
+        public bool $pausedByDefault
     ) {}
 
     public function resolveEndpoint(): string

@@ -8,11 +8,11 @@ use App\Data\PixelData;
 use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\CreateAdSetsRequest;
-use App\Http\Integrations\Requests\Data\AdSetInput;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetPixelsRequest;
 use App\Http\Integrations\Requests\GetTargetingCountries;
+use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
@@ -59,6 +59,57 @@ class UploadController extends Controller
         ]);
     }
 
+    public function createAdSets(Request $request)
+    {
+        $validated = $request->validate([
+            'adSets' => ['required', 'array'],
+            'adSets.*.id' => ['required', 'string'],
+            'adSets.*.label' => ['required', 'string'],
+            //
+            'adSets.*.settings.locations' => ['required', 'array'],
+            'adSets.*.settings.locations.*' => ['required', 'string'],
+            //
+            'campaignId' => ['required', 'string'],
+            'pixelId' => ['required', 'string'],
+            //
+            'settings.pausedByDefault' => ['required', 'boolean'],
+            'settings.disableEnhancements' => ['required', 'boolean'],
+            'settings.disablePromoCodes' => ['required', 'boolean'],
+        ]);
+
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+
+        $adSets = collect($validated['adSets'])->map(function ($adSet) {
+            return [
+                'label' => $adSet['label'],
+                'countries' => $adSet['settings']['locations'],
+            ];
+        });
+
+        $createAdSetsRequest = new CreateAdSetsRequest(
+            adAccount: $adAccount,
+            adSets: AdSetInput::collect($adSets)->toArray(),
+            campaignId: $validated['campaignId'],
+            pixelId: $validated['pixelId'],
+            //
+            pausedByDefault: $validated['settings']['pausedByDefault']
+        );
+
+        $response = $meta->send($createAdSetsRequest);
+
+        $ids = [];
+        foreach ($response->json() as $createdAdSet) {
+            $data = json_decode($createdAdSet['body']);
+            $id = $data->id;
+            $ids[] = $id;
+        }
+
+        return response()->json($ids);
+    }
+
     public function uploadCreative(Request $request)
     {
         $types = ['jpeg', 'jpg', 'png', 'gif', 'mp4', 'mov', 'avi', 'm4v'];
@@ -73,6 +124,7 @@ class UploadController extends Controller
                     ->min('1kb')
                     ->max($maxSize),
             ],
+            'adSetId' => ['required', 'string'],
         ]);
 
         /** @var AdAccount $adAccount */
@@ -91,55 +143,12 @@ class UploadController extends Controller
         $images = collect($response->json('images'));
         $hash = $images->first()['hash'];
 
+        // Create ad creative and attach it to adSetId using hash
         Log::debug($hash);
 
+        // https://developers.facebook.com/docs/marketing-api/reference/adgroup#Creating
+        // new CreateAdSetsRequest;
+
         return redirect()->back();
-    }
-
-    public function createAdSets(Request $request)
-    {
-        $validated = $request->validate([
-            'adSets' => ['required', 'array'],
-            'adSets.*.id' => ['required', 'string'],
-            'adSets.*.label' => ['required', 'string'],
-            //
-            'adSets.*.settings.locations' => ['required', 'array'],
-            'adSets.*.settings.locations.*' => ['required', 'string'],
-            //
-            'campaignId' => ['required', 'string'],
-            'pixelId' => ['required', 'string'],
-        ]);
-
-        /** @var AdAccount $adAccount */
-        $adAccount = $request->adAccount();
-
-        $meta = new MetaConnector($request->user()->connection);
-
-        $adSets = collect($validated['adSets'])->map(function ($adSet) {
-            return [
-                'id' => $adSet['id'],
-                'label' => $adSet['label'],
-                'countries' => $adSet['settings']['locations'],
-            ];
-        });
-
-        $createAdSetsRequest = new CreateAdSetsRequest(
-            adAccount: $adAccount,
-            adSets: AdSetInput::collect($adSets)->toArray(),
-            campaignId: $validated['campaignId'],
-            pixelId: $validated['pixelId']
-        );
-
-        $ids = [];
-
-        $response = $meta->send($createAdSetsRequest);
-
-        foreach ($response->json() as $createdAdSet) {
-            $data = json_decode($createdAdSet['body']);
-            $id = $data->id;
-            $ids[] = $id;
-        }
-
-        return response()->json($ids);
     }
 }
