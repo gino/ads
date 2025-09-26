@@ -93,4 +93,20 @@ class UploadController extends Controller
 
         return redirect()->back();
     }
+
+    public function createAdSets(Request $request)
+    {
+        $validated = $request->validate([
+            'adSets' => ['required', 'array'],
+            'adSets.*.id' => ['required', 'string'],
+            'adSets.*.label' => ['required', 'string'],
+            //
+            'adSets.*.settings.locations' => ['required', 'array'],
+            'adSets.*.settings.locations.*' => ['required', 'string'],
+        ]);
+
+        dd($validated);
+
+        return redirect()->back();
+    }
 }

@@ -510,16 +510,44 @@ export function UploadedCreatives({ adSets }: Props) {
             error: unknown;
         }[] = [];
 
+        let createdAdSets: string[] = [];
+
         // Create ad sets
         try {
             // Here we will make a request with the ad sets that will actually create them and this endpoint will also return the created adset IDs - these IDs we will eventually send along with our creatives - https://chatgpt.com/c/68d520c2-a044-8326-8c2e-2fff2281f933
             // This response should return the ID that we get from Meta, but also the ID that we know on our frontend - so we can identify which creatives belong to it
+
+            const response = await new Promise<void>((resolve, reject) => {
+                router.post(
+                    route("dashboard.upload.create-adsets"),
+                    {
+                        adSets: adSetGroups.map((adSet) => ({
+                            id: adSet.id,
+                            label: adSet.label,
+                            settings: adSet.settings,
+                        })),
+                    },
+                    {
+                        onSuccess: (data) => resolve(data),
+                        onError: (error) => reject(error),
+                        preserveScroll: true,
+                        preserveState: true,
+                    }
+                );
+            });
+
+            console.log(response);
+        } catch (error) {
+            console.error("Ad set creation failed:", error);
+            setIsLoading(false);
+            return;
         } finally {
             setIsLoading(false);
         }
 
         // Upload creatives one by one (maybe we can send the ad set ids along here and attach them to each other)
         try {
+            console.log(`Uploading ${form.data.creatives.length} creatives...`);
             for (const creative of form.data.creatives) {
                 try {
                     await new Promise<void>((resolve, reject) => {
@@ -566,7 +594,7 @@ export function UploadedCreatives({ adSets }: Props) {
         } finally {
             setIsLoading(false);
         }
-    }, [form, form.data.creatives, setAdSetGroups, toast]);
+    }, [form, form.data.creatives, adSetGroups, setAdSetGroups, toast]);
 
     return (
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">

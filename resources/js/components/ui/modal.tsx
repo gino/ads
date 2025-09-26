@@ -23,7 +23,7 @@ export function Modal({
 
     return (
         <AnimatePresence>
-            {mounted && (
+            {open && (
                 <Ariakit.Dialog
                     store={dialog}
                     portal
@@ -37,7 +37,7 @@ export function Modal({
                             exit={{ opacity: 0 }}
                             hidden={!open}
                             transition={{ duration: 0.2, ease: "easeInOut" }}
-                            className="fixed inset-0 bg-black/10 flex items-center justify-center"
+                            className="flex fixed inset-0 justify-center items-center bg-black/10"
                         >
                             <div {...props} />
                         </motion.div>
@@ -69,8 +69,8 @@ export function Modal({
                         }}
                         className="w-full shadow-xs bg-white/60 p-2 rounded-3xl backdrop-blur-[1px] flex flex-col h-full min-h-0 origin-bottom"
                     >
-                        <div className="bg-white w-full rounded-2xl shadow-dialog overflow-hidden divide-y divide-gray-100">
-                            <div className="overflow-y-auto">{children}</div>
+                        <div className="overflow-y-auto w-full bg-white rounded-2xl divide-y divide-gray-100 shadow-dialog">
+                            {children}
                         </div>
                     </motion.div>
                 </Ariakit.Dialog>
