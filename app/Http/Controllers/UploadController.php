@@ -7,6 +7,8 @@ use App\Data\AdSetData;
 use App\Data\PixelData;
 use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
+use App\Http\Integrations\Requests\CreateAdSetsRequest;
+use App\Http\Integrations\Requests\Data\AdSetInput;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetPixelsRequest;
@@ -103,9 +105,36 @@ class UploadController extends Controller
             //
             'adSets.*.settings.locations' => ['required', 'array'],
             'adSets.*.settings.locations.*' => ['required', 'string'],
+            //
+            'campaignId' => ['required', 'string'],
         ]);
 
-        dd($validated);
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+
+        $adSets = collect($validated['adSets'])->map(function ($adSet) {
+            return [
+                'id' => $adSet['id'],
+                'label' => $adSet['label'],
+                'countries' => $adSet['settings']['locations'],
+            ];
+        });
+
+        $createAdSetsRequest = new CreateAdSetsRequest(
+            adAccount: $adAccount,
+            adSets: AdSetInput::collect($adSets)->toArray(),
+            campaignId: $validated['campaignId']
+        );
+
+        $response = $meta->send($createAdSetsRequest);
+
+        Log::debug($response->json());
+
+        // Make CreateAdSet request with all ad sets
+        // Then we have to return all created IDs in some sort of map with our IDs (so both IDs are sent to the frontend)
+        // dd($validated);
 
         return redirect()->back();
     }

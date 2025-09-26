@@ -485,6 +485,8 @@ export function UploadedCreatives({ adSets }: Props) {
     );
 
     const isDisabled = useMemo(() => {
+        if (!form.data.campaignId) return true;
+
         // Disable if no creatives at all
         if (form.data.creatives.length === 0) return true;
 
@@ -498,7 +500,12 @@ export function UploadedCreatives({ adSets }: Props) {
         if (hasEmptyGroup) return true;
 
         return false; // All checks passed
-    }, [form.data.creatives, ungroupedCreatives, adSetGroups]);
+    }, [
+        form.data.campaignId,
+        form.data.creatives,
+        ungroupedCreatives,
+        adSetGroups,
+    ]);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -526,6 +533,7 @@ export function UploadedCreatives({ adSets }: Props) {
                             label: adSet.label,
                             settings: adSet.settings,
                         })),
+                        campaignId: form.data.campaignId,
                     },
                     {
                         onSuccess: (data) => resolve(data),
@@ -546,55 +554,62 @@ export function UploadedCreatives({ adSets }: Props) {
         }
 
         // Upload creatives one by one (maybe we can send the ad set ids along here and attach them to each other)
-        try {
-            console.log(`Uploading ${form.data.creatives.length} creatives...`);
-            for (const creative of form.data.creatives) {
-                try {
-                    await new Promise<void>((resolve, reject) => {
-                        router.post(
-                            route("dashboard.upload.creative"),
-                            {
-                                id: creative.id,
-                                name: creative.label || creative.name,
-                                file: creative.file,
-                                adSetId:
-                                    adSetGroups.find((g) =>
-                                        g.creatives.includes(creative.id)
-                                    )!.id ?? null,
-                            },
-                            {
-                                onSuccess: () => resolve(),
-                                onError: (error) => reject(error),
-                                preserveScroll: true,
-                                preserveState: true,
-                            }
-                        );
-                    });
-                } catch (error) {
-                    // Track which creative failed
-                    failedCreatives.push({ creative, error });
-                }
-            }
+        // try {
+        //     console.log(`Uploading ${form.data.creatives.length} creatives...`);
+        //     for (const creative of form.data.creatives) {
+        //         try {
+        //             await new Promise<void>((resolve, reject) => {
+        //                 router.post(
+        //                     route("dashboard.upload.creative"),
+        //                     {
+        //                         id: creative.id,
+        //                         name: creative.label || creative.name,
+        //                         file: creative.file,
+        //                         adSetId:
+        //                             adSetGroups.find((g) =>
+        //                                 g.creatives.includes(creative.id)
+        //                             )!.id ?? null,
+        //                     },
+        //                     {
+        //                         onSuccess: () => resolve(),
+        //                         onError: (error) => reject(error),
+        //                         preserveScroll: true,
+        //                         preserveState: true,
+        //                     }
+        //                 );
+        //             });
+        //         } catch (error) {
+        //             // Track which creative failed
+        //             failedCreatives.push({ creative, error });
+        //         }
+        //     }
 
-            // Reset form & ad set groups
-            form.reset();
-            setAdSetGroups([]);
+        //     // Reset form & ad set groups
+        //     form.reset();
+        //     setAdSetGroups([]);
 
-            const successCount =
-                form.data.creatives.length - failedCreatives.length;
-            toast({
-                contents: `${successCount} ad${
-                    successCount !== 1 ? "s" : ""
-                } launched successfully`,
-            });
+        //     const successCount =
+        //         form.data.creatives.length - failedCreatives.length;
+        //     toast({
+        //         contents: `${successCount} ad${
+        //             successCount !== 1 ? "s" : ""
+        //         } launched successfully`,
+        //     });
 
-            if (failedCreatives.length > 0) {
-                console.error("Some uploads failed:", failedCreatives);
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    }, [form, form.data.creatives, adSetGroups, setAdSetGroups, toast]);
+        //     if (failedCreatives.length > 0) {
+        //         console.error("Some uploads failed:", failedCreatives);
+        //     }
+        // } finally {
+        //     setIsLoading(false);
+        // }
+    }, [
+        form,
+        form.data.campaignId,
+        form.data.creatives,
+        adSetGroups,
+        setAdSetGroups,
+        toast,
+    ]);
 
     return (
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">

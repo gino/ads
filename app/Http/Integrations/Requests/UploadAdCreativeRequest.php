@@ -11,9 +11,6 @@ use Saloon\Http\Request;
 use Saloon\Traits\Body\HasMultipartBody;
 
 // https://developers.facebook.com/docs/marketing-api/reference/ad-image/#Creating
-// https://developers.facebook.com/docs/marketing-api/reference/adgroup search for: image_hash
-
-// https://docs.saloon.dev/the-basics/request-body-data/multipart-form-body
 
 class UploadAdCreativeRequest extends Request implements HasBody
 {

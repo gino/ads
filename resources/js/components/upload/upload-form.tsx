@@ -36,14 +36,14 @@ export function UploadForm({
     const { form } = useUploadContext();
 
     const filteredAdSets = useMemo(() => {
-        if (!form.data.campaignId) {
+        if (!form.data.campaignId || isLoadingAdSets) {
             return [];
         }
 
         return adSets.filter(
             (adSet) => adSet.campaignId === form.data.campaignId
         );
-    }, [form.data.campaignId, adSets]);
+    }, [isLoadingAdSets, form.data.campaignId, adSets]);
 
     useEffect(() => {
         const unsubscribe = router.on("before", (event) => {
@@ -120,9 +120,9 @@ export function UploadForm({
     }, []);
 
     return (
-        <div className="min-w-0 p-1 bg-gray-100 rounded-2xl shrink-0 ring-inset ring-1 ring-gray-200/30 h-full min-h-0">
-            <div className="bg-white shadow-base rounded-xl overflow-hidden h-full flex flex-col min-h-0">
-                <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">
+            <div className="flex overflow-hidden flex-col h-full min-h-0 bg-white rounded-xl shadow-base">
+                <div className="overflow-y-auto flex-1 min-h-0">
                     <div className="p-5">
                         <div>
                             <Select
@@ -139,8 +139,8 @@ export function UploadForm({
                                         ? campaigns.map((campaign) => ({
                                               value: campaign.id,
                                               label: (
-                                                  <div className="flex flex-1 text-left mr-1 items-center gap-3 truncate">
-                                                      <div className="flex-1 flex items-center gap-3 truncate">
+                                                  <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                                      <div className="flex flex-1 gap-3 items-center truncate">
                                                           <StatusTag
                                                               status={
                                                                   campaign.effectiveStatus
@@ -169,7 +169,7 @@ export function UploadForm({
                             <Select
                                 label="Ad set"
                                 placeholder={
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex gap-3 items-center">
                                         <div className="h-[8px] w-[8px] rounded-full border-2 border-gray-300" />
                                         <div>Create new ad sets</div>
                                     </div>
@@ -184,7 +184,7 @@ export function UploadForm({
                                         ? filteredAdSets.map((adSet) => ({
                                               value: adSet.id,
                                               label: (
-                                                  <div className="flex items-center gap-3">
+                                                  <div className="flex gap-3 items-center">
                                                       <StatusTag
                                                           status={adSet.status}
                                                           showLabel={false}
@@ -216,7 +216,7 @@ export function UploadForm({
                                               value: pixel.id,
                                               disabled: pixel.isUnavailable,
                                               label: (
-                                                  <div className="flex items-center text-left gap-3 flex-1 truncate mr-1">
+                                                  <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
                                                       <div className="flex-1 truncate">
                                                           <div className="font-semibold truncate">
                                                               {pixel.name}
@@ -258,7 +258,7 @@ export function UploadForm({
                     <div className="p-5 border-t border-gray-100">
                         <div>
                             <label>
-                                <div className="flex items-center justify-between">
+                                <div className="flex justify-between items-center">
                                     <span className="block font-semibold">
                                         Upload creatives
                                     </span>
@@ -298,7 +298,7 @@ export function UploadForm({
                                                 ? "Drop your creatives here"
                                                 : "Click to upload creatives"}
                                         </div>
-                                        <div className="text-xs font-medium text-gray-500 mb-3">
+                                        <div className="mb-3 text-xs font-medium text-gray-500">
                                             or drag and drop your creatives here
                                         </div>
                                         <div className="text-[12px] font-medium text-gray-400">
@@ -309,7 +309,7 @@ export function UploadForm({
                                 </div>
                             </label>
 
-                            <div className="grid grid-cols-2 items-center gap-3">
+                            <div className="grid grid-cols-2 gap-3 items-center">
                                 <DropboxButton />
                                 <GoogleDriveButton />
                             </div>
@@ -317,7 +317,7 @@ export function UploadForm({
                     </div>
 
                     <div className="p-5 border-t border-gray-100">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex justify-between items-center mb-3">
                             <span className="block font-semibold">
                                 Advanced settings
                             </span>
@@ -327,14 +327,14 @@ export function UploadForm({
                             </div>
                         </div>
 
-                        <div className="ring ring-gray-200 rounded-lg divide-y divide-gray-200">
+                        <div className="rounded-lg divide-y divide-gray-200 ring ring-gray-200">
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
                                 <Switch className="mt-1" />
                                 <div className="flex-1">
-                                    <div className="font-semibold mb-1">
+                                    <div className="mb-1 font-semibold">
                                         Default ads to paused
                                     </div>
-                                    <div className="text-gray-500 font-medium text-xs">
+                                    <div className="text-xs font-medium text-gray-500">
                                         Newly created ads are paused by default,
                                         instead of the active state.
                                     </div>
@@ -348,10 +348,10 @@ export function UploadForm({
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
                                 <Switch className="mt-1" />
                                 <div className="flex-1">
-                                    <div className="font-semibold mb-1">
+                                    <div className="mb-1 font-semibold">
                                         Disable all Advantage+ enhancements
                                     </div>
-                                    <div className="text-gray-500 font-medium text-xs">
+                                    <div className="text-xs font-medium text-gray-500">
                                         Turns off all automated Advantage+
                                         optimizations for newly created ads.
                                     </div>
@@ -365,10 +365,10 @@ export function UploadForm({
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
                                 <Switch className="mt-1" />
                                 <div className="flex-1">
-                                    <div className="font-semibold mb-1">
+                                    <div className="mb-1 font-semibold">
                                         Turn off promo codes
                                     </div>
-                                    <div className="text-gray-500 font-medium text-xs">
+                                    <div className="text-xs font-medium text-gray-500">
                                         Automatically disables promo codes for
                                         newly created ads.
                                     </div>
