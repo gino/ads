@@ -11,7 +11,6 @@ import {
     TouchSensor,
     useSensor,
 } from "@dnd-kit/core";
-import { router } from "@inertiajs/react";
 import axios from "axios";
 import { motion } from "motion/react";
 import {
@@ -510,14 +509,16 @@ export function UploadedCreatives({ adSets }: Props) {
         adSetGroups,
     ]);
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [loadingState, setLoadingState] = useState<
+        "CREATING_ADSETS" | "UPLOADING_CREATIVES" | null
+    >(null);
 
     const submit = useCallback(async () => {
-        setIsLoading(true);
-
         const adSetMap = new Map<string, string>();
 
+        // Create adsets
         try {
+            setLoadingState("CREATING_ADSETS");
             const response = await axios.post<string[]>(
                 route("dashboard.upload.create-adsets"),
                 {
@@ -552,107 +553,38 @@ export function UploadedCreatives({ adSets }: Props) {
                 });
             }
         } catch (err) {
-            //
-        } finally {
-            setIsLoading(false);
+            setLoadingState(null);
         }
 
-        return;
-
-        const failedCreatives: {
-            creative: (typeof form.data.creatives)[number];
-            error: unknown;
-        }[] = [];
-
-        let createdAdSets: string[] = [];
-
-        // Create ad sets
+        // Create creatives
         try {
-            // Here we will make a request with the ad sets that will actually create them and this endpoint will also return the created adset IDs - these IDs we will eventually send along with our creatives - https://chatgpt.com/c/68d520c2-a044-8326-8c2e-2fff2281f933
-            // This response should return the ID that we get from Meta, but also the ID that we know on our frontend - so we can identify which creatives belong to it
+            for (const creative of form.data.creatives) {
+                const adSetGroup = adSetGroups.find((group) => {
+                    return group.creatives.includes(creative.id);
+                })!;
+                const adSetId = adSetMap.get(adSetGroup.id)!;
 
-            const response = await new Promise<void>((resolve, reject) => {
-                // We probably wanna just use axios here since we wont do any inertia responses either
-                router.post(
-                    route("dashboard.upload.create-adsets"),
+                const formData = new FormData();
+                formData.append("id", creative.id);
+                formData.append("name", creative.label || creative.name);
+                formData.append("file", creative.file);
+                formData.append("adSetId", adSetId);
+
+                const response = await axios.post(
+                    route("dashboard.upload.creative"),
+                    formData,
                     {
-                        adSets: adSetGroups.map((adSet) => ({
-                            id: adSet.id,
-                            label: adSet.label,
-                            settings: adSet.settings,
-                        })),
-                        campaignId: form.data.campaignId,
-                        pixelId: form.data.pixelId,
-                    },
-                    {
-                        onSuccess: (data) => resolve(data),
-                        onError: (error) => reject(error),
-                        preserveState: true,
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
                     }
                 );
-            });
 
-            console.log(response);
-        } catch (error) {
-            console.error("Ad set creation failed:", error);
-            setIsLoading(false);
-            return;
-        } finally {
-            setIsLoading(false);
+                console.log(response.data);
+            }
+        } catch (err) {
+            setLoadingState(null);
         }
-
-        // Upload creatives one by one (maybe we can send the ad set ids along here and attach them to each other)
-        // try {
-        //     console.log(`Uploading ${form.data.creatives.length} creatives...`);
-        //     for (const creative of form.data.creatives) {
-        //         try {
-        //             await new Promise<void>((resolve, reject) => {
-        //                 router.post(
-        //                     route("dashboard.upload.creative"),
-        //                     {
-        //                         id: creative.id,
-        //                         name: creative.label || creative.name,
-        //                         file: creative.file,
-        //                         Get from map: adSetMap.get(adSetGroups.find((g) =>
-        //                                 g.creatives.includes(creative.id)
-        //                             )!.id)
-        //                         adSetId:
-        //                             adSetGroups.find((g) =>
-        //                                 g.creatives.includes(creative.id)
-        //                             )!.id ?? null,
-        //                     },
-        //                     {
-        //                         onSuccess: () => resolve(),
-        //                         onError: (error) => reject(error),
-        //                         preserveScroll: true,
-        //                         preserveState: true,
-        //                     }
-        //                 );
-        //             });
-        //         } catch (error) {
-        //             // Track which creative failed
-        //             failedCreatives.push({ creative, error });
-        //         }
-        //     }
-
-        //     // Reset form & ad set groups
-        //     form.reset();
-        //     setAdSetGroups([]);
-
-        //     const successCount =
-        //         form.data.creatives.length - failedCreatives.length;
-        //     toast({
-        //         contents: `${successCount} ad${
-        //             successCount !== 1 ? "s" : ""
-        //         } launched successfully`,
-        //     });
-
-        //     if (failedCreatives.length > 0) {
-        //         console.error("Some uploads failed:", failedCreatives);
-        //     }
-        // } finally {
-        //     setIsLoading(false);
-        // }
     }, [
         form,
         form.data.campaignId,
@@ -684,14 +616,14 @@ export function UploadedCreatives({ adSets }: Props) {
 
                             <Button
                                 disabled={isDisabled}
-                                loading={isLoading}
+                                loading={loadingState !== null}
                                 loadingText={`Launching ${
                                     form.data.creatives.length
                                 } ad${
                                     form.data.creatives.length === 1 ? "" : "s"
                                 }...`}
                                 onClick={() => {
-                                    if (isDisabled || isLoading) {
+                                    if (isDisabled || loadingState !== null) {
                                         return;
                                     }
 

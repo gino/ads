@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('currency');
             $table->integer('status');
+            $table->string('business_id')->nullable();
             $table->foreignUlid('connection_id')->index();
             $table->timestamps();
             $table->softDeletes();

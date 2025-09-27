@@ -25,6 +25,7 @@ class GetAdAccountsRequest extends Request implements Paginatable
             'name',
             'account_status',
             'currency',
+            'business{id}',
         ];
 
         return [

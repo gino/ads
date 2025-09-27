@@ -16,6 +16,7 @@ class AdAccount extends Model
         'currency',
         'connection_id',
         'status',
+        'business_id',
     ];
 
     public function connection()

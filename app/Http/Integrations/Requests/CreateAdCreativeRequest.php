@@ -8,9 +8,9 @@ use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
-// https://developers.facebook.com/docs/marketing-api/reference/adgroup#syncadcreation
+// https://developers.facebook.com/docs/marketing-api/reference/ad-creative#Creating
 
-class CreateAdsRequest extends Request implements HasBody
+class CreateAdCreativeRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
@@ -18,18 +18,20 @@ class CreateAdsRequest extends Request implements HasBody
 
     public function __construct(
         public AdAccount $adAccount,
-        public string $creativeId
+        public string $name,
+        public string $hash,
     ) {}
 
     public function resolveEndpoint(): string
     {
-        return "{$this->adAccount->external_id}/ads";
+        return "{$this->adAccount->external_id}/adcreatives";
     }
 
     protected function defaultBody(): array
     {
         return [
-            //
+            'name' => $this->name,
+            'object_story_spec' => [],
         ];
     }
 }

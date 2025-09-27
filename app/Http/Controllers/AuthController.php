@@ -19,7 +19,7 @@ class AuthController extends Controller
     {
         // https://developers.facebook.com/docs/permissions/
         $scopes = [
-            // 'business_management',
+            'business_management',
             'pages_show_list',
             'pages_read_engagement',
             'ads_management',
@@ -76,6 +76,7 @@ class AuthController extends Controller
             'name',
             'currency',
             'status',
+            'business_id',
         ]);
 
         Auth::login($user);
@@ -110,6 +111,7 @@ class AuthController extends Controller
                 'currency' => $entry['currency'],
                 'status' => $entry['account_status'],
                 'connection_id' => $connection->id,
+                'business_id' => $entry['business']['id'] ?? null,
             ];
         });
 

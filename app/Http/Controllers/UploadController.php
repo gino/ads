@@ -7,6 +7,7 @@ use App\Data\AdSetData;
 use App\Data\PixelData;
 use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
+use App\Http\Integrations\Requests\CreateAdCreativeRequest;
 use App\Http\Integrations\Requests\CreateAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
@@ -16,7 +17,6 @@ use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
@@ -132,23 +132,26 @@ class UploadController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
+        $creativeName = $validated['name'];
+
         $uploadAdCreativeRequest = new UploadAdCreativeRequest(
             $adAccount,
             $request->file('file'),
-            $validated['name']
+            $creativeName
         );
 
-        $response = $meta->send($uploadAdCreativeRequest);
+        // $uploadResponse = $meta->send($uploadAdCreativeRequest);
 
-        $images = collect($response->json('images'));
-        $hash = $images->first()['hash'];
+        // $images = collect($uploadResponse->json('images'));
+        // $hash = $images->first()['hash'];
 
-        // Create ad creative and attach it to adSetId using hash
-        Log::debug($hash);
+        $createAdCreativeRequest = new CreateAdCreativeRequest(
+            $adAccount,
+            $creativeName,
+            'some hash'
+        );
+        $createdAdCreativeResponse = $meta->send($createAdCreativeRequest);
 
-        // https://developers.facebook.com/docs/marketing-api/reference/adgroup#Creating
-        // new CreateAdSetsRequest;
-
-        return redirect()->back();
+        return response()->json($createdAdCreativeResponse->json());
     }
 }
