@@ -24,6 +24,8 @@ export function UploadProvider({ children }: PropsWithChildren) {
         pixelId: "",
         websiteUrl: "",
         creatives: [],
+        facebookPageId: "",
+        instagramPageId: "",
         settings: {
             paused_by_default: true,
             disable_enhancements: true,

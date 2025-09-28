@@ -5,6 +5,7 @@ name: string;
 currency: string;
 status: string;
 externalId: string;
+businessId: string | null;
 };
 export type AdCampaignData = {
 id: string;
@@ -31,6 +32,13 @@ status: string;
 campaignId: string;
 insights: App.Data.InsightsData | null;
 };
+export type FacebookPageData = {
+id: string;
+name: string;
+businessId: string | null;
+picture: string | null;
+instagramAccount: App.Data.InstagramAccountData | null;
+};
 export type InsightsData = {
 campaignId: string | null;
 adsetId: string | null;
@@ -45,6 +53,12 @@ conversions: number | null;
 atc: number | null;
 cpa: number | null;
 roas: number | null;
+};
+export type InstagramAccountData = {
+id: string;
+username: string;
+hasProfilePicture: boolean;
+url: string;
 };
 export type PixelData = {
 id: string;

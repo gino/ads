@@ -9,17 +9,18 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
 #[MapInputName(SnakeCaseMapper::class)]
-class AdAccountData extends Data
+class FacebookPageData extends Data
 {
     public string $id;
 
     public string $name;
 
-    public string $currency;
-
-    public string $status;
-
-    public string $externalId;
-
+    #[MapInputName('business.id')]
     public ?string $businessId;
+
+    #[MapInputName('picture.data.url')]
+    public ?string $picture;
+
+    #[MapInputName('connected_instagram_account')]
+    public ?InstagramAccountData $instagramAccount;
 }

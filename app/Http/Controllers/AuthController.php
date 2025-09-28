@@ -19,6 +19,7 @@ class AuthController extends Controller
     {
         // https://developers.facebook.com/docs/permissions/
         $scopes = [
+            'instagram_basic',
             'business_management',
             'pages_show_list',
             'pages_read_engagement',

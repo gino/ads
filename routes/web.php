@@ -1,13 +1,15 @@
 <?php
 
+use App\Data\FacebookPageData;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CampaignsController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
 use App\Http\Integrations\MetaConnector;
-use App\Http\Integrations\Requests\GetPagesRequest;
+use App\Http\Integrations\Requests\GetFacebookPagesRequest;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
+use App\Models\AdAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,13 +47,20 @@ Route::middleware([
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/foo', function (Request $request) {
+        // This data we will render two inputs with:
+        // - Facebook page
+        // - Instagram page
+        // The selected FB page will filter the IG page so you can only select the corresponding IG page (of the selected FB page)
+        // And we will pre-select these based on the selected ad account (based on its business ID)
+
         /** @var AdAccount $adAccount */
         $adAccount = $request->adAccount();
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $foo = $meta->send(new GetPagesRequest($adAccount));
+        // I think this check is unncessary since we should be able to still post ads even if this ad account does not have a business ID (personal ad account) - but we have to test this
+        $pages = $adAccount->business_id ? $meta->paginate(new GetFacebookPagesRequest($adAccount))->collect() : [];
 
-        return $foo->json();
+        return FacebookPageData::collect($pages);
     });
 });

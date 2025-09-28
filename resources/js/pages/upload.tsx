@@ -34,6 +34,8 @@ export type UploadForm = {
     pixelId: string;
     websiteUrl: string;
     creatives: UploadedCreative[];
+    facebookPageId: string;
+    instagramPageId: string;
     settings: {
         paused_by_default: boolean;
         disable_enhancements: boolean;
@@ -45,9 +47,10 @@ interface Props {
     campaigns: App.Data.AdCampaignData[];
     adSets: App.Data.AdSetData[];
     pixels: App.Data.PixelData[];
+    pages: App.Data.FacebookPageData[];
 }
 
-export default function Upload({ campaigns, adSets, pixels }: Props) {
+export default function Upload({ campaigns, adSets, pixels, pages }: Props) {
     const { isLoading: isLoadingCampaigns } = useDeferred({
         data: "campaigns",
     });
@@ -56,6 +59,9 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
     });
     const { isLoading: isLoadingPixels } = useDeferred({
         data: "pixels",
+    });
+    const { isLoading: isLoadingPages } = useDeferred({
+        data: "pages",
     });
 
     const { selectedAdAccountId } = useSelectedAdAccount();
@@ -69,10 +75,12 @@ export default function Upload({ campaigns, adSets, pixels }: Props) {
                         campaigns={campaigns}
                         adSets={adSets}
                         pixels={pixels}
+                        pages={pages}
                         //
                         isLoadingCampaigns={isLoadingCampaigns}
                         isLoadingAdSets={isLoadingAdSets}
                         isLoadingPixels={isLoadingPixels}
+                        isLoadingPages={isLoadingPages}
                     />
 
                     <UploadedCreatives adSets={adSets} />

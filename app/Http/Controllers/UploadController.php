@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Data\AdCampaignData;
 use App\Data\AdSetData;
+use App\Data\FacebookPageData;
 use App\Data\PixelData;
 use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
@@ -11,6 +12,7 @@ use App\Http\Integrations\Requests\CreateAdCreativeRequest;
 use App\Http\Integrations\Requests\CreateAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
+use App\Http\Integrations\Requests\GetFacebookPagesRequest;
 use App\Http\Integrations\Requests\GetPixelsRequest;
 use App\Http\Integrations\Requests\GetTargetingCountries;
 use App\Http\Integrations\Requests\Inputs\AdSetInput;
@@ -33,21 +35,23 @@ class UploadController extends Controller
         $adSetsRequest = new GetAdSetsRequest($adAccount);
         $pixelsRequest = new GetPixelsRequest($adAccount);
 
+        $pagesRequest = new GetFacebookPagesRequest($adAccount);
+
         $targetCountriesRequest = new GetTargetingCountries;
 
         return Inertia::render('upload', [
             'campaigns' => Inertia::defer(function () use ($meta, $adCampaignsRequest) {
-                $campaigns = collect($meta->paginate($adCampaignsRequest)->collect()->all());
+                $campaigns = $meta->paginate($adCampaignsRequest)->collect();
 
                 return AdCampaignData::collect($campaigns);
             }),
             'adSets' => Inertia::defer(function () use ($meta, $adSetsRequest) {
-                $adSets = collect($meta->paginate($adSetsRequest)->collect()->all());
+                $adSets = $meta->paginate($adSetsRequest)->collect();
 
                 return AdSetData::collect($adSets);
             }),
             'pixels' => Inertia::defer(function () use ($meta, $pixelsRequest) {
-                $pixels = collect($meta->paginate($pixelsRequest)->collect()->all());
+                $pixels = $meta->paginate($pixelsRequest)->collect();
 
                 return PixelData::collect($pixels);
             }),
@@ -55,6 +59,11 @@ class UploadController extends Controller
                 $countries = $meta->send($targetCountriesRequest)->json('data', []);
 
                 return TargetingCountryData::collect($countries);
+            }),
+            'pages' => Inertia::defer(function () use ($meta, $pagesRequest, $adAccount) {
+                $pages = $adAccount->business_id ? $meta->paginate($pagesRequest)->collect() : [];
+
+                return FacebookPageData::collect($pages);
             }),
         ]);
     }

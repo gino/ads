@@ -19,19 +19,23 @@ interface Props {
     campaigns: App.Data.AdCampaignData[];
     adSets: App.Data.AdSetData[];
     pixels: App.Data.PixelData[];
+    pages: App.Data.FacebookPageData[];
     //
     isLoadingCampaigns: boolean;
     isLoadingAdSets: boolean;
     isLoadingPixels: boolean;
+    isLoadingPages: boolean;
 }
 
 export function UploadForm({
     campaigns,
     adSets,
     pixels,
+    pages,
     isLoadingCampaigns,
     isLoadingAdSets,
     isLoadingPixels,
+    isLoadingPages,
 }: Props) {
     const { form } = useUploadContext();
 
@@ -253,6 +257,93 @@ export function UploadForm({
                                     className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                                 />
                             </label>
+                        </div>
+                    </div>
+                    <div className="p-5 border-t border-gray-100">
+                        <div className="grid grid-cols-2 gap-2.5">
+                            <Select
+                                label="Facebook page"
+                                placeholder="Select a page"
+                                value={form.data.facebookPageId}
+                                onChange={(value) =>
+                                    form.setData("facebookPageId", value)
+                                }
+                                // fix
+                                renderValue={(item) => item.label}
+                                items={
+                                    !isLoadingPages
+                                        ? pages.map((page) => ({
+                                              value: page.id,
+                                              label: (
+                                                  <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                                      <div className="flex-1 truncate flex items-center gap-3">
+                                                          <div className="h-8 w-8 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
+                                                              <img
+                                                                  src={
+                                                                      page.picture!
+                                                                  }
+                                                                  className="h-full w-full object-cover object-center"
+                                                              />
+                                                          </div>
+                                                          <div className="truncate">
+                                                              <div className="font-semibold truncate mb-px">
+                                                                  {page.name}
+                                                              </div>
+                                                              <div className="text-[12px] font-medium text-gray-500 truncate">
+                                                                  ID: {page.id}
+                                                              </div>
+                                                          </div>
+                                                      </div>
+
+                                                      {/* <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
+                                                          {page.id}
+                                                      </div> */}
+                                                  </div>
+                                              ),
+                                          }))
+                                        : []
+                                }
+                            />
+
+                            <Select
+                                label="Instagram account"
+                                placeholder="Select an account"
+                                value={form.data.instagramPageId}
+                                onChange={(value) =>
+                                    form.setData("instagramPageId", value)
+                                }
+                                renderValue={(item) => item.label}
+                                items={
+                                    !isLoadingPixels
+                                        ? pixels.map((pixel) => ({
+                                              value: pixel.id,
+                                              disabled: pixel.isUnavailable,
+                                              label: (
+                                                  <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                                      <div className="flex-1 truncate">
+                                                          <div className="font-semibold truncate">
+                                                              {pixel.name}
+                                                          </div>
+                                                      </div>
+
+                                                      <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
+                                                          Last active:{" "}
+                                                          {formatDistanceToNowStrict(
+                                                              new Date(
+                                                                  pixel.lastFiredTime
+                                                              ),
+                                                              {
+                                                                  addSuffix:
+                                                                      true,
+                                                              }
+                                                          )}
+                                                      </div>
+                                                  </div>
+                                              ),
+                                          }))
+                                        : []
+                                }
+                            />
                         </div>
                     </div>
                     <div className="p-5 border-t border-gray-100">
