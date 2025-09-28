@@ -348,7 +348,12 @@ export function UploadForm({
                         </div>
 
                         <Select2
-                            items={pages}
+                            label="Facebook page"
+                            items={!isLoadingPages ? pages : []}
+                            value={form.data.facebookPageId}
+                            onChange={(value) =>
+                                form.setData("facebookPageId", value)
+                            }
                             getItem={(page) => ({
                                 value: page.id,
                                 label: (
