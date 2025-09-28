@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "../ui/button";
 import { Select } from "../ui/select";
+import { Select2 } from "../ui/select2";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
 import { toast } from "../ui/toast";
@@ -345,6 +346,21 @@ export function UploadForm({
                                 }
                             />
                         </div>
+
+                        <Select2
+                            items={pages}
+                            getItem={(page) => ({
+                                value: page.id,
+                                label: (
+                                    <div className="bg-red-500">
+                                        {page.name}
+                                    </div>
+                                ),
+                            })}
+                            getSelectedItem={(page) => (
+                                <div>selected: {page.id}</div>
+                            )}
+                        />
                     </div>
                     <div className="p-5 border-t border-gray-100">
                         <div>
