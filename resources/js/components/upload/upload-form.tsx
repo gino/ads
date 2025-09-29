@@ -343,6 +343,9 @@ export function UploadForm({
                                         : []
                                 }
                                 value={form.data.instagramPageId}
+                                disabled={
+                                    filteredInstagramAccounts.length === 0
+                                }
                                 onChange={(value) =>
                                     form.setData("instagramPageId", value)
                                 }

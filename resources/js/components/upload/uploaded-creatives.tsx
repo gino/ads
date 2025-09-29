@@ -569,6 +569,8 @@ export function UploadedCreatives({ adSets }: Props) {
                 formData.append("name", creative.label || creative.name);
                 formData.append("file", creative.file);
                 formData.append("adSetId", adSetId);
+                formData.append("facebookPageId", form.data.facebookPageId);
+                formData.append("instagramPageId", form.data.instagramPageId);
 
                 const response = await axios.post(
                     route("dashboard.upload.creative"),
@@ -590,7 +592,11 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.campaignId,
         form.data.pixelId,
         form.data.creatives,
+        form.data.facebookPageId,
+        form.data.instagramPageId,
         form.data.settings.paused_by_default,
+        form.data.settings.disable_enhancements,
+        form.data.settings.disable_promo_codes,
         adSetGroups,
         setAdSetGroups,
         toast,
