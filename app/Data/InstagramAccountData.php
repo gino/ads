@@ -19,5 +19,5 @@ class InstagramAccountData extends Data
     public bool $hasProfilePicture;
 
     #[MapInputName('profile_picture_url')]
-    public string $url;
+    public string $picture;
 }

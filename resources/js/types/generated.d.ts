@@ -58,7 +58,7 @@ export type InstagramAccountData = {
 id: string;
 username: string;
 hasProfilePicture: boolean;
-url: string;
+picture: string;
 };
 export type PixelData = {
 id: string;

@@ -50,6 +50,22 @@ export function UploadForm({
         );
     }, [isLoadingAdSets, form.data.campaignId, adSets]);
 
+    const filteredInstagramAccounts = useMemo(() => {
+        if (!form.data.facebookPageId) {
+            return [];
+        }
+
+        const { instagramAccount } = pages.find(
+            (p) => p.id === form.data.facebookPageId
+        )!;
+
+        if (!instagramAccount) {
+            return [];
+        }
+
+        return [instagramAccount];
+    }, [form.data.facebookPageId, pages]);
+
     useEffect(() => {
         const unsubscribe = router.on("before", (event) => {
             const visit = event.detail.visit;
@@ -262,110 +278,112 @@ export function UploadForm({
                     </div>
                     <div className="p-5 border-t border-gray-100">
                         <div className="grid grid-cols-2 gap-2.5">
-                            <Select
+                            <Select2
                                 label="Facebook page"
                                 placeholder="Select a page"
+                                items={!isLoadingPages ? pages : []}
                                 value={form.data.facebookPageId}
-                                onChange={(value) =>
-                                    form.setData("facebookPageId", value)
-                                }
-                                // fix
-                                renderValue={(item) => item.label}
-                                items={
-                                    !isLoadingPages
-                                        ? pages.map((page) => ({
-                                              value: page.id,
-                                              label: (
-                                                  <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
-                                                      <div className="flex-1 truncate flex items-center gap-3">
-                                                          <div className="h-8 w-8 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
-                                                              <img
-                                                                  src={
-                                                                      page.picture!
-                                                                  }
-                                                                  className="h-full w-full object-cover object-center"
-                                                              />
-                                                          </div>
-                                                          <div className="truncate">
-                                                              <div className="font-semibold truncate mb-px">
-                                                                  {page.name}
-                                                              </div>
-                                                              <div className="text-[12px] font-medium text-gray-500 truncate">
-                                                                  ID: {page.id}
-                                                              </div>
-                                                          </div>
-                                                      </div>
+                                onChange={(value) => {
+                                    form.setData("facebookPageId", value);
 
-                                                      {/* <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
-                                                          {page.id}
-                                                      </div> */}
-                                                  </div>
-                                              ),
-                                          }))
-                                        : []
-                                }
+                                    const { instagramAccount } = pages.find(
+                                        (p) => p.id === value
+                                    )!;
+                                    if (instagramAccount) {
+                                        form.setData(
+                                            "instagramPageId",
+                                            instagramAccount.id
+                                        );
+                                    }
+                                }}
+                                getItem={(page) => ({
+                                    value: page.id,
+                                    label: (
+                                        <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                            <div className="flex-1 truncate flex items-center gap-3">
+                                                <div className="h-8 w-8 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
+                                                    <img
+                                                        src={page.picture!}
+                                                        className="h-full w-full object-cover object-center"
+                                                    />
+                                                </div>
+                                                <div className="truncate">
+                                                    <div className="font-semibold truncate mb-px">
+                                                        {page.name}
+                                                    </div>
+                                                    <div className="text-[12px] font-medium text-gray-500 truncate">
+                                                        ID: {page.id}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ),
+                                })}
+                                getSelectedItem={(page) => (
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-5 w-5 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
+                                            <img
+                                                src={page.picture!}
+                                                className="h-full w-full object-cover object-center"
+                                            />
+                                        </div>
+                                        <div className="font-semibold">
+                                            {page.name}
+                                        </div>
+                                    </div>
+                                )}
                             />
 
-                            <Select
+                            <Select2
                                 label="Instagram account"
                                 placeholder="Select an account"
+                                items={
+                                    !isLoadingPages
+                                        ? filteredInstagramAccounts
+                                        : []
+                                }
                                 value={form.data.instagramPageId}
                                 onChange={(value) =>
                                     form.setData("instagramPageId", value)
                                 }
-                                renderValue={(item) => item.label}
-                                items={
-                                    !isLoadingPixels
-                                        ? pixels.map((pixel) => ({
-                                              value: pixel.id,
-                                              disabled: pixel.isUnavailable,
-                                              label: (
-                                                  <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
-                                                      <div className="flex-1 truncate">
-                                                          <div className="font-semibold truncate">
-                                                              {pixel.name}
-                                                          </div>
-                                                      </div>
-
-                                                      <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
-                                                          Last active:{" "}
-                                                          {formatDistanceToNowStrict(
-                                                              new Date(
-                                                                  pixel.lastFiredTime
-                                                              ),
-                                                              {
-                                                                  addSuffix:
-                                                                      true,
-                                                              }
-                                                          )}
-                                                      </div>
-                                                  </div>
-                                              ),
-                                          }))
-                                        : []
-                                }
+                                getItem={(account) => ({
+                                    value: account.id,
+                                    label: (
+                                        <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                            <div className="flex-1 truncate flex items-center gap-3">
+                                                <div className="h-8 w-8 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
+                                                    <img
+                                                        src={account.picture}
+                                                        className="h-full w-full object-cover object-center"
+                                                    />
+                                                </div>
+                                                <div className="truncate">
+                                                    <div className="font-semibold truncate mb-px">
+                                                        {account.username}
+                                                    </div>
+                                                    <div className="text-[12px] font-medium text-gray-500 truncate">
+                                                        ID: {account.id}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ),
+                                })}
+                                getSelectedItem={(page) => (
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-5 w-5 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
+                                            <img
+                                                src={page.picture}
+                                                className="h-full w-full object-cover object-center"
+                                            />
+                                        </div>
+                                        <div className="font-semibold">
+                                            {page.username}
+                                        </div>
+                                    </div>
+                                )}
                             />
                         </div>
-
-                        <Select2
-                            label="Facebook page"
-                            items={!isLoadingPages ? pages : []}
-                            value={form.data.facebookPageId}
-                            onChange={(value) =>
-                                form.setData("facebookPageId", value)
-                            }
-                            getItem={(page) => ({
-                                value: page.id,
-                                label: (
-                                    <div className="bg-red-500">
-                                        {page.name}
-                                    </div>
-                                ),
-                            })}
-                            getSelectedItem={(page) => (
-                                <div>selected: {page.id}</div>
-                            )}
-                        />
                     </div>
                     <div className="p-5 border-t border-gray-100">
                         <div>
