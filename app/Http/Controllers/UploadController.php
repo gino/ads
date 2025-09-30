@@ -143,11 +143,11 @@ class UploadController extends Controller
 
         $creativeName = $validated['name'];
 
-        $uploadAdCreativeRequest = new UploadAdCreativeRequest(
-            $adAccount,
-            $request->file('file'),
-            $creativeName
-        );
+        // $uploadAdCreativeRequest = new UploadAdCreativeRequest(
+        //     $adAccount,
+        //     $request->file('file'),
+        //     $creativeName
+        // );
 
         // $uploadResponse = $meta->send($uploadAdCreativeRequest);
 
@@ -157,7 +157,7 @@ class UploadController extends Controller
         $createAdCreativeRequest = new CreateAdCreativeRequest(
             $adAccount,
             $creativeName,
-            'some hash'
+            'some hash' // $hash
         );
         $createdAdCreativeResponse = $meta->send($createAdCreativeRequest);
 

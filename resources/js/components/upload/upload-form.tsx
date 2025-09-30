@@ -68,36 +68,37 @@ export function UploadForm({
         return [instagramAccount];
     }, [form.data.facebookPageId, isLoadingPages, pages]);
 
-    useEffect(() => {
-        if (form.data.facebookPageId || isLoadingPages) {
-            return;
-        }
+    // This pre-selects the facebook page of the selected ad account (and its ig account) - its a nice to have but it might be annoying?
+    // useEffect(() => {
+    //     if (form.data.facebookPageId || isLoadingPages) {
+    //         return;
+    //     }
 
-        if (!(pages.length > 0)) {
-            return;
-        }
+    //     if (!(pages.length > 0)) {
+    //         return;
+    //     }
 
-        const defaultPage = pages.find(
-            (p) => p.businessId === selectedAdAccount.businessId
-        );
+    //     const defaultPage = pages.find(
+    //         (p) => p.businessId === selectedAdAccount.businessId
+    //     );
 
-        if (defaultPage) {
-            form.setData("facebookPageId", defaultPage.id);
+    //     if (defaultPage) {
+    //         form.setData("facebookPageId", defaultPage.id);
 
-            const { instagramAccount } = pages.find(
-                (p) => p.id === defaultPage.id
-            )!;
-            if (instagramAccount) {
-                form.setData("instagramPageId", instagramAccount.id);
-            }
-        }
-    }, [
-        form.data.facebookPageId,
-        isLoadingPages,
-        pages,
-        selectedAdAccount.businessId,
-        filteredInstagramAccounts,
-    ]);
+    //         const { instagramAccount } = pages.find(
+    //             (p) => p.id === defaultPage.id
+    //         )!;
+    //         if (instagramAccount) {
+    //             form.setData("instagramPageId", instagramAccount.id);
+    //         }
+    //     }
+    // }, [
+    //     form.data.facebookPageId,
+    //     isLoadingPages,
+    //     pages,
+    //     selectedAdAccount.businessId,
+    //     filteredInstagramAccounts,
+    // ]);
 
     useEffect(() => {
         const unsubscribe = router.on("before", (event) => {
@@ -334,7 +335,7 @@ export function UploadForm({
                                     label: (
                                         <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
                                             <div className="flex-1 truncate flex items-center gap-3">
-                                                <div className="h-8 w-8 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
+                                                <div className="h-7 w-7 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
                                                     <img
                                                         src={page.picture!}
                                                         className="h-full w-full object-cover object-center"
@@ -349,6 +350,12 @@ export function UploadForm({
                                                     </div>
                                                 </div>
                                             </div>
+                                            {selectedAdAccount.businessId ===
+                                                page.businessId && (
+                                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200 self-start">
+                                                    Default
+                                                </div>
+                                            )}
                                         </div>
                                     ),
                                 })}
@@ -369,7 +376,7 @@ export function UploadForm({
 
                             <Select2
                                 label="Instagram account"
-                                placeholder="Select an account"
+                                placeholder="Select a Facebook page"
                                 items={
                                     !isLoadingPages
                                         ? filteredInstagramAccounts
@@ -388,15 +395,15 @@ export function UploadForm({
                                           )
                                         : undefined
                                 }
-                                onChange={(value) =>
-                                    form.setData("instagramPageId", value)
-                                }
+                                onChange={(value) => {
+                                    form.setData("instagramPageId", value);
+                                }}
                                 getItem={(account) => ({
                                     value: account.id,
                                     label: (
                                         <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
                                             <div className="flex-1 truncate flex items-center gap-3">
-                                                <div className="h-8 w-8 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
+                                                <div className="h-7 w-7 bg-gray-100 rounded-full overflow-hidden shrink-0 relative after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
                                                     <img
                                                         src={account.picture}
                                                         className="h-full w-full object-cover object-center"
