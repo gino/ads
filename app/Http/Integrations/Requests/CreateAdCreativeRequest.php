@@ -8,8 +8,6 @@ use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
-// https://developers.facebook.com/docs/marketing-api/reference/ad-creative#Creating
-
 class CreateAdCreativeRequest extends Request implements HasBody
 {
     use HasJsonBody;
@@ -29,6 +27,8 @@ class CreateAdCreativeRequest extends Request implements HasBody
 
     protected function defaultBody(): array
     {
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-creative#Creating
+        // https://chatgpt.com/c/68dadcc5-64c4-832a-a647-4f5ec1736a32
         return [
             'name' => $this->name,
             'object_story_spec' => [],

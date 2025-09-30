@@ -588,7 +588,7 @@ export function UploadedCreatives({ adSets }: Props) {
             setLoadingState(null);
         }
     }, [
-        form,
+        adSetGroups,
         form.data.campaignId,
         form.data.pixelId,
         form.data.creatives,
@@ -597,9 +597,7 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.settings.paused_by_default,
         form.data.settings.disable_enhancements,
         form.data.settings.disable_promo_codes,
-        adSetGroups,
-        setAdSetGroups,
-        toast,
+        setLoadingState,
     ]);
 
     return (

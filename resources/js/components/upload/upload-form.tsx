@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatFileSize, getBase64, getVideoThumbnail } from "@/lib/utils";
 import { UploadedCreative } from "@/pages/upload";
 import { router } from "@inertiajs/react";
@@ -39,6 +40,7 @@ export function UploadForm({
     isLoadingPages,
 }: Props) {
     const { form } = useUploadContext();
+    const { selectedAdAccount } = useSelectedAdAccount();
 
     const filteredAdSets = useMemo(() => {
         if (!form.data.campaignId || isLoadingAdSets) {
@@ -51,7 +53,7 @@ export function UploadForm({
     }, [isLoadingAdSets, form.data.campaignId, adSets]);
 
     const filteredInstagramAccounts = useMemo(() => {
-        if (!form.data.facebookPageId) {
+        if (!form.data.facebookPageId || isLoadingPages) {
             return [];
         }
 
@@ -64,7 +66,38 @@ export function UploadForm({
         }
 
         return [instagramAccount];
-    }, [form.data.facebookPageId, pages]);
+    }, [form.data.facebookPageId, isLoadingPages, pages]);
+
+    useEffect(() => {
+        if (form.data.facebookPageId || isLoadingPages) {
+            return;
+        }
+
+        if (!(pages.length > 0)) {
+            return;
+        }
+
+        const defaultPage = pages.find(
+            (p) => p.businessId === selectedAdAccount.businessId
+        );
+
+        if (defaultPage) {
+            form.setData("facebookPageId", defaultPage.id);
+
+            const { instagramAccount } = pages.find(
+                (p) => p.id === defaultPage.id
+            )!;
+            if (instagramAccount) {
+                form.setData("instagramPageId", instagramAccount.id);
+            }
+        }
+    }, [
+        form.data.facebookPageId,
+        isLoadingPages,
+        pages,
+        selectedAdAccount.businessId,
+        filteredInstagramAccounts,
+    ]);
 
     useEffect(() => {
         const unsubscribe = router.on("before", (event) => {
@@ -345,6 +378,15 @@ export function UploadForm({
                                 value={form.data.instagramPageId}
                                 disabled={
                                     filteredInstagramAccounts.length === 0
+                                }
+                                getDisabledLabel={
+                                    form.data.facebookPageId
+                                        ? () => (
+                                              <div className="font-semibold">
+                                                  <span>Use Facebook page</span>
+                                              </div>
+                                          )
+                                        : undefined
                                 }
                                 onChange={(value) =>
                                     form.setData("instagramPageId", value)

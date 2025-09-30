@@ -16,6 +16,7 @@ interface Props<T extends object> {
     value: SelectItem["value"];
     onChange: (value: SelectItem["value"]) => void;
     disabled?: boolean;
+    getDisabledLabel?: () => ReactNode;
 }
 
 export function Select2<T extends object>({
@@ -27,6 +28,7 @@ export function Select2<T extends object>({
     getSelectedItem,
     onChange,
     disabled,
+    getDisabledLabel,
 }: Props<T>) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -58,6 +60,10 @@ export function Select2<T extends object>({
                                 ) ?? null;
 
                             if (!item || !value) {
+                                if (disabled && getDisabledLabel) {
+                                    return getDisabledLabel();
+                                }
+
                                 return (
                                     <span className="font-semibold">
                                         {placeholder}
