@@ -60,8 +60,9 @@ class UploadController extends Controller
 
                 return TargetingCountryData::collect($countries);
             }),
-            'pages' => Inertia::defer(function () use ($meta, $pagesRequest, $adAccount) {
-                $pages = $adAccount->business_id ? $meta->paginate($pagesRequest)->collect() : [];
+            'pages' => Inertia::defer(function () use ($meta, $pagesRequest) {
+                // $pages = $adAccount->business_id ? $meta->paginate($pagesRequest)->collect() : [];
+                $pages = $meta->paginate($pagesRequest)->collect();
 
                 return FacebookPageData::collect($pages);
             }),
@@ -134,6 +135,8 @@ class UploadController extends Controller
                     ->max($maxSize),
             ],
             'adSetId' => ['required', 'string'],
+            'facebookPageId' => ['required', 'string'],
+            'instagramPageId' => ['nullable', 'string'],
         ]);
 
         /** @var AdAccount $adAccount */

@@ -350,12 +350,13 @@ export function UploadForm({
                                                     </div>
                                                 </div>
                                             </div>
-                                            {selectedAdAccount.businessId ===
-                                                page.businessId && (
-                                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200 self-start">
-                                                    Default
-                                                </div>
-                                            )}
+                                            {page.businessId !== null &&
+                                                selectedAdAccount.businessId ===
+                                                    page.businessId && (
+                                                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200 self-start">
+                                                        Default
+                                                    </div>
+                                                )}
                                         </div>
                                     ),
                                 })}
