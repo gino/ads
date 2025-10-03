@@ -522,7 +522,7 @@ export function UploadForm({
                                             value
                                         );
                                     }}
-                                    className="mt-1"
+                                    className="mt-1.5"
                                 />
                                 <div className="flex-1">
                                     <div className="mb-1 font-semibold">
@@ -550,7 +550,7 @@ export function UploadForm({
                                             value
                                         );
                                     }}
-                                    className="mt-1"
+                                    className="mt-1.5"
                                 />
                                 <div className="flex-1">
                                     <div className="mb-1 font-semibold">
@@ -578,7 +578,7 @@ export function UploadForm({
                                             value
                                         );
                                     }}
-                                    className="mt-1"
+                                    className="mt-1.5"
                                 />
                                 <div className="flex-1">
                                     <div className="mb-1 font-semibold">

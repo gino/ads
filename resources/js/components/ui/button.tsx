@@ -10,7 +10,7 @@ const button = cva(
                 secondary:
                     "bg-white shadow-base hover:bg-gray-50 enabled:active:bg-white",
                 primary:
-                    "text-white ring-1 bg-brand ring-brand hover:opacity-90 enabled:active:opacity-100",
+                    "text-white ring-1 bg-brand-secondary ring-brand-secondary hover:opacity-90 enabled:active:opacity-100",
             },
         },
         defaultVariants: {

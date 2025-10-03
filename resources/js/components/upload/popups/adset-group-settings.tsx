@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
 import useDeferred from "@/lib/hooks/use-deferred";
@@ -73,9 +74,9 @@ export function AdSetGroupSettingsPopup() {
             }}
             hideOnInteractOutside={false}
         >
-            <div className="p-5">
+            {/* <div className="p-5">
                 <div>{popupAdSetId}</div>
-            </div>
+            </div> */}
             <div className="p-5">
                 <div>
                     <div className="mb-2 font-semibold">Locations</div>
@@ -134,7 +135,8 @@ export function AdSetGroupSettingsPopup() {
                     >
                         Cancel
                     </button>
-                    <button
+                    <Button
+                        variant="primary"
                         disabled={isDisabled}
                         onClick={() => {
                             if (isDisabled) {
@@ -148,10 +150,9 @@ export function AdSetGroupSettingsPopup() {
                             );
                             setPopupAdSetId(null);
                         }}
-                        className="font-semibold cursor-pointer enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Save changes
-                    </button>
+                    </Button>
                 </div>
             </div>
         </Modal>

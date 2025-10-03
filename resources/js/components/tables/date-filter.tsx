@@ -30,6 +30,7 @@ import {
     DayPicker as ReactDayPicker,
 } from "react-day-picker";
 import { useHotkeys } from "react-hotkeys-hook";
+import { Button } from "../ui/button";
 import { isRangeEqual } from "./utils";
 
 const presets = {
@@ -382,15 +383,15 @@ export function DateFilter() {
                             />
                         </div>
                         <div className="flex items-center justify-end gap-2">
-                            <button
+                            <Button
                                 onClick={() => {
                                     handleOpenChange(false);
                                 }}
-                                className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
                             >
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="primary"
                                 onClick={() => {
                                     handleOpenChange(false);
 
@@ -400,10 +401,9 @@ export function DateFilter() {
                                     setSelectedDate(draftDate);
                                     apply(draftDate);
                                 }}
-                                className="font-semibold cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-white ring-1 bg-brand ring-brand px-3.5 py-2 rounded-md"
                             >
                                 Apply
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

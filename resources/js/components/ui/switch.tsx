@@ -19,6 +19,45 @@ export function Switch({ checked, onChange, disabled, className }: Props) {
             data-disabled={disabled}
             data-focus-visible={focusVisible || undefined}
             className={cn(
+                "bg-gray-100 ring-1 ring-gray-200 ring-inset flex items-center group cursor-pointer relative rounded-full h-2.5 w-8 transition duration-250 ease-in-out",
+                "data-[checked='true']:bg-brand data-[checked='true']:ring-black/20",
+                className
+            )}
+        >
+            <Ariakit.VisuallyHidden>
+                <Ariakit.Checkbox
+                    clickOnEnter
+                    onFocusVisible={() => setFocusVisible(true)}
+                    onBlur={() => setFocusVisible(false)}
+                    onChange={(event) => {
+                        onChange(event.target.checked);
+                    }}
+                    checked={checked}
+                />
+            </Ariakit.VisuallyHidden>
+
+            <div
+                className={cn(
+                    "bg-white shadow-base flex items-center justify-center h-5 w-5 -translate-x-px -translate-y-[0.5px] aspect-square rounded-full group-data-[checked='true']:translate-x-3.5 transition duration-250 ease-in-out"
+                )}
+            >
+                <div
+                    className={cn(
+                        "h-[8px] w-[8px] bg-gray-100 rounded-full ring-1 ring-inset ring-gray-200",
+                        "group-data-[checked='true']:bg-brand/10 group-data-[checked='true']:ring-black/10"
+                    )}
+                />
+            </div>
+        </label>
+    );
+
+    return (
+        <label
+            role="checkbox"
+            data-checked={checked}
+            data-disabled={disabled}
+            data-focus-visible={focusVisible || undefined}
+            className={cn(
                 "bg-gray-400 rounded-full relative p-1 h-5 w-8 cursor-pointer flex items-center",
                 "data-[checked='true']:bg-brand hover:bg-gray-500",
                 "data-[disabled='true']:cursor-not-allowed data-[disabled='true']:opacity-50",

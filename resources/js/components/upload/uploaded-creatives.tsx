@@ -487,6 +487,7 @@ export function UploadedCreatives({ adSets }: Props) {
     const isDisabled = useMemo(() => {
         if (!form.data.campaignId) return true;
         if (!form.data.pixelId) return true;
+        if (!form.data.facebookPageId) return true;
 
         // Disable if no creatives at all
         if (form.data.creatives.length === 0) return true;
@@ -504,6 +505,7 @@ export function UploadedCreatives({ adSets }: Props) {
     }, [
         form.data.campaignId,
         form.data.pixelId,
+        form.data.facebookPageId,
         form.data.creatives,
         ungroupedCreatives,
         adSetGroups,

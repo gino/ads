@@ -27,7 +27,7 @@ export function Checkbox({
             data-checked={checked}
             data-focus-visible={focusVisible || undefined}
             className={cn(
-                "h-4 w-4 relative flex shadow-base bg-white rounded data-[checked='true']:bg-brand data-[checked='true']:ring-1 data-[checked='true']:ring-brand cursor-pointer",
+                "h-4 w-4 relative flex shadow-base bg-white rounded data-[checked='true']:bg-brand data-[checked='true']:shadow-none data-[checked='true']:ring-1 data-[checked='true']:ring-brand cursor-pointer",
                 className
             )}
         >
