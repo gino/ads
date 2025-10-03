@@ -690,12 +690,16 @@ export function UploadedCreatives({ adSets }: Props) {
                             if (anyMoved && targetGroupId !== "ungrouped") {
                                 clearSelection();
 
+                                const group = adSetGroups.find(
+                                    (g) => g.id === targetGroupId
+                                )!;
+
                                 toast({
                                     contents: `${draggingCreatives.length} ${
                                         draggingCreatives.length > 1
                                             ? "creatives"
                                             : "creative"
-                                    } added to ad set`,
+                                    } added to "${group.label}"`,
                                 });
                             }
                         }}

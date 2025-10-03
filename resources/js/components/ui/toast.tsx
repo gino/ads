@@ -17,15 +17,13 @@ interface Props {
 function Toast({ id, contents }: Props) {
     return (
         <div className="shadow-base-popup bg-white rounded-xl px-4 py-3 w-[var(--width)] flex items-center relative antialiased font-sans">
-            <div className="flex-1 flex items-center gap-4">
-                <div className="flex items-center justify-center h-[15px] w-[15px] rounded-full bg-white text-base">
-                    <i className="fa-solid fa-check-circle text-teal-700" />
-                </div>
-                <div className="font-semibold text-sm">{contents}</div>
+            <div className="flex-1 flex items-center gap-3 truncate">
+                <i className="fa-solid text-lg fa-check-circle text-teal-700 shrink-0" />
+                <div className="font-semibold text-sm truncate">{contents}</div>
             </div>
             <button
                 onClick={() => sonnerToast.dismiss(id)}
-                className="-mr-1 flex items-center justify-center h-6 w-6 text-[11px] cursor-pointer text-gray-400"
+                className="-mr-1 flex items-center justify-center h-6 w-6 text-[11px] cursor-pointer text-gray-400 shrink-0"
             >
                 <i className="fa-solid fa-close" />
             </button>
