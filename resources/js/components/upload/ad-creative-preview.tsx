@@ -6,7 +6,7 @@ interface Props {
 
 export function AdCreativePreview({ creative }: Props) {
     return (
-        <div>
+        <div data-no-dnd>
             {creative.type.startsWith("video/") ? (
                 <video
                     src={creative.preview}

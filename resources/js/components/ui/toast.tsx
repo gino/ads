@@ -1,33 +1,60 @@
 import { useMemo } from "react";
 import { toast as sonnerToast } from "sonner";
 
-type ToastType = "SUCCESS" | "ERROR";
-
-export function toast(toast: Omit<Props, "id">) {
-    return sonnerToast.custom(
-        (id) => <Toast id={id} contents={toast.contents} type={toast.type} />,
-        {
-            position: "bottom-center",
-        }
-    );
-}
+type ToastType = "SUCCESS" | "ERROR" | "LOADING";
 
 interface Props {
     id: string | number;
     contents: string;
     type?: ToastType;
+    progress?: number;
+    dismissible?: boolean;
 }
 
-function Toast({ id, contents, type = "SUCCESS" }: Props) {
+export function toast(toast: Omit<Props, "id"> & { id?: string | number }) {
+    const options: Parameters<typeof sonnerToast.custom>[1] = {
+        position: "bottom-center",
+        duration: toast.type === "LOADING" ? Infinity : 4000,
+    };
+
+    if (toast.id !== undefined) {
+        options.id = toast.id;
+    }
+
+    return sonnerToast.custom(
+        () => (
+            <Toast
+                id={toast.id ?? Math.random().toString()} // must pass something to Toast
+                contents={toast.contents}
+                type={toast.type}
+                progress={toast.progress}
+                dismissible={toast.dismissible}
+            />
+        ),
+        options
+    );
+}
+
+function Toast({
+    id,
+    contents,
+    type = "SUCCESS",
+    progress,
+    dismissible = true,
+}: Props) {
     const icon = useMemo(() => {
         switch (type) {
             case "SUCCESS":
                 return (
-                    <i className="fa-solid text-lg fa-check-circle text-teal-700 shrink-0" />
+                    <i className="fa-solid fa-check-circle text-lg text-teal-700 shrink-0" />
                 );
             case "ERROR":
                 return (
-                    <i className="fa-solid text-lg fa-circle-xmark text-red-700 shrink-0" />
+                    <i className="fa-solid fa-circle-xmark text-lg text-red-700 shrink-0" />
+                );
+            case "LOADING":
+                return (
+                    <i className="fa-solid fa-spinner-third animate-spin text-lg text-gray-400 shrink-0" />
                 );
         }
     }, [type]);
@@ -36,31 +63,26 @@ function Toast({ id, contents, type = "SUCCESS" }: Props) {
         <div className="shadow-base-popup bg-white rounded-xl px-4 py-3 w-[var(--width)] flex items-center relative antialiased font-sans">
             <div className="flex-1 flex items-center gap-3 truncate">
                 {icon}
-                <div className="font-semibold text-sm truncate">{contents}</div>
-            </div>
-            <button
-                onClick={() => sonnerToast.dismiss(id)}
-                className="-mr-1 flex items-center justify-center h-6 w-6 text-[11px] cursor-pointer text-gray-400 shrink-0"
-            >
-                <i className="fa-solid fa-close" />
-            </button>
-        </div>
-    );
+                <div className="flex items-center truncate flex-1 gap-3">
+                    <div className="font-semibold text-sm truncate flex-1">
+                        {contents}
+                    </div>
 
-    return (
-        <div className="bg-white shadow-base-popup rounded-xl px-4 py-3 w-[var(--width)] flex items-center relative antialiased font-sans">
-            <div className="flex-1 flex items-center gap-4">
-                <div className="flex items-center justify-center h-[15px] w-[15px] rounded-full bg-white text-base">
-                    <i className="fa-solid fa-check-circle text-sky-500" />
+                    {typeof progress === "number" && (
+                        <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5">
+                            {progress}%
+                        </div>
+                    )}
                 </div>
-                <div className="font-semibold text-sm">{contents}</div>
             </div>
-            <button
-                onClick={() => sonnerToast.dismiss(id)}
-                className="-mr-1 flex items-center justify-center h-6 w-6 text-[11px] cursor-pointer text-gray-400"
-            >
-                <i className="fa-solid fa-close" />
-            </button>
+            {dismissible && (
+                <button
+                    onClick={() => sonnerToast.dismiss(id)}
+                    className="-mr-1 flex items-center justify-center h-6 w-6 text-[11px] cursor-pointer text-gray-400 shrink-0"
+                >
+                    <i className="fa-solid fa-close" />
+                </button>
+            )}
         </div>
     );
 }

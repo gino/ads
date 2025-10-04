@@ -19,6 +19,7 @@ import {
     useState,
 } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { toast as sonnerToast } from "sonner";
 import { Button } from "../ui/button";
 import { toast } from "../ui/toast";
 import { AdCreative } from "./ad-creative";
@@ -493,8 +494,6 @@ export function UploadedCreatives({ adSets }: Props) {
         "CREATING_ADSETS" | "UPLOADING_CREATIVES" | null
     >(null);
 
-    const [progress, setProgress] = useState(0);
-
     const loadingText = useMemo(() => {
         const adsLabel = `${form.data.creatives.length} ad${
             form.data.creatives.length === 1 ? "" : "s"
@@ -521,13 +520,29 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const submit = useCallback(async () => {
         const adSetMap = new Map<string, string>();
+        const toastId = "upload-progress-toast";
 
         try {
-            setProgress(0);
+            // 🟡 Initial toast (loading)
+            toast({
+                id: toastId,
+                type: "LOADING",
+                contents: "Creating ad sets...",
+                progress: 0,
+                dismissible: false,
+            });
 
             // STEP 1: Create adsets (skip if user already selected an AdSet)
             if (!hasSelectedAdSet) {
                 setLoadingState("CREATING_ADSETS");
+
+                toast({
+                    id: toastId,
+                    type: "LOADING",
+                    contents: "Creating ad sets...",
+                    progress: 10,
+                    dismissible: false,
+                });
 
                 const response = await axios.post<string[]>(
                     route("dashboard.upload.create-adsets"),
@@ -553,7 +568,13 @@ export function UploadedCreatives({ adSets }: Props) {
                     adSetMap.set(adSetGroup.id, createdAdSetId);
                 }
 
-                setProgress(20);
+                toast({
+                    id: toastId,
+                    type: "LOADING",
+                    contents: "Uploading creatives...",
+                    progress: 20,
+                    dismissible: false,
+                });
             }
 
             // STEP 2: Upload creatives
@@ -608,7 +629,15 @@ export function UploadedCreatives({ adSets }: Props) {
 
                 current++;
                 const creativeProgress = 20 + (current / total) * 80;
-                setProgress(Math.round(creativeProgress));
+                const roundedProgress = Math.round(creativeProgress);
+
+                toast({
+                    id: toastId,
+                    type: "LOADING",
+                    contents: `Uploading creatives (${current}/${total})...`,
+                    progress: roundedProgress,
+                    dismissible: false,
+                });
             }
 
             const adsLabel = `${form.data.creatives.length} ad${
@@ -616,18 +645,21 @@ export function UploadedCreatives({ adSets }: Props) {
             }`;
 
             // Success
+            sonnerToast.dismiss(toastId);
             toast({
+                type: "SUCCESS",
                 contents: `Successfully launched ${adsLabel}`,
             });
         } catch (err: any) {
             console.error(err);
 
             toast({
+                id: toastId,
+                type: "ERROR",
                 contents:
                     err?.response?.data?.message ||
                     err?.message ||
                     "Something went wrong while launching ads",
-                type: "ERROR",
             });
         } finally {
             setLoadingState(null);
@@ -651,11 +683,7 @@ export function UploadedCreatives({ adSets }: Props) {
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">
             <div className="flex overflow-hidden flex-col h-full min-h-0 bg-white rounded-xl shadow-base">
                 <div className="overflow-y-auto flex-1 min-h-0">
-                    <div className="p-5 border-b border-gray-100 flex items-center gap-5">
-                        <div className="flex-1">
-                            <div className="h-1 bg-red-500" />
-                        </div>
-
+                    <div className="p-5 border-b border-gray-100">
                         <div className="flex gap-2 justify-end items-center">
                             {!hasSelectedAdSet && (
                                 <Button
@@ -692,145 +720,158 @@ export function UploadedCreatives({ adSets }: Props) {
                             </Button>
                         </div>
                     </div>
-                    <DndContext
-                        sensors={sensors}
-                        onDragStart={({ active }) => {
-                            if (!selectedIds.includes(active.id as string)) {
-                                setSelectedIds([active.id as string]);
-                            }
-                            setActiveId(active.id as string);
-                        }}
-                        onDragCancel={() => setActiveId(null)}
-                        onDragEnd={({ over }) => {
-                            setActiveId(null);
-                            if (!over) return;
+                    <div>
+                        <DndContext
+                            sensors={sensors}
+                            onDragStart={({ active }) => {
+                                if (
+                                    !selectedIds.includes(active.id as string)
+                                ) {
+                                    setSelectedIds([active.id as string]);
+                                }
+                                setActiveId(active.id as string);
+                            }}
+                            onDragCancel={() => setActiveId(null)}
+                            onDragEnd={({ over }) => {
+                                setActiveId(null);
+                                if (!over) return;
 
-                            const targetGroupId = over.id as string;
-                            if (!targetGroupId) return;
+                                const targetGroupId = over.id as string;
+                                if (!targetGroupId) return;
 
-                            let anyMoved = false; // track if any creative was actually moved
+                                let anyMoved = false; // track if any creative was actually moved
 
-                            draggingCreatives.forEach((creative) => {
-                                const creativeId = creative.id;
-                                const currentGroupId = hasSelectedAdSet
-                                    ? selectedAdSetCreatives.includes(
-                                          creativeId
-                                      )
-                                        ? selectedAdSet!.id
-                                        : "ungrouped"
-                                    : adSetGroups.find((g) =>
-                                          g.creatives.includes(creativeId)
-                                      )?.id ?? "ungrouped";
+                                draggingCreatives.forEach((creative) => {
+                                    const creativeId = creative.id;
+                                    const currentGroupId = hasSelectedAdSet
+                                        ? selectedAdSetCreatives.includes(
+                                              creativeId
+                                          )
+                                            ? selectedAdSet!.id
+                                            : "ungrouped"
+                                        : adSetGroups.find((g) =>
+                                              g.creatives.includes(creativeId)
+                                          )?.id ?? "ungrouped";
 
-                                if (currentGroupId === targetGroupId) return;
+                                    if (currentGroupId === targetGroupId)
+                                        return;
 
-                                deleteFromGroup(creativeId);
-                                addToGroup(creativeId, targetGroupId);
+                                    deleteFromGroup(creativeId);
+                                    addToGroup(creativeId, targetGroupId);
 
-                                anyMoved = true; // mark that something changed
-                            });
-
-                            // Only show toast if at least one creative actually moved
-                            if (anyMoved && targetGroupId !== "ungrouped") {
-                                clearSelection();
-
-                                const group = adSetGroups.find(
-                                    (g) => g.id === targetGroupId
-                                )!;
-
-                                toast({
-                                    contents: `${draggingCreatives.length} ${
-                                        draggingCreatives.length > 1
-                                            ? "creatives"
-                                            : "creative"
-                                    } added to "${
-                                        hasSelectedAdSet
-                                            ? selectedAdSet!.name
-                                            : group.label
-                                    }"`,
+                                    anyMoved = true; // mark that something changed
                                 });
-                            }
-                        }}
-                    >
-                        <UploadedCreativesContext.Provider
-                            value={memoizedValue}
+
+                                // Only show toast if at least one creative actually moved
+                                if (anyMoved && targetGroupId !== "ungrouped") {
+                                    clearSelection();
+
+                                    const group = adSetGroups.find(
+                                        (g) => g.id === targetGroupId
+                                    )!;
+
+                                    toast({
+                                        contents: `${
+                                            draggingCreatives.length
+                                        } ${
+                                            draggingCreatives.length > 1
+                                                ? "creatives"
+                                                : "creative"
+                                        } added to "${
+                                            hasSelectedAdSet
+                                                ? selectedAdSet!.name
+                                                : group.label
+                                        }"`,
+                                    });
+                                }
+                            }}
                         >
-                            <div className="flex flex-col">
-                                {(hasSelectedAdSet
-                                    ? true
-                                    : adSetGroups.length > 0) && (
-                                    <div className="flex flex-col p-5 border-b border-gray-100">
-                                        {hasSelectedAdSet ? (
-                                            <AdSetGroup
-                                                id={selectedAdSet!.id}
-                                                label={selectedAdSet!.name}
-                                                type="ADSET"
-                                                creativeIds={
-                                                    selectedAdSetCreatives
-                                                }
-                                                existingAdSet={selectedAdSet!}
-                                            />
-                                        ) : (
-                                            adSetGroups.map((adSetGroup) => (
+                            <UploadedCreativesContext.Provider
+                                value={memoizedValue}
+                            >
+                                <div className="flex flex-col">
+                                    {(hasSelectedAdSet
+                                        ? true
+                                        : adSetGroups.length > 0) && (
+                                        <div className="flex flex-col p-5 border-b border-gray-100">
+                                            {hasSelectedAdSet ? (
                                                 <AdSetGroup
-                                                    key={adSetGroup.id}
-                                                    id={adSetGroup.id}
-                                                    label={adSetGroup.label}
+                                                    id={selectedAdSet!.id}
+                                                    label={selectedAdSet!.name}
                                                     type="ADSET"
                                                     creativeIds={
-                                                        adSetGroup.creatives
+                                                        selectedAdSetCreatives
+                                                    }
+                                                    existingAdSet={
+                                                        selectedAdSet!
                                                     }
                                                 />
-                                            ))
-                                        )}
+                                            ) : (
+                                                adSetGroups.map(
+                                                    (adSetGroup) => (
+                                                        <AdSetGroup
+                                                            key={adSetGroup.id}
+                                                            id={adSetGroup.id}
+                                                            label={
+                                                                adSetGroup.label
+                                                            }
+                                                            type="ADSET"
+                                                            creativeIds={
+                                                                adSetGroup.creatives
+                                                            }
+                                                        />
+                                                    )
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="p-5">
+                                        <AdSetGroup
+                                            id="ungrouped"
+                                            label="Ungrouped creatives"
+                                            type="UNGROUPED"
+                                            creativeIds={ungroupedCreatives}
+                                        />
                                     </div>
-                                )}
-
-                                <div className="p-5">
-                                    <AdSetGroup
-                                        id="ungrouped"
-                                        label="Ungrouped creatives"
-                                        type="UNGROUPED"
-                                        creativeIds={ungroupedCreatives}
-                                    />
                                 </div>
-                            </div>
-                            <Portal>
-                                <DragOverlay dropAnimation={null}>
-                                    {activeId &&
-                                        draggingCreatives.length > 0 && (
-                                            <motion.div
-                                                initial={{ scale: 1 }}
-                                                animate={{ scale: 1.02 }}
-                                                transition={{
-                                                    duration: 0.15,
-                                                    ease: "easeInOut",
-                                                }}
-                                            >
-                                                {draggingCreatives.length >
-                                                1 ? (
-                                                    <AdCreative
-                                                        creative={
-                                                            draggingCreatives[0]
-                                                        }
-                                                        isDraggingCreative
-                                                    />
-                                                ) : (
-                                                    <AdCreative
-                                                        creative={
-                                                            draggingCreatives[0]
-                                                        }
-                                                        isDraggingCreative
-                                                    />
-                                                )}
-                                            </motion.div>
-                                        )}
-                                </DragOverlay>
-                            </Portal>
+                                <Portal>
+                                    <DragOverlay dropAnimation={null}>
+                                        {activeId &&
+                                            draggingCreatives.length > 0 && (
+                                                <motion.div
+                                                    initial={{ scale: 1 }}
+                                                    animate={{ scale: 1.02 }}
+                                                    transition={{
+                                                        duration: 0.15,
+                                                        ease: "easeInOut",
+                                                    }}
+                                                >
+                                                    {draggingCreatives.length >
+                                                    1 ? (
+                                                        <AdCreative
+                                                            creative={
+                                                                draggingCreatives[0]
+                                                            }
+                                                            isDraggingCreative
+                                                        />
+                                                    ) : (
+                                                        <AdCreative
+                                                            creative={
+                                                                draggingCreatives[0]
+                                                            }
+                                                            isDraggingCreative
+                                                        />
+                                                    )}
+                                                </motion.div>
+                                            )}
+                                    </DragOverlay>
+                                </Portal>
 
-                            <AdSetGroupSettingsPopup />
-                        </UploadedCreativesContext.Provider>
-                    </DndContext>
+                                <AdSetGroupSettingsPopup />
+                            </UploadedCreativesContext.Provider>
+                        </DndContext>
+                    </div>
                 </div>
             </div>
         </div>
