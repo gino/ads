@@ -10,7 +10,7 @@ use Saloon\Traits\Body\HasJsonBody;
 
 // https://developers.facebook.com/docs/marketing-api/reference/adgroup#syncadcreation
 
-class CreateAdsRequest extends Request implements HasBody
+class CreateAdRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
@@ -18,6 +18,8 @@ class CreateAdsRequest extends Request implements HasBody
 
     public function __construct(
         public AdAccount $adAccount,
+        public string $name,
+        public string $adSetId,
         public string $creativeId
     ) {}
 
@@ -29,7 +31,12 @@ class CreateAdsRequest extends Request implements HasBody
     protected function defaultBody(): array
     {
         return [
-            //
+            'name' => $this->name,
+            'adset_id' => $this->adSetId,
+            'creative' => [
+                'creative_id' => $this->creativeId,
+            ],
+            'status' => 'PAUSED',
         ];
     }
 }

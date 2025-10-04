@@ -515,6 +515,30 @@ export function UploadedCreatives({ adSets }: Props) {
         "CREATING_ADSETS" | "UPLOADING_CREATIVES" | null
     >(null);
 
+    const loadingText = useMemo(() => {
+        const adsLabel = `${form.data.creatives.length} ad${
+            form.data.creatives.length === 1 ? "" : "s"
+        }`;
+
+        const adSetsLabel = `${adSetGroups.length} ad set${
+            adSetGroups.length === 1 ? "" : "s"
+        }`;
+
+        if (!loadingState) {
+            return null;
+        }
+
+        switch (loadingState) {
+            case "CREATING_ADSETS": {
+                return `Creating ${adSetsLabel}...`;
+            }
+
+            case "UPLOADING_CREATIVES": {
+                return `Launching ${adsLabel}...`;
+            }
+        }
+    }, [loadingState, form.data.creatives.length, adSetGroups.length]);
+
     const submit = useCallback(async () => {
         const adSetMap = new Map<string, string>();
 
@@ -561,13 +585,14 @@ export function UploadedCreatives({ adSets }: Props) {
 
         // Create creatives
         try {
+            setLoadingState("UPLOADING_CREATIVES");
             for (const creative of form.data.creatives) {
                 const adSetGroup = adSetGroups.find((group) => {
                     return group.creatives.includes(creative.id);
                 })!;
                 const adSetId = adSetMap.get(adSetGroup.id)!;
-
                 const formData = new FormData();
+
                 formData.append("id", creative.id);
                 formData.append("name", creative.label || creative.name);
                 formData.append("file", creative.file);
@@ -588,6 +613,8 @@ export function UploadedCreatives({ adSets }: Props) {
                 console.log(response.data);
             }
         } catch (err) {
+            //
+        } finally {
             setLoadingState(null);
         }
     }, [
@@ -624,11 +651,7 @@ export function UploadedCreatives({ adSets }: Props) {
                             <Button
                                 disabled={isDisabled}
                                 loading={loadingState !== null}
-                                loadingText={`Launching ${
-                                    form.data.creatives.length
-                                } ad${
-                                    form.data.creatives.length === 1 ? "" : "s"
-                                }...`}
+                                loadingText={loadingText}
                                 onClick={() => {
                                     if (isDisabled || loadingState !== null) {
                                         return;

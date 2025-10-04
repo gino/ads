@@ -31,6 +31,13 @@ class MetaConnector extends Connector implements HasPagination
     //     return new QueryAuthenticator('access_token', $this->connection->access_token);
     // }
 
+    protected function defaultQuery(): array
+    {
+        return [
+            'locale' => 'en_US',
+        ];
+    }
+
     protected function defaultAuth(): TokenAuthenticator
     {
         return new TokenAuthenticator($this->connection->access_token);

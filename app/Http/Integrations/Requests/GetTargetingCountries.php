@@ -27,7 +27,6 @@ class GetTargetingCountries extends Request implements Cacheable
             'location_types' => ['country'],
             'type' => 'adgeolocation',
             'q' => '',
-            'locale' => 'en_US',
             'limit' => 1000,
         ];
     }

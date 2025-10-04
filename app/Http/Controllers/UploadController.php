@@ -9,6 +9,7 @@ use App\Data\PixelData;
 use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\CreateAdCreativeRequest;
+use App\Http\Integrations\Requests\CreateAdRequest;
 use App\Http\Integrations\Requests\CreateAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
@@ -19,6 +20,7 @@ use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
@@ -144,25 +146,39 @@ class UploadController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
+        $creative = $request->file('file');
         $creativeName = $validated['name'];
 
-        // $uploadAdCreativeRequest = new UploadAdCreativeRequest(
-        //     $adAccount,
-        //     $request->file('file'),
-        //     $creativeName
-        // );
+        // Upload the file to Meta's library
+        $uploadResponse = $meta->send(new UploadAdCreativeRequest(
+            adAccount: $adAccount,
+            creative: $creative,
+            label: $creativeName
+        ))->throw();
 
-        // $uploadResponse = $meta->send($uploadAdCreativeRequest);
+        $images = collect($uploadResponse->json('images'));
 
-        // $images = collect($uploadResponse->json('images'));
-        // $hash = $images->first()['hash'];
+        // Create the actual ad creative
+        $createdAdCreativeResponse = $meta->send(new CreateAdCreativeRequest(
+            adAccount: $adAccount,
+            name: $creativeName,
+            hash: $images->first()['hash'],
+            facebookPageId: $validated['facebookPageId'],
+            instagramPageId: $validated['instagramPageId'] ?? null,
+            isVideo: str_starts_with($creative->getMimeType(), 'video/')
+        ))->throw();
 
-        $createAdCreativeRequest = new CreateAdCreativeRequest(
-            $adAccount,
-            $creativeName,
-            'some hash' // $hash
-        );
-        $createdAdCreativeResponse = $meta->send($createAdCreativeRequest);
+        $creativeId = $createdAdCreativeResponse->json('id');
+
+        $createdAdResponse = $meta->send(new CreateAdRequest(
+            name: $creativeName,
+            adAccount: $adAccount,
+            adSetId: $validated['adSetId'],
+            creativeId: $creativeId
+        ))->throw();
+
+        Log::debug('createdAdResponse');
+        Log::debug($createdAdResponse->json());
 
         return response()->json($createdAdCreativeResponse->json());
     }
