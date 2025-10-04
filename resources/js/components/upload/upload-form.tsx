@@ -623,5 +623,8 @@ export async function createUploadedCreative(
         preview: URL.createObjectURL(file),
         type: file.type,
         thumbnail,
+        settings: {
+            cta: "",
+        },
     };
 }

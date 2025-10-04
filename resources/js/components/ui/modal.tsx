@@ -19,7 +19,6 @@ export function Modal({
         open,
         setOpen,
     });
-    const mounted = Ariakit.useStoreState(dialog, "mounted");
 
     return (
         <AnimatePresence>
@@ -69,7 +68,7 @@ export function Modal({
                         }}
                         className="w-full shadow-xs bg-white/60 p-2 rounded-3xl backdrop-blur-[1px] flex flex-col h-full min-h-0 origin-bottom"
                     >
-                        <div className="overflow-y-auto w-full bg-white rounded-2xl divide-y divide-gray-100 shadow-dialog">
+                        <div className="overflow-y-auto w-full bg-white rounded-2xl shadow-dialog">
                             {children}
                         </div>
                     </motion.div>

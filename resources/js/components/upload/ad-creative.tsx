@@ -28,7 +28,8 @@ export function AdCreative({
             id: creative.id,
         });
 
-    const { deleteCreative, setCreativeLabel } = useUploadContext();
+    const { deleteCreative, setCreativeLabel, setPopupCreativeId } =
+        useUploadContext();
     const { deleteFromGroup, toggleSelection, selectedIds, activeId } =
         useUploadedCreativesContext();
 
@@ -206,7 +207,13 @@ export function AdCreative({
                                 onClick={(e) => e.stopPropagation()}
                                 className="flex items-center gap-1 pointer-events-auto"
                             >
-                                <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPopupCreativeId(creative.id);
+                                    }}
+                                    className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white"
+                                >
                                     <i className="fa-regular fa-pencil" />
                                 </button>
                                 {type === "UNGROUPED" && (

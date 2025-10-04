@@ -38,11 +38,12 @@
     /* --color-brand: #3d5a9a; */
     /* --color-brand: #053057; */
     /* --color-brand: #0060cc; */
-    --color-brand: #0b71f2;
+    /* --color-brand: #0b71f2; */
     --color-brand-secondary: #151715;
     /* --color-brand: #1a1a1a; */
     /* --color-brand: var(--color-pink-950); */
     /* --color-brand: var(--color-teal-700); */
+    --color-brand: var(--color-cyan-600);
     --color-brand-light: #f2f8ff;
     --color-brand-lighter: #f2f8ff;
 

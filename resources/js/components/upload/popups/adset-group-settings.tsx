@@ -74,10 +74,7 @@ export function AdSetGroupSettingsPopup() {
             }}
             hideOnInteractOutside={false}
         >
-            {/* <div className="p-5">
-                <div>{popupAdSetId}</div>
-            </div> */}
-            <div className="p-5">
+            <div className="p-5 border-b border-gray-100">
                 <div>
                     <div className="mb-2 font-semibold">Locations</div>
 
@@ -118,23 +115,28 @@ export function AdSetGroupSettingsPopup() {
                     />
                 </div>
             </div>
-            <div className="p-5">
+            <div className="p-5 border-b border-gray-100">
                 <div>
                     <div className="mb-2 font-semibold">Age range</div>
                 </div>
             </div>
-
             <div className="p-5">
+                <div>
+                    <div className="mb-2 font-semibold">Gender</div>
+                </div>
+            </div>
+
+            {/* Modal footer */}
+            <div className="p-5 sticky bottom-0 border-t border-gray-100 bg-white">
                 <div className="flex gap-2 justify-end items-center">
-                    <button
+                    <Button
                         onClick={() => {
                             setPopupAdSetId(null);
                             form.setData("locations", locations);
                         }}
-                        className="bg-white font-semibold shadow-base px-3.5 py-2 rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out"
                     >
                         Cancel
-                    </button>
+                    </Button>
                     <Button
                         variant="primary"
                         disabled={isDisabled}
