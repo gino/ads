@@ -497,6 +497,8 @@ export function UploadedCreatives({ adSets }: Props) {
         "CREATING_ADSETS" | "UPLOADING_CREATIVES" | null
     >(null);
 
+    const [progress, setProgress] = useState(0);
+
     const loadingText = useMemo(() => {
         const adsLabel = `${form.data.creatives.length} ad${
             form.data.creatives.length === 1 ? "" : "s"
@@ -524,10 +526,13 @@ export function UploadedCreatives({ adSets }: Props) {
     const submit = useCallback(async () => {
         const adSetMap = new Map<string, string>();
 
-        // Create adsets
-        if (!hasSelectedAdSet) {
-            try {
+        try {
+            setProgress(0);
+
+            // STEP 1: Create adsets (skip if user already selected an AdSet)
+            if (!hasSelectedAdSet) {
                 setLoadingState("CREATING_ADSETS");
+
                 const response = await axios.post<string[]>(
                     route("dashboard.upload.create-adsets"),
                     {
@@ -543,40 +548,40 @@ export function UploadedCreatives({ adSets }: Props) {
 
                 const createdAdSetIds = response.data;
 
-                // This works but I'm not sure how consistent this is. Since this heavily depends on the order we get the IDs returned from Meta API - is this order always the same?
-                // > The ordering of responses correspond with the ordering of operations in the request. You should process responses accordingly to determine which operations were successful and which should be retried in a subsequent operation.
-                // TLDR: We can most likely do it this way (based on indexes)
-                // https://developers.facebook.com/docs/graph-api/batch-requests/#complex-batch-requests
+                // Map each returned adset ID back to its group
                 for (const [
                     index,
                     createdAdSetId,
                 ] of createdAdSetIds.entries()) {
                     const adSetGroup = adSetGroups[index]!;
                     adSetMap.set(adSetGroup.id, createdAdSetId);
-                    console.log({
-                        a: createdAdSetId,
-                        b: adSetGroup,
-                    });
                 }
-            } catch (err) {
-                setLoadingState(null);
-            }
-        }
 
-        // Create creatives
-        try {
+                setProgress(20);
+            }
+
+            // STEP 2: Upload creatives
             setLoadingState("UPLOADING_CREATIVES");
+
+            const total = form.data.creatives.length;
+            let current = 0;
+
             for (const creative of form.data.creatives) {
-                const adSetGroup = adSetGroups.find((group) => {
-                    return group.creatives.includes(creative.id);
-                })!;
+                const adSetGroup = adSetGroups.find((group) =>
+                    group.creatives.includes(creative.id)
+                )!;
 
                 const adSetId = hasSelectedAdSet
                     ? selectedAdSet!.id
-                    : adSetMap.get(adSetGroup.id)!;
+                    : adSetMap.get(adSetGroup.id);
+
+                if (!adSetId) {
+                    throw new Error(
+                        `Missing AdSet ID for creative ${creative.id}`
+                    );
+                }
 
                 const formData = new FormData();
-
                 formData.append("id", creative.id);
                 formData.append("name", creative.label || creative.name);
                 formData.append("file", creative.file);
@@ -601,24 +606,33 @@ export function UploadedCreatives({ adSets }: Props) {
                     Number(form.data.settings.disable_promo_codes).toString()
                 );
 
-                console.log("yeet");
+                await axios.post(route("dashboard.upload.creative"), formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
 
-                const response = await axios.post(
-                    route("dashboard.upload.creative"),
-                    formData,
-                    {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    }
-                );
-
-                console.log("yeet 2");
-
-                console.log(response.data);
+                current++;
+                const creativeProgress = 20 + (current / total) * 80;
+                setProgress(Math.round(creativeProgress));
             }
-        } catch (err) {
-            //
+
+            const adsLabel = `${form.data.creatives.length} ad${
+                form.data.creatives.length === 1 ? "" : "s"
+            }`;
+
+            // Success
+            toast({
+                contents: `Successfully launched ${adsLabel}`,
+            });
+        } catch (err: any) {
+            console.error(err);
+
+            toast({
+                contents:
+                    err?.response?.data?.message ||
+                    err?.message ||
+                    "Something went wrong while launching ads",
+                type: "ERROR",
+            });
         } finally {
             setLoadingState(null);
         }
@@ -643,6 +657,8 @@ export function UploadedCreatives({ adSets }: Props) {
                 <div className="overflow-y-auto flex-1 min-h-0">
                     <div className="p-5 border-b border-gray-100">
                         <div className="flex gap-2 justify-end items-center">
+                            {progress}
+
                             {!hasSelectedAdSet && (
                                 <Button
                                     onClick={() => {
