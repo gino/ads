@@ -523,17 +523,17 @@ export function UploadedCreatives({ adSets }: Props) {
         const toastId = "upload-progress-toast";
 
         try {
-            // 🟡 Initial toast (loading)
-            toast({
-                id: toastId,
-                type: "LOADING",
-                contents: "Creating ad sets...",
-                progress: 0,
-                dismissible: false,
-            });
-
             // STEP 1: Create adsets (skip if user already selected an AdSet)
             if (!hasSelectedAdSet) {
+                // 🟡 Initial toast (loading)
+                toast({
+                    id: toastId,
+                    type: "LOADING",
+                    contents: "Creating ad sets...",
+                    progress: 0,
+                    dismissible: false,
+                });
+
                 setLoadingState("CREATING_ADSETS");
 
                 toast({
