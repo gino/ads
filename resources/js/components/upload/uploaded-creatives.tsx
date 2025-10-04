@@ -65,6 +65,8 @@ const UploadedCreativesContext = createContext<UploadedCreativesContextType>(
 );
 UploadedCreativesContext.displayName = "UploadedCreativesContext";
 
+export const defaultAdSetSettings: AdSetGroupSettings = { locations: ["US"] };
+
 interface Props {
     adSets: App.Data.AdSetData[];
 }
@@ -104,10 +106,6 @@ export function UploadedCreatives({ adSets }: Props) {
     const [selectedAdSetCreatives, setSelectedAdSetCreatives] = useState<
         string[]
     >([]);
-
-    const defaultSettings: AdSetGroupSettings = { locations: ["US"] };
-    const [selectedAdSetSettings, setSelectedAdSetSettings] =
-        useState<AdSetGroupSettings>(defaultSettings);
 
     const getCreativesInCurrentGroup = useCallback(() => {
         if (selectedIds.length === 0) return [];
@@ -176,10 +174,6 @@ export function UploadedCreatives({ adSets }: Props) {
 
         // Clear selection
         clearSelection();
-
-        if (selectedAdSet) {
-            setSelectedAdSetSettings({ ...defaultSettings });
-        }
     }, [form.data.adSetId, selectedAdSet, clearSelection]);
 
     const ungroupedCreatives = useMemo(() => {
@@ -225,7 +219,7 @@ export function UploadedCreatives({ adSets }: Props) {
                     id: crypto.randomUUID(),
                     label,
                     creatives: [],
-                    settings: defaultSettings,
+                    settings: defaultAdSetSettings,
                 },
             ]);
             // clearSelection();
@@ -352,14 +346,6 @@ export function UploadedCreatives({ adSets }: Props) {
             key: T,
             value: AdSetGroupSettings[T]
         ) => {
-            if (hasSelectedAdSet && id === selectedAdSet!.id) {
-                setSelectedAdSetSettings((prev) => ({
-                    ...prev,
-                    [key]: value,
-                }));
-                return;
-            }
-
             setAdSetGroups((prev) =>
                 prev.map((group) =>
                     group.id === id
@@ -379,14 +365,10 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const getSettings = useCallback(
         (id: string): AdSetGroupSettings => {
-            if (hasSelectedAdSet && id === selectedAdSet!.id) {
-                return selectedAdSetSettings;
-            }
-
             const group = adSetGroups.find((g) => g.id === id);
-            return group ? group.settings : defaultSettings;
+            return group ? group.settings : defaultAdSetSettings;
         },
-        [hasSelectedAdSet, selectedAdSet, selectedAdSetSettings, adSetGroups]
+        [hasSelectedAdSet, selectedAdSet, adSetGroups]
     );
 
     const memoizedValue = useMemo<UploadedCreativesContextType>(
@@ -600,6 +582,10 @@ export function UploadedCreatives({ adSets }: Props) {
                 formData.append("facebookPageId", form.data.facebookPageId);
                 formData.append("instagramPageId", form.data.instagramPageId);
 
+                Object.entries(creative.settings).forEach(([key, value]) => {
+                    formData.append(`settings[${key}]`, value);
+                });
+
                 const response = await axios.post(
                     route("dashboard.upload.creative"),
                     formData,
@@ -743,7 +729,7 @@ export function UploadedCreatives({ adSets }: Props) {
                                                 creativeIds={
                                                     selectedAdSetCreatives
                                                 }
-                                                isExistingAdSet
+                                                existingAdSet={selectedAdSet!}
                                             />
                                         ) : (
                                             adSetGroups.map((adSetGroup) => (

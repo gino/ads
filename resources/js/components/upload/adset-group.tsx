@@ -15,7 +15,7 @@ interface Props {
     type: FolderType;
     creativeIds: string[];
     className?: string;
-    isExistingAdSet?: boolean;
+    existingAdSet?: App.Data.AdSetData;
 }
 
 export function AdSetGroup({
@@ -23,9 +23,11 @@ export function AdSetGroup({
     label,
     type,
     creativeIds,
-    isExistingAdSet,
+    existingAdSet,
     className,
 }: Props) {
+    const isExistingAdSet = !!existingAdSet;
+
     const { isOver, setNodeRef, active } = useDroppable({
         id,
     });
@@ -74,6 +76,14 @@ export function AdSetGroup({
     const isAbleToEdit = type === "ADSET" && !isExistingAdSet;
 
     const settings = getSettings(id);
+
+    const locations = useMemo(() => {
+        if (isExistingAdSet) {
+            return existingAdSet.countries;
+        }
+
+        return settings.locations;
+    }, [settings.locations, isExistingAdSet, existingAdSet]);
 
     return (
         <div
@@ -173,20 +183,16 @@ export function AdSetGroup({
 
                     <div className="flex items-center relative">
                         <div className="flex items-center gap-1.5">
-                            {settings.locations.length > 0 &&
-                                type === "ADSET" && (
-                                    <div className="font-semibold text-purple-950 bg-purple-500/10 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-purple-900/10">
-                                        <i className="fa-regular fa-location-dot mr-0.5 text-[10px]" />
-                                        <span>
-                                            {settings.locations[0]}
-                                            {settings.locations.length > 1 &&
-                                                ` +${
-                                                    settings.locations.length -
-                                                    1
-                                                }`}
-                                        </span>
-                                    </div>
-                                )}
+                            {locations.length > 0 && type === "ADSET" && (
+                                <div className="font-semibold text-purple-950 bg-purple-500/10 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-purple-900/10">
+                                    <i className="fa-regular fa-location-dot mr-0.5 text-[10px]" />
+                                    <span>
+                                        {locations[0]}
+                                        {locations.length > 1 &&
+                                            ` +${locations.length - 1}`}
+                                    </span>
+                                </div>
+                            )}
 
                             <div className="font-semibold bg-gray-200/50 text-[12px] px-2 inline-block rounded-full leading-5">
                                 {creatives.length} creative
@@ -194,54 +200,51 @@ export function AdSetGroup({
                             </div>
                         </div>
 
-                        {type === "ADSET" && (
+                        {type === "ADSET" && !isExistingAdSet && (
                             <>
                                 <div className="w-px h-4 bg-gray-200/50 mx-3" />
                                 <div className="flex items-center gap-1">
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setPopupAdSetId(id);
-                                        }}
-                                        className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
-                                    >
-                                        <i className="fa-regular fa-cog" />
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setPopupAdSetId(id);
+                                            }}
+                                            className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
+                                        >
+                                            <i className="fa-regular fa-cog" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                cloneGroup(id);
+                                            }}
+                                            className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
+                                        >
+                                            <i className="fa-regular fa-clone" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
 
-                                    {!isExistingAdSet && (
-                                        <>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    cloneGroup(id);
-                                                }}
-                                                className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
-                                            >
-                                                <i className="fa-regular fa-clone" />
-                                            </button>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-
-                                                    if (creatives.length > 0) {
-                                                        if (
-                                                            confirm(
-                                                                "Are you sure you want to delete this ad set? Any attached creatives will be ungrouped."
-                                                            )
-                                                        ) {
-                                                            deleteGroup(id);
-                                                        }
-                                                        return;
+                                                if (creatives.length > 0) {
+                                                    if (
+                                                        confirm(
+                                                            "Are you sure you want to delete this ad set? Any attached creatives will be ungrouped."
+                                                        )
+                                                    ) {
+                                                        deleteGroup(id);
                                                     }
+                                                    return;
+                                                }
 
-                                                    deleteGroup(id);
-                                                }}
-                                                className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-red-700 h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
-                                            >
-                                                <i className="fa-regular fa-trash-can" />
-                                            </button>
-                                        </>
-                                    )}
+                                                deleteGroup(id);
+                                            }}
+                                            className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-red-700 h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
+                                        >
+                                            <i className="fa-regular fa-trash-can" />
+                                        </button>
+                                    </>
                                 </div>
                             </>
                         )}

@@ -43,6 +43,7 @@ class GetAdSetsRequest extends Request implements Cacheable, Paginatable
             'effective_status',
             'status',
             'campaign_id',
+            'targeting',
         ];
 
         return [

@@ -1,5 +1,8 @@
 import { Layout } from "@/components/layouts/app-layout";
-import { AdCreativeSettingsPopup } from "@/components/upload/popups/ad-creative-settings";
+import {
+    AdCreativeSettingsPopup,
+    CallToActionType,
+} from "@/components/upload/popups/ad-creative-settings";
 import { UploadProvider } from "@/components/upload/upload-context";
 import { UploadForm } from "@/components/upload/upload-form";
 import { UploadedCreatives } from "@/components/upload/uploaded-creatives";
@@ -7,7 +10,7 @@ import useDeferred from "@/lib/hooks/use-deferred";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 
 export type CreativeSettings = {
-    cta: string;
+    cta: CallToActionType;
 };
 
 export type UploadedCreative = {

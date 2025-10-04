@@ -31,6 +31,7 @@ effectiveStatus: string;
 status: string;
 campaignId: string;
 insights: App.Data.InsightsData | null;
+countries: Array<any>;
 };
 export type FacebookPageData = {
 id: string;

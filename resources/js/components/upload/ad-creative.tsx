@@ -28,8 +28,12 @@ export function AdCreative({
             id: creative.id,
         });
 
-    const { deleteCreative, setCreativeLabel, setPopupCreativeId } =
-        useUploadContext();
+    const {
+        deleteCreative,
+        setCreativeLabel,
+        setPopupCreativeId,
+        getCreativeSettings,
+    } = useUploadContext();
     const { deleteFromGroup, toggleSelection, selectedIds, activeId } =
         useUploadedCreativesContext();
 
@@ -54,6 +58,8 @@ export function AdCreative({
             setNewLabel(creative.label || creative.name);
         }
     }, [creative, newLabel, setCreativeLabel]);
+
+    const settings = getCreativeSettings(creative.id);
 
     return (
         <Ariakit.HovercardProvider>

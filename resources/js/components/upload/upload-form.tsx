@@ -15,7 +15,7 @@ import { toast } from "../ui/toast";
 import { allowedFileTypes } from "./constants";
 import { DropboxButton } from "./integrations/dropbox";
 import { GoogleDriveButton } from "./integrations/google-drive";
-import { useUploadContext } from "./upload-context";
+import { defaultCreativeSettings, useUploadContext } from "./upload-context";
 
 interface Props {
     campaigns: App.Data.AdCampaignData[];
@@ -623,8 +623,6 @@ export async function createUploadedCreative(
         preview: URL.createObjectURL(file),
         type: file.type,
         thumbnail,
-        settings: {
-            cta: "",
-        },
+        settings: defaultCreativeSettings,
     };
 }

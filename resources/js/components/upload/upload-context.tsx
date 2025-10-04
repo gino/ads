@@ -34,6 +34,10 @@ interface UploadContextType {
 const UploadContext = createContext<UploadContextType>(null!);
 UploadContext.displayName = "UploadContext";
 
+export const defaultCreativeSettings: CreativeSettings = {
+    cta: "SHOP_NOW",
+};
+
 export function UploadProvider({ children }: PropsWithChildren) {
     const form = useForm<UploadForm>({
         campaignId: "",
@@ -83,6 +87,10 @@ export function UploadProvider({ children }: PropsWithChildren) {
             const creative = form.data.creatives.find(
                 (c) => c.id === creativeId
             )!;
+
+            if (!creative) {
+                return defaultCreativeSettings;
+            }
 
             return creative.settings;
         },

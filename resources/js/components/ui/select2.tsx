@@ -9,7 +9,7 @@ interface SelectItem {
 
 interface Props<T extends object> {
     label: string;
-    placeholder: string;
+    placeholder?: string;
     items: T[];
     getItem: (item: T) => SelectItem;
     getSelectedItem: (item: T) => ReactNode;
@@ -66,7 +66,7 @@ export function Select2<T extends object>({
 
                                 return (
                                     <span className="font-semibold">
-                                        {placeholder}
+                                        {placeholder || "Select an item"}
                                     </span>
                                 );
                             }

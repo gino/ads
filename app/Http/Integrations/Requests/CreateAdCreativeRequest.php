@@ -21,6 +21,7 @@ class CreateAdCreativeRequest extends Request implements HasBody
         public string $facebookPageId,
         public ?string $instagramPageId,
         public bool $isVideo,
+        public string $cta,
     ) {}
 
     public function resolveEndpoint(): string
@@ -40,16 +41,30 @@ class CreateAdCreativeRequest extends Request implements HasBody
             $spec['instagram_user_id'] = $this->instagramPageId;
         }
 
+        $url = 'https://google.com';
+
         // https://developers.facebook.com/docs/marketing-api/reference/ad-creative-object-story-spec/
         if ($this->isVideo) {
             // Video
             $spec['video_data'] = [
                 'image_hash' => $this->hash,
+                'call_to_action' => [
+                    'type' => $this->cta,
+                    'value' => [
+                        'link' => $url,
+                    ],
+                ],
             ];
         } else {
-            // Photo
-            $spec['photo_data'] = [
+            $spec['link_data'] = [
                 'image_hash' => $this->hash,
+                'link' => $url,
+                'call_to_action' => [
+                    'type' => $this->cta,
+                    'value' => [
+                        'link' => $url,
+                    ],
+                ],
             ];
         }
 
@@ -57,6 +72,7 @@ class CreateAdCreativeRequest extends Request implements HasBody
         return [
             'name' => $this->name,
             'object_story_spec' => $spec,
+            // 'call_to_action_type' => $this->cta,
         ];
     }
 }

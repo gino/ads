@@ -107,6 +107,7 @@ export function AdSetGroupSettingsPopup() {
                     )}
 
                     <MultiCombobox
+                        placeholder="Search locations..."
                         items={countries}
                         value={form.data.locations}
                         onChange={(values) => {

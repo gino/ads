@@ -20,7 +20,6 @@ use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
@@ -139,6 +138,8 @@ class UploadController extends Controller
             'adSetId' => ['required', 'string'],
             'facebookPageId' => ['required', 'string'],
             'instagramPageId' => ['nullable', 'string'],
+            //
+            'settings.cta' => ['required', 'string'],
         ]);
 
         /** @var AdAccount $adAccount */
@@ -165,7 +166,8 @@ class UploadController extends Controller
             hash: $images->first()['hash'],
             facebookPageId: $validated['facebookPageId'],
             instagramPageId: $validated['instagramPageId'] ?? null,
-            isVideo: str_starts_with($creative->getMimeType(), 'video/')
+            isVideo: str_starts_with($creative->getMimeType(), 'video/'),
+            cta: $validated['settings']['cta']
         ))->throw();
 
         $creativeId = $createdAdCreativeResponse->json('id');
@@ -177,9 +179,6 @@ class UploadController extends Controller
             creativeId: $creativeId
         ))->throw();
 
-        Log::debug('createdAdResponse');
-        Log::debug($createdAdResponse->json());
-
-        return response()->json($createdAdCreativeResponse->json());
+        return response()->json($createdAdResponse->json());
     }
 }

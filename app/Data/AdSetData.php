@@ -22,4 +22,8 @@ class AdSetData extends Data
     public string $campaignId;
 
     public ?InsightsData $insights;
+
+    /** @param $countries string[] */
+    #[MapInputName('targeting.geo_locations.countries')]
+    public array $countries;
 }
