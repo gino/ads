@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { isInNoDndZone } from "@/lib/dnd-sensors";
 import { UploadedCreative } from "@/pages/upload";
 import * as Ariakit from "@ariakit/react";
 import { useDraggable } from "@dnd-kit/core";
@@ -28,12 +29,8 @@ export function AdCreative({
             id: creative.id,
         });
 
-    const {
-        deleteCreative,
-        setCreativeLabel,
-        setPopupCreativeId,
-        getCreativeSettings,
-    } = useUploadContext();
+    const { deleteCreative, setCreativeLabel, setPopupCreativeId } =
+        useUploadContext();
     const { deleteFromGroup, toggleSelection, selectedIds, activeId } =
         useUploadedCreativesContext();
 
@@ -59,8 +56,6 @@ export function AdCreative({
         }
     }, [creative, newLabel, setCreativeLabel]);
 
-    const settings = getCreativeSettings(creative.id);
-
     return (
         <Ariakit.HovercardProvider>
             <div
@@ -77,6 +72,8 @@ export function AdCreative({
                 <div
                     ref={setNodeRef}
                     onClick={(e) => {
+                        if (isInNoDndZone(e)) return;
+
                         toggleSelection(creative.id, e);
                     }}
                     style={{
@@ -144,11 +141,8 @@ export function AdCreative({
                                 {!editingLabel ? (
                                     <>
                                         <span
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                            }}
-                                            onDoubleClick={(e) => {
-                                                e.stopPropagation();
+                                            data-no-dnd
+                                            onDoubleClick={() => {
                                                 setEditingLabel(true);
                                             }}
                                             className="truncate cursor-text peer"
@@ -161,10 +155,7 @@ export function AdCreative({
                                     <div className="p-px flex-1">
                                         <input
                                             type="text"
-                                            onPointerDown={(e) => {
-                                                e.stopPropagation();
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
+                                            data-no-dnd
                                             className="px-3 py-1.5 w-full bg-white rounded-lg ring-1 ring-gray-200 outline-none text-xs placeholder-gray-400"
                                             value={newLabel}
                                             placeholder={
@@ -174,8 +165,6 @@ export function AdCreative({
                                                 setNewLabel(e.target.value)
                                             }
                                             onKeyDown={(e) => {
-                                                e.stopPropagation();
-
                                                 if (e.key === "Enter") {
                                                     updateLabel();
                                                     return;
@@ -209,13 +198,11 @@ export function AdCreative({
                         <div className="flex items-center">
                             <div className="w-px h-4 bg-gray-100 mr-3" />
                             <div
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onClick={(e) => e.stopPropagation()}
+                                data-no-dnd
                                 className="flex items-center gap-1 pointer-events-auto"
                             >
                                 <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
+                                    onClick={() => {
                                         setPopupCreativeId(creative.id);
                                     }}
                                     className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white"

@@ -1,16 +1,10 @@
+import { MouseSensor, PointerSensor, TouchSensor } from "@/lib/dnd-sensors";
 import {
     AdSetGroupSettings,
     AdSetGroup as AdSetGroupType,
 } from "@/pages/upload";
 import { Portal } from "@ariakit/react";
-import {
-    DndContext,
-    DragOverlay,
-    MouseSensor,
-    PointerSensor,
-    TouchSensor,
-    useSensor,
-} from "@dnd-kit/core";
+import { DndContext, DragOverlay, useSensor } from "@dnd-kit/core";
 import axios from "axios";
 import { motion } from "motion/react";
 import {
@@ -72,7 +66,7 @@ interface Props {
 }
 
 export function UploadedCreatives({ adSets }: Props) {
-    const { form } = useUploadContext();
+    const { form, popupCreativeId } = useUploadContext();
 
     const [adSetGroups, setAdSetGroups] = useState<AdSetGroupType[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -421,6 +415,8 @@ export function UploadedCreatives({ adSets }: Props) {
         }),
     ];
 
+    const enableHotKeys = popupAdSetId === null && popupCreativeId === null;
+
     // Hot keys
     useHotkeys(
         ["esc"],
@@ -428,7 +424,7 @@ export function UploadedCreatives({ adSets }: Props) {
             e.preventDefault();
             clearSelection();
         },
-        { enabled: popupAdSetId === null }
+        { enabled: enableHotKeys }
     );
     useHotkeys(
         ["meta+a", "ctrl+a"],
@@ -444,7 +440,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 setSelectedIds(allIds);
             }
         },
-        { enabled: popupAdSetId === null },
+        { enabled: enableHotKeys },
         [form.data.creatives, selectedIds]
     );
     useHotkeys(
@@ -453,7 +449,7 @@ export function UploadedCreatives({ adSets }: Props) {
             e.preventDefault();
             extendSelection("up");
         },
-        { enabled: popupAdSetId === null },
+        { enabled: enableHotKeys },
         [extendSelection]
     );
     useHotkeys(
@@ -462,7 +458,7 @@ export function UploadedCreatives({ adSets }: Props) {
             e.preventDefault();
             extendSelection("down");
         },
-        { enabled: popupAdSetId === null },
+        { enabled: enableHotKeys },
         [extendSelection]
     );
 
@@ -655,10 +651,12 @@ export function UploadedCreatives({ adSets }: Props) {
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">
             <div className="flex overflow-hidden flex-col h-full min-h-0 bg-white rounded-xl shadow-base">
                 <div className="overflow-y-auto flex-1 min-h-0">
-                    <div className="p-5 border-b border-gray-100">
-                        <div className="flex gap-2 justify-end items-center">
-                            {progress}
+                    <div className="p-5 border-b border-gray-100 flex items-center gap-5">
+                        <div className="flex-1">
+                            <div className="h-1 bg-red-500" />
+                        </div>
 
+                        <div className="flex gap-2 justify-end items-center">
                             {!hasSelectedAdSet && (
                                 <Button
                                     onClick={() => {

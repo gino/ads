@@ -100,7 +100,6 @@ export function AdCreativeSettingsPopup() {
 
             {/* Modal footer */}
             <div className="p-5 sticky bottom-0 border-t border-gray-100 bg-white">
-                {JSON.stringify(form.data.cta)}
                 <div className="flex gap-2 justify-end items-center">
                     <Button
                         onClick={() => {

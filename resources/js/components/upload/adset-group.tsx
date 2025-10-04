@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { isInNoDndZone } from "@/lib/dnd-sensors";
 import { useDroppable } from "@dnd-kit/core";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
@@ -99,7 +100,11 @@ export function AdSetGroup({
                 className="bg-gray-50 ring-inset ring-1 ring-gray-200/30 rounded-xl select-none"
             >
                 <div
-                    onClick={() => setFolded((v) => !v)}
+                    onClick={(e) => {
+                        if (isInNoDndZone(e)) return;
+
+                        setFolded((v) => !v);
+                    }}
                     className="flex px-3.5 gap-3 items-center h-12 cursor-pointer"
                 >
                     <div className="flex items-center flex-1 truncate">
@@ -122,14 +127,9 @@ export function AdSetGroup({
                                     {!editingLabel ? (
                                         <>
                                             <span
-                                                onClick={(e) => {
+                                                data-no-dnd={isAbleToEdit}
+                                                onDoubleClick={() => {
                                                     if (isAbleToEdit) {
-                                                        e.stopPropagation();
-                                                    }
-                                                }}
-                                                onDoubleClick={(e) => {
-                                                    if (isAbleToEdit) {
-                                                        e.stopPropagation();
                                                         setEditingLabel(true);
                                                     }
                                                 }}
@@ -149,9 +149,7 @@ export function AdSetGroup({
                                         <div className="p-px">
                                             <input
                                                 type="text"
-                                                onClick={(e) =>
-                                                    e.stopPropagation()
-                                                }
+                                                data-no-dnd
                                                 className="px-3 py-1.5 w-full bg-white rounded-lg ring-1 ring-gray-200 outline-none text-xs placeholder-gray-400"
                                                 value={newLabel}
                                                 placeholder={label}
@@ -203,11 +201,13 @@ export function AdSetGroup({
                         {type === "ADSET" && !isExistingAdSet && (
                             <>
                                 <div className="w-px h-4 bg-gray-200/50 mx-3" />
-                                <div className="flex items-center gap-1">
+                                <div
+                                    data-no-dnd
+                                    className="flex items-center gap-1"
+                                >
                                     <>
                                         <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
+                                            onClick={() => {
                                                 setPopupAdSetId(id);
                                             }}
                                             className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
@@ -215,8 +215,7 @@ export function AdSetGroup({
                                             <i className="fa-regular fa-cog" />
                                         </button>
                                         <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
+                                            onClick={() => {
                                                 cloneGroup(id);
                                             }}
                                             className="cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out hover:bg-gray-200/50 text-gray-400 hover:text-black h-6 w-6 text-[12px] flex items-center justify-center rounded-[5px]"
@@ -224,9 +223,7 @@ export function AdSetGroup({
                                             <i className="fa-regular fa-clone" />
                                         </button>
                                         <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-
+                                            onClick={() => {
                                                 if (creatives.length > 0) {
                                                     if (
                                                         confirm(
