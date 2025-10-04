@@ -20,7 +20,9 @@ class CreateAdRequest extends Request implements HasBody
         public AdAccount $adAccount,
         public string $name,
         public string $adSetId,
-        public string $creativeId
+        public string $creativeId,
+        //
+        public bool $pausedByDefault
     ) {}
 
     public function resolveEndpoint(): string
@@ -36,7 +38,7 @@ class CreateAdRequest extends Request implements HasBody
             'creative' => [
                 'creative_id' => $this->creativeId,
             ],
-            'status' => 'PAUSED',
+            'status' => $this->pausedByDefault ? 'PAUSED' : 'ACTIVE',
         ];
     }
 }

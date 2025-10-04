@@ -72,7 +72,10 @@ class CreateAdCreativeRequest extends Request implements HasBody
         return [
             'name' => $this->name,
             'object_story_spec' => $spec,
-            // 'call_to_action_type' => $this->cta,
+            // https://developers.facebook.com/docs/marketing-api/creative/multi-advertiser-ads/
+            'contextual_multi_ads' => [
+                'enroll_status' => 'OPT_OUT',
+            ],
         ];
     }
 }

@@ -82,10 +82,6 @@ class UploadController extends Controller
             //
             'campaignId' => ['required', 'string'],
             'pixelId' => ['required', 'string'],
-            //
-            'settings.pausedByDefault' => ['required', 'boolean'],
-            'settings.disableEnhancements' => ['required', 'boolean'],
-            'settings.disablePromoCodes' => ['required', 'boolean'],
         ]);
 
         /** @var AdAccount $adAccount */
@@ -105,8 +101,6 @@ class UploadController extends Controller
             adSets: AdSetInput::collect($adSets)->toArray(),
             campaignId: $validated['campaignId'],
             pixelId: $validated['pixelId'],
-            //
-            pausedByDefault: $validated['settings']['pausedByDefault']
         );
 
         $response = $meta->send($createAdSetsRequest);
@@ -139,7 +133,11 @@ class UploadController extends Controller
             'facebookPageId' => ['required', 'string'],
             'instagramPageId' => ['nullable', 'string'],
             //
-            'settings.cta' => ['required', 'string'],
+            'creative_settings.cta' => ['required', 'string'],
+            //
+            'settings.pausedByDefault' => ['required', 'boolean'],
+            'settings.disableEnhancements' => ['required', 'boolean'],
+            'settings.disablePromoCodes' => ['required', 'boolean'],
         ]);
 
         /** @var AdAccount $adAccount */
@@ -167,7 +165,7 @@ class UploadController extends Controller
             facebookPageId: $validated['facebookPageId'],
             instagramPageId: $validated['instagramPageId'] ?? null,
             isVideo: str_starts_with($creative->getMimeType(), 'video/'),
-            cta: $validated['settings']['cta']
+            cta: $validated['creative_settings']['cta']
         ))->throw();
 
         $creativeId = $createdAdCreativeResponse->json('id');
@@ -176,7 +174,8 @@ class UploadController extends Controller
             name: $creativeName,
             adAccount: $adAccount,
             adSetId: $validated['adSetId'],
-            creativeId: $creativeId
+            creativeId: $creativeId,
+            pausedByDefault: $validated['settings']['pausedByDefault']
         ))->throw();
 
         return response()->json($createdAdResponse->json());

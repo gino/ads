@@ -25,9 +25,7 @@ class CreateAdSetsRequest extends Request implements HasBody
         public AdAccount $adAccount,
         public array $adSets,
         public string $campaignId,
-        public string $pixelId,
-        //
-        public bool $pausedByDefault
+        public string $pixelId
     ) {}
 
     public function resolveEndpoint(): string
@@ -45,7 +43,7 @@ class CreateAdSetsRequest extends Request implements HasBody
                 'relative_url' => "{$this->adAccount->external_id}/adsets",
                 'body' => http_build_query([
                     'name' => $adSet['label'],
-                    'status' => 'PAUSED',
+                    'status' => 'ACTIVE',
                     'campaign_id' => $this->campaignId,
                     'billing_event' => 'IMPRESSIONS',
                     'optimization_goal' => 'OFFSITE_CONVERSIONS',

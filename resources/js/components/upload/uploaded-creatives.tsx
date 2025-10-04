@@ -525,44 +525,42 @@ export function UploadedCreatives({ adSets }: Props) {
         const adSetMap = new Map<string, string>();
 
         // Create adsets
-        try {
-            setLoadingState("CREATING_ADSETS");
-            const response = await axios.post<string[]>(
-                route("dashboard.upload.create-adsets"),
-                {
-                    adSets: adSetGroups.map((adSet) => ({
-                        id: adSet.id,
-                        label: adSet.label,
-                        settings: adSet.settings,
-                    })),
-                    campaignId: form.data.campaignId,
-                    pixelId: form.data.pixelId,
-                    settings: {
-                        pausedByDefault: form.data.settings.paused_by_default,
-                        disableEnhancements:
-                            form.data.settings.disable_enhancements,
-                        disablePromoCodes:
-                            form.data.settings.disable_promo_codes,
-                    },
+        if (!hasSelectedAdSet) {
+            try {
+                setLoadingState("CREATING_ADSETS");
+                const response = await axios.post<string[]>(
+                    route("dashboard.upload.create-adsets"),
+                    {
+                        adSets: adSetGroups.map((adSet) => ({
+                            id: adSet.id,
+                            label: adSet.label,
+                            settings: adSet.settings,
+                        })),
+                        campaignId: form.data.campaignId,
+                        pixelId: form.data.pixelId,
+                    }
+                );
+
+                const createdAdSetIds = response.data;
+
+                // This works but I'm not sure how consistent this is. Since this heavily depends on the order we get the IDs returned from Meta API - is this order always the same?
+                // > The ordering of responses correspond with the ordering of operations in the request. You should process responses accordingly to determine which operations were successful and which should be retried in a subsequent operation.
+                // TLDR: We can most likely do it this way (based on indexes)
+                // https://developers.facebook.com/docs/graph-api/batch-requests/#complex-batch-requests
+                for (const [
+                    index,
+                    createdAdSetId,
+                ] of createdAdSetIds.entries()) {
+                    const adSetGroup = adSetGroups[index]!;
+                    adSetMap.set(adSetGroup.id, createdAdSetId);
+                    console.log({
+                        a: createdAdSetId,
+                        b: adSetGroup,
+                    });
                 }
-            );
-
-            const createdAdSetIds = response.data;
-
-            // This works but I'm not sure how consistent this is. Since this heavily depends on the order we get the IDs returned from Meta API - is this order always the same?
-            // > The ordering of responses correspond with the ordering of operations in the request. You should process responses accordingly to determine which operations were successful and which should be retried in a subsequent operation.
-            // TLDR: We can most likely do it this way (based on indexes)
-            // https://developers.facebook.com/docs/graph-api/batch-requests/#complex-batch-requests
-            for (const [index, createdAdSetId] of createdAdSetIds.entries()) {
-                const adSetGroup = adSetGroups[index]!;
-                adSetMap.set(adSetGroup.id, createdAdSetId);
-                console.log({
-                    a: createdAdSetId,
-                    b: adSetGroup,
-                });
+            } catch (err) {
+                setLoadingState(null);
             }
-        } catch (err) {
-            setLoadingState(null);
         }
 
         // Create creatives
@@ -572,7 +570,11 @@ export function UploadedCreatives({ adSets }: Props) {
                 const adSetGroup = adSetGroups.find((group) => {
                     return group.creatives.includes(creative.id);
                 })!;
-                const adSetId = adSetMap.get(adSetGroup.id)!;
+
+                const adSetId = hasSelectedAdSet
+                    ? selectedAdSet!.id
+                    : adSetMap.get(adSetGroup.id)!;
+
                 const formData = new FormData();
 
                 formData.append("id", creative.id);
@@ -583,8 +585,23 @@ export function UploadedCreatives({ adSets }: Props) {
                 formData.append("instagramPageId", form.data.instagramPageId);
 
                 Object.entries(creative.settings).forEach(([key, value]) => {
-                    formData.append(`settings[${key}]`, value);
+                    formData.append(`creative_settings[${key}]`, String(value));
                 });
+
+                formData.append(
+                    "settings[pausedByDefault]",
+                    Number(form.data.settings.paused_by_default).toString()
+                );
+                formData.append(
+                    "settings[disableEnhancements]",
+                    Number(form.data.settings.disable_enhancements).toString()
+                );
+                formData.append(
+                    "settings[disablePromoCodes]",
+                    Number(form.data.settings.disable_promo_codes).toString()
+                );
+
+                console.log("yeet");
 
                 const response = await axios.post(
                     route("dashboard.upload.creative"),
@@ -595,6 +612,8 @@ export function UploadedCreatives({ adSets }: Props) {
                         },
                     }
                 );
+
+                console.log("yeet 2");
 
                 console.log(response.data);
             }
@@ -614,6 +633,8 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.settings.disable_enhancements,
         form.data.settings.disable_promo_codes,
         setLoadingState,
+        hasSelectedAdSet,
+        selectedAdSet,
     ]);
 
     return (
@@ -708,7 +729,11 @@ export function UploadedCreatives({ adSets }: Props) {
                                         draggingCreatives.length > 1
                                             ? "creatives"
                                             : "creative"
-                                    } added to "${group.label}"`,
+                                    } added to "${
+                                        hasSelectedAdSet
+                                            ? selectedAdSet!.name
+                                            : group.label
+                                    }"`,
                                 });
                             }
                         }}
