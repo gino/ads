@@ -6,6 +6,7 @@ import {
 } from "@/pages/upload";
 import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay, useSensor } from "@dnd-kit/core";
+import { router } from "@inertiajs/react";
 import axios from "axios";
 import { motion } from "motion/react";
 import {
@@ -659,7 +660,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 toast({
                     id: toastId,
                     type: "LOADING",
-                    contents: `Uploading creatives (${current}/${total})...`,
+                    contents: `Uploading creatives... (${current}/${total})`,
                     progress: roundedProgress,
                     dismissible: false,
                 });
@@ -675,6 +676,14 @@ export function UploadedCreatives({ adSets }: Props) {
                 type: "SUCCESS",
                 contents: `Successfully launched ${adsLabel}`,
             });
+
+            // Reset adSetGroups
+            // Keep form so the user can upload more creatives if they want to
+            // Reset creatives in form tho
+            form.reset("creatives");
+            setAdSetGroups([]);
+            // Reload adSets since there may be new ones now after ads launch (this is cached though but still)
+            router.reload({ only: ["adSets"] });
         } catch (err: any) {
             console.error(err);
 
@@ -700,6 +709,8 @@ export function UploadedCreatives({ adSets }: Props) {
         setLoadingState,
         hasSelectedAdSet,
         selectedAdSet,
+        setAdSetGroups,
+        form.reset,
     ]);
 
     return (
@@ -708,6 +719,8 @@ export function UploadedCreatives({ adSets }: Props) {
                 <div className="overflow-y-auto flex-1 min-h-0">
                     <div className="p-5 border-b border-gray-100">
                         <div className="flex gap-2 justify-end items-center">
+                            <SimulateButton />
+
                             {!hasSelectedAdSet && (
                                 <Button
                                     onClick={() => {
@@ -903,4 +916,74 @@ export function UploadedCreatives({ adSets }: Props) {
 
 export function useUploadedCreativesContext() {
     return useContext(UploadedCreativesContext);
+}
+
+function SimulateButton() {
+    const simulate = useCallback(async () => {
+        const toastId = "upload-progress-toast";
+
+        try {
+            // STEP 1: Fake "Creating ad sets"
+            toast({
+                id: toastId,
+                type: "LOADING",
+                contents: "Creating ad sets...",
+                progress: 0,
+                dismissible: false,
+            });
+
+            await sleep(1000);
+            toast({
+                id: toastId,
+                type: "LOADING",
+                contents: "Uploading creatives...",
+                progress: 20,
+                dismissible: false,
+            });
+
+            // STEP 2: Fake "Uploading creatives"
+            const total = 4; // pretend we have 3 creatives
+            for (let current = 1; current <= total; current++) {
+                await sleep(2000);
+                const creativeProgress = 20 + (current / total) * 80;
+                const roundedProgress = Math.round(creativeProgress);
+
+                toast({
+                    id: toastId,
+                    type: "LOADING",
+                    contents: `Uploading creatives... (${current}/${total})`,
+                    progress: roundedProgress,
+                    dismissible: false,
+                });
+            }
+
+            // STEP 3: Finish
+            await sleep(1500);
+            sonnerToast.dismiss(toastId);
+            toast({
+                type: "SUCCESS",
+                contents: "Successfully launched 3 ads",
+            });
+        } catch (err: any) {
+            console.error(err);
+            toast({
+                id: toastId,
+                type: "ERROR",
+                contents:
+                    err?.message ||
+                    "Something went wrong while simulating upload",
+            });
+        }
+    }, []);
+
+    return (
+        <Button onClick={simulate} className="flex items-center gap-2">
+            Simulate upload
+        </Button>
+    );
+}
+
+// Little helper
+function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }

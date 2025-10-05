@@ -11,24 +11,30 @@ interface Props {
     dismissible?: boolean;
 }
 
-export function toast(toast: Omit<Props, "id"> & { id?: string | number }) {
+export function toast({
+    dismissible = true,
+    ...toast
+}: Omit<Props, "id"> & { id?: string | number }) {
     const options: Parameters<typeof sonnerToast.custom>[1] = {
         position: "bottom-center",
         duration: toast.type === "LOADING" ? Infinity : 4000,
+        dismissible,
     };
 
     if (toast.id !== undefined) {
         options.id = toast.id;
+    } else {
+        options.id = crypto.randomUUID();
     }
 
     return sonnerToast.custom(
         () => (
             <Toast
-                id={toast.id ?? Math.random().toString()} // must pass something to Toast
+                id={options.id!}
                 contents={toast.contents}
                 type={toast.type}
                 progress={toast.progress}
-                dismissible={toast.dismissible}
+                dismissible={dismissible}
             />
         ),
         options
@@ -40,7 +46,7 @@ function Toast({
     contents,
     type = "SUCCESS",
     progress,
-    dismissible = true,
+    dismissible,
 }: Props) {
     const icon = useMemo(() => {
         switch (type) {
