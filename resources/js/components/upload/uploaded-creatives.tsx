@@ -1,4 +1,5 @@
 import { MouseSensor, PointerSensor, TouchSensor } from "@/lib/dnd-sensors";
+import { base64ToFile } from "@/lib/utils";
 import {
     AdSetGroupSettings,
     AdSetGroup as AdSetGroupType,
@@ -525,22 +526,12 @@ export function UploadedCreatives({ adSets }: Props) {
         try {
             // STEP 1: Create adsets (skip if user already selected an AdSet)
             if (!hasSelectedAdSet) {
-                // 🟡 Initial toast (loading)
+                setLoadingState("CREATING_ADSETS");
                 toast({
                     id: toastId,
                     type: "LOADING",
                     contents: "Creating ad sets...",
                     progress: 0,
-                    dismissible: false,
-                });
-
-                setLoadingState("CREATING_ADSETS");
-
-                toast({
-                    id: toastId,
-                    type: "LOADING",
-                    contents: "Creating ad sets...",
-                    progress: 10,
                     dismissible: false,
                 });
 
@@ -598,34 +589,68 @@ export function UploadedCreatives({ adSets }: Props) {
                     );
                 }
 
-                const formData = new FormData();
-                formData.append("id", creative.id);
-                formData.append("name", creative.label || creative.name);
-                formData.append("file", creative.file);
-                formData.append("adSetId", adSetId);
-                formData.append("facebookPageId", form.data.facebookPageId);
-                formData.append("instagramPageId", form.data.instagramPageId);
+                const creativeLabel = creative.label || creative.name;
+                const isVideo = creative.type.startsWith("video/");
 
-                Object.entries(creative.settings).forEach(([key, value]) => {
-                    formData.append(`creative_settings[${key}]`, String(value));
-                });
+                let hash: string | null = null;
+                let videoId: string | null = null;
 
-                formData.append(
-                    "settings[pausedByDefault]",
-                    Number(form.data.settings.paused_by_default).toString()
-                );
-                formData.append(
-                    "settings[disableEnhancements]",
-                    Number(form.data.settings.disable_enhancements).toString()
-                );
-                formData.append(
-                    "settings[disablePromoCodes]",
-                    Number(form.data.settings.disable_promo_codes).toString()
+                if (isVideo) {
+                    const formData = new FormData();
+                    formData.append("name", creativeLabel);
+                    formData.append(
+                        "file",
+                        base64ToFile(
+                            creative.thumbnail!,
+                            `${creative.id}-thumb.jpg`
+                        )
+                    );
+
+                    const thumbnailResponse = await axios.post(
+                        route("dashboard.upload.upload-photo"),
+                        formData
+                    );
+
+                    hash = thumbnailResponse.data.hash;
+
+                    const formData2 = new FormData();
+                    formData2.append("name", creativeLabel);
+                    formData2.append("file", creative.file);
+
+                    const videoResponse = await axios.post(
+                        route("dashboard.upload.upload-video"),
+                        formData2
+                    );
+
+                    videoId = videoResponse.data.videoId;
+                } else {
+                    const formData = new FormData();
+                    formData.append("name", creativeLabel);
+                    formData.append("file", creative.file);
+
+                    const response = await axios.post(
+                        route("dashboard.upload.upload-photo"),
+                        formData
+                    );
+
+                    hash = response.data.hash;
+                }
+
+                const createdAdResponse = await axios.post(
+                    route("dashboard.upload.create-ad"),
+                    {
+                        name: creativeLabel,
+                        hash,
+                        videoId,
+                        adSetId,
+                        facebookPageId: form.data.facebookPageId,
+                        instagramPageId: form.data.instagramPageId,
+                        creativeSettings: creative.settings,
+                        settings: form.data.settings,
+                    }
                 );
 
-                await axios.post(route("dashboard.upload.creative"), formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
-                });
+                console.log(createdAdResponse.data);
 
                 current++;
                 const creativeProgress = 20 + (current / total) * 80;
@@ -671,9 +696,7 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.creatives,
         form.data.facebookPageId,
         form.data.instagramPageId,
-        form.data.settings.paused_by_default,
-        form.data.settings.disable_enhancements,
-        form.data.settings.disable_promo_codes,
+        form.data.settings,
         setLoadingState,
         hasSelectedAdSet,
         selectedAdSet,

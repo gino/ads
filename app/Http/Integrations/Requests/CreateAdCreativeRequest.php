@@ -20,7 +20,7 @@ class CreateAdCreativeRequest extends Request implements HasBody
         public string $hash,
         public string $facebookPageId,
         public ?string $instagramPageId,
-        public bool $isVideo,
+        public ?string $videoId,
         public string $cta,
     ) {}
 
@@ -44,10 +44,11 @@ class CreateAdCreativeRequest extends Request implements HasBody
         $url = 'https://google.com';
 
         // https://developers.facebook.com/docs/marketing-api/reference/ad-creative-object-story-spec/
-        if ($this->isVideo) {
+        if (! is_null($this->videoId)) {
             // Video
             $spec['video_data'] = [
                 'image_hash' => $this->hash,
+                'video_id' => $this->videoId,
                 'call_to_action' => [
                     'type' => $this->cta,
                     'value' => [

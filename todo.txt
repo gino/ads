@@ -4,3 +4,48 @@ We might wanna disable caching for:
 - Get ads
 
 (only have it enabled for insights - but need to look into the rate limits)
+
+We have to restructure our launch ads flow (https://chatgpt.com/c/68e165a6-ebcc-832c-8bb1-154f77b8d92b).
+
+- For image ads:
+Frontend sends the file (image), name, adSetId, facebookPageId, etc.
+Backend uploads this image to Meta to their /adimages endpoint which returns a `hash`
+We send this hash to the frontend
+
+On the frontend we loop through all the hashes that we 'received' and then we hit our /upload/create-ad endpoint which creates the ad creative AND ad.
+
+- For video ads:
+Frontend sends the video file, a thumbnail (base64 → converted to File), name, adSetId, facebookPageId, etc.
+Backend first uploads the thumbnail image to Meta’s /adimages endpoint to get an image_hash.
+Then it uploads the video file to Meta’s /advideos endpoint, which returns a video_id.
+We send both the video_id and image_hash back to the frontend.
+On the frontend, we loop through all the uploaded videos and make a request to /upload/create-ads, which creates both the ad creative and the ad, using the video_id and image_hash.
+
+const formData = new FormData();
+                formData.append("id", creative.id);
+                formData.append("name", creative.label || creative.name);
+                formData.append("file", creative.file);
+                formData.append("adSetId", adSetId);
+                formData.append("facebookPageId", form.data.facebookPageId);
+                formData.append("instagramPageId", form.data.instagramPageId);
+
+                Object.entries(creative.settings).forEach(([key, value]) => {
+                    formData.append(`creative_settings[${key}]`, String(value));
+                });
+
+                formData.append(
+                    "settings[pausedByDefault]",
+                    Number(form.data.settings.paused_by_default).toString()
+                );
+                formData.append(
+                    "settings[disableEnhancements]",
+                    Number(form.data.settings.disable_enhancements).toString()
+                );
+                formData.append(
+                    "settings[disablePromoCodes]",
+                    Number(form.data.settings.disable_promo_codes).toString()
+                );
+
+                await axios.post(route("dashboard.upload.creative"), formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });

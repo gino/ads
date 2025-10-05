@@ -46,9 +46,9 @@ export type UploadForm = {
     facebookPageId: string;
     instagramPageId: string;
     settings: {
-        paused_by_default: boolean;
-        disable_enhancements: boolean;
-        disable_promo_codes: boolean;
+        pausedByDefault: boolean;
+        disableEnhancements: boolean;
+        disablePromoCodes: boolean;
     };
 };
 

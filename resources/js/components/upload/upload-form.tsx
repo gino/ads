@@ -513,12 +513,10 @@ export function UploadForm({
                         <div className="rounded-lg divide-y divide-gray-200 ring ring-gray-200">
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
                                 <Switch
-                                    checked={
-                                        form.data.settings.paused_by_default
-                                    }
+                                    checked={form.data.settings.pausedByDefault}
                                     onChange={(value) => {
                                         form.setData(
-                                            "settings.paused_by_default",
+                                            "settings.pausedByDefault",
                                             value
                                         );
                                     }}
@@ -542,11 +540,11 @@ export function UploadForm({
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
                                 <Switch
                                     checked={
-                                        form.data.settings.disable_enhancements
+                                        form.data.settings.disableEnhancements
                                     }
                                     onChange={(value) => {
                                         form.setData(
-                                            "settings.disable_enhancements",
+                                            "settings.disableEnhancements",
                                             value
                                         );
                                     }}
@@ -570,11 +568,11 @@ export function UploadForm({
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
                                 <Switch
                                     checked={
-                                        form.data.settings.disable_promo_codes
+                                        form.data.settings.disablePromoCodes
                                     }
                                     onChange={(value) => {
                                         form.setData(
-                                            "settings.disable_promo_codes",
+                                            "settings.disablePromoCodes",
                                             value
                                         );
                                     }}

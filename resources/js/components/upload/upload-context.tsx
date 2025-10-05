@@ -48,9 +48,9 @@ export function UploadProvider({ children }: PropsWithChildren) {
         facebookPageId: "",
         instagramPageId: "",
         settings: {
-            paused_by_default: true,
-            disable_enhancements: true,
-            disable_promo_codes: true,
+            pausedByDefault: true,
+            disableEnhancements: true,
+            disablePromoCodes: true,
         },
     });
 
