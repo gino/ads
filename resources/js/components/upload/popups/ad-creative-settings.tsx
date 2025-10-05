@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Select2 } from "@/components/ui/select2";
+import { toast } from "@/components/ui/toast";
 import { CreativeSettings } from "@/pages/upload";
 import { useForm } from "@inertiajs/react";
 import { useEffect, useMemo } from "react";
@@ -36,7 +37,13 @@ export function AdCreativeSettingsPopup() {
         setPopupCreativeId,
         getCreativeSettings,
         updateCreativeSetting,
+        form: uploadForm,
     } = useUploadContext();
+
+    const creative = useMemo(() => {
+        if (!popupCreativeId) return;
+        return uploadForm.data.creatives.find((c) => c.id === popupCreativeId);
+    }, [popupCreativeId, uploadForm.data.creatives]);
 
     const { cta } = getCreativeSettings(popupCreativeId!);
 
@@ -128,6 +135,14 @@ export function AdCreativeSettingsPopup() {
                                 form.data.cta
                             );
                             setPopupCreativeId(null);
+
+                            if (form.isDirty) {
+                                toast({
+                                    contents: `Settings updated for "${
+                                        creative?.label || creative?.name
+                                    }"`,
+                                });
+                            }
                         }}
                     >
                         Save changes

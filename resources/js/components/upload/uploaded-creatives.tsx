@@ -62,7 +62,10 @@ const UploadedCreativesContext = createContext<UploadedCreativesContextType>(
 );
 UploadedCreativesContext.displayName = "UploadedCreativesContext";
 
-export const defaultAdSetSettings: AdSetGroupSettings = { locations: ["US"] };
+export const defaultAdSetSettings: AdSetGroupSettings = {
+    locations: ["US"],
+    age: [18, 65],
+};
 
 interface Props {
     adSets: App.Data.AdSetData[];
@@ -682,7 +685,7 @@ export function UploadedCreatives({ adSets }: Props) {
             // Reset creatives in form tho
             form.reset("creatives");
             setAdSetGroups([]);
-            // Reload adSets since there may be new ones now after ads launch (this is cached though but still)
+            // Reload adSets since there may be new ones now after ads launch (this is cached though but still - we might disable caching soon or have a low ttl)
             router.reload({ only: ["adSets"] });
         } catch (err: any) {
             console.error(err);

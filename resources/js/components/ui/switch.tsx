@@ -20,7 +20,7 @@ export function Switch({ checked, onChange, disabled, className }: Props) {
             data-focus-visible={focusVisible || undefined}
             className={cn(
                 "bg-gray-100 ring-1 ring-gray-200 ring-inset flex items-center group cursor-pointer relative rounded-full h-2.5 w-8 transition duration-250 ease-in-out",
-                "data-[checked='true']:bg-brand data-[checked='true']:ring-black/20",
+                "data-[checked='true']:bg-brand data-[checked='true']:ring-black/10",
                 className
             )}
         >

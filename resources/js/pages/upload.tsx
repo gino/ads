@@ -28,6 +28,7 @@ export type UploadedCreative = {
 
 export type AdSetGroupSettings = {
     locations: string[];
+    age: [number, number];
 };
 
 export type AdSetGroup = {

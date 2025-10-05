@@ -70,7 +70,10 @@ function Toast({
             <div className="flex-1 flex items-center gap-3 truncate">
                 {icon}
                 <div className="flex items-center truncate flex-1 gap-3">
-                    <div className="font-semibold text-sm truncate flex-1">
+                    <div
+                        title={contents}
+                        className="font-semibold text-sm truncate flex-1"
+                    >
                         {contents}
                     </div>
 

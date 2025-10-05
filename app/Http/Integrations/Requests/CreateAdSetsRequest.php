@@ -51,11 +51,17 @@ class CreateAdSetsRequest extends Request implements HasBody
                         'pixel_id' => $this->pixelId,
                         'custom_event_type' => 'PURCHASE',
                     ],
+                    // {"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_subcode":1870227,"is_transient":false,"error_user_title":"Advantage Audience Flag Required","error_user_msg":"To create your ad set, you need to enable or disable the Advantage audience feature. This can be done by setting the advantage_audience flag to either 1 or 0 within the targeting_automation field in the targeting spec.","fbtrace_id":"Aj_qFE-Sva-Dbh1RtbvP16X"}}
+                    // {"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_subcode":1870189,"is_transient":false,"error_user_title":"Maximum age is below threshold","error_user_msg":"With ad sets that use Advantage+ audience, the maximum age audience control can\u2019t be set to lower than 65. You can add a lower maximum age as a suggestion instead when creating or editing an ad set in Ads Manager.","fbtrace_id":"AMPG7tV8JtFT3JIACsyiRDV"}}
+                    // {"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_subcode":1870197,"is_transient":false,"error_user_title":"The targeting_optimization field has been removed","error_user_msg":"You don\u2019t need to set a value for the targeting_optimization field because it has been removed. Advantage detailed targeting will be applied to your ad set.","fbtrace_id":"AMKyAhxIp0-e7hrnCCblQlu"}}
                     'targeting' => [
-                        'age_min' => 18,
-                        'age_max' => 65,
+                        'age_min' => $adSet['minAge'],
+                        'age_max' => $adSet['maxAge'],
                         'geo_locations' => [
                             'countries' => $adSet['countries'],
+                        ],
+                        'targeting_automation' => [
+                            'advantage_audience' => 0,
                         ],
                     ],
                 ]),

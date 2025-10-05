@@ -80,6 +80,8 @@ class UploadController extends Controller
             //
             'adSets.*.settings.locations' => ['required', 'array'],
             'adSets.*.settings.locations.*' => ['required', 'string'],
+            'adSets.*.settings.age' => ['required', 'array'],
+            'adSets.*.settings.age.*' => ['required', 'numeric'],
             //
             'campaignId' => ['required', 'string'],
             'pixelId' => ['required', 'string'],
@@ -94,17 +96,19 @@ class UploadController extends Controller
             return [
                 'label' => $adSet['label'],
                 'countries' => $adSet['settings']['locations'],
+                'minAge' => $adSet['settings']['age'][0],
+                'maxAge' => $adSet['settings']['age'][1],
             ];
         });
 
-        $createAdSetsRequest = new CreateAdSetsRequest(
+        $response = $meta->send(new CreateAdSetsRequest(
             adAccount: $adAccount,
             adSets: AdSetInput::collect($adSets)->toArray(),
             campaignId: $validated['campaignId'],
             pixelId: $validated['pixelId'],
-        );
+        ))->throw();
 
-        $response = $meta->send($createAdSetsRequest);
+        dd($response->json());
 
         $ids = [];
         foreach ($response->json() as $createdAdSet) {

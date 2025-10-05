@@ -20,7 +20,7 @@ createInertiaApp({
         root.render(
             <NuqsAdapter>
                 <App {...props} />
-                <Toaster offset={12} />
+                <Toaster offset={16} />
             </NuqsAdapter>
         );
     },

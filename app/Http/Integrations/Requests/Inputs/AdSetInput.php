@@ -10,5 +10,7 @@ class AdSetInput extends Data
     public function __construct(
         public string $label,
         public array $countries,
+        public int $minAge,
+        public int $maxAge,
     ) {}
 }

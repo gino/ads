@@ -1,15 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
+import { toast } from "@/components/ui/toast";
+import { cn } from "@/lib/cn";
 import useDeferred from "@/lib/hooks/use-deferred";
 import { AdSetGroupSettings } from "@/pages/upload";
+import { Slider } from "@base-ui-components/react/slider";
 import { useForm, usePage } from "@inertiajs/react";
 import { useEffect, useMemo } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
 export function AdSetGroupSettingsPopup() {
-    const { popupAdSetId, setPopupAdSetId, getSettings, updateSetting } =
-        useUploadedCreativesContext();
+    const {
+        popupAdSetId,
+        setPopupAdSetId,
+        getSettings,
+        updateSetting,
+        adSetGroups,
+    } = useUploadedCreativesContext();
+
+    const adSetGroup = useMemo(() => {
+        if (!popupAdSetId) return;
+        return adSetGroups.find((g) => g.id === popupAdSetId);
+    }, [popupAdSetId, adSetGroups]);
 
     const { props } = usePage<{ countries: App.Data.TargetingCountryData[] }>();
 
@@ -17,17 +30,19 @@ export function AdSetGroupSettingsPopup() {
         data: ["countries"],
     });
 
-    const { locations } = getSettings(popupAdSetId!);
+    const { locations, age } = getSettings(popupAdSetId!);
 
     const form = useForm<AdSetGroupSettings>({
         locations,
+        age,
     });
 
     useEffect(() => {
         if (!popupAdSetId) return;
         // Do this for every property inside of `form`
         form.setData("locations", locations);
-    }, [popupAdSetId, locations]);
+        form.setData("age", age);
+    }, [popupAdSetId, locations, age]);
 
     const countries = useMemo(() => {
         if (isLoadingCountries) return [];
@@ -64,6 +79,20 @@ export function AdSetGroupSettingsPopup() {
         return true;
     }, [form.data.locations]);
 
+    const minAge = useMemo(() => {
+        return form.data.age[0];
+    }, [form.data.age]);
+
+    const maxAge = useMemo(() => {
+        const maxAge = form.data.age[1];
+
+        if (maxAge === 65) {
+            return "65+";
+        }
+
+        return maxAge;
+    }, [form.data.age]);
+
     return (
         <Modal
             open={popupAdSetId !== null}
@@ -97,7 +126,7 @@ export function AdSetGroupSettingsPopup() {
                                                 ),
                                             }));
                                         }}
-                                        className="cursor-pointer text-[8px] flex mt-px ml-0.5"
+                                        className="cursor-pointer text-[8px] flex mt-px ml-1"
                                     >
                                         <i className="fa-solid fa-times" />
                                     </button>
@@ -118,7 +147,42 @@ export function AdSetGroupSettingsPopup() {
             </div>
             <div className="p-5 border-b border-gray-100">
                 <div>
-                    <div className="mb-2 font-semibold">Age range</div>
+                    <div className="flex items-center justify-between">
+                        <div className="font-semibold">Age range</div>
+                        <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                            {minAge} - {maxAge}
+                        </div>
+                    </div>
+
+                    <div>
+                        <Slider.Root
+                            value={form.data.age}
+                            onValueChange={(age) => form.setData("age", age)}
+                            min={18}
+                            max={65}
+                            thumbAlignment="edge"
+                        >
+                            <Slider.Control className="flex w-full touch-none items-center pt-4 select-none">
+                                <Slider.Track className="h-2 w-full rounded bg-gray-100 ring-1 ring-inset ring-black/5 select-none">
+                                    <Slider.Indicator className="rounded bg-brand select-none ring-1 ring-inset ring-black/10" />
+                                    {[0, 1].map((index) => (
+                                        <Slider.Thumb
+                                            key={index}
+                                            index={index}
+                                            className="size-5 rounded-full bg-white shadow-base cursor-pointer select-none flex items-center justify-center"
+                                        >
+                                            <div
+                                                className={cn(
+                                                    // "h-[8px] w-[8px] bg-gray-100 rounded-full ring-1 ring-inset ring-gray-200"
+                                                    "h-[8px] w-[8px] bg-brand/10 rounded-full ring-1 ring-inset ring-black/10"
+                                                )}
+                                            />
+                                        </Slider.Thumb>
+                                    ))}
+                                </Slider.Track>
+                            </Slider.Control>
+                        </Slider.Root>
+                    </div>
                 </div>
             </div>
             <div className="p-5">
@@ -134,6 +198,7 @@ export function AdSetGroupSettingsPopup() {
                         onClick={() => {
                             setPopupAdSetId(null);
                             form.setData("locations", locations);
+                            form.setData("age", age);
                         }}
                     >
                         Cancel
@@ -151,7 +216,14 @@ export function AdSetGroupSettingsPopup() {
                                 "locations",
                                 form.data.locations
                             );
+                            updateSetting(popupAdSetId!, "age", form.data.age);
                             setPopupAdSetId(null);
+
+                            if (form.isDirty) {
+                                toast({
+                                    contents: `Settings updated for "${adSetGroup?.label}"`,
+                                });
+                            }
                         }}
                     >
                         Save changes

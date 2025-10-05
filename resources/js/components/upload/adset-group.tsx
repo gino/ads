@@ -6,7 +6,10 @@ import { useCallback, useMemo, useState } from "react";
 import useMeasure from "react-use-measure";
 import { AdCreative, HEIGHT as ADCREATIVE_HEIGHT } from "./ad-creative";
 import { useUploadContext } from "./upload-context";
-import { useUploadedCreativesContext } from "./uploaded-creatives";
+import {
+    defaultAdSetSettings,
+    useUploadedCreativesContext,
+} from "./uploaded-creatives";
 
 export type FolderType = "ADSET" | "UNGROUPED";
 
@@ -85,6 +88,27 @@ export function AdSetGroup({
 
         return settings.locations;
     }, [settings.locations, isExistingAdSet, existingAdSet]);
+
+    const minAge = useMemo(() => {
+        return settings.age[0];
+    }, [settings.age]);
+
+    const maxAge = useMemo(() => {
+        const maxAge = settings.age[1];
+
+        if (maxAge === 65) {
+            return "65+";
+        }
+
+        return maxAge;
+    }, [settings.age]);
+
+    const isAgeModified = useMemo(() => {
+        const [minAge, maxAge] = settings.age;
+        const [defaultMinAge, defaultMaxAge] = defaultAdSetSettings.age;
+
+        return minAge !== defaultMinAge || maxAge !== defaultMaxAge;
+    }, [settings.age, defaultAdSetSettings.age]);
 
     return (
         <div
@@ -181,6 +205,15 @@ export function AdSetGroup({
 
                     <div className="flex items-center relative">
                         <div className="flex items-center gap-1.5">
+                            {isAgeModified && type === "ADSET" && (
+                                <div className="font-semibold text-blue-950 bg-blue-500/10 text-[12px] px-2 pl-1.5 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-blue-900/10">
+                                    <i className="fa-regular fa-user mr-0.5 text-[10px]" />
+                                    <span>
+                                        {minAge} - {maxAge}
+                                    </span>
+                                </div>
+                            )}
+
                             {locations.length > 0 && type === "ADSET" && (
                                 <div className="font-semibold text-purple-950 bg-purple-500/10 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-purple-900/10">
                                     <i className="fa-regular fa-location-dot mr-0.5 text-[10px]" />
@@ -281,6 +314,12 @@ export function AdSetGroup({
                                     ease: "easeOut",
                                 }}
                             >
+                                {/* {isOverGroup && (
+                                    <div className="absolute inset-2 rounded-lg text-xs font-semibold text-gray-600 border-2 border-dashed border-gray-200 flex items-center justify-center">
+                                        <div>Drop your creatives here</div>
+                                    </div>
+                                )} */}
+
                                 <div ref={measureRef} className="relative">
                                     <div className="flex flex-col gap-2 p-2">
                                         {creatives.map((creative) => (
