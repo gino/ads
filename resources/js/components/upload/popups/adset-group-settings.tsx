@@ -17,6 +17,7 @@ export function AdSetGroupSettingsPopup() {
         getSettings,
         updateSetting,
         adSetGroups,
+        updateGroupLabel,
     } = useUploadedCreativesContext();
 
     const adSetGroup = useMemo(() => {
@@ -32,17 +33,19 @@ export function AdSetGroupSettingsPopup() {
 
     const { locations, age } = getSettings(popupAdSetId!);
 
-    const form = useForm<AdSetGroupSettings>({
+    const form = useForm<AdSetGroupSettings & { name: string }>({
+        name: "",
         locations,
         age,
     });
 
     useEffect(() => {
-        if (!popupAdSetId) return;
+        if (!popupAdSetId || !adSetGroup) return;
         // Do this for every property inside of `form`
+        form.setData("name", adSetGroup.label);
         form.setData("locations", locations);
         form.setData("age", age);
-    }, [popupAdSetId, locations, age]);
+    }, [popupAdSetId, adSetGroup, locations, age]);
 
     const countries = useMemo(() => {
         if (isLoadingCountries) return [];
@@ -65,19 +68,25 @@ export function AdSetGroupSettingsPopup() {
     }, [props.countries, isLoadingCountries]);
 
     const namedLocations = useMemo(() => {
-        if (!form.data.locations || !popupAdSetId) return [];
+        if (!form.data.locations || !popupAdSetId || isLoadingCountries) {
+            return [];
+        }
+
         return form.data.locations.map((value) => {
             return props.countries.find((c) => c.countryCode === value)!;
         });
-    }, [popupAdSetId, form.data.locations, props.countries]);
+    }, [
+        popupAdSetId,
+        form.data.locations,
+        props.countries,
+        isLoadingCountries,
+    ]);
 
     const isDisabled = useMemo(() => {
-        if (form.data.locations.length > 0) {
-            return false;
-        }
-
-        return true;
-    }, [form.data.locations]);
+        const hasName = form.data.name?.trim().length > 0;
+        const hasLocations = form.data.locations.length > 0;
+        return !(hasName && hasLocations);
+    }, [form.data.name, form.data.locations]);
 
     const minAge = useMemo(() => {
         return form.data.age[0];
@@ -103,6 +112,20 @@ export function AdSetGroupSettingsPopup() {
             }}
             hideOnInteractOutside={false}
         >
+            <div className="p-5 border-b border-gray-100">
+                <label>
+                    <span className="block mb-2 font-semibold">
+                        Name of ad set
+                    </span>
+                    <input
+                        type="text"
+                        value={form.data.name}
+                        placeholder={adSetGroup?.label}
+                        onChange={(e) => form.setData("name", e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
+                    />
+                </label>
+            </div>
             <div className="p-5 border-b border-gray-100">
                 <div>
                     <div className="mb-2 font-semibold">Locations</div>
@@ -157,7 +180,16 @@ export function AdSetGroupSettingsPopup() {
                     <div>
                         <Slider.Root
                             value={form.data.age}
-                            onValueChange={(age) => form.setData("age", age)}
+                            onValueChange={(age) => {
+                                const [min, max] = age;
+
+                                // Meta restriction: max must be 65, min must be <= 25
+                                // When using Advantage+ Audience, the age range must be 25-65+. Switch to Original Audience in your settings to select any age range between 18-65+.
+                                if (max < 65) return;
+                                if (min > 25) return;
+
+                                form.setData("age", age);
+                            }}
                             min={18}
                             max={65}
                             thumbAlignment="edge"
@@ -169,11 +201,11 @@ export function AdSetGroupSettingsPopup() {
                                         <Slider.Thumb
                                             key={index}
                                             index={index}
+                                            disabled
                                             className="size-5 rounded-full bg-white shadow-base cursor-pointer select-none flex items-center justify-center"
                                         >
                                             <div
                                                 className={cn(
-                                                    // "h-[8px] w-[8px] bg-gray-100 rounded-full ring-1 ring-inset ring-gray-200"
                                                     "h-[8px] w-[8px] bg-brand/10 rounded-full ring-1 ring-inset ring-black/10"
                                                 )}
                                             />
@@ -197,8 +229,9 @@ export function AdSetGroupSettingsPopup() {
                     <Button
                         onClick={() => {
                             setPopupAdSetId(null);
-                            form.setData("locations", locations);
-                            form.setData("age", age);
+                            // form.setData("name", "");
+                            // form.setData("locations", locations);
+                            // form.setData("age", age);
                         }}
                     >
                         Cancel
@@ -211,6 +244,13 @@ export function AdSetGroupSettingsPopup() {
                                 return;
                             }
 
+                            if (form.data.name?.trim().length > 0) {
+                                updateGroupLabel(
+                                    popupAdSetId!,
+                                    form.data.name.trim()
+                                );
+                            }
+
                             updateSetting(
                                 popupAdSetId!,
                                 "locations",
@@ -221,7 +261,9 @@ export function AdSetGroupSettingsPopup() {
 
                             if (form.isDirty) {
                                 toast({
-                                    contents: `Settings updated for "${adSetGroup?.label}"`,
+                                    contents: `Settings updated for "${
+                                        form.data.name || adSetGroup?.label
+                                    }"`,
                                 });
                             }
                         }}

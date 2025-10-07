@@ -70,14 +70,19 @@ export function UploadProvider({ children }: PropsWithChildren) {
 
     const setCreativeLabel = useCallback(
         (creativeId: string, label: string) => {
-            form.setData(
-                "creatives",
-                form.data.creatives.map((creative) =>
+            console.log(
+                creativeId,
+                label,
+                form.data.creatives.find((c) => c.id === creativeId)
+            );
+            form.setData((prev) => ({
+                ...prev,
+                creatives: prev.creatives.map((creative) =>
                     creative.id === creativeId
                         ? { ...creative, label }
                         : creative
-                )
-            );
+                ),
+            }));
         },
         [form]
     );
@@ -145,6 +150,8 @@ export function UploadProvider({ children }: PropsWithChildren) {
     return (
         <UploadContext.Provider value={memoizedValue}>
             {children}
+
+            {JSON.stringify(form.data.creatives.map((c) => c.label))}
         </UploadContext.Provider>
     );
 }

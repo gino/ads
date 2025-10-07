@@ -21,6 +21,7 @@ use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Http\Integrations\Requests\UploadAdVideoCreativeRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
@@ -108,6 +109,7 @@ class UploadController extends Controller
             pixelId: $validated['pixelId'],
         ))->throw();
 
+        Log::debug($response->json());
         dd($response->json());
 
         $ids = [];

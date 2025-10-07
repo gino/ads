@@ -37,6 +37,7 @@ export function AdCreativeSettingsPopup() {
         setPopupCreativeId,
         getCreativeSettings,
         updateCreativeSetting,
+        setCreativeLabel,
         form: uploadForm,
     } = useUploadContext();
 
@@ -47,23 +48,23 @@ export function AdCreativeSettingsPopup() {
 
     const { cta } = getCreativeSettings(popupCreativeId!);
 
-    const form = useForm<CreativeSettings>({
+    const form = useForm<CreativeSettings & { name: string }>({
+        name: "",
         cta,
     });
 
     useEffect(() => {
-        if (!popupCreativeId) return;
+        if (!popupCreativeId || !creative) return;
         // Do this for every property inside of `form`
+        form.setData("name", creative.label || creative.name);
         form.setData("cta", cta);
-    }, [popupCreativeId, cta]);
+    }, [popupCreativeId, creative, cta]);
 
     const isDisabled = useMemo(() => {
-        if (form.data.cta) {
-            return false;
-        }
-
-        return true;
-    }, [form.data.cta]);
+        const hasName = form.data.name?.trim().length > 0;
+        const hasCta = form.data.cta;
+        return !(hasName && hasCta);
+    }, [form.data.name, form.data.cta]);
 
     return (
         <Modal
@@ -75,6 +76,18 @@ export function AdCreativeSettingsPopup() {
             }}
             hideOnInteractOutside={false}
         >
+            <div className="p-5 border-b border-gray-100">
+                <label>
+                    <span className="block mb-2 font-semibold">Name of ad</span>
+                    <input
+                        type="text"
+                        value={form.data.name}
+                        placeholder={creative?.label || creative?.name}
+                        onChange={(e) => form.setData("name", e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
+                    />
+                </label>
+            </div>
             <div className="p-5">
                 <div>
                     <Select2
@@ -129,6 +142,13 @@ export function AdCreativeSettingsPopup() {
                                 return;
                             }
 
+                            if (form.data.name?.trim().length > 0) {
+                                setCreativeLabel(
+                                    popupCreativeId!,
+                                    form.data.name.trim()
+                                );
+                            }
+
                             updateCreativeSetting(
                                 popupCreativeId!,
                                 "cta",
@@ -139,7 +159,9 @@ export function AdCreativeSettingsPopup() {
                             if (form.isDirty) {
                                 toast({
                                     contents: `Settings updated for "${
-                                        creative?.label || creative?.name
+                                        form.data.name ||
+                                        creative?.label ||
+                                        creative?.name
                                     }"`,
                                 });
                             }
