@@ -1,9 +1,12 @@
 import { cn } from "@/lib/cn";
 import { isInNoDndZone } from "@/lib/dnd-sensors";
+import useDeferred from "@/lib/hooks/use-deferred";
 import { useDroppable } from "@dnd-kit/core";
+import { usePage } from "@inertiajs/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import useMeasure from "react-use-measure";
+import { Tooltip } from "../ui/tooltip";
 import { AdCreative, HEIGHT as ADCREATIVE_HEIGHT } from "./ad-creative";
 import { useUploadContext } from "./upload-context";
 import {
@@ -30,6 +33,11 @@ export function AdSetGroup({
     existingAdSet,
     className,
 }: Props) {
+    const { props } = usePage<{ countries: App.Data.TargetingCountryData[] }>();
+    const { isLoading: isLoadingCountries } = useDeferred({
+        data: ["countries"],
+    });
+
     const isExistingAdSet = !!existingAdSet;
 
     const { isOver, setNodeRef, active } = useDroppable({
@@ -88,6 +96,16 @@ export function AdSetGroup({
 
         return settings.locations;
     }, [settings.locations, isExistingAdSet, existingAdSet]);
+
+    const namedLocations = useMemo(() => {
+        if (!(locations.length > 0) || isLoadingCountries) {
+            return [];
+        }
+
+        return locations.map((value) => {
+            return props.countries.find((c) => c.countryCode === value)!;
+        });
+    }, [locations, isLoadingCountries]);
 
     const minAge = useMemo(() => {
         return settings.age[0];
@@ -215,14 +233,30 @@ export function AdSetGroup({
                             )}
 
                             {locations.length > 0 && type === "ADSET" && (
-                                <div className="font-semibold text-purple-950 bg-purple-500/10 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-purple-900/10">
-                                    <i className="fa-regular fa-location-dot mr-0.5 text-[10px]" />
-                                    <span>
-                                        {locations[0]}
-                                        {locations.length > 1 &&
-                                            ` +${locations.length - 1}`}
-                                    </span>
-                                </div>
+                                <Tooltip
+                                    content={
+                                        <ul className="divide-y divide-gray-100">
+                                            {namedLocations.map((location) => (
+                                                <li
+                                                    key={location.countryCode}
+                                                    className="font-semibold"
+                                                >
+                                                    {location.name}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    }
+                                    className="min-w-48"
+                                >
+                                    <div className="font-semibold text-purple-950 bg-purple-500/10 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-purple-900/10 cursor-help">
+                                        <i className="fa-regular fa-location-dot mr-0.5 text-[10px]" />
+                                        <span>
+                                            {locations[0]}
+                                            {locations.length > 1 &&
+                                                ` +${locations.length - 1}`}
+                                        </span>
+                                    </div>
+                                </Tooltip>
                             )}
 
                             <div className="font-semibold bg-gray-200/50 text-[12px] px-2 inline-block rounded-full leading-5">

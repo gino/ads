@@ -18,6 +18,7 @@ interface Props<T extends object> {
     onChange: (value: SelectItem["value"]) => void;
     disabled?: boolean;
     getDisabledLabel?: () => ReactNode;
+    clearable?: boolean;
 }
 
 export function Select<T extends object>({
@@ -30,6 +31,7 @@ export function Select<T extends object>({
     onChange,
     disabled,
     getDisabledLabel,
+    clearable = true,
 }: Props<T>) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -80,12 +82,22 @@ export function Select<T extends object>({
                         }}
                     </Ariakit.SelectValue>
                     <Ariakit.SelectArrow className="absolute right-3 pointer-events-none text-xs top-1/2 -translate-y-1/2 !h-[unset] !w-[unset] flex">
-                        <i
-                            className={cn(
-                                "fa-solid fa-angle-down text-gray-400 transition-transform duration-200 ease-in-out",
-                                isOpen && "rotate-180"
-                            )}
-                        />
+                        {!value || !clearable ? (
+                            <i
+                                className={cn(
+                                    "fa-solid fa-angle-down text-gray-400 transition-transform duration-200 ease-in-out",
+                                    isOpen && "rotate-180"
+                                )}
+                            />
+                        ) : (
+                            <div
+                                onClick={() => onChange("")}
+                                title="Clear selected value"
+                                className="h-6 w-6 rounded hover:bg-gray-100 hover:text-black text-gray-400 -mr-1 flex items-center justify-center pointer-events-auto cursor-pointer text-[12px]"
+                            >
+                                <i className="fa-solid fa-times" />
+                            </div>
+                        )}
                     </Ariakit.SelectArrow>
                 </Ariakit.Select>
                 <Ariakit.SelectPopover
