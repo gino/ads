@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { Select2 } from "@/components/ui/select2";
+import { Select } from "@/components/ui/select";
 import { toast } from "@/components/ui/toast";
 import { CreativeSettings } from "@/pages/upload";
 import { useForm } from "@inertiajs/react";
@@ -134,7 +134,7 @@ export function AdCreativeSettingsPopup() {
                 </div>
                 <div className="p-5">
                     <div>
-                        <Select2
+                        <Select
                             label="Call-to-action"
                             items={Object.entries(ctaTypes)}
                             getItem={([cta, label]) => {

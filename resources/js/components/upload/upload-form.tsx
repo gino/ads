@@ -8,7 +8,6 @@ import { useEffect, useMemo, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "../ui/button";
 import { Select } from "../ui/select";
-import { Select2 } from "../ui/select2";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
 import { toast } from "../ui/toast";
@@ -100,16 +99,14 @@ export function UploadForm({
     //     filteredInstagramAccounts,
     // ]);
 
+    const isDirtyCreatives = creatives.length > 0;
+    const isDirty = form.isDirty || isDirtyCreatives;
+
     useEffect(() => {
         const unsubscribe = router.on("before", (event) => {
             const visit = event.detail.visit;
 
-            // Only trigger confirm for user-initiated navigations
-            if (
-                form.isDirty &&
-                visit.method === "get" &&
-                !visit.preserveState
-            ) {
+            if (isDirty && visit.method === "get" && !visit.preserveState) {
                 return confirm(
                     "Are you sure you wish to leave the page? Any unsaved changes will be lost."
                 );
@@ -117,18 +114,19 @@ export function UploadForm({
         });
 
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            if (form.isDirty) {
+            if (isDirty) {
                 e.preventDefault();
                 e.returnValue = ""; // required for Chrome
             }
         };
+
         window.addEventListener("beforeunload", handleBeforeUnload);
 
         return () => {
             unsubscribe();
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
-    }, [form.isDirty]);
+    }, [isDirty]);
 
     const {
         getRootProps,
@@ -188,36 +186,31 @@ export function UploadForm({
                                     form.setData("campaignId", value);
                                     form.reset("adSetId");
                                 }}
-                                renderValue={(item) => item.label}
-                                items={
-                                    !isLoadingCampaigns
-                                        ? campaigns.map((campaign) => ({
-                                              value: campaign.id,
-                                              label: (
-                                                  <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
-                                                      <div className="flex flex-1 gap-3 items-center truncate">
-                                                          <StatusTag
-                                                              status={
-                                                                  campaign.effectiveStatus
-                                                              }
-                                                              showLabel={false}
-                                                          />
-                                                          <div className="font-semibold truncate">
-                                                              {campaign.name}
-                                                          </div>
-                                                      </div>
+                                items={!isLoadingCampaigns ? campaigns : []}
+                                getItem={(campaign) => ({
+                                    value: campaign.id,
+                                    label: (
+                                        <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                            <div className="flex flex-1 gap-3 items-center truncate">
+                                                <StatusTag
+                                                    status={
+                                                        campaign.effectiveStatus
+                                                    }
+                                                    showLabel={false}
+                                                />
+                                                <div className="font-semibold truncate">
+                                                    {campaign.name}
+                                                </div>
+                                            </div>
 
-                                                      <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
-                                                          {campaign.dailyBudget !==
-                                                          null
-                                                              ? "CBO"
-                                                              : "ABO"}
-                                                      </div>
-                                                  </div>
-                                              ),
-                                          }))
-                                        : []
-                                }
+                                            <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
+                                                {campaign.dailyBudget !== null
+                                                    ? "CBO"
+                                                    : "ABO"}
+                                            </div>
+                                        </div>
+                                    ),
+                                })}
                             />
                         </div>
                         <div className="mt-5">
@@ -233,25 +226,21 @@ export function UploadForm({
                                 onChange={(value) =>
                                     form.setData("adSetId", value)
                                 }
-                                renderValue={(item) => item.label}
-                                items={
-                                    !isLoadingAdSets
-                                        ? filteredAdSets.map((adSet) => ({
-                                              value: adSet.id,
-                                              label: (
-                                                  <div className="flex gap-3 items-center">
-                                                      <StatusTag
-                                                          status={adSet.status}
-                                                          showLabel={false}
-                                                      />
-                                                      <div className="font-semibold">
-                                                          {adSet.name}
-                                                      </div>
-                                                  </div>
-                                              ),
-                                          }))
-                                        : []
-                                }
+                                items={isLoadingAdSets ? [] : filteredAdSets}
+                                getItem={(adSet) => ({
+                                    value: adSet.id,
+                                    label: (
+                                        <div className="flex gap-3 items-center">
+                                            <StatusTag
+                                                status={adSet.status}
+                                                showLabel={false}
+                                            />
+                                            <div className="font-semibold">
+                                                {adSet.name}
+                                            </div>
+                                        </div>
+                                    ),
+                                })}
                             />
                         </div>
                     </div>
@@ -264,37 +253,31 @@ export function UploadForm({
                                 onChange={(value) =>
                                     form.setData("pixelId", value)
                                 }
-                                renderValue={(item) => item.label}
-                                items={
-                                    !isLoadingPixels
-                                        ? pixels.map((pixel) => ({
-                                              value: pixel.id,
-                                              disabled: pixel.isUnavailable,
-                                              label: (
-                                                  <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
-                                                      <div className="flex-1 truncate">
-                                                          <div className="font-semibold truncate">
-                                                              {pixel.name}
-                                                          </div>
-                                                      </div>
+                                items={isLoadingPixels ? [] : pixels}
+                                getItem={(pixel) => ({
+                                    value: pixel.id,
+                                    label: (
+                                        <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                            <div className="flex-1 truncate">
+                                                <div className="font-semibold truncate">
+                                                    {pixel.name}
+                                                </div>
+                                            </div>
 
-                                                      <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
-                                                          Last active:{" "}
-                                                          {formatDistanceToNowStrict(
-                                                              new Date(
-                                                                  pixel.lastFiredTime
-                                                              ),
-                                                              {
-                                                                  addSuffix:
-                                                                      true,
-                                                              }
-                                                          )}
-                                                      </div>
-                                                  </div>
-                                              ),
-                                          }))
-                                        : []
-                                }
+                                            <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
+                                                Last active:{" "}
+                                                {formatDistanceToNowStrict(
+                                                    new Date(
+                                                        pixel.lastFiredTime
+                                                    ),
+                                                    {
+                                                        addSuffix: true,
+                                                    }
+                                                )}
+                                            </div>
+                                        </div>
+                                    ),
+                                })}
                             />
                         </div>
                         <div className="mt-5">
@@ -312,7 +295,7 @@ export function UploadForm({
                     </div>
                     <div className="p-5 border-t border-gray-100">
                         <div className="grid grid-cols-2 gap-2.5">
-                            <Select2
+                            <Select
                                 label="Facebook page"
                                 placeholder="Select a page"
                                 items={!isLoadingPages ? pages : []}
@@ -375,7 +358,7 @@ export function UploadForm({
                                 )}
                             />
 
-                            <Select2
+                            <Select
                                 label="Instagram account"
                                 placeholder="Select a Facebook page"
                                 items={
