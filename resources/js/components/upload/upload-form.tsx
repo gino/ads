@@ -203,7 +203,7 @@ export function UploadForm({
                                                 </div>
                                             </div>
 
-                                            <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
+                                            <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-hover:bg-gray-200 group-data-[selected='true']:bg-black/5">
                                                 {campaign.dailyBudget !== null
                                                     ? "CBO"
                                                     : "ABO"}
@@ -264,7 +264,7 @@ export function UploadForm({
                                                 </div>
                                             </div>
 
-                                            <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
+                                            <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-hover:bg-gray-200 group-data-[selected='true']:bg-black/5">
                                                 Last active:{" "}
                                                 {formatDistanceToNowStrict(
                                                     new Date(
@@ -336,7 +336,7 @@ export function UploadForm({
                                             {page.businessId !== null &&
                                                 selectedAdAccount.businessId ===
                                                     page.businessId && (
-                                                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200 self-start">
+                                                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-hover:bg-gray-200 group-data-[selected='true']:bg-black/5 self-start">
                                                         Default
                                                     </div>
                                                 )}

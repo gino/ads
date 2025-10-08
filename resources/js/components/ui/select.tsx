@@ -5,6 +5,7 @@ import { ReactNode, useMemo, useState } from "react";
 interface SelectItem {
     label: ReactNode | string;
     value: string;
+    disabled?: boolean;
 }
 
 interface Props<T extends object> {
@@ -100,13 +101,19 @@ export function Select<T extends object>({
                             <Ariakit.SelectItem
                                 key={item.value}
                                 value={item.value}
-                                // disabled={item.disabled}
+                                disabled={item.disabled}
+                                data-selected={value === item.value}
                                 focusOnHover
-                                className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3"
+                                className={cn(
+                                    "cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3",
+                                    value === item.value
+                                        ? "bg-brand-lighter"
+                                        : "data-[active-item]:bg-gray-100"
+                                )}
                             >
                                 <div className="w-[16px] -ml-1">
                                     {value === item.value && (
-                                        <i className="fa-solid fa-check text-[12px] text-gray-400" />
+                                        <i className="fa-solid fa-check text-[12px] text-black/20" />
                                     )}
                                 </div>
                                 <div className="flex-1 truncate">

@@ -148,7 +148,7 @@ export function AdCreativeSettingsPopup() {
                                             </div>
 
                                             {["SHOP_NOW"].includes(cta) && (
-                                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
+                                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-hover:bg-gray-200 group-data-[selected='true']:bg-black/5">
                                                     Recommended
                                                 </div>
                                             )}

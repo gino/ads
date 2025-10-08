@@ -1,3 +1,4 @@
+import { cn } from "@/lib/cn";
 import * as Ariakit from "@ariakit/react";
 import { SelectRenderer } from "@ariakit/react-core/select/select-renderer";
 import { matchSorter } from "match-sorter";
@@ -100,14 +101,20 @@ export function MultiCombobox<T extends SelectItem>({
                                     ...item.style,
                                     height: ITEM_HEIGHT,
                                 }}
+                                data-selected={_value.includes(value!)}
                                 focusOnHover
                                 resetValueOnSelect
-                                className="data-[active-item]:bg-gray-100 cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3 w-full outline-none group"
+                                className={cn(
+                                    "cursor-pointer rounded-lg px-4 py-3 truncate text-sm group aria-disabled:opacity-50 flex items-center gap-3 w-full outline-none group",
+                                    _value.includes(value!)
+                                        ? "bg-brand-lighter"
+                                        : "data-[active-item]:bg-gray-100 "
+                                )}
                                 value={value}
                             >
                                 <div className="w-[16px] -ml-1">
                                     {_value.includes(value!) && (
-                                        <i className="fa-solid fa-check text-[12px] text-gray-400 hidden group-aria-selected:block" />
+                                        <i className="fa-solid fa-check text-[12px] text-black/20" />
                                     )}
                                 </div>
                                 <div className="flex-1 truncate">{label}</div>
