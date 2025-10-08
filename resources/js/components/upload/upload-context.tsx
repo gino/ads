@@ -1,5 +1,6 @@
 import {
     CreativeSettings,
+    UploadedCreative,
     UploadForm,
     UploadForm as UploadFormType,
 } from "@/pages/upload";
@@ -17,6 +18,8 @@ import {
 
 interface UploadContextType {
     form: InertiaFormProps<UploadFormType>;
+    creatives: UploadedCreative[];
+    setCreatives: Dispatch<SetStateAction<UploadedCreative[]>>;
     deleteCreative: (creativeId: string) => void;
     setCreativeLabel: (creativeId: string, label: string) => void;
     //
@@ -44,7 +47,6 @@ export function UploadProvider({ children }: PropsWithChildren) {
         adSetId: "",
         pixelId: "",
         websiteUrl: "",
-        creatives: [],
         facebookPageId: "",
         instagramPageId: "",
         settings: {
@@ -54,15 +56,13 @@ export function UploadProvider({ children }: PropsWithChildren) {
         },
     });
 
+    const [creatives, setCreatives] = useState<UploadedCreative[]>([]);
     const [popupCreativeId, setPopupCreativeId] = useState<string | null>(null);
 
     const deleteCreative = useCallback(
         (creativeId: string) => {
-            form.setData(
-                "creatives",
-                form.data.creatives.filter(
-                    (creative) => creative.id !== creativeId
-                )
+            setCreatives((prev) =>
+                prev.filter((creative) => creative.id !== creativeId)
             );
         },
         [form]
@@ -70,36 +70,15 @@ export function UploadProvider({ children }: PropsWithChildren) {
 
     const setCreativeLabel = useCallback(
         (creativeId: string, label: string) => {
-            console.log(
-                creativeId,
-                label,
-                form.data.creatives.find((c) => c.id === creativeId)
-            );
-            form.setData((prev) => ({
-                ...prev,
-                creatives: prev.creatives.map((creative) =>
+            setCreatives((prev) =>
+                prev.map((creative) =>
                     creative.id === creativeId
                         ? { ...creative, label }
                         : creative
-                ),
-            }));
+                )
+            );
         },
         [form]
-    );
-
-    const getCreativeSettings = useCallback(
-        (creativeId: string): CreativeSettings => {
-            const creative = form.data.creatives.find(
-                (c) => c.id === creativeId
-            )!;
-
-            if (!creative) {
-                return defaultCreativeSettings;
-            }
-
-            return creative.settings;
-        },
-        [form.data.creatives]
     );
 
     const updateCreativeSetting = useCallback(
@@ -108,9 +87,8 @@ export function UploadProvider({ children }: PropsWithChildren) {
             key: T,
             value: CreativeSettings[T]
         ) => {
-            form.setData({
-                ...form.data,
-                creatives: form.data.creatives.map((creative) =>
+            setCreatives((prev) =>
+                prev.map((creative) =>
                     creative.id === creativeId
                         ? {
                               ...creative,
@@ -120,15 +98,25 @@ export function UploadProvider({ children }: PropsWithChildren) {
                               },
                           }
                         : creative
-                ),
-            });
+                )
+            );
         },
-        [form]
+        []
+    );
+
+    const getCreativeSettings = useCallback(
+        (creativeId: string): CreativeSettings => {
+            const creative = creatives.find((c) => c.id === creativeId);
+            return creative?.settings ?? defaultCreativeSettings;
+        },
+        [creatives]
     );
 
     const memoizedValue = useMemo<UploadContextType>(
         () => ({
             form,
+            creatives,
+            setCreatives,
             deleteCreative,
             setCreativeLabel,
             popupCreativeId,
@@ -138,6 +126,8 @@ export function UploadProvider({ children }: PropsWithChildren) {
         }),
         [
             form,
+            creatives,
+            setCreatives,
             deleteCreative,
             setCreativeLabel,
             popupCreativeId,
@@ -150,8 +140,6 @@ export function UploadProvider({ children }: PropsWithChildren) {
     return (
         <UploadContext.Provider value={memoizedValue}>
             {children}
-
-            {JSON.stringify(form.data.creatives.map((c) => c.label))}
         </UploadContext.Provider>
     );
 }

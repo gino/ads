@@ -38,13 +38,13 @@ export function AdCreativeSettingsPopup() {
         getCreativeSettings,
         updateCreativeSetting,
         setCreativeLabel,
-        form: uploadForm,
+        creatives,
     } = useUploadContext();
 
     const creative = useMemo(() => {
         if (!popupCreativeId) return;
-        return uploadForm.data.creatives.find((c) => c.id === popupCreativeId);
-    }, [popupCreativeId, uploadForm.data.creatives]);
+        return creatives.find((c) => c.id === popupCreativeId);
+    }, [popupCreativeId, creatives]);
 
     const { cta } = getCreativeSettings(popupCreativeId!);
 

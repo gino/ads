@@ -43,7 +43,6 @@ export type UploadForm = {
     adSetId: string;
     pixelId: string;
     websiteUrl: string;
-    creatives: UploadedCreative[];
     facebookPageId: string;
     instagramPageId: string;
     settings: {

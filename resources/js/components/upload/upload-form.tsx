@@ -39,7 +39,7 @@ export function UploadForm({
     isLoadingPixels,
     isLoadingPages,
 }: Props) {
-    const { form } = useUploadContext();
+    const { form, creatives, setCreatives } = useUploadContext();
     const { selectedAdAccount } = useSelectedAdAccount();
 
     const filteredAdSets = useMemo(() => {
@@ -139,17 +139,17 @@ export function UploadForm({
     } = useDropzone({
         accept: allowedFileTypes,
         onDrop: async (files) => {
-            const creatives = await Promise.all(
+            const mappedCreatives = await Promise.all(
                 files.map(createUploadedCreative)
             );
 
             toast({
-                contents: `Uploaded ${creatives.length} ${
-                    creatives.length > 1 ? "creatives" : "creative"
+                contents: `Uploaded ${mappedCreatives.length} ${
+                    mappedCreatives.length > 1 ? "creatives" : "creative"
                 }`,
             });
 
-            form.setData("creatives", [...form.data.creatives, ...creatives]);
+            setCreatives((prev) => [...prev, ...mappedCreatives]);
         },
     });
 
@@ -157,12 +157,12 @@ export function UploadForm({
 
     useEffect(() => {
         // Track new previews
-        form.data.creatives.forEach((creative) => {
+        creatives.forEach((creative) => {
             if (creative.preview) {
                 previewsRef.current.add(creative.preview);
             }
         });
-    }, [form.data.creatives]);
+    }, [creatives]);
 
     useEffect(() => {
         // Revoke all previews on unmount

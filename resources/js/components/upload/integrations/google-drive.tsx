@@ -7,7 +7,7 @@ import { useUploadContext } from "../upload-context";
 import { createUploadedCreative } from "../upload-form";
 
 export function GoogleDriveButton() {
-    const { form } = useUploadContext();
+    const { setCreatives } = useUploadContext();
 
     const [openPicker, authResponse] = useDrivePicker();
     let accessToken = useRef<string | undefined>(undefined);
@@ -33,7 +33,7 @@ export function GoogleDriveButton() {
                     viewMimeTypes: allowedFileMimeTypes.join(","),
                     callbackFunction: async (data) => {
                         if (data.action === "picked" && data.docs) {
-                            const creatives = await Promise.all(
+                            const mappedCreatives = await Promise.all(
                                 data.docs.map(async (doc) => {
                                     const downloadUrl = `https://www.googleapis.com/drive/v3/files/${doc.id}?alt=media`;
                                     const response = await fetch(downloadUrl, {
@@ -58,16 +58,16 @@ export function GoogleDriveButton() {
                             );
 
                             toast({
-                                contents: `Uploaded ${creatives.length} ${
-                                    creatives.length > 1
+                                contents: `Uploaded ${mappedCreatives.length} ${
+                                    mappedCreatives.length > 1
                                         ? "creatives"
                                         : "creative"
                                 }`,
                             });
 
-                            form.setData("creatives", [
-                                ...form.data.creatives,
-                                ...creatives,
+                            setCreatives((prev) => [
+                                ...prev,
+                                ...mappedCreatives,
                             ]);
                         }
                     },

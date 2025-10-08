@@ -6,13 +6,13 @@ import { useUploadContext } from "../upload-context";
 import { createUploadedCreative } from "../upload-form";
 
 export function DropboxButton() {
-    const { form } = useUploadContext();
+    const { setCreatives } = useUploadContext();
 
     return (
         <DropboxChooser
             appKey={import.meta.env.VITE_DROPBOX_API_KEY}
             success={async (files) => {
-                const creatives = await Promise.all(
+                const mappedCreatives = await Promise.all(
                     files.map(async (dbFile) => {
                         const response = await fetch(dbFile.link);
                         const blob = await response.blob();
@@ -25,15 +25,12 @@ export function DropboxButton() {
                 );
 
                 toast({
-                    contents: `Uploaded ${creatives.length} ${
-                        creatives.length > 1 ? "creatives" : "creative"
+                    contents: `Uploaded ${mappedCreatives.length} ${
+                        mappedCreatives.length > 1 ? "creatives" : "creative"
                     }`,
                 });
 
-                form.setData("creatives", [
-                    ...form.data.creatives,
-                    ...creatives,
-                ]);
+                setCreatives((prev) => [...prev, ...mappedCreatives]);
             }}
             multiselect={true}
             linkType="direct"

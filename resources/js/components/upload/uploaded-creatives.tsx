@@ -72,7 +72,8 @@ interface Props {
 }
 
 export function UploadedCreatives({ adSets }: Props) {
-    const { form, popupCreativeId } = useUploadContext();
+    const { form, popupCreativeId, creatives, setCreatives } =
+        useUploadContext();
 
     const [adSetGroups, setAdSetGroups] = useState<AdSetGroupType[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -116,7 +117,7 @@ export function UploadedCreatives({ adSets }: Props) {
         if (hasSelectedAdSet) {
             if (selectedAdSetCreatives.includes(referenceId))
                 return selectedAdSetCreatives;
-            return form.data.creatives
+            return creatives
                 .map((c) => c.id)
                 .filter((id) => !selectedAdSetCreatives.includes(id)); // ungrouped
         }
@@ -127,7 +128,7 @@ export function UploadedCreatives({ adSets }: Props) {
         }
 
         // Ungrouped
-        return form.data.creatives
+        return creatives
             .map((c) => c.id)
             .filter((id) => !adSetGroups.some((g) => g.creatives.includes(id)));
     }, [
@@ -135,7 +136,7 @@ export function UploadedCreatives({ adSets }: Props) {
         adSetGroups,
         selectedAdSetCreatives,
         hasSelectedAdSet,
-        form.data.creatives,
+        creatives,
     ]);
 
     const extendSelection = useCallback(
@@ -178,38 +179,31 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const ungroupedCreatives = useMemo(() => {
         if (hasSelectedAdSet) {
-            return form.data.creatives
+            return creatives
                 .map((creative) => creative.id)
                 .filter((id) => {
                     return !selectedAdSetCreatives.includes(id);
                 });
         }
 
-        return form.data.creatives
+        return creatives
             .map((creative) => creative.id)
             .filter((id) => {
                 return !adSetGroups.some((adSetGroup) => {
                     return adSetGroup.creatives.includes(id);
                 });
             });
-    }, [
-        form.data.creatives,
-        adSetGroups,
-        hasSelectedAdSet,
-        selectedAdSetCreatives,
-    ]);
+    }, [creatives, adSetGroups, hasSelectedAdSet, selectedAdSetCreatives]);
 
     const [activeId, setActiveId] = useState<string | null>(null);
 
     const draggingCreatives = useMemo(() => {
         if (!activeId) return [];
         if (selectedIds.includes(activeId)) {
-            return form.data.creatives.filter((c) =>
-                selectedIds.includes(c.id)
-            );
+            return creatives.filter((c) => selectedIds.includes(c.id));
         }
-        return [form.data.creatives.find((c) => c.id === activeId)!];
-    }, [activeId, selectedIds, form.data.creatives]);
+        return [creatives.find((c) => c.id === activeId)!];
+    }, [activeId, selectedIds, creatives]);
 
     const createGroup = useCallback(
         (label: string) => {
@@ -437,7 +431,7 @@ export function UploadedCreatives({ adSets }: Props) {
         (e) => {
             e.preventDefault();
 
-            const allIds = form.data.creatives.map((c) => c.id);
+            const allIds = creatives.map((c) => c.id);
 
             // If all are already selected, clear; otherwise, select all
             if (selectedIds.length === allIds.length) {
@@ -447,7 +441,7 @@ export function UploadedCreatives({ adSets }: Props) {
             }
         },
         { enabled: enableHotKeys },
-        [form.data.creatives, selectedIds]
+        [creatives, selectedIds]
     );
     useHotkeys(
         "shift+arrowup",
@@ -474,7 +468,7 @@ export function UploadedCreatives({ adSets }: Props) {
         if (!form.data.facebookPageId) return true;
 
         // Disable if no creatives at all
-        if (form.data.creatives.length === 0) return true;
+        if (creatives.length === 0) return true;
 
         // Disable if any creatives are ungrouped
         if (ungroupedCreatives.length > 0) return true;
@@ -490,7 +484,7 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.campaignId,
         form.data.pixelId,
         form.data.facebookPageId,
-        form.data.creatives,
+        creatives,
         ungroupedCreatives,
         adSetGroups,
     ]);
@@ -500,8 +494,8 @@ export function UploadedCreatives({ adSets }: Props) {
     >(null);
 
     const loadingText = useMemo(() => {
-        const adsLabel = `${form.data.creatives.length} ad${
-            form.data.creatives.length === 1 ? "" : "s"
+        const adsLabel = `${creatives.length} ad${
+            creatives.length === 1 ? "" : "s"
         }`;
 
         const adSetsLabel = `${adSetGroups.length} ad set${
@@ -521,7 +515,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 return `Launching ${adsLabel}...`;
             }
         }
-    }, [loadingState, form.data.creatives.length, adSetGroups.length]);
+    }, [loadingState, creatives.length, adSetGroups.length]);
 
     const submit = useCallback(async () => {
         const adSetMap = new Map<string, string>();
@@ -575,10 +569,10 @@ export function UploadedCreatives({ adSets }: Props) {
             // STEP 2: Upload creatives
             setLoadingState("UPLOADING_CREATIVES");
 
-            const total = form.data.creatives.length;
+            const total = creatives.length;
             let current = 0;
 
-            for (const creative of form.data.creatives) {
+            for (const creative of creatives) {
                 const adSetGroup = adSetGroups.find((group) =>
                     group.creatives.includes(creative.id)
                 )!;
@@ -669,8 +663,8 @@ export function UploadedCreatives({ adSets }: Props) {
                 });
             }
 
-            const adsLabel = `${form.data.creatives.length} ad${
-                form.data.creatives.length === 1 ? "" : "s"
+            const adsLabel = `${creatives.length} ad${
+                creatives.length === 1 ? "" : "s"
             }`;
 
             // Success
@@ -683,7 +677,7 @@ export function UploadedCreatives({ adSets }: Props) {
             // Reset adSetGroups
             // Keep form so the user can upload more creatives if they want to
             // Reset creatives in form tho
-            form.reset("creatives");
+            setCreatives([]);
             setAdSetGroups([]);
             // Reload adSets since there may be new ones now after ads launch (this is cached though but still - we might disable caching soon or have a low ttl)
             router.reload({ only: ["adSets"] });
@@ -705,7 +699,7 @@ export function UploadedCreatives({ adSets }: Props) {
         adSetGroups,
         form.data.campaignId,
         form.data.pixelId,
-        form.data.creatives,
+        creatives,
         form.data.facebookPageId,
         form.data.instagramPageId,
         form.data.settings,
@@ -749,11 +743,9 @@ export function UploadedCreatives({ adSets }: Props) {
                                 }}
                                 variant="primary"
                             >
-                                {form.data.creatives.length > 0
-                                    ? `Launch ${form.data.creatives.length} ad${
-                                          form.data.creatives.length === 1
-                                              ? ""
-                                              : "s"
+                                {creatives.length > 0
+                                    ? `Launch ${creatives.length} ad${
+                                          creatives.length === 1 ? "" : "s"
                                       }`
                                     : "Launch ads"}
                             </Button>

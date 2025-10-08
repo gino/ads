@@ -36,7 +36,7 @@ export function AdSetGroup({
         id,
     });
 
-    const { form } = useUploadContext();
+    const { creatives } = useUploadContext();
     const {
         updateGroupLabel,
         deleteGroup,
@@ -45,11 +45,11 @@ export function AdSetGroup({
         getSettings,
     } = useUploadedCreativesContext();
 
-    const creatives = useMemo(() => {
-        return form.data.creatives.filter((creative) => {
+    const attachedCreatives = useMemo(() => {
+        return creatives.filter((creative) => {
             return creativeIds.includes(creative.id);
         });
-    }, [form.data.creatives, creativeIds]);
+    }, [creatives, creativeIds]);
 
     const [measureRef, { height }] = useMeasure();
     const [folded, setFolded] = useState(false);
@@ -226,8 +226,8 @@ export function AdSetGroup({
                             )}
 
                             <div className="font-semibold bg-gray-200/50 text-[12px] px-2 inline-block rounded-full leading-5">
-                                {creatives.length} creative
-                                {creatives.length === 1 ? "" : "s"}
+                                {attachedCreatives.length} creative
+                                {attachedCreatives.length === 1 ? "" : "s"}
                             </div>
                         </div>
 
@@ -257,7 +257,9 @@ export function AdSetGroup({
                                         </button>
                                         <button
                                             onClick={() => {
-                                                if (creatives.length > 0) {
+                                                if (
+                                                    attachedCreatives.length > 0
+                                                ) {
                                                     if (
                                                         confirm(
                                                             "Are you sure you want to delete this ad set? Any attached creatives will be ungrouped."
@@ -294,10 +296,11 @@ export function AdSetGroup({
                                 animate={{
                                     height: isOverGroup
                                         ? height + ADCREATIVE_HEIGHT
-                                        : creatives.length > 0
+                                        : attachedCreatives.length > 0
                                         ? height
                                         : 0,
-                                    marginTop: creatives.length > 0 ? -8 : 0,
+                                    marginTop:
+                                        attachedCreatives.length > 0 ? -8 : 0,
                                     // height,
                                     // marginTop: -8,
                                     opacity: 1,
@@ -322,7 +325,7 @@ export function AdSetGroup({
 
                                 <div ref={measureRef} className="relative">
                                     <div className="flex flex-col gap-2 p-2">
-                                        {creatives.map((creative) => (
+                                        {attachedCreatives.map((creative) => (
                                             <AdCreative
                                                 key={creative.id}
                                                 creative={creative}
