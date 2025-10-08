@@ -30,6 +30,7 @@ export function Button({
     children,
     variant,
     disabled,
+    type = "button",
     icon,
     loading,
     loadingText,
@@ -40,6 +41,7 @@ export function Button({
 
     return (
         <button
+            type={type}
             disabled={disabled || loading}
             className={cn(classes)}
             {...props}
