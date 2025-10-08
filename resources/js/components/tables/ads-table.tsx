@@ -144,9 +144,8 @@ export function AdsTable({ isLoading, ads }: Props) {
                         <div className="font-semibold">Ad</div>
                     </div>
                 ),
-                // size: 300,
                 cell: ({ getValue, row }) => (
-                    <div className="flex gap-5 items-center min-w-md">
+                    <div className="flex gap-5 items-center">
                         <Checkbox
                             aria-label="Select row"
                             checked={row.getIsSelected()}
@@ -168,7 +167,10 @@ export function AdsTable({ isLoading, ads }: Props) {
                                 }}
                                 checked={row.original.status === "ACTIVE"}
                             />
-                            <div className="font-semibold">
+                            <div
+                                title={getValue<string>()}
+                                className="font-semibold w-96 truncate"
+                            >
                                 {getValue<string>()}
                             </div>
                         </div>
