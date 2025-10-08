@@ -239,7 +239,7 @@ export function AdSetGroupSettingsPopup() {
                                 max={65}
                                 thumbAlignment="edge"
                             >
-                                <Slider.Control className="flex w-full touch-none items-center pt-4 select-none">
+                                <Slider.Control className="flex w-full touch-none items-center pt-4 pb-2 select-none">
                                     <Slider.Track className="h-2 w-full rounded bg-gray-100 ring-1 ring-inset ring-black/5 select-none">
                                         <Slider.Indicator className="rounded bg-brand select-none ring-1 ring-inset ring-black/10" />
                                         {[0, 1].map((index) => (
@@ -260,6 +260,21 @@ export function AdSetGroupSettingsPopup() {
                                 </Slider.Control>
                             </Slider.Root>
                         </div>
+
+                        {/* <div className="bg-gray-50 flex ring-1 ring-inset ring-gray-50 px-4 py-3 rounded-lg text-xs leading-relaxed mt-3 gap-4">
+                            <i className="fa-regular fa-exclamation-circle mt-[5px] text-sm text-gray-400" />
+                            <div>
+                                <div className="font-semibold">
+                                    Advantage+ Audience
+                                </div>
+                                <div>
+                                    When using Advantage+ Audience, the age
+                                    range must be 25-65+. Switch to Original
+                                    Audience in your settings to select any age
+                                    range between 18-65+.
+                                </div>
+                            </div>
+                        </div> */}
                     </div>
                 </div>
                 <div className="p-5">

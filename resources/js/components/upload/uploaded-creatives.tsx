@@ -716,7 +716,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 <div className="overflow-y-auto flex-1 min-h-0">
                     <div className="p-5 border-b border-gray-100">
                         <div className="flex gap-2 justify-end items-center">
-                            <SimulateButton />
+                            {/* <SimulateButton /> */}
 
                             {!hasSelectedAdSet && (
                                 <Button
