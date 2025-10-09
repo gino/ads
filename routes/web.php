@@ -4,11 +4,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CampaignsController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
+use App\Http\Integrations\MetaConnector;
+use App\Http\Integrations\Requests\GetBusinessCreativesRequest;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
+use App\Models\AdAccount;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-// https://developers.facebook.com/docs/marketing-api/get-started/basic-ad-creation
 
 Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -42,4 +44,16 @@ Route::middleware([
 
     Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/media', function (Request $request) {
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+
+        $foo = $meta->paginate(new GetBusinessCreativesRequest($adAccount));
+
+        // return $foo->json('data.0.previews.data.0.body');
+        return $foo->count();
+    });
 });

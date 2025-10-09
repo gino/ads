@@ -235,18 +235,28 @@ export function AdSetGroup({
                             {locations.length > 0 && type === "ADSET" && (
                                 <Tooltip
                                     content={
-                                        <ul className="divide-y divide-gray-100">
-                                            {namedLocations.map((location) => (
-                                                <li
-                                                    key={location.countryCode}
-                                                    className="font-semibold"
-                                                >
-                                                    {location.name}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                        <div className="px-3.5 py-2.5">
+                                            <div className="font-semibold mb-2">
+                                                Selected locations (
+                                                {namedLocations.length}):
+                                            </div>
+                                            <ul className="list-disc list-inside space-y-2">
+                                                {namedLocations.map(
+                                                    (location) => (
+                                                        <li
+                                                            key={
+                                                                location.countryCode
+                                                            }
+                                                            className="font-semibold"
+                                                        >
+                                                            {location.name}
+                                                        </li>
+                                                    )
+                                                )}
+                                            </ul>
+                                        </div>
                                     }
-                                    className="min-w-48"
+                                    className="min-w-64"
                                 >
                                     <div className="font-semibold text-purple-950 bg-purple-500/10 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-purple-900/10 cursor-help">
                                         <i className="fa-regular fa-location-dot mr-0.5 text-[10px]" />

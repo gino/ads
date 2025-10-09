@@ -29,6 +29,8 @@ import { toast } from "../ui/toast";
 import { Table } from "./table";
 import { useSkeletonLoader } from "./utils";
 
+// https://developers.facebook.com/docs/marketing-api/reference/ad-creative/#read_examples
+
 interface Props {
     isLoading?: boolean;
     ads: App.Data.AdData[];

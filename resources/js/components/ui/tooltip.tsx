@@ -24,7 +24,7 @@ export function Tooltip({
             <Ariakit.TooltipAnchor>{children}</Ariakit.TooltipAnchor>
             <Ariakit.Tooltip
                 className={cn(
-                    "bg-white shadow-base-popup px-3.5 py-2 rounded-lg text-xs",
+                    "bg-white shadow-base-popup rounded-lg text-xs",
                     className
                 )}
             >

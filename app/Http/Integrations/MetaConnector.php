@@ -4,7 +4,6 @@ namespace App\Http\Integrations;
 
 use App\Models\Connection;
 use Illuminate\Support\Facades\Log;
-use Saloon\Http\Auth\QueryAuthenticator;
 use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
 use Saloon\Http\Request;
@@ -25,11 +24,6 @@ class MetaConnector extends Connector implements HasPagination
     {
         return 'https://graph.facebook.com/v23.0';
     }
-
-    // protected function defaultAuth(): QueryAuthenticator
-    // {
-    //     return new QueryAuthenticator('access_token', $this->connection->access_token);
-    // }
 
     protected function defaultQuery(): array
     {
