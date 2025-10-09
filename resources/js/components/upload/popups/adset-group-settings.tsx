@@ -226,12 +226,12 @@ export function AdSetGroupSettingsPopup() {
                             <Slider.Root
                                 value={form.data.age}
                                 onValueChange={(age) => {
-                                    const [min, max] = age;
+                                    // const [min, max] = age;
 
                                     // Meta restriction: max must be 65, min must be <= 25
                                     // When using Advantage+ Audience, the age range must be 25-65+. Switch to Original Audience in your settings to select any age range between 18-65+.
-                                    if (max < 65) return;
-                                    if (min > 25) return;
+                                    // if (max < 65) return;
+                                    // if (min > 25) return;
 
                                     form.setData("age", age);
                                 }}

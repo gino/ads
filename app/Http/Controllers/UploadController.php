@@ -10,7 +10,7 @@ use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\CreateAdCreativeRequest;
 use App\Http\Integrations\Requests\CreateAdRequest;
-use App\Http\Integrations\Requests\CreateAdSetsRequest;
+use App\Http\Integrations\Requests\CreateAdSetRequest;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetFacebookPagesRequest;
@@ -21,7 +21,6 @@ use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Http\Integrations\Requests\UploadAdVideoCreativeRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
@@ -72,18 +71,15 @@ class UploadController extends Controller
         ]);
     }
 
-    public function createAdSets(Request $request)
+    public function createAdSet(Request $request)
     {
         $validated = $request->validate([
-            'adSets' => ['required', 'array'],
-            'adSets.*.id' => ['required', 'string'],
-            'adSets.*.label' => ['required', 'string'],
-            //
-            'adSets.*.settings.locations' => ['required', 'array'],
-            'adSets.*.settings.locations.*' => ['required', 'string'],
-            'adSets.*.settings.age' => ['required', 'array'],
-            'adSets.*.settings.age.*' => ['required', 'numeric'],
-            //
+            'adSet.id' => ['required', 'string'],
+            'adSet.label' => ['required', 'string'],
+            'adSet.settings.locations' => ['required', 'array'],
+            'adSet.settings.locations.*' => ['required', 'string'],
+            'adSet.settings.age' => ['required', 'array'],
+            'adSet.settings.age.*' => ['required', 'numeric'],
             'campaignId' => ['required', 'string'],
             'pixelId' => ['required', 'string'],
         ]);
@@ -93,33 +89,19 @@ class UploadController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $adSets = collect($validated['adSets'])->map(function ($adSet) {
-            return [
-                'label' => $adSet['label'],
-                'countries' => $adSet['settings']['locations'],
-                'minAge' => $adSet['settings']['age'][0],
-                'maxAge' => $adSet['settings']['age'][1],
-            ];
-        });
-
-        $response = $meta->send(new CreateAdSetsRequest(
+        $response = $meta->send(new CreateAdSetRequest(
             adAccount: $adAccount,
-            adSets: AdSetInput::collect($adSets)->toArray(),
+            adSet: new AdSetInput(
+                label: $validated['adSet']['label'],
+                countries: $validated['adSet']['settings']['locations'],
+                minAge: $validated['adSet']['settings']['age'][0],
+                maxAge: $validated['adSet']['settings']['age'][1],
+            ),
             campaignId: $validated['campaignId'],
             pixelId: $validated['pixelId'],
         ))->throw();
 
-        Log::debug($response->json());
-        dd($response->json());
-
-        $ids = [];
-        foreach ($response->json() as $createdAdSet) {
-            $data = json_decode($createdAdSet['body']);
-            $id = $data->id;
-            $ids[] = $id;
-        }
-
-        return response()->json($ids);
+        return response()->json($response->json('id'));
     }
 
     public function uploadPhoto(Request $request)

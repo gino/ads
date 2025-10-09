@@ -518,125 +518,93 @@ export function UploadedCreatives({ adSets }: Props) {
     }, [loadingState, creatives.length, adSetGroups.length]);
 
     const submit = useCallback(async () => {
-        const adSetMap = new Map<string, string>();
         const toastId = "upload-progress-toast";
 
         try {
-            // STEP 1: Create adsets (skip if user already selected an AdSet)
-            if (!hasSelectedAdSet) {
-                setLoadingState("CREATING_ADSETS");
-                toast({
-                    id: toastId,
-                    type: "LOADING",
-                    contents: "Creating ad sets...",
-                    progress: 0,
-                    dismissible: false,
-                });
+            setLoadingState("CREATING_ADSETS");
+            toast({
+                id: toastId,
+                type: "LOADING",
+                contents: "Creating ad sets...",
+                progress: 0,
+                dismissible: false,
+            });
 
-                const response = await axios.post<string[]>(
-                    route("dashboard.upload.create-adsets"),
+            for (const [index, adSetGroup] of adSetGroups.entries()) {
+                // Create each ad set individually
+                const adSetResponse = await axios.post<string>(
+                    route("dashboard.upload.create-adset"),
                     {
-                        adSets: adSetGroups.map((adSet) => ({
-                            id: adSet.id,
-                            label: adSet.label,
-                            settings: adSet.settings,
-                        })),
+                        adSet: {
+                            id: adSetGroup.id,
+                            label: adSetGroup.label,
+                            settings: adSetGroup.settings,
+                        },
                         campaignId: form.data.campaignId,
                         pixelId: form.data.pixelId,
                     }
                 );
 
-                const createdAdSetIds = response.data;
+                const adSetId = adSetResponse.data;
 
-                // Map each returned adset ID back to its group
-                for (const [
-                    index,
-                    createdAdSetId,
-                ] of createdAdSetIds.entries()) {
-                    const adSetGroup = adSetGroups[index]!;
-                    adSetMap.set(adSetGroup.id, createdAdSetId);
-                }
-
-                toast({
-                    id: toastId,
-                    type: "LOADING",
-                    contents: "Uploading creatives...",
-                    progress: 20,
-                    dismissible: false,
+                // STEP 2: Upload creatives for this ad set
+                const creativesForAdSet = creatives.filter((c) => {
+                    return adSetGroup.creatives.includes(c.id);
                 });
-            }
 
-            // STEP 2: Upload creatives
-            setLoadingState("UPLOADING_CREATIVES");
+                for (const [
+                    creativeIndex,
+                    creative,
+                ] of creativesForAdSet.entries()) {
+                    const creativeLabel = creative.label || creative.name;
+                    const isVideo = creative.type.startsWith("video/");
 
-            const total = creatives.length;
-            let current = 0;
+                    let hash: string | null = null;
+                    let videoId: string | null = null;
 
-            for (const creative of creatives) {
-                const adSetGroup = adSetGroups.find((group) =>
-                    group.creatives.includes(creative.id)
-                )!;
+                    if (isVideo) {
+                        // Upload thumbnail
+                        const thumbForm = new FormData();
+                        thumbForm.append("name", creativeLabel);
+                        thumbForm.append(
+                            "file",
+                            base64ToFile(
+                                creative.thumbnail!,
+                                `${creative.id}-thumb.jpg`
+                            )
+                        );
 
-                const adSetId = hasSelectedAdSet
-                    ? selectedAdSet!.id
-                    : adSetMap.get(adSetGroup.id);
+                        const thumbResponse = await axios.post(
+                            route("dashboard.upload.upload-photo"),
+                            thumbForm
+                        );
+                        hash = thumbResponse.data.hash;
 
-                if (!adSetId) {
-                    throw new Error(
-                        `Missing AdSet ID for creative ${creative.id}`
-                    );
-                }
+                        // Upload video
+                        const videoForm = new FormData();
+                        videoForm.append("name", creativeLabel);
+                        videoForm.append("file", creative.file);
 
-                const creativeLabel = creative.label || creative.name;
-                const isVideo = creative.type.startsWith("video/");
+                        const videoResponse = await axios.post(
+                            route("dashboard.upload.upload-video"),
+                            videoForm
+                        );
+                        videoId = videoResponse.data.videoId;
+                    } else {
+                        // Upload image
+                        const photoForm = new FormData();
+                        photoForm.append("name", creativeLabel);
+                        photoForm.append("file", creative.file);
 
-                let hash: string | null = null;
-                let videoId: string | null = null;
+                        const photoResponse = await axios.post(
+                            route("dashboard.upload.upload-photo"),
+                            photoForm
+                        );
+                        hash = photoResponse.data.hash;
+                    }
 
-                if (isVideo) {
-                    const formData = new FormData();
-                    formData.append("name", creativeLabel);
-                    formData.append(
-                        "file",
-                        base64ToFile(
-                            creative.thumbnail!,
-                            `${creative.id}-thumb.jpg`
-                        )
-                    );
-
-                    const thumbnailResponse = await axios.post(
-                        route("dashboard.upload.upload-photo"),
-                        formData
-                    );
-
-                    hash = thumbnailResponse.data.hash;
-
-                    const formData2 = new FormData();
-                    formData2.append("name", creativeLabel);
-                    formData2.append("file", creative.file);
-
-                    const videoResponse = await axios.post(
-                        route("dashboard.upload.upload-video"),
-                        formData2
-                    );
-
-                    videoId = videoResponse.data.videoId;
-                } else {
-                    const formData = new FormData();
-                    formData.append("name", creativeLabel);
-                    formData.append("file", creative.file);
-
-                    const response = await axios.post(
-                        route("dashboard.upload.upload-photo"),
-                        formData
-                    );
-
-                    hash = response.data.hash;
-                }
-
-                const createdAdResponse = await axios.post(
-                    route("dashboard.upload.create-ad"),
-                    {
+                    // Create the ad for this creative
+                    await axios.post(route("dashboard.upload.create-ad"), {
                         name: creativeLabel,
                         hash,
                         videoId,
@@ -645,45 +613,41 @@ export function UploadedCreatives({ adSets }: Props) {
                         instagramPageId: form.data.instagramPageId,
                         creativeSettings: creative.settings,
                         settings: form.data.settings,
-                    }
-                );
+                    });
 
-                console.log(createdAdResponse.data);
+                    // Update progress toast for creatives
+                    const progress = Math.round(
+                        ((index + creativeIndex / creativesForAdSet.length) /
+                            adSetGroups.length) *
+                            100
+                    );
 
-                current++;
-                const creativeProgress = 20 + (current / total) * 80;
-                const roundedProgress = Math.round(creativeProgress);
-
-                toast({
-                    id: toastId,
-                    type: "LOADING",
-                    contents: `Uploading creatives... (${current}/${total})`,
-                    progress: roundedProgress,
-                    dismissible: false,
-                });
+                    toast({
+                        id: toastId,
+                        type: "LOADING",
+                        contents: `Processing ad set ${index + 1}/${
+                            adSetGroups.length
+                        }...`,
+                        progress,
+                        dismissible: false,
+                    });
+                }
             }
 
-            const adsLabel = `${creatives.length} ad${
-                creatives.length === 1 ? "" : "s"
-            }`;
-
-            // Success
             sonnerToast.dismiss(toastId);
             toast({
                 type: "SUCCESS",
-                contents: `Successfully launched ${adsLabel}`,
+                contents: `Successfully launched ${creatives.length} ad${
+                    creatives.length === 1 ? "" : "s"
+                }`,
             });
 
-            // Reset adSetGroups
-            // Keep form so the user can upload more creatives if they want to
-            // Reset creatives in form tho
+            // Reset state
             setCreatives([]);
             setAdSetGroups([]);
-            // Reload adSets since there may be new ones now after ads launch (this is cached though but still - we might disable caching soon or have a low ttl)
             router.reload({ only: ["adSets"] });
         } catch (err: any) {
             console.error(err);
-
             toast({
                 id: toastId,
                 type: "ERROR",
@@ -697,17 +661,14 @@ export function UploadedCreatives({ adSets }: Props) {
         }
     }, [
         adSetGroups,
+        creatives,
         form.data.campaignId,
         form.data.pixelId,
-        creatives,
         form.data.facebookPageId,
         form.data.instagramPageId,
         form.data.settings,
         setLoadingState,
-        hasSelectedAdSet,
-        selectedAdSet,
-        setAdSetGroups,
-        form.reset,
+        router,
     ]);
 
     return (
