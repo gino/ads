@@ -522,40 +522,72 @@ export function UploadedCreatives({ adSets }: Props) {
 
         try {
             setLoadingState("CREATING_ADSETS");
-            toast({
-                id: toastId,
-                type: "LOADING",
-                contents: "Creating ad sets...",
-                progress: 0,
-                dismissible: false,
-            });
 
-            for (const [index, adSetGroup] of adSetGroups.entries()) {
-                // Create each ad set individually
-                const adSetResponse = await axios.post<string>(
-                    route("dashboard.upload.create-adset"),
+            let adSetItems: { id: string; creatives: typeof creatives }[] = [];
+
+            if (hasSelectedAdSet) {
+                // Use the existing ad set
+                adSetItems = [
                     {
-                        adSet: {
-                            id: adSetGroup.id,
-                            label: adSetGroup.label,
-                            settings: adSetGroup.settings,
-                        },
-                        campaignId: form.data.campaignId,
-                        pixelId: form.data.pixelId,
-                    }
-                );
-
-                const adSetId = adSetResponse.data;
-
-                // STEP 2: Upload creatives for this ad set
-                const creativesForAdSet = creatives.filter((c) => {
-                    return adSetGroup.creatives.includes(c.id);
+                        id: selectedAdSet!.id,
+                        creatives: creatives,
+                    },
+                ];
+            } else {
+                toast({
+                    id: toastId,
+                    type: "LOADING",
+                    contents: "Creating ad sets...",
+                    progress: 0,
+                    dismissible: false,
                 });
 
-                for (const [
-                    creativeIndex,
-                    creative,
-                ] of creativesForAdSet.entries()) {
+                adSetItems = await Promise.all(
+                    adSetGroups.map(async (adSetGroup, index) => {
+                        const adSetId = await axios
+                            .post<string>(
+                                route("dashboard.upload.create-adset"),
+                                {
+                                    adSet: {
+                                        id: adSetGroup.id,
+                                        label: adSetGroup.label,
+                                        settings: adSetGroup.settings,
+                                    },
+                                    campaignId: form.data.campaignId,
+                                    pixelId: form.data.pixelId,
+                                }
+                            )
+                            .then((res) => res.data);
+
+                        // Update toast for ad set creation
+                        toast({
+                            id: toastId,
+                            type: "LOADING",
+                            contents: "Creating ad sets...",
+                            progress: Math.round(
+                                ((index + 1) / adSetGroups.length) * 20
+                            ),
+                            dismissible: false,
+                        });
+
+                        return {
+                            id: adSetId,
+                            creatives: creatives.filter((c) =>
+                                adSetGroup.creatives.includes(c.id)
+                            ),
+                        };
+                    })
+                );
+            }
+
+            let currentCreative = 0;
+
+            // STEP 2: Upload creatives
+            for (const [
+                _,
+                { id: adSetId, creatives: creativesForAdSet },
+            ] of adSetItems.entries()) {
+                for (const creative of creativesForAdSet) {
                     const creativeLabel = creative.label || creative.name;
                     const isVideo = creative.type.startsWith("video/");
 
@@ -563,7 +595,6 @@ export function UploadedCreatives({ adSets }: Props) {
                     let videoId: string | null = null;
 
                     if (isVideo) {
-                        // Upload thumbnail
                         const thumbForm = new FormData();
                         thumbForm.append("name", creativeLabel);
                         thumbForm.append(
@@ -573,29 +604,24 @@ export function UploadedCreatives({ adSets }: Props) {
                                 `${creative.id}-thumb.jpg`
                             )
                         );
-
                         const thumbResponse = await axios.post(
                             route("dashboard.upload.upload-photo"),
                             thumbForm
                         );
                         hash = thumbResponse.data.hash;
 
-                        // Upload video
                         const videoForm = new FormData();
                         videoForm.append("name", creativeLabel);
                         videoForm.append("file", creative.file);
-
                         const videoResponse = await axios.post(
                             route("dashboard.upload.upload-video"),
                             videoForm
                         );
                         videoId = videoResponse.data.videoId;
                     } else {
-                        // Upload image
                         const photoForm = new FormData();
                         photoForm.append("name", creativeLabel);
                         photoForm.append("file", creative.file);
-
                         const photoResponse = await axios.post(
                             route("dashboard.upload.upload-photo"),
                             photoForm
@@ -603,7 +629,7 @@ export function UploadedCreatives({ adSets }: Props) {
                         hash = photoResponse.data.hash;
                     }
 
-                    // Create the ad for this creative
+                    // Queue ad creation
                     await axios.post(route("dashboard.upload.create-ad"), {
                         name: creativeLabel,
                         hash,
@@ -615,19 +641,16 @@ export function UploadedCreatives({ adSets }: Props) {
                         settings: form.data.settings,
                     });
 
-                    // Update progress toast for creatives
+                    currentCreative++;
+
                     const progress = Math.round(
-                        ((index + creativeIndex / creativesForAdSet.length) /
-                            adSetGroups.length) *
-                            100
+                        (currentCreative / creatives.length) * 100
                     );
 
                     toast({
                         id: toastId,
                         type: "LOADING",
-                        contents: `Processing ad set ${index + 1}/${
-                            adSetGroups.length
-                        }...`,
+                        contents: `Uploading creatives (${currentCreative}/${creatives.length})...`,
                         progress,
                         dismissible: false,
                     });
@@ -637,12 +660,11 @@ export function UploadedCreatives({ adSets }: Props) {
             sonnerToast.dismiss(toastId);
             toast({
                 type: "SUCCESS",
-                contents: `Successfully launched ${creatives.length} ad${
-                    creatives.length === 1 ? "" : "s"
-                }`,
+                contents: `${creatives.length} ad${
+                    creatives.length === 1 ? " is" : "s are"
+                } being launched...`,
             });
 
-            // Reset state
             setCreatives([]);
             setAdSetGroups([]);
             router.reload({ only: ["adSets"] });
@@ -668,6 +690,8 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.instagramPageId,
         form.data.settings,
         setLoadingState,
+        hasSelectedAdSet,
+        selectedAdSet,
         router,
     ]);
 
@@ -677,7 +701,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 <div className="overflow-y-auto flex-1 min-h-0">
                     <div className="p-5 border-b border-gray-100">
                         <div className="flex gap-2 justify-end items-center">
-                            {/* <SimulateButton /> */}
+                            <SimulateButton />
 
                             {!hasSelectedAdSet && (
                                 <Button
@@ -879,7 +903,7 @@ function SimulateButton() {
         const toastId = "upload-progress-toast";
 
         try {
-            // STEP 1: Fake "Creating ad sets"
+            // STEP 1: Simulate "Creating ad sets"
             toast({
                 id: toastId,
                 type: "LOADING",
@@ -889,36 +913,50 @@ function SimulateButton() {
             });
 
             await sleep(1000);
-            toast({
-                id: toastId,
-                type: "LOADING",
-                contents: "Uploading creatives...",
-                progress: 20,
-                dismissible: false,
-            });
 
-            // STEP 2: Fake "Uploading creatives"
-            const total = 4; // pretend we have 3 creatives
-            for (let current = 1; current <= total; current++) {
-                await sleep(2000);
-                const creativeProgress = 20 + (current / total) * 80;
-                const roundedProgress = Math.round(creativeProgress);
+            const totalAdSets = 2;
+            const creativesPerAdSet = 1;
 
-                toast({
-                    id: toastId,
-                    type: "LOADING",
-                    contents: `Uploading creatives... (${current}/${total})`,
-                    progress: roundedProgress,
-                    dismissible: false,
-                });
+            // STEP 2: Simulate per ad set progress
+            for (let adSetIndex = 0; adSetIndex < totalAdSets; adSetIndex++) {
+                // Fake ad set creation delay
+                await sleep(800);
+
+                for (
+                    let creativeIndex = 0;
+                    creativeIndex < creativesPerAdSet;
+                    creativeIndex++
+                ) {
+                    await sleep(1200);
+
+                    const progress = Math.round(
+                        ((adSetIndex + creativeIndex / creativesPerAdSet) /
+                            totalAdSets) *
+                            100
+                    );
+
+                    toast({
+                        id: toastId,
+                        type: "LOADING",
+                        contents: `Uploading creatives... (${
+                            creativeIndex + 1
+                        }/${creativesPerAdSet})`,
+                        progress,
+                        dismissible: false,
+                    });
+                }
             }
 
-            // STEP 3: Finish
-            await sleep(1500);
+            // STEP 3: Simulate completion
+            await sleep(1000);
             sonnerToast.dismiss(toastId);
+
             toast({
                 type: "SUCCESS",
-                contents: "Successfully launched 3 ads",
+                contents: `Successfully queued creation of ${
+                    totalAdSets * creativesPerAdSet
+                } ads`,
+                description: "You may safely close this page.",
             });
         } catch (err: any) {
             console.error(err);

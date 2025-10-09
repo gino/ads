@@ -6,6 +6,7 @@ type ToastType = "SUCCESS" | "ERROR" | "LOADING";
 interface Props {
     id: string | number;
     contents: string;
+    description?: string;
     type?: ToastType;
     progress?: number;
     dismissible?: boolean;
@@ -32,6 +33,7 @@ export function toast({
             <Toast
                 id={options.id!}
                 contents={toast.contents}
+                description={toast.description}
                 type={toast.type}
                 progress={toast.progress}
                 dismissible={dismissible}
@@ -44,6 +46,7 @@ export function toast({
 function Toast({
     id,
     contents,
+    description,
     type = "SUCCESS",
     progress,
     dismissible,
@@ -70,11 +73,18 @@ function Toast({
             <div className="flex-1 flex items-center gap-3 truncate">
                 {icon}
                 <div className="flex items-center truncate flex-1 gap-3">
-                    <div
-                        title={contents}
-                        className="font-semibold text-sm truncate flex-1"
-                    >
-                        {contents}
+                    <div className="truncate flex-1">
+                        <div
+                            title={contents}
+                            className="font-semibold text-sm truncate flex-1"
+                        >
+                            {contents}
+                        </div>
+                        {description && (
+                            <div className="text-xs font-medium text-gray-500">
+                                {description}
+                            </div>
+                        )}
                     </div>
 
                     {typeof progress === "number" && (

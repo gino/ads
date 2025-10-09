@@ -8,8 +8,6 @@ use App\Data\FacebookPageData;
 use App\Data\PixelData;
 use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
-use App\Http\Integrations\Requests\CreateAdCreativeRequest;
-use App\Http\Integrations\Requests\CreateAdRequest;
 use App\Http\Integrations\Requests\CreateAdSetRequest;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
@@ -19,6 +17,7 @@ use App\Http\Integrations\Requests\GetTargetingCountries;
 use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Http\Integrations\Requests\UploadAdVideoCreativeRequest;
+use App\Jobs\CreateAd;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\File;
@@ -181,29 +180,21 @@ class UploadController extends Controller
         /** @var AdAccount $adAccount */
         $adAccount = $request->adAccount();
 
-        $meta = new MetaConnector($request->user()->connection);
-
-        $createdAdCreativeResponse = $meta->send(new CreateAdCreativeRequest(
+        CreateAd::dispatch(
             adAccount: $adAccount,
+            metaConnection: $request->user()->connection,
+            //
+            adSetId: $validated['adSetId'],
             name: $validated['name'],
             hash: $validated['hash'],
             videoId: $validated['videoId'] ?? null,
             facebookPageId: $validated['facebookPageId'],
             instagramPageId: $validated['instagramPageId'] ?? null,
+            cta: $validated['creativeSettings']['cta'],
             //
-            cta: $validated['creativeSettings']['cta']
-        ))->throw();
-
-        $creativeId = $createdAdCreativeResponse->json('id');
-
-        $createdAdResponse = $meta->send(new CreateAdRequest(
-            adAccount: $adAccount,
-            name: $validated['name'],
-            creativeId: $creativeId,
-            adSetId: $validated['adSetId'],
             pausedByDefault: $validated['settings']['pausedByDefault']
-        ))->throw();
+        );
 
-        return response()->json($createdAdResponse->json());
+        return response()->json('OK');
     }
 }
