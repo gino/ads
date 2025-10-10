@@ -9,6 +9,7 @@ use App\Models\AdAccount;
 use App\Models\Connection;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Saloon\RateLimitPlugin\Helpers\ApiRateLimited;
 
 // https://chatgpt.com/c/68e165a6-ebcc-832c-8bb1-154f77b8d92b
 // After creating, notify the user that their ad has been launched (via email)
@@ -40,8 +41,11 @@ class CreateAd implements ShouldQueue
      */
     public function handle(): void
     {
+        // https://docs.saloon.dev/installable-plugins/handling-rate-limits
+
         $meta = new MetaConnector($this->metaConnection);
 
+        // Should be a seperate job?
         $createdAdCreativeResponse = $meta->send(new CreateAdCreativeRequest(
             adAccount: $this->adAccount,
             name: $this->name,
@@ -55,6 +59,7 @@ class CreateAd implements ShouldQueue
 
         $creativeId = $createdAdCreativeResponse->json('id');
 
+        // Should be a seperate job?
         $meta->send(new CreateAdRequest(
             adAccount: $this->adAccount,
             name: $this->name,
@@ -62,5 +67,10 @@ class CreateAd implements ShouldQueue
             adSetId: $this->adSetId,
             pausedByDefault: $this->pausedByDefault
         ))->throw();
+    }
+
+    public function middleware(): array
+    {
+        return [new ApiRateLimited];
     }
 }

@@ -542,6 +542,8 @@ export function UploadedCreatives({ adSets }: Props) {
                     dismissible: false,
                 });
 
+                let completedAdSets = 0;
+
                 adSetItems = await Promise.all(
                     adSetGroups.map(async (adSetGroup, index) => {
                         const adSetId = await axios
@@ -559,13 +561,15 @@ export function UploadedCreatives({ adSets }: Props) {
                             )
                             .then((res) => res.data);
 
+                        completedAdSets++;
+
                         // Update toast for ad set creation
                         toast({
                             id: toastId,
                             type: "LOADING",
                             contents: "Creating ad sets...",
                             progress: Math.round(
-                                ((index + 1) / adSetGroups.length) * 20
+                                (completedAdSets / adSetGroups.length) * 20
                             ),
                             dismissible: false,
                         });
@@ -644,7 +648,7 @@ export function UploadedCreatives({ adSets }: Props) {
                     currentCreative++;
 
                     const progress = Math.round(
-                        (currentCreative / creatives.length) * 100
+                        20 + (currentCreative / creatives.length) * 80
                     );
 
                     toast({

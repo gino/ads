@@ -3,6 +3,7 @@
 namespace App\Http\Integrations;
 
 use App\Models\Connection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Saloon\Http\Auth\TokenAuthenticator;
 use Saloon\Http\Connector;
@@ -10,9 +11,16 @@ use Saloon\Http\Request;
 use Saloon\Http\Response;
 use Saloon\PaginationPlugin\Contracts\HasPagination;
 use Saloon\PaginationPlugin\CursorPaginator;
+use Saloon\RateLimitPlugin\Contracts\RateLimitStore;
+use Saloon\RateLimitPlugin\Helpers\RetryAfterHelper;
+use Saloon\RateLimitPlugin\Limit;
+use Saloon\RateLimitPlugin\Stores\LaravelCacheStore;
+use Saloon\RateLimitPlugin\Traits\HasRateLimits;
 
 class MetaConnector extends Connector implements HasPagination
 {
+    use HasRateLimits;
+
     protected Connection $connection;
 
     public function __construct(Connection $connection)
@@ -92,5 +100,54 @@ class MetaConnector extends Connector implements HasPagination
         Log::debug($this->connection->id.' Token expiration is outside of expiration buffer - not renewing');
 
         return false;
+    }
+
+    protected function resolveLimits(): array
+    {
+        return [];
+    }
+
+    protected function resolveRateLimitStore(): RateLimitStore
+    {
+        return new LaravelCacheStore(Cache::store('redis'));
+    }
+
+    protected function handleTooManyAttempts(Response $response, Limit $limit): void
+    {
+        $status = $response->status();
+        $retryAfter = RetryAfterHelper::parse($response->header('Retry-After'));
+
+        // Decode error body if present
+        $errorBody = $response->json('error') ?? [];
+
+        // Determine if this is a Meta rate-limit scenario
+        $isRateLimit = $status === 429
+            || ($status === 400 && in_array($errorBody['code'] ?? null, [4, 17, 32]));
+
+        if (! $isRateLimit) {
+            return;
+        }
+
+        $adAccountUsageHeader = $response->headers()->get('x-ad-account-usage');
+        if ($retryAfter === null && $adAccountUsageHeader !== null) {
+            $usage = json_decode($adAccountUsageHeader, true);
+
+            if (json_last_error() === JSON_ERROR_NONE && isset($usage['reset_time_duration'])) {
+                $retryAfter = (int) $usage['reset_time_duration'];
+            }
+        }
+
+        if ($retryAfter === null) {
+            $retryAfter = 60;
+        }
+
+        Log::warning('Meta API rate limit hit.', [
+            'status' => $response->status(),
+            'retry_after_seconds' => $retryAfter,
+            'x_ad_account_usage' => $adAccountUsageHeader,
+            'response_body' => $response->body(),
+        ]);
+
+        $limit->exceeded(releaseInSeconds: $retryAfter);
     }
 }

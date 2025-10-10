@@ -160,8 +160,6 @@ class UploadController extends Controller
 
     public function createAd(Request $request)
     {
-        // This can be moved to a queue job maybe: https://chatgpt.com/c/68e165a6-ebcc-832c-8bb1-154f77b8d92b
-
         $validated = $request->validate([
             'name' => ['required', 'string'],
             'hash' => ['required', 'string'],

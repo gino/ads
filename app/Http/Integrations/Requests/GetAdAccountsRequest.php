@@ -10,6 +10,8 @@ use Saloon\PaginationPlugin\Contracts\Paginatable;
 
 class GetAdAccountsRequest extends Request implements Paginatable
 {
+    // Add caching but disable for login call
+
     protected Method $method = Method::GET;
 
     public function resolveEndpoint(): string

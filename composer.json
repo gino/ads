@@ -17,6 +17,7 @@
         "saloonphp/cache-plugin": "^3.0",
         "saloonphp/laravel-plugin": "^3.0",
         "saloonphp/pagination-plugin": "^2.0",
+        "saloonphp/rate-limit-plugin": "^2.0",
         "saloonphp/saloon": "^3.0",
         "spatie/laravel-data": "^4.17",
         "spatie/laravel-enum": "^3.2",
