@@ -24,6 +24,11 @@ class AdAccount extends Model
         return $this->belongsTo(Connection::class);
     }
 
+    public function adCreationFlows()
+    {
+        return $this->hasMany(AdCreationFlow::class);
+    }
+
     public function isActive()
     {
         return $this->status === 'active';

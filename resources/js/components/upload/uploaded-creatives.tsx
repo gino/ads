@@ -517,7 +517,7 @@ export function UploadedCreatives({ adSets }: Props) {
         }
     }, [loadingState, creatives.length, adSetGroups.length]);
 
-    const submit = useCallback(async () => {
+    const submit2 = useCallback(async () => {
         const toastId = "upload-progress-toast";
 
         try {
@@ -698,6 +698,30 @@ export function UploadedCreatives({ adSets }: Props) {
         selectedAdSet,
         router,
     ]);
+
+    const submit = useCallback(async () => {
+        await axios.post(route("dashboard.upload.create"), {
+            adSets: adSetGroups.map((adSet) => {
+                return {
+                    id: adSet.id,
+                    label: adSet.label,
+                    settings: adSet.settings,
+                    creatives: adSet.creatives.map((creativeId) => {
+                        const creative = creatives.find(
+                            (c) => c.id === creativeId
+                        );
+                        if (!creative) return;
+
+                        return {
+                            id: creative.id,
+                        };
+                    }),
+                };
+            }),
+            campaignId: form.data.campaignId,
+            pixelId: form.data.pixelId,
+        });
+    }, [adSetGroups, form.data.campaignId, form.data.pixelId, creatives]);
 
     return (
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">

@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('ad_creation_flows', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->json('adSets')->default('[]');
+            $table->string('status')->default('pending');
+            $table->foreignUlid('user_id')->index();
+            $table->foreignUlid('ad_account_id')->index();
             $table->timestamps();
         });
     }

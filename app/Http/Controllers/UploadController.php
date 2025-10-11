@@ -18,8 +18,11 @@ use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Http\Integrations\Requests\UploadAdVideoCreativeRequest;
 use App\Jobs\CreateAd;
+use App\Jobs\CreateAdSet;
 use App\Models\AdAccount;
+use App\Models\AdCreationFlow;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
@@ -194,5 +197,72 @@ class UploadController extends Controller
         );
 
         return response()->json('OK');
+    }
+
+    public function create(Request $request)
+    {
+        // New creation route which executes all tasks as seperate jobs (https://chatgpt.com/c/68e91b71-5a90-8333-9754-1fc69900048d)
+
+        $validated = $request->validate([
+            'adSets' => ['required', 'array'],
+            'adSets.*.id' => ['required', 'string'],
+            'adSets.*.label' => ['required', 'string'],
+            'adSets.*.settings.locations' => ['required', 'array'],
+            'adSets.*.settings.locations.*' => ['required', 'string'],
+            'adSets.*.settings.age' => ['required', 'array'],
+            'adSets.*.settings.age.*' => ['required', 'numeric'],
+            'adSets.*.creatives' => ['required', 'array'],
+            'adSets.*.creatives.*.id' => ['required', 'string'],
+            'campaignId' => ['required', 'string'],
+            'pixelId' => ['required', 'string'],
+        ]);
+
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $adSets = $validated['adSets'];
+        $campaignId = $validated['campaignId'];
+        $pixelId = $validated['pixelId'];
+
+        $mappedAdSets = collect($validated['adSets'])->map(fn ($adSet) => [
+            // 'input' => $adSet, We kinda don't want to save all of this but idk if we should
+            'external_id' => null,
+            'status' => 'pending',
+            'creatives' => collect($adSet['creatives'])->map(fn ($creative) => [
+                // 'input' => $creative, We kinda don't want to save all of this but idk if we should
+                'hash' => null,
+                'status' => 'pending',
+                'external_id' => null,
+            ])->toArray(),
+        ])->toArray();
+
+        $flow = AdCreationFlow::create([
+            'adSets' => $mappedAdSets,
+            'user_id' => $request->user()->id,
+            'ad_account_id' => $adAccount->id,
+        ]);
+
+        // Dispatch queue jobs
+        foreach ($adSets as $adSetIndex => $adSet) {
+            $adSetJob = new CreateAdSet(
+                adCreationFlow: $flow,
+                adSetIndex: $adSetIndex,
+                input: new AdSetInput(
+                    label: $adSet['label'],
+                    countries: $adSet['settings']['locations'],
+                    minAge: $adSet['settings']['age'][0],
+                    maxAge: $adSet['settings']['age'][1]
+                ),
+                campaignId: $campaignId,
+                pixelId: $pixelId
+            );
+
+            Bus::chain([
+                $adSetJob,
+                //
+            ])->dispatch();
+        }
+
+        dd($flow);
     }
 }
