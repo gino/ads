@@ -3,7 +3,6 @@
 namespace App\Http\Integrations\Requests;
 
 use App\Models\AdAccount;
-use Illuminate\Http\UploadedFile;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Data\MultipartValue;
 use Saloon\Enums\Method;
@@ -20,14 +19,21 @@ class UploadAdCreativeRequest extends Request implements HasBody
 
     protected AdAccount $adAccount;
 
-    protected UploadedFile $creative;
+    protected $creative;
+
+    protected string $filename;
 
     protected string $label;
 
-    public function __construct(AdAccount $adAccount, UploadedFile $creative, string $label)
-    {
+    public function __construct(
+        AdAccount $adAccount,
+        $creative,
+        string $filename,
+        string $label
+    ) {
         $this->adAccount = $adAccount;
         $this->creative = $creative;
+        $this->filename = $filename;
         $this->label = $label;
     }
 
@@ -41,8 +47,8 @@ class UploadAdCreativeRequest extends Request implements HasBody
         return [
             new MultipartValue(
                 name: 'creative',
-                value: fopen($this->creative->getPathname(), 'r'),
-                filename: $this->label.'.'.$this->creative->extension()
+                value: $this->creative,
+                filename: "{$this->label}.".pathinfo($this->filename, PATHINFO_EXTENSION)
             ),
         ];
     }

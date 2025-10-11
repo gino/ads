@@ -701,17 +701,41 @@ export function UploadedCreatives({ adSets }: Props) {
 
     const submit = useCallback(async () => {
         const toastId = "upload-progress-toast";
-        const uploadedCreativesMap = new Map<string, string>();
+        const creativePathsMap = new Map<
+            string,
+            { file: string; thumbnail: string | null }
+        >();
 
-        // Before we wanna upload all photos for our upload route (including thumbnail)
-        // Which we then upload to our R2 bucket (which is a temp place)
-        // And then the path from that, we have to send along with our main create call:
+        setLoadingState("UPLOADING_CREATIVES");
         try {
             for (const creative of creatives) {
-                //
-            }
+                const creativeLabel = creative.label || creative.name;
+                const isVideo = creative.type.startsWith("video/");
 
-            return;
+                const formData = new FormData();
+                formData.append("name", creativeLabel);
+                formData.append("file", creative.file);
+
+                if (isVideo) {
+                    formData.append(
+                        "thumbnail",
+                        base64ToFile(
+                            creative.thumbnail!,
+                            `${creative.id}-thumb.jpg`
+                        )
+                    );
+                }
+
+                const response = await axios.post(
+                    route("dashboard.upload.upload-photo"),
+                    formData
+                );
+
+                creativePathsMap.set(creative.id, {
+                    file: response.data.file,
+                    thumbnail: response.data.thumbnail,
+                });
+            }
 
             await axios.post(route("dashboard.upload.create"), {
                 adSets: adSetGroups.map((adSet) => {
@@ -725,9 +749,16 @@ export function UploadedCreatives({ adSets }: Props) {
                             );
                             if (!creative) return;
 
+                            const paths = creativePathsMap.get(creative.id);
+                            if (!paths) return;
+
+                            const creativeLabel =
+                                creative.label || creative.name;
+
                             return {
                                 id: creative.id,
-                                path: "path from r2 bucket",
+                                label: creativeLabel,
+                                path: paths,
                             };
                         }),
                     };
@@ -745,6 +776,8 @@ export function UploadedCreatives({ adSets }: Props) {
                     err?.message ||
                     "Something went wrong while launching ads",
             });
+        } finally {
+            setLoadingState(null);
         }
     }, [adSetGroups, form.data.campaignId, form.data.pixelId, creatives]);
 

@@ -18,12 +18,16 @@ use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Http\Integrations\Requests\UploadAdVideoCreativeRequest;
 use App\Jobs\CreateAd;
+use App\Jobs\CreateAdCreative;
 use App\Jobs\CreateAdSet;
+use App\Jobs\UploadAdCreative;
+use App\Jobs\UploadAdVideoCreative;
 use App\Models\AdAccount;
 use App\Models\AdCreationFlow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
@@ -111,19 +115,31 @@ class UploadController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string'],
-            'file' => ['required', File::image()->max('20mb')],
+            'file' => ['required', File::types(['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi'])->max('4gb')],
+            'thumbnail' => ['nullable', File::image()->max('20mb')],
         ]);
 
-        $photo = $validated['file'];
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('uploaded-ads');
 
-        $path = $validated['name'].'.'.$photo->extension();
+        $file = $validated['file'];
+        $thumbnail = $validated['thumbnail'] ?? null;
 
-        // Upload photo to R2
-        Storage::disk('uploaded-ads')->put($path, $photo);
+        $filePath = Str::uuid().'.'.$file->extension();
+        $thumbnailPath = $thumbnail ? (Str::uuid().'.'.$thumbnail->extension()) : null;
+
+        $disk->put($filePath, file_get_contents($file->getRealPath()));
+
+        if ($thumbnail) {
+            // Upload thumbnail if present
+            $disk->put($thumbnailPath, file_get_contents($thumbnail->getRealPath()));
+        }
 
         return response()->json([
-            'path' => Storage::disk('uploaded-ads')->path($path),
+            'file' => $filePath,
+            'thumbnail' => $thumbnail ? $thumbnailPath : null,
         ]);
+
         // /** @var AdAccount $adAccount */
         // $adAccount = $request->adAccount();
 
@@ -218,12 +234,19 @@ class UploadController extends Controller
             'adSets' => ['required', 'array'],
             'adSets.*.id' => ['required', 'string'],
             'adSets.*.label' => ['required', 'string'],
+            //
             'adSets.*.settings.locations' => ['required', 'array'],
             'adSets.*.settings.locations.*' => ['required', 'string'],
             'adSets.*.settings.age' => ['required', 'array'],
             'adSets.*.settings.age.*' => ['required', 'numeric'],
+            //
             'adSets.*.creatives' => ['required', 'array'],
             'adSets.*.creatives.*.id' => ['required', 'string'],
+            'adSets.*.creatives.*.label' => ['required', 'string'],
+            'adSets.*.creatives.*.path' => ['required', 'array'],
+            'adSets.*.creatives.*.path.file' => ['required', 'string'],
+            'adSets.*.creatives.*.path.thumbnail' => ['nullable', 'string'],
+            //
             'campaignId' => ['required', 'string'],
             'pixelId' => ['required', 'string'],
         ]);
@@ -236,11 +259,9 @@ class UploadController extends Controller
         $pixelId = $validated['pixelId'];
 
         $mappedAdSets = collect($validated['adSets'])->map(fn ($adSet) => [
-            // 'input' => $adSet, We kinda don't want to save all of this but idk if we should
             'external_id' => null,
             'status' => 'pending',
             'creatives' => collect($adSet['creatives'])->map(fn ($creative) => [
-                // 'input' => $creative, We kinda don't want to save all of this but idk if we should
                 'hash' => null,
                 'status' => 'pending',
                 'external_id' => null,
@@ -255,7 +276,8 @@ class UploadController extends Controller
 
         // Dispatch queue jobs
         foreach ($adSets as $adSetIndex => $adSet) {
-            $adSetJob = new CreateAdSet(
+            $jobs = [];
+            $jobs[] = new CreateAdSet(
                 adCreationFlow: $flow,
                 adSetIndex: $adSetIndex,
                 input: new AdSetInput(
@@ -268,12 +290,43 @@ class UploadController extends Controller
                 pixelId: $pixelId
             );
 
-            Bus::chain([
-                $adSetJob,
-                //
-            ])->dispatch();
+            foreach ($adSet['creatives'] as $creative) {
+                $thumbnail = $creative['path']['thumbnail'];
+                $isVideo = $thumbnail !== null;
+
+                if ($isVideo) {
+                    // Thumbnail
+                    $jobs[] = new UploadAdCreative(
+                        adCreationFlow: $flow,
+                        label: $creative['label'],
+                        path: $creative['path']['thumbnail']
+                    );
+
+                    // Video
+                    $jobs[] = new UploadAdVideoCreative(
+                        adCreationFlow: $flow,
+                        label: $creative['label'],
+                        path: $creative['path']['file']
+                    );
+                } else {
+                    $jobs[] = new UploadAdCreative(
+                        adCreationFlow: $flow,
+                        label: $creative['label'],
+                        path: $creative['path']['file']
+                    );
+                }
+
+                $jobs[] = new CreateAdCreative(
+                    adCreationFlow: $flow
+                );
+                // $jobs[] = new CreateAd(
+                //     adCreationFlow: $flow
+                // );
+            }
+
+            Bus::chain($jobs)->dispatch();
         }
 
-        dd($flow);
+        return response()->json($flow);
     }
 }
