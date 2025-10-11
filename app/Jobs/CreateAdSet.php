@@ -34,7 +34,6 @@ class CreateAdSet implements ShouldQueue
         $adAccount = $this->adCreationFlow->adAccount;
 
         $adSets = $this->adCreationFlow->adSets;
-        $adSet = $adSets[$this->adSetIndex];
 
         $meta = new MetaConnector($user->connection);
 
@@ -45,8 +44,7 @@ class CreateAdSet implements ShouldQueue
             pixelId: $this->pixelId
         );
 
-        // $createdAdSetId = $meta->send($request)->throw()->json('id');
-        $createdAdSetId = 'yeet';
+        $createdAdSetId = $meta->send($request)->throw()->json('id');
 
         $adSets[$this->adSetIndex]['external_id'] = $createdAdSetId;
         $adSets[$this->adSetIndex]['status'] = 'completed';

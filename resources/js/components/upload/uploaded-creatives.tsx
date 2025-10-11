@@ -700,27 +700,52 @@ export function UploadedCreatives({ adSets }: Props) {
     ]);
 
     const submit = useCallback(async () => {
-        await axios.post(route("dashboard.upload.create"), {
-            adSets: adSetGroups.map((adSet) => {
-                return {
-                    id: adSet.id,
-                    label: adSet.label,
-                    settings: adSet.settings,
-                    creatives: adSet.creatives.map((creativeId) => {
-                        const creative = creatives.find(
-                            (c) => c.id === creativeId
-                        );
-                        if (!creative) return;
+        const toastId = "upload-progress-toast";
+        const uploadedCreativesMap = new Map<string, string>();
 
-                        return {
-                            id: creative.id,
-                        };
-                    }),
-                };
-            }),
-            campaignId: form.data.campaignId,
-            pixelId: form.data.pixelId,
-        });
+        // Before we wanna upload all photos for our upload route (including thumbnail)
+        // Which we then upload to our R2 bucket (which is a temp place)
+        // And then the path from that, we have to send along with our main create call:
+        try {
+            for (const creative of creatives) {
+                //
+            }
+
+            return;
+
+            await axios.post(route("dashboard.upload.create"), {
+                adSets: adSetGroups.map((adSet) => {
+                    return {
+                        id: adSet.id,
+                        label: adSet.label,
+                        settings: adSet.settings,
+                        creatives: adSet.creatives.map((creativeId) => {
+                            const creative = creatives.find(
+                                (c) => c.id === creativeId
+                            );
+                            if (!creative) return;
+
+                            return {
+                                id: creative.id,
+                                path: "path from r2 bucket",
+                            };
+                        }),
+                    };
+                }),
+                campaignId: form.data.campaignId,
+                pixelId: form.data.pixelId,
+            });
+        } catch (err: any) {
+            console.error(err);
+            toast({
+                id: toastId,
+                type: "ERROR",
+                contents:
+                    err?.response?.data?.message ||
+                    err?.message ||
+                    "Something went wrong while launching ads",
+            });
+        }
     }, [adSetGroups, form.data.campaignId, form.data.pixelId, creatives]);
 
     return (

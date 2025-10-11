@@ -23,6 +23,7 @@ use App\Models\AdAccount;
 use App\Models\AdCreationFlow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
 
@@ -115,23 +116,31 @@ class UploadController extends Controller
 
         $photo = $validated['file'];
 
-        /** @var AdAccount $adAccount */
-        $adAccount = $request->adAccount();
+        $path = $validated['name'].'.'.$photo->extension();
 
-        $meta = new MetaConnector($request->user()->connection);
-
-        $uploadResponse = $meta->send(new UploadAdCreativeRequest(
-            adAccount: $adAccount,
-            creative: $photo,
-            label: $validated['name']
-        ))->throw();
-
-        $images = collect($uploadResponse->json('images'));
-        $hash = $images->first()['hash'];
+        // Upload photo to R2
+        Storage::disk('uploaded-ads')->put($path, $photo);
 
         return response()->json([
-            'hash' => $hash,
+            'path' => Storage::disk('uploaded-ads')->path($path),
         ]);
+        // /** @var AdAccount $adAccount */
+        // $adAccount = $request->adAccount();
+
+        // $meta = new MetaConnector($request->user()->connection);
+
+        // $uploadResponse = $meta->send(new UploadAdCreativeRequest(
+        //     adAccount: $adAccount,
+        //     creative: $photo,
+        //     label: $validated['name']
+        // ))->throw();
+
+        // $images = collect($uploadResponse->json('images'));
+        // $hash = $images->first()['hash'];
+
+        // return response()->json([
+        //     'hash' => $hash,
+        // ]);
     }
 
     public function uploadVideo(Request $request)
@@ -143,22 +152,24 @@ class UploadController extends Controller
 
         $video = $validated['file'];
 
-        /** @var AdAccount $adAccount */
-        $adAccount = $request->adAccount();
+        // Upload video to R2
 
-        $meta = new MetaConnector($request->user()->connection);
+        // /** @var AdAccount $adAccount */
+        // $adAccount = $request->adAccount();
 
-        $uploadResponse = $meta->send(new UploadAdVideoCreativeRequest(
-            adAccount: $adAccount,
-            creative: $video,
-            label: $validated['name']
-        ))->throw();
+        // $meta = new MetaConnector($request->user()->connection);
 
-        $videoId = $uploadResponse->json('id');
+        // $uploadResponse = $meta->send(new UploadAdVideoCreativeRequest(
+        //     adAccount: $adAccount,
+        //     creative: $video,
+        //     label: $validated['name']
+        // ))->throw();
 
-        return response()->json([
-            'videoId' => $videoId,
-        ]);
+        // $videoId = $uploadResponse->json('id');
+
+        // return response()->json([
+        //     'videoId' => $videoId,
+        // ]);
     }
 
     public function createAd(Request $request)
