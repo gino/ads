@@ -23,10 +23,12 @@ use App\Models\AdAccount;
 use App\Models\AdCreationFlow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\File;
 use Inertia\Inertia;
+use Throwable;
 
 class UploadController extends Controller
 {
@@ -79,7 +81,7 @@ class UploadController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string'],
-            'file' => ['required', File::types(['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'avi'])->max('4gb')],
+            'file' => ['required', File::types(['jpg', 'jpeg', 'png', 'gif', 'm4v', 'mp4', 'mov', 'avi'])->max('4gb')],
             'thumbnail' => ['nullable', File::image()->max('20mb')],
         ]);
 
@@ -232,7 +234,18 @@ class UploadController extends Controller
                 );
             }
 
-            Bus::chain($jobs)->dispatch();
+            Bus::chain($jobs)->catch(function (Throwable $e) use ($flow) {
+                // A job within the chain has failed...
+                Log::error(json_encode([
+                    'code' => $e->getCode(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTrace(),
+                    'trace_str' => $e->getTraceAsString(),
+                ]));
+                $flow->update(['status' => 'failed']);
+            })->dispatch();
         }
 
         return response()->json($flow);

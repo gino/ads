@@ -14,6 +14,10 @@ class CreateAdCreative implements ShouldQueue
 {
     use Queueable;
 
+    public $tries = 15;
+
+    public $backoff = 60;
+
     /**
      * Create a new job instance.
      */

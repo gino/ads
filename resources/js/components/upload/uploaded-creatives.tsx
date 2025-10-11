@@ -708,6 +708,16 @@ export function UploadedCreatives({ adSets }: Props) {
 
         setLoadingState("UPLOADING_CREATIVES");
         try {
+            let uploadedCreatives = 0;
+
+            toast({
+                id: toastId,
+                type: "LOADING",
+                contents: "Uploading creatives...",
+                progress: 0,
+                dismissible: false,
+            });
+
             for (const creative of creatives) {
                 const creativeLabel = creative.label || creative.name;
                 const isVideo = creative.type.startsWith("video/");
@@ -734,6 +744,18 @@ export function UploadedCreatives({ adSets }: Props) {
                 creativePathsMap.set(creative.id, {
                     file: response.data.file,
                     thumbnail: response.data.thumbnail,
+                });
+
+                uploadedCreatives++;
+
+                toast({
+                    id: toastId,
+                    type: "LOADING",
+                    contents: `Uploading creatives (${uploadedCreatives}/${creatives.length})...`,
+                    progress: Math.round(
+                        (uploadedCreatives / creatives.length) * 100
+                    ),
+                    dismissible: false,
                 });
             }
 
@@ -782,6 +804,16 @@ export function UploadedCreatives({ adSets }: Props) {
                 instagramPageId: form.data.instagramPageId,
                 settings: form.data.settings,
             });
+
+            sonnerToast.dismiss(toastId);
+            toast({
+                type: "SUCCESS",
+                contents: `${creatives.length} ad${
+                    creatives.length === 1 ? " is" : "s are"
+                } being launched in the background...`,
+            });
+            setCreatives([]);
+            setAdSetGroups([]);
         } catch (err: any) {
             console.error(err);
             toast({
@@ -803,9 +835,11 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.instagramPageId,
         form.data.settings,
         creatives,
-        setLoadingState,
         hasSelectedAdSet,
         selectedAdSet,
+        setLoadingState,
+        setCreatives,
+        setAdSetGroups,
     ]);
 
     return (

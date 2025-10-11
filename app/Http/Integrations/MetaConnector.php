@@ -117,10 +117,8 @@ class MetaConnector extends Connector implements HasPagination
         $status = $response->status();
         $retryAfter = RetryAfterHelper::parse($response->header('Retry-After'));
 
-        // Decode error body if present
         $errorBody = $response->json('error') ?? [];
 
-        // Determine if this is a Meta rate-limit scenario
         $isRateLimit = $status === 429
             || ($status === 400 && in_array($errorBody['code'] ?? null, [4, 17, 32]));
 
@@ -132,20 +130,30 @@ class MetaConnector extends Connector implements HasPagination
         if ($retryAfter === null && $adAccountUsageHeader !== null) {
             $usage = json_decode($adAccountUsageHeader, true);
 
-            if (json_last_error() === JSON_ERROR_NONE && isset($usage['reset_time_duration'])) {
-                $retryAfter = (int) $usage['reset_time_duration'];
+            if (
+                json_last_error() === JSON_ERROR_NONE &&
+                isset($usage['reset_time_duration'])
+            ) {
+                $reset = (int) $usage['reset_time_duration'];
+                if ($reset > 0) {
+                    $retryAfter = $reset;
+                }
             }
         }
 
-        if ($retryAfter === null) {
-            $retryAfter = 60;
+        // Fallback if no valid duration provided
+        if ($retryAfter === null || $retryAfter <= 0) {
+            $retryAfter = 60; // Default wait (1 minute)
         }
 
         Log::warning('Meta API rate limit hit.', [
-            'status' => $response->status(),
+            'status' => $status,
             'retry_after_seconds' => $retryAfter,
             'x_ad_account_usage' => $adAccountUsageHeader,
             'response_body' => $response->body(),
+            'error_code' => $errorBody['code'] ?? null,
+            'error_subcode' => $errorBody['error_subcode'] ?? null,
+            'error_message' => $errorBody['message'] ?? null,
         ]);
 
         $limit->exceeded(releaseInSeconds: $retryAfter);
