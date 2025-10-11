@@ -8,6 +8,7 @@ use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Models\AdCreationFlow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Saloon\RateLimitPlugin\Helpers\ApiRateLimited;
 
 class CreateAdSet implements ShouldQueue
@@ -44,10 +45,12 @@ class CreateAdSet implements ShouldQueue
             pixelId: $this->pixelId
         );
 
-        $createdAdSetId = $meta->send($request)->throw()->json('id');
+        $response = $meta->send($request)->throw();
+        Log::debug('CreateAdSet job response: '.json_encode($response->json()));
 
-        $adSets[$this->adSetIndex]['external_id'] = $createdAdSetId;
-        $adSets[$this->adSetIndex]['status'] = 'completed';
+        $createdAdSetId = $response->json('id');
+
+        $adSets[$this->adSetIndex]['id'] = $createdAdSetId;
         $this->adCreationFlow->update(['adSets' => $adSets]);
     }
 

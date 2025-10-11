@@ -25,20 +25,28 @@ class UploadAdCreativeRequest extends Request implements HasBody
 
     protected string $label;
 
+    protected bool $isVideo;
+
     public function __construct(
         AdAccount $adAccount,
         $creative,
         string $filename,
-        string $label
+        string $label,
+        ?bool $isVideo
     ) {
         $this->adAccount = $adAccount;
         $this->creative = $creative;
         $this->filename = $filename;
         $this->label = $label;
+        $this->isVideo = $isVideo;
     }
 
     public function resolveEndpoint(): string
     {
+        if ($this->isVideo) {
+            return "{$this->adAccount->external_id}/advideos";
+        }
+
         return "{$this->adAccount->external_id}/adimages";
     }
 

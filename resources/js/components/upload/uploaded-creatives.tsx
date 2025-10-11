@@ -737,8 +737,19 @@ export function UploadedCreatives({ adSets }: Props) {
                 });
             }
 
+            const adSets = hasSelectedAdSet
+                ? [
+                      {
+                          id: selectedAdSet!.id,
+                          label: selectedAdSet!.name,
+                          settings: defaultAdSetSettings,
+                          creatives: creatives.map((c) => c.id),
+                      },
+                  ]
+                : adSetGroups;
+
             await axios.post(route("dashboard.upload.create"), {
-                adSets: adSetGroups.map((adSet) => {
+                adSets: adSets.map((adSet) => {
                     return {
                         id: adSet.id,
                         label: adSet.label,
@@ -759,12 +770,17 @@ export function UploadedCreatives({ adSets }: Props) {
                                 id: creative.id,
                                 label: creativeLabel,
                                 path: paths,
+                                settings: creative.settings,
                             };
                         }),
                     };
                 }),
+                hasSelectedAdSet,
                 campaignId: form.data.campaignId,
                 pixelId: form.data.pixelId,
+                facebookPageId: form.data.facebookPageId,
+                instagramPageId: form.data.instagramPageId,
+                settings: form.data.settings,
             });
         } catch (err: any) {
             console.error(err);
@@ -779,7 +795,18 @@ export function UploadedCreatives({ adSets }: Props) {
         } finally {
             setLoadingState(null);
         }
-    }, [adSetGroups, form.data.campaignId, form.data.pixelId, creatives]);
+    }, [
+        adSetGroups,
+        form.data.campaignId,
+        form.data.pixelId,
+        form.data.facebookPageId,
+        form.data.instagramPageId,
+        form.data.settings,
+        creatives,
+        setLoadingState,
+        hasSelectedAdSet,
+        selectedAdSet,
+    ]);
 
     return (
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">

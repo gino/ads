@@ -7,6 +7,7 @@ use App\Http\Integrations\Requests\UploadAdCreativeRequest;
 use App\Models\AdCreationFlow;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Saloon\RateLimitPlugin\Helpers\ApiRateLimited;
 
@@ -19,6 +20,8 @@ class UploadAdCreative implements ShouldQueue
      */
     public function __construct(
         public AdCreationFlow $adCreationFlow,
+        public int $adSetIndex,
+        public int $creativeIndex,
         public string $path,
         public string $label
     ) {}
@@ -30,6 +33,8 @@ class UploadAdCreative implements ShouldQueue
     {
         $user = $this->adCreationFlow->user;
         $adAccount = $this->adCreationFlow->adAccount;
+
+        $adSets = $this->adCreationFlow->adSets;
 
         $meta = new MetaConnector($user->connection);
 
@@ -43,13 +48,17 @@ class UploadAdCreative implements ShouldQueue
             creative: $creative,
             filename: $this->path,
             label: $this->label,
+            isVideo: false
         );
 
         $response = $meta->send($request)->throw();
+        Log::debug('UploadAdCreative job response: '.json_encode($response->json()));
+
         $images = collect($response->json('images'));
         $hash = $images->first()['hash'];
 
-        // TODO: Now we have to update $flow with the updated hash for the matching creative so our jobs after this one, are aware of the hash
+        $adSets[$this->adSetIndex]['creatives'][$this->creativeIndex]['hash'] = $hash;
+        $this->adCreationFlow->update(['adSets' => $adSets]);
 
         $disk->delete($this->path);
     }

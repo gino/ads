@@ -28,10 +28,7 @@ Route::middleware([
 
     // Upload
     Route::get('/upload', [UploadController::class, 'index'])->name('dashboard.upload');
-    Route::post('/upload/create-adset', [UploadController::class, 'createAdSet'])->name('dashboard.upload.create-adset');
     Route::post('/upload/photo', [UploadController::class, 'uploadPhoto'])->name('dashboard.upload.upload-photo');
-    Route::post('/upload/video', [UploadController::class, 'uploadVideo'])->name('dashboard.upload.upload-video');
-    Route::post('/upload/create-ad', [UploadController::class, 'createAd'])->name('dashboard.upload.create-ad');
     Route::post('/upload/create', [UploadController::class, 'create'])->name('dashboard.upload.create');
 
     Route::get('/campaigns', [CampaignsController::class, 'campaigns'])->name('dashboard.campaigns');

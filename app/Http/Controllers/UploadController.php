@@ -8,15 +8,12 @@ use App\Data\FacebookPageData;
 use App\Data\PixelData;
 use App\Data\TargetingCountryData;
 use App\Http\Integrations\MetaConnector;
-use App\Http\Integrations\Requests\CreateAdSetRequest;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetFacebookPagesRequest;
 use App\Http\Integrations\Requests\GetPixelsRequest;
 use App\Http\Integrations\Requests\GetTargetingCountries;
 use App\Http\Integrations\Requests\Inputs\AdSetInput;
-use App\Http\Integrations\Requests\UploadAdCreativeRequest;
-use App\Http\Integrations\Requests\UploadAdVideoCreativeRequest;
 use App\Jobs\CreateAd;
 use App\Jobs\CreateAdCreative;
 use App\Jobs\CreateAdSet;
@@ -78,39 +75,6 @@ class UploadController extends Controller
         ]);
     }
 
-    public function createAdSet(Request $request)
-    {
-        $validated = $request->validate([
-            'adSet.id' => ['required', 'string'],
-            'adSet.label' => ['required', 'string'],
-            'adSet.settings.locations' => ['required', 'array'],
-            'adSet.settings.locations.*' => ['required', 'string'],
-            'adSet.settings.age' => ['required', 'array'],
-            'adSet.settings.age.*' => ['required', 'numeric'],
-            'campaignId' => ['required', 'string'],
-            'pixelId' => ['required', 'string'],
-        ]);
-
-        /** @var AdAccount $adAccount */
-        $adAccount = $request->adAccount();
-
-        $meta = new MetaConnector($request->user()->connection);
-
-        $response = $meta->send(new CreateAdSetRequest(
-            adAccount: $adAccount,
-            adSet: new AdSetInput(
-                label: $validated['adSet']['label'],
-                countries: $validated['adSet']['settings']['locations'],
-                minAge: $validated['adSet']['settings']['age'][0],
-                maxAge: $validated['adSet']['settings']['age'][1],
-            ),
-            campaignId: $validated['campaignId'],
-            pixelId: $validated['pixelId'],
-        ))->throw();
-
-        return response()->json($response->json('id'));
-    }
-
     public function uploadPhoto(Request $request)
     {
         $validated = $request->validate([
@@ -139,97 +103,10 @@ class UploadController extends Controller
             'file' => $filePath,
             'thumbnail' => $thumbnail ? $thumbnailPath : null,
         ]);
-
-        // /** @var AdAccount $adAccount */
-        // $adAccount = $request->adAccount();
-
-        // $meta = new MetaConnector($request->user()->connection);
-
-        // $uploadResponse = $meta->send(new UploadAdCreativeRequest(
-        //     adAccount: $adAccount,
-        //     creative: $photo,
-        //     label: $validated['name']
-        // ))->throw();
-
-        // $images = collect($uploadResponse->json('images'));
-        // $hash = $images->first()['hash'];
-
-        // return response()->json([
-        //     'hash' => $hash,
-        // ]);
-    }
-
-    public function uploadVideo(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string'],
-            'file' => ['required', File::types(['mp4', 'mov', 'm4v', 'avi'])->max('4gb')],
-        ]);
-
-        $video = $validated['file'];
-
-        // Upload video to R2
-
-        // /** @var AdAccount $adAccount */
-        // $adAccount = $request->adAccount();
-
-        // $meta = new MetaConnector($request->user()->connection);
-
-        // $uploadResponse = $meta->send(new UploadAdVideoCreativeRequest(
-        //     adAccount: $adAccount,
-        //     creative: $video,
-        //     label: $validated['name']
-        // ))->throw();
-
-        // $videoId = $uploadResponse->json('id');
-
-        // return response()->json([
-        //     'videoId' => $videoId,
-        // ]);
-    }
-
-    public function createAd(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string'],
-            'hash' => ['required', 'string'],
-            'videoId' => ['nullable', 'string'],
-            'adSetId' => ['required', 'string'],
-            'facebookPageId' => ['required', 'string'],
-            'instagramPageId' => ['nullable', 'string'],
-            //
-            'creativeSettings.cta' => ['required', 'string'],
-            //
-            'settings.pausedByDefault' => ['required', 'boolean'],
-            'settings.disableEnhancements' => ['required', 'boolean'],
-            'settings.disablePromoCodes' => ['required', 'boolean'],
-        ]);
-
-        /** @var AdAccount $adAccount */
-        $adAccount = $request->adAccount();
-
-        CreateAd::dispatch(
-            adAccount: $adAccount,
-            metaConnection: $request->user()->connection,
-            //
-            adSetId: $validated['adSetId'],
-            name: $validated['name'],
-            hash: $validated['hash'],
-            videoId: $validated['videoId'] ?? null,
-            facebookPageId: $validated['facebookPageId'],
-            instagramPageId: $validated['instagramPageId'] ?? null,
-            cta: $validated['creativeSettings']['cta'],
-            //
-            pausedByDefault: $validated['settings']['pausedByDefault']
-        );
-
-        return response()->json('OK');
     }
 
     public function create(Request $request)
     {
-        // New creation route which executes all tasks as seperate jobs (https://chatgpt.com/c/68e91b71-5a90-8333-9754-1fc69900048d)
-
         $validated = $request->validate([
             'adSets' => ['required', 'array'],
             'adSets.*.id' => ['required', 'string'],
@@ -247,8 +124,17 @@ class UploadController extends Controller
             'adSets.*.creatives.*.path.file' => ['required', 'string'],
             'adSets.*.creatives.*.path.thumbnail' => ['nullable', 'string'],
             //
+            'adSets.*.creatives.*.settings.cta' => ['nullable', 'string'],
+            //
+            'hasSelectedAdSet' => ['required', 'boolean'],
             'campaignId' => ['required', 'string'],
             'pixelId' => ['required', 'string'],
+            'facebookPageId' => ['required', 'string'],
+            'instagramPageId' => ['nullable', 'string'],
+            //
+            'settings.pausedByDefault' => ['required', 'boolean'],
+            'settings.disableEnhancements' => ['required', 'boolean'],
+            'settings.disablePromoCodes' => ['required', 'boolean'],
         ]);
 
         /** @var AdAccount $adAccount */
@@ -257,14 +143,17 @@ class UploadController extends Controller
         $adSets = $validated['adSets'];
         $campaignId = $validated['campaignId'];
         $pixelId = $validated['pixelId'];
+        $facebookPageId = $validated['facebookPageId'];
+        $instagramPageId = $validated['instagramPageId'];
+        $settings = $validated['settings'];
+        $hasSelectedAdSet = $validated['hasSelectedAdSet'];
 
         $mappedAdSets = collect($validated['adSets'])->map(fn ($adSet) => [
-            'external_id' => null,
-            'status' => 'pending',
+            'id' => $hasSelectedAdSet ? $adSet['id'] : null,
             'creatives' => collect($adSet['creatives'])->map(fn ($creative) => [
+                'id' => null,
                 'hash' => null,
-                'status' => 'pending',
-                'external_id' => null,
+                'video_id' => null,
             ])->toArray(),
         ])->toArray();
 
@@ -277,20 +166,23 @@ class UploadController extends Controller
         // Dispatch queue jobs
         foreach ($adSets as $adSetIndex => $adSet) {
             $jobs = [];
-            $jobs[] = new CreateAdSet(
-                adCreationFlow: $flow,
-                adSetIndex: $adSetIndex,
-                input: new AdSetInput(
-                    label: $adSet['label'],
-                    countries: $adSet['settings']['locations'],
-                    minAge: $adSet['settings']['age'][0],
-                    maxAge: $adSet['settings']['age'][1]
-                ),
-                campaignId: $campaignId,
-                pixelId: $pixelId
-            );
 
-            foreach ($adSet['creatives'] as $creative) {
+            if (! $hasSelectedAdSet) {
+                $jobs[] = new CreateAdSet(
+                    adCreationFlow: $flow,
+                    adSetIndex: $adSetIndex,
+                    input: new AdSetInput(
+                        label: $adSet['label'],
+                        countries: $adSet['settings']['locations'],
+                        minAge: $adSet['settings']['age'][0],
+                        maxAge: $adSet['settings']['age'][1]
+                    ),
+                    campaignId: $campaignId,
+                    pixelId: $pixelId
+                );
+            }
+
+            foreach ($adSet['creatives'] as $creativeIndex => $creative) {
                 $thumbnail = $creative['path']['thumbnail'];
                 $isVideo = $thumbnail !== null;
 
@@ -298,6 +190,8 @@ class UploadController extends Controller
                     // Thumbnail
                     $jobs[] = new UploadAdCreative(
                         adCreationFlow: $flow,
+                        adSetIndex: $adSetIndex,
+                        creativeIndex: $creativeIndex,
                         label: $creative['label'],
                         path: $creative['path']['thumbnail']
                     );
@@ -305,23 +199,37 @@ class UploadController extends Controller
                     // Video
                     $jobs[] = new UploadAdVideoCreative(
                         adCreationFlow: $flow,
+                        adSetIndex: $adSetIndex,
+                        creativeIndex: $creativeIndex,
                         label: $creative['label'],
                         path: $creative['path']['file']
                     );
                 } else {
                     $jobs[] = new UploadAdCreative(
                         adCreationFlow: $flow,
+                        adSetIndex: $adSetIndex,
+                        creativeIndex: $creativeIndex,
                         label: $creative['label'],
                         path: $creative['path']['file']
                     );
                 }
 
                 $jobs[] = new CreateAdCreative(
-                    adCreationFlow: $flow
+                    adCreationFlow: $flow,
+                    adSetIndex: $adSetIndex,
+                    creativeIndex: $creativeIndex,
+                    label: $creative['label'],
+                    facebookPageId: $facebookPageId,
+                    instagramPageId: $instagramPageId,
+                    cta: $creative['settings']['cta']
                 );
-                // $jobs[] = new CreateAd(
-                //     adCreationFlow: $flow
-                // );
+                $jobs[] = new CreateAd(
+                    adCreationFlow: $flow,
+                    adSetIndex: $adSetIndex,
+                    creativeIndex: $creativeIndex,
+                    label: $creative['label'],
+                    pausedByDefault: $settings['pausedByDefault']
+                );
             }
 
             Bus::chain($jobs)->dispatch();
