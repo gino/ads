@@ -15,6 +15,8 @@ class AdCreationFlow extends Model
         'status',
         'user_id',
         'ad_account_id',
+        'batch_id',
+        'completed_at',
     ];
 
     protected $casts = [

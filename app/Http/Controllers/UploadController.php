@@ -21,6 +21,8 @@ use App\Jobs\UploadAdCreative;
 use App\Jobs\UploadAdVideoCreative;
 use App\Models\AdAccount;
 use App\Models\AdCreationFlow;
+use App\Notifications\AdCreationFlowCompleted;
+use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
@@ -142,6 +144,8 @@ class UploadController extends Controller
         /** @var AdAccount $adAccount */
         $adAccount = $request->adAccount();
 
+        $user = $request->user();
+
         $adSets = $validated['adSets'];
         $campaignId = $validated['campaignId'];
         $pixelId = $validated['pixelId'];
@@ -161,9 +165,11 @@ class UploadController extends Controller
 
         $flow = AdCreationFlow::create([
             'adSets' => $mappedAdSets,
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'ad_account_id' => $adAccount->id,
         ]);
+
+        $batches = [];
 
         // Dispatch queue jobs
         foreach ($adSets as $adSetIndex => $adSet) {
@@ -234,19 +240,29 @@ class UploadController extends Controller
                 );
             }
 
-            Bus::chain($jobs)->catch(function (Throwable $e) use ($flow) {
-                // A job within the chain has failed...
-                Log::error(json_encode([
-                    'code' => $e->getCode(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTrace(),
-                    'trace_str' => $e->getTraceAsString(),
-                ]));
-                $flow->update(['status' => 'failed']);
-            })->dispatch();
+            $first = array_shift($jobs);
+            if (! $first) {
+                continue;
+            }
+
+            $first->chain($jobs);
+            $batches[] = $first;
         }
+
+        Bus::batch($batches)
+            ->then(function () use ($flow) {
+                $flow->update(['status' => 'completed', 'completed_at' => now()]);
+                // $user->notify(new AdCreationFlowCompleted($flow));
+            })
+            ->catch(function (Batch $batch, Throwable $e) use ($flow) {
+                Log::error('Ad flow failed: '.$e->getMessage(), ['batch_id' => $batch->id]);
+                $flow->update(['status' => 'failed']);
+            })
+            ->finally(function (Batch $batch) use ($flow) {
+                $flow->update(['batch_id' => $batch->id]);
+            })
+            ->name('Ad Flow: '.$flow->id)
+            ->dispatch();
 
         return response()->json($flow);
     }

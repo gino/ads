@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\CreateAdRequest;
 use App\Models\AdCreationFlow;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +13,7 @@ use Saloon\RateLimitPlugin\Helpers\ApiRateLimited;
 
 class CreateAd implements ShouldQueue
 {
-    use Queueable;
+    use Batchable, Queueable;
 
     public $tries = 15;
 
@@ -34,6 +35,10 @@ class CreateAd implements ShouldQueue
      */
     public function handle(): void
     {
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
         $user = $this->adCreationFlow->user;
         $adAccount = $this->adCreationFlow->adAccount;
 
@@ -53,8 +58,6 @@ class CreateAd implements ShouldQueue
 
         $response = $meta->send($request)->throw();
         Log::debug('CreateAd job response: '.json_encode($response->json()));
-
-        $this->adCreationFlow->update(['status' => 'completed']);
     }
 
     public function middleware(): array

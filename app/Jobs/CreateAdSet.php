@@ -6,6 +6,7 @@ use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\CreateAdSetRequest;
 use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Models\AdCreationFlow;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +14,7 @@ use Saloon\RateLimitPlugin\Helpers\ApiRateLimited;
 
 class CreateAdSet implements ShouldQueue
 {
-    use Queueable;
+    use Batchable, Queueable;
 
     public $tries = 15;
 
@@ -35,6 +36,10 @@ class CreateAdSet implements ShouldQueue
      */
     public function handle(): void
     {
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
         $user = $this->adCreationFlow->user;
         $adAccount = $this->adCreationFlow->adAccount;
 
