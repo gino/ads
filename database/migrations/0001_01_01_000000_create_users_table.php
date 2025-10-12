@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->text('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
+            // TODO: Add 'last_used_ad_account_id'
+            // Then on login, we wanna set this? But we also wanna check if this even belongs to them and still exist etc (unless we handle these checks already in our SelectedAdAccount logic)
             $table->rememberToken();
             $table->timestamps();
         });

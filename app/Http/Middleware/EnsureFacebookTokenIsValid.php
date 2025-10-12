@@ -2,7 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\Facebook;
+use App\Http\Integrations\MetaConnector;
+use App\Http\Integrations\Requests\RenewTokenRequest;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,8 +24,19 @@ class EnsureFacebookTokenIsValid
             return response()->json(['error' => 'Unauthenticated'], 401);
         }
 
-        if (Facebook::needsRenewal($user->connection)) {
-            Facebook::renewToken($user->connection);
+        $connection = $user->connection;
+        $meta = new MetaConnector($user->connection);
+
+        if ($meta->tokenNeedsRenewal()) {
+            $response = $meta->send(new RenewTokenRequest($connection));
+
+            $data = $response->json();
+
+            $connection->update([
+                'access_token' => $data['access_token'],
+                'expires_at' => isset($data['expires_in']) ? now()->addSeconds($data['expires_in']) : now()->addDays(60),
+                'renewed_at' => now(),
+            ]);
         }
 
         return $next($request);

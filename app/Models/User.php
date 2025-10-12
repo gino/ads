@@ -33,4 +33,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Connection::class);
     }
+
+    public function adCreationFlows()
+    {
+        return $this->hasMany(AdCreationFlow::class);
+    }
 }

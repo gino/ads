@@ -3,6 +3,19 @@ declare module 'ziggy-js' {
   interface RouteList {
     "login": [],
     "dashboard.index": [],
+    "dashboard.upload": [],
+    "dashboard.upload.create-adset": [],
+    "dashboard.upload.upload-photo": [],
+    "dashboard.upload.upload-video": [],
+    "dashboard.upload.create-ad": [],
+    "dashboard.upload.create": [],
+    "dashboard.campaigns": [],
+    "dashboard.campaigns.adSets": [],
+    "dashboard.campaigns.ads": [],
+    "campaigns.status.update": [],
+    "adSets.status.update": [],
+    "ads.status.update": [],
+    "select-ad-account": [],
     "logout": [],
     "storage.local": [
         {

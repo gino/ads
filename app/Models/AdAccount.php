@@ -16,11 +16,22 @@ class AdAccount extends Model
         'currency',
         'connection_id',
         'status',
+        'business_id',
     ];
 
     public function connection()
     {
         return $this->belongsTo(Connection::class);
+    }
+
+    public function adCreationFlows()
+    {
+        return $this->hasMany(AdCreationFlow::class);
+    }
+
+    public function isActive()
+    {
+        return $this->status === 'active';
     }
 
     public function getStatusAttribute($status)
@@ -29,10 +40,5 @@ class AdAccount extends Model
             1 => 'active',
             default => 'inactive'
         };
-    }
-
-    public function adCampaigns()
-    {
-        return $this->hasMany(AdCampaign::class);
     }
 }

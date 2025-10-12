@@ -1,0 +1,24 @@
+fetch("https://rfsfmvbgarfgnhxnbxgr.supabase.co/functions/v1/post-ad-sets", {
+  "headers": {
+    "accept": "*/*",
+    "accept-language": "en-GB,en-US;q=0.9,en;q=0.8,nl;q=0.7",
+    "apikey": "api key",
+    "content-type": "application/json",
+    "priority": "u=1, i",
+    "sec-ch-ua": "\"Chromium\";v=\"140\", \"Not=A?Brand\";v=\"24\", \"Google Chrome\";v=\"140\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "x-client-info": "supabase-js-web/2.49.4"
+  },
+  "referrer": "https://rapid-ads.com/",
+  "body": "{\"ad_account_id\":\"act_1589203318418789\",\"campaign_id\":\"120225708821880156\",\"campaign_bid_strategy\":\"LOWEST_COST_WITHOUT_CAP\",\"adsets\":[{\"name\":\"Ad Set 1\",\"age_min\":18,\"age_max\":65,\"genders\":[1,2],\"geo_locations\":{\"countries\":[\"US\"]}}],\"start_time\":\"2025-09-25T09:35:38.378Z\"}",
+  "method": "POST",
+  "mode": "cors",
+  "credentials": "include"
+});
+
+Response:
+{"success":true,"results":[{"name":"Ad Set 1","success":true,"adset_id":"120233160561440156"}]}

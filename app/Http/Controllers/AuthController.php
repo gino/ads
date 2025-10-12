@@ -2,19 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\Meta\Sync;
-use App\Jobs\Meta\SyncAdAccounts;
-use App\Jobs\Meta\SyncAdCampaigns;
-use App\Jobs\Meta\SyncAds;
-use App\Jobs\Meta\SyncAdSets;
+use App\Http\Integrations\MetaConnector;
+use App\Http\Integrations\Requests\GetAdAccountsRequest;
+use App\Http\Integrations\Requests\RenewTokenRequest;
 use App\Models\AdAccount;
 use App\Models\Connection;
 use App\Models\User;
-use App\Services\Facebook;
-use App\Services\Paginator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -24,7 +19,8 @@ class AuthController extends Controller
     {
         // https://developers.facebook.com/docs/permissions/
         $scopes = [
-            // 'business_management',
+            'instagram_basic',
+            'business_management',
             'pages_show_list',
             'pages_read_engagement',
             'ads_management',
@@ -60,6 +56,10 @@ class AuthController extends Controller
             ]
         );
 
+        if (! $user->wasRecentlyCreated) {
+            $user->update(['avatar' => $data->avatar]);
+        }
+
         $connection = Connection::updateOrCreate([
             'user_id' => $user->id,
         ], [
@@ -69,115 +69,64 @@ class AuthController extends Controller
         ]);
 
         // Exchange short-lived token for a long-lived one
-        Facebook::renewToken($connection);
+        $this->exchangeLongLivedToken($connection);
 
-        if ($user->wasRecentlyCreated) {
-            // Sync data if the user has just been created (so we have the latest data on our end, from Meta)
-            Bus::chain([
-                new SyncAdAccounts($connection),
-                new SyncAdCampaigns($connection),
-                new SyncAdSets($connection),
-                new SyncAds($connection),
-            ])->dispatch();
-        } else {
-            $this->handleExistingUserPermissions($connection);
-        }
+        // Maybe we wanna off load this request to a queue job so we can show some type of pending/loading state in the UI
+        $adAccounts = $this->fetchAdAccounts($connection);
+        AdAccount::upsert($adAccounts, uniqueBy: ['external_id'], update: [
+            'name',
+            'currency',
+            'status',
+            'business_id',
+        ]);
 
         Auth::login($user);
 
-        return to_route('dashboard.index');
+        return redirect()->intended(route('dashboard.index'));
     }
 
-    private function handleExistingUserPermissions(Connection $connection)
+    private function exchangeLongLivedToken(Connection $connection)
     {
-        // Fetch current ad accounts from Meta
-        $paginator = new Paginator(Facebook::client());
-        $metaAdAccounts = $paginator->fetchAll('/me/adaccounts', [
-            'access_token' => $connection->access_token,
-            'fields' => 'id',
-            'limit' => 25,
+        $meta = new MetaConnector($connection);
+
+        $response = $meta->send(new RenewTokenRequest($connection));
+        $data = $response->json();
+
+        $connection->update([
+            'access_token' => $data['access_token'],
+            'expires_at' => isset($data['expires_in']) ? now()->addSeconds($data['expires_in']) : now()->addDays(60),
+            'renewed_at' => now(),
         ]);
+    }
 
-        $metaAdAccountIds = collect($metaAdAccounts)->pluck('id')->toArray();
+    private function fetchAdAccounts(Connection $connection)
+    {
+        $meta = new MetaConnector($connection);
+        $paginator = $meta->paginate(new GetAdAccountsRequest);
 
-        // Get all existing ad accounts (including soft deleted ones)
-        $existingAdAccounts = $connection->adAccounts()
-            ->withTrashed()
-            ->get()
-            ->keyBy('external_id');
-
-        $accountsToSync = collect();
-        $hasChanges = false;
-
-        // Process Meta ad accounts
-        foreach ($metaAdAccounts as $metaAdAccount) {
-            $existingAccount = $existingAdAccounts->get($metaAdAccount['id']);
-
-            if ($existingAccount) {
-                // Account exists - restore if soft deleted
-                if ($existingAccount->trashed()) {
-                    $existingAccount->restore();
-                    $accountsToSync->push($existingAccount);
-                    $hasChanges = true;
-
-                    Log::info("Restored ad account {$metaAdAccount['id']} for user {$connection->user->id}");
-                }
-            } else {
-                // New account - will be created during sync
-                $hasChanges = true;
-                Log::info("New ad account {$metaAdAccount['id']} detected for user {$connection->user->id}");
-            }
-        }
-
-        // Soft delete accounts that are no longer accessible
-        $accountsToDelete = $existingAdAccounts->filter(function ($account) use ($metaAdAccountIds) {
-            return ! in_array($account->external_id, $metaAdAccountIds) && ! $account->trashed();
+        $collection = $paginator->collect();
+        $results = $collection->map(function ($entry) use ($connection) {
+            return [
+                'external_id' => $entry['id'],
+                'name' => $entry['name'],
+                'currency' => $entry['currency'],
+                'status' => $entry['account_status'],
+                'connection_id' => $connection->id,
+                'business_id' => $entry['business']['id'] ?? null,
+            ];
         });
 
-        foreach ($accountsToDelete as $account) {
-            // Soft delete the account and cascade to related data
-            $this->softDeleteAdAccountCascade($account);
-            $hasChanges = true;
-
-            Log::info("Soft deleted ad account {$account->external_id} for user {$connection->user->id}");
-        }
-
-        // Only run sync jobs if there are changes
-        if ($hasChanges) {
-            // If we have new accounts or restored accounts, run the full sync chain
-            if ($accountsToSync->isNotEmpty() || $existingAdAccounts->count() !== count($metaAdAccountIds)) {
-                Bus::chain([
-                    new SyncAdAccounts($connection),
-                    new SyncAdCampaigns($connection),
-                    new SyncAdSets($connection),
-                    new SyncAds($connection),
-                ])->dispatch();
-
-                Log::info("Dispatched sync jobs for user {$connection->user->id} due to ad account changes");
-            }
-        }
+        return $results->all();
     }
 
-    private function softDeleteAdAccountCascade(AdAccount $adAccount)
+    public function selectAdAccount(Request $request)
     {
-        // Soft delete in reverse dependency order to maintain referential integrity
+        $validated = $request->validate([
+            'ad_account_id' => 'required',
+        ]);
 
-        // 1. Soft delete ads first
-        // $adAccount->ads()->whereNull('deleted_at')->update([
-        //     'deleted_at' => now()
-        // ]);
+        $request->session()->put('selected_ad_account_id', $validated['ad_account_id']);
 
-        // // 2. Then ad sets
-        // $adAccount->adSets()->whereNull('deleted_at')->update([
-        //     'deleted_at' => now()
-        // ]);
-
-        // // 3. Then campaigns
-        // $adAccount->campaigns()->whereNull('deleted_at')->update([
-        //     'deleted_at' => now()
-        // ]);
-
-        // 4. Finally the ad account itself
-        $adAccount->delete();
+        return redirect()->back();
     }
 }

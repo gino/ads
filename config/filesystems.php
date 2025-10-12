@@ -60,6 +60,18 @@ return [
             'report' => false,
         ],
 
+        'uploaded-ads' => [
+            'driver' => 's3',
+            'key' => env('CLOUDFLARE_R2_ACCESS_KEY_ID'),
+            'secret' => env('CLOUDFLARE_R2_SECRET_ACCESS_KEY'),
+            'region' => 'us-east-1', // Cloudflare R2 doesn't have specific regions, so 'us-east-1' is fine.
+            'bucket' => 'uploaded-ads',
+            'url' => env('CLOUDFLARE_R2_URL'),
+            'visibility' => 'private',
+            'endpoint' => 'https://f11bd3ea0e6da2ee69efb2570d4cf679.r2.cloudflarestorage.com',
+            'use_path_style_endpoint' => env('CLOUDFLARE_R2_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
+        ],
     ],
 
     /*

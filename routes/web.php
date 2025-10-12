@@ -1,17 +1,16 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\SyncController;
+use App\Http\Controllers\CampaignsController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
-use App\Http\Controllers\WebhookController;
-use App\Http\Middleware\EnsureDataSynced;
+use App\Http\Integrations\MetaConnector;
+use App\Http\Integrations\Requests\GetBusinessCreativesRequest;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
-use App\SyncType;
+use App\Models\AdAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-// https://developers.facebook.com/docs/marketing-api/get-started/basic-ad-creation
 
 Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -19,29 +18,40 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/connect/facebook/callback', [AuthController::class, 'callback']);
-Route::get('/connect/facebook/webhook', [WebhookController::class, 'verify']);
-Route::post('/connect/facebook/webhook', [WebhookController::class, 'webhook']);
-
-Route::middleware('auth')->group(function () {
-    Route::get('/setting-up', [ViewController::class, 'settingUp']);
-});
 
 Route::middleware([
     'auth',
     EnsureFacebookTokenIsValid::class,
-    EnsureDataSynced::class,
     HandleSelectedAdAccount::class,
 ])->group(function () {
     Route::get('/', [ViewController::class, 'index'])->name('dashboard.index');
 
-    Route::get('/force-sync/{type?}', [SyncController::class, 'sync'])
-        ->whereIn('type', array_map(fn ($e) => $e->value, SyncType::cases()));
+    // Upload
+    Route::get('/upload', [UploadController::class, 'index'])->name('dashboard.upload');
+    Route::post('/upload/photo', [UploadController::class, 'uploadPhoto'])->name('dashboard.upload.upload-photo');
+    Route::post('/upload/create', [UploadController::class, 'create'])->name('dashboard.upload.create');
 
-    Route::post('/select-ad-account', function (Request $request) {
-        $request->session()->put('selected_ad_account_id', $request->input('ad_account_id'));
+    Route::get('/campaigns', [CampaignsController::class, 'campaigns'])->name('dashboard.campaigns');
+    Route::get('/campaigns/adsets', [CampaignsController::class, 'adSets'])->name('dashboard.campaigns.adSets');
+    Route::get('/campaigns/ads', [CampaignsController::class, 'ads'])->name('dashboard.campaigns.ads');
 
-        return response(null, 200);
-    });
+    // Updating status routes
+    Route::patch('/campaigns/status', [CampaignsController::class, 'updateCampaignStatus'])->name('campaigns.status.update');
+    Route::patch('/adsets/status', [CampaignsController::class, 'updateAdSetStatus'])->name('adSets.status.update');
+    Route::patch('/ads/status', [CampaignsController::class, 'updateAdStatus'])->name('ads.status.update');
 
+    Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/media', function (Request $request) {
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+
+        $foo = $meta->paginate(new GetBusinessCreativesRequest($adAccount));
+
+        // return $foo->json('data.0.previews.data.0.body');
+        return $foo->count();
+    });
 });
