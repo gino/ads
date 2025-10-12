@@ -250,9 +250,9 @@ class UploadController extends Controller
         }
 
         Bus::batch($batches)
-            ->then(function () use ($flow) {
+            ->then(function () use ($flow, $user) {
                 $flow->update(['status' => 'completed', 'completed_at' => now()]);
-                // $user->notify(new AdCreationFlowCompleted($flow));
+                $user->notify(new AdCreationFlowCompleted($flow));
             })
             ->catch(function (Batch $batch, Throwable $e) use ($flow) {
                 Log::error('Ad flow failed: '.$e->getMessage(), ['batch_id' => $batch->id]);
