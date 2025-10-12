@@ -360,7 +360,11 @@ export function UploadForm({
 
                             <Select
                                 label="Instagram account"
-                                placeholder="Select a Facebook page"
+                                placeholder={
+                                    !form.data.facebookPageId
+                                        ? "Select a Facebook page"
+                                        : "Select an Instagram account"
+                                }
                                 items={
                                     !isLoadingPages
                                         ? filteredInstagramAccounts
