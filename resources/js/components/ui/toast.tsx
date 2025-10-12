@@ -81,7 +81,7 @@ function Toast({
                             {contents}
                         </div>
                         {description && (
-                            <div className="text-xs font-medium text-gray-500">
+                            <div className="text-[12px] font-medium text-gray-500">
                                 {description}
                             </div>
                         )}

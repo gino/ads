@@ -6,7 +6,6 @@ import {
 } from "@/pages/upload";
 import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay, useSensor } from "@dnd-kit/core";
-import { router } from "@inertiajs/react";
 import axios from "axios";
 import { motion } from "motion/react";
 import {
@@ -517,188 +516,6 @@ export function UploadedCreatives({ adSets }: Props) {
         }
     }, [loadingState, creatives.length, adSetGroups.length]);
 
-    const submit2 = useCallback(async () => {
-        const toastId = "upload-progress-toast";
-
-        try {
-            setLoadingState("CREATING_ADSETS");
-
-            let adSetItems: { id: string; creatives: typeof creatives }[] = [];
-
-            if (hasSelectedAdSet) {
-                // Use the existing ad set
-                adSetItems = [
-                    {
-                        id: selectedAdSet!.id,
-                        creatives: creatives,
-                    },
-                ];
-            } else {
-                toast({
-                    id: toastId,
-                    type: "LOADING",
-                    contents: "Creating ad sets...",
-                    progress: 0,
-                    dismissible: false,
-                });
-
-                let completedAdSets = 0;
-
-                adSetItems = await Promise.all(
-                    adSetGroups.map(async (adSetGroup, index) => {
-                        const adSetId = await axios
-                            .post<string>(
-                                route("dashboard.upload.create-adset"),
-                                {
-                                    adSet: {
-                                        id: adSetGroup.id,
-                                        label: adSetGroup.label,
-                                        settings: adSetGroup.settings,
-                                    },
-                                    campaignId: form.data.campaignId,
-                                    pixelId: form.data.pixelId,
-                                }
-                            )
-                            .then((res) => res.data);
-
-                        completedAdSets++;
-
-                        // Update toast for ad set creation
-                        toast({
-                            id: toastId,
-                            type: "LOADING",
-                            contents: "Creating ad sets...",
-                            progress: Math.round(
-                                (completedAdSets / adSetGroups.length) * 20
-                            ),
-                            dismissible: false,
-                        });
-
-                        return {
-                            id: adSetId,
-                            creatives: creatives.filter((c) =>
-                                adSetGroup.creatives.includes(c.id)
-                            ),
-                        };
-                    })
-                );
-            }
-
-            let currentCreative = 0;
-
-            // STEP 2: Upload creatives
-            for (const [
-                _,
-                { id: adSetId, creatives: creativesForAdSet },
-            ] of adSetItems.entries()) {
-                for (const creative of creativesForAdSet) {
-                    const creativeLabel = creative.label || creative.name;
-                    const isVideo = creative.type.startsWith("video/");
-
-                    let hash: string | null = null;
-                    let videoId: string | null = null;
-
-                    if (isVideo) {
-                        const thumbForm = new FormData();
-                        thumbForm.append("name", creativeLabel);
-                        thumbForm.append(
-                            "file",
-                            base64ToFile(
-                                creative.thumbnail!,
-                                `${creative.id}-thumb.jpg`
-                            )
-                        );
-                        const thumbResponse = await axios.post(
-                            route("dashboard.upload.upload-photo"),
-                            thumbForm
-                        );
-                        hash = thumbResponse.data.hash;
-
-                        const videoForm = new FormData();
-                        videoForm.append("name", creativeLabel);
-                        videoForm.append("file", creative.file);
-                        const videoResponse = await axios.post(
-                            route("dashboard.upload.upload-video"),
-                            videoForm
-                        );
-                        videoId = videoResponse.data.videoId;
-                    } else {
-                        const photoForm = new FormData();
-                        photoForm.append("name", creativeLabel);
-                        photoForm.append("file", creative.file);
-                        const photoResponse = await axios.post(
-                            route("dashboard.upload.upload-photo"),
-                            photoForm
-                        );
-                        hash = photoResponse.data.hash;
-                    }
-
-                    // Queue ad creation
-                    await axios.post(route("dashboard.upload.create-ad"), {
-                        name: creativeLabel,
-                        hash,
-                        videoId,
-                        adSetId,
-                        facebookPageId: form.data.facebookPageId,
-                        instagramPageId: form.data.instagramPageId,
-                        creativeSettings: creative.settings,
-                        settings: form.data.settings,
-                    });
-
-                    currentCreative++;
-
-                    const progress = Math.round(
-                        20 + (currentCreative / creatives.length) * 80
-                    );
-
-                    toast({
-                        id: toastId,
-                        type: "LOADING",
-                        contents: `Uploading creatives (${currentCreative}/${creatives.length})...`,
-                        progress,
-                        dismissible: false,
-                    });
-                }
-            }
-
-            sonnerToast.dismiss(toastId);
-            toast({
-                type: "SUCCESS",
-                contents: `${creatives.length} ad${
-                    creatives.length === 1 ? " is" : "s are"
-                } being launched...`,
-            });
-
-            setCreatives([]);
-            setAdSetGroups([]);
-            router.reload({ only: ["adSets"] });
-        } catch (err: any) {
-            console.error(err);
-            toast({
-                id: toastId,
-                type: "ERROR",
-                contents:
-                    err?.response?.data?.message ||
-                    err?.message ||
-                    "Something went wrong while launching ads",
-            });
-        } finally {
-            setLoadingState(null);
-        }
-    }, [
-        adSetGroups,
-        creatives,
-        form.data.campaignId,
-        form.data.pixelId,
-        form.data.facebookPageId,
-        form.data.instagramPageId,
-        form.data.settings,
-        setLoadingState,
-        hasSelectedAdSet,
-        selectedAdSet,
-        router,
-    ]);
-
     const submit = useCallback(async () => {
         const toastId = "upload-progress-toast";
         const creativePathsMap = new Map<
@@ -811,6 +628,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 contents: `${creatives.length} ad${
                     creatives.length === 1 ? " is" : "s are"
                 } being launched in the background...`,
+                description: "You can safely close this page.",
             });
             setCreatives([]);
             setAdSetGroups([]);
@@ -829,14 +647,14 @@ export function UploadedCreatives({ adSets }: Props) {
         }
     }, [
         adSetGroups,
+        creatives,
+        hasSelectedAdSet,
+        selectedAdSet,
         form.data.campaignId,
         form.data.pixelId,
         form.data.facebookPageId,
         form.data.instagramPageId,
         form.data.settings,
-        creatives,
-        hasSelectedAdSet,
-        selectedAdSet,
         setLoadingState,
         setCreatives,
         setAdSetGroups,
@@ -848,7 +666,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 <div className="overflow-y-auto flex-1 min-h-0">
                     <div className="p-5 border-b border-gray-100">
                         <div className="flex gap-2 justify-end items-center">
-                            {/* <SimulateButton /> */}
+                            <SimulateButton />
 
                             {!hasSelectedAdSet && (
                                 <Button
@@ -1100,10 +918,10 @@ function SimulateButton() {
 
             toast({
                 type: "SUCCESS",
-                contents: `Successfully queued creation of ${
+                contents: `${
                     totalAdSets * creativesPerAdSet
-                } ads`,
-                description: "You may safely close this page.",
+                } ads are being launched in the background...`,
+                description: "You can safely close this page.",
             });
         } catch (err: any) {
             console.error(err);
