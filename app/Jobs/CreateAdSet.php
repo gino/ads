@@ -40,6 +40,13 @@ class CreateAdSet implements ShouldQueue
             return;
         }
 
+        if (! $this->adCreationFlow->started_at) {
+            $this->adCreationFlow->update([
+                'started_at' => now(),
+                'status' => 'running',
+            ]);
+        }
+
         $user = $this->adCreationFlow->user;
         $adAccount = $this->adCreationFlow->adAccount;
 

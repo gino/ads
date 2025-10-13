@@ -488,33 +488,19 @@ export function UploadedCreatives({ adSets }: Props) {
         adSetGroups,
     ]);
 
-    const [loadingState, setLoadingState] = useState<
-        "CREATING_ADSETS" | "UPLOADING_CREATIVES" | null
-    >(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const loadingText = useMemo(() => {
+        if (!isLoading) {
+            return null;
+        }
+
         const adsLabel = `${creatives.length} ad${
             creatives.length === 1 ? "" : "s"
         }`;
 
-        const adSetsLabel = `${adSetGroups.length} ad set${
-            adSetGroups.length === 1 ? "" : "s"
-        }`;
-
-        if (!loadingState) {
-            return null;
-        }
-
-        switch (loadingState) {
-            case "CREATING_ADSETS": {
-                return `Creating ${adSetsLabel}...`;
-            }
-
-            case "UPLOADING_CREATIVES": {
-                return `Launching ${adsLabel}...`;
-            }
-        }
-    }, [loadingState, creatives.length, adSetGroups.length]);
+        return `Launching ${adsLabel}...`;
+    }, [isLoading, creatives.length, adSetGroups.length]);
 
     const submit = useCallback(async () => {
         const toastId = "upload-progress-toast";
@@ -523,7 +509,7 @@ export function UploadedCreatives({ adSets }: Props) {
             { file: string; thumbnail: string | null }
         >();
 
-        setLoadingState("UPLOADING_CREATIVES");
+        setIsLoading(true);
         try {
             let uploadedCreatives = 0;
 
@@ -643,7 +629,7 @@ export function UploadedCreatives({ adSets }: Props) {
                     "Something went wrong while launching ads",
             });
         } finally {
-            setLoadingState(null);
+            setIsLoading(false);
         }
     }, [
         adSetGroups,
@@ -655,7 +641,7 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.facebookPageId,
         form.data.instagramPageId,
         form.data.settings,
-        setLoadingState,
+        setIsLoading,
         setCreatives,
         setAdSetGroups,
     ]);
@@ -680,10 +666,10 @@ export function UploadedCreatives({ adSets }: Props) {
 
                             <Button
                                 disabled={isDisabled}
-                                loading={loadingState !== null}
+                                loading={isLoading}
                                 loadingText={loadingText}
                                 onClick={() => {
-                                    if (isDisabled || loadingState !== null) {
+                                    if (isDisabled || isLoading) {
                                         return;
                                     }
 

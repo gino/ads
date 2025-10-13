@@ -177,10 +177,14 @@ class UploadController extends Controller
                 ])->toArray(),
             ])->toArray();
 
+            // $scheduledAt = now()->addMinutes(5);
+            $scheduledAt = null;
+
             $flow = AdCreationFlow::create([
                 'adSets' => $mappedAdSets,
                 'user_id' => $user->id,
                 'ad_account_id' => $adAccount->id,
+                'scheduled_at' => $scheduledAt,
             ]);
 
             $batches = [];
@@ -257,6 +261,10 @@ class UploadController extends Controller
                 $first = array_shift($jobs);
                 if (! $first) {
                     continue;
+                }
+
+                if ($scheduledAt) {
+                    $first->delay($scheduledAt);
                 }
 
                 $first->chain($jobs);
