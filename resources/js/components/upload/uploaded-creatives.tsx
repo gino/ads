@@ -666,8 +666,6 @@ export function UploadedCreatives({ adSets }: Props) {
                 <div className="overflow-y-auto flex-1 min-h-0">
                     <div className="p-5 border-b border-gray-100">
                         <div className="flex gap-2 justify-end items-center">
-                            <SimulateButton />
-
                             {!hasSelectedAdSet && (
                                 <Button
                                     onClick={() => {
@@ -861,88 +859,4 @@ export function UploadedCreatives({ adSets }: Props) {
 
 export function useUploadedCreativesContext() {
     return useContext(UploadedCreativesContext);
-}
-
-function SimulateButton() {
-    const simulate = useCallback(async () => {
-        const toastId = "upload-progress-toast";
-
-        try {
-            // STEP 1: Simulate "Creating ad sets"
-            toast({
-                id: toastId,
-                type: "LOADING",
-                contents: "Creating ad sets...",
-                progress: 0,
-                dismissible: false,
-            });
-
-            await sleep(1000);
-
-            const totalAdSets = 2;
-            const creativesPerAdSet = 1;
-
-            // STEP 2: Simulate per ad set progress
-            for (let adSetIndex = 0; adSetIndex < totalAdSets; adSetIndex++) {
-                // Fake ad set creation delay
-                await sleep(800);
-
-                for (
-                    let creativeIndex = 0;
-                    creativeIndex < creativesPerAdSet;
-                    creativeIndex++
-                ) {
-                    await sleep(1200);
-
-                    const progress = Math.round(
-                        ((adSetIndex + creativeIndex / creativesPerAdSet) /
-                            totalAdSets) *
-                            100
-                    );
-
-                    toast({
-                        id: toastId,
-                        type: "LOADING",
-                        contents: `Uploading creatives... (${
-                            creativeIndex + 1
-                        }/${creativesPerAdSet})`,
-                        progress,
-                        dismissible: false,
-                    });
-                }
-            }
-
-            // STEP 3: Simulate completion
-            await sleep(1000);
-            sonnerToast.dismiss(toastId);
-
-            toast({
-                type: "SUCCESS",
-                contents: `${
-                    totalAdSets * creativesPerAdSet
-                } ads are being launched in the background...`,
-                description: "You can safely close this page.",
-            });
-        } catch (err: any) {
-            console.error(err);
-            toast({
-                id: toastId,
-                type: "ERROR",
-                contents:
-                    err?.message ||
-                    "Something went wrong while simulating upload",
-            });
-        }
-    }, []);
-
-    return (
-        <Button onClick={simulate} className="flex items-center gap-2">
-            Simulate upload
-        </Button>
-    );
-}
-
-// Little helper
-function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
 }

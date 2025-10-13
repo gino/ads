@@ -69,7 +69,9 @@ class UploadAdCreative implements ShouldQueue
         $adSets[$this->adSetIndex]['creatives'][$this->creativeIndex]['hash'] = $hash;
         $this->adCreationFlow->update(['adSets' => $adSets]);
 
-        $disk->delete($this->path);
+        if ($disk->exists($this->path)) {
+            $disk->delete($this->path);
+        }
     }
 
     public function middleware(): array
