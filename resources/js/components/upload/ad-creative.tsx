@@ -3,7 +3,8 @@ import { isInNoDndZone } from "@/lib/dnd-sensors";
 import { UploadedCreative } from "@/pages/upload";
 import * as Ariakit from "@ariakit/react";
 import { useDraggable } from "@dnd-kit/core";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "../ui/toast";
 import { AdCreativePreview } from "./ad-creative-preview";
 import { FolderType } from "./adset-group";
 import { useUploadContext } from "./upload-context";
@@ -29,8 +30,12 @@ export function AdCreative({
             id: creative.id,
         });
 
-    const { deleteCreative, setCreativeLabel, setPopupCreativeId } =
-        useUploadContext();
+    const {
+        deleteCreative,
+        setCreativeLabel,
+        setPopupCreativeId,
+        getCreativeSettings,
+    } = useUploadContext();
     const { deleteFromGroup, toggleSelection, selectedIds, activeId } =
         useUploadedCreativesContext();
 
@@ -51,10 +56,21 @@ export function AdCreative({
 
         if (trimmedLabel.length > 0) {
             setCreativeLabel(creative.id, trimmedLabel);
+            toast({
+                contents: `Ad creative renamed to "${trimmedLabel}"`,
+            });
         } else {
             setNewLabel(creative.label || creative.name);
         }
     }, [creative, newLabel, setCreativeLabel]);
+
+    const { primaryTexts, headlines, descriptions } = getCreativeSettings(
+        creative.id
+    );
+
+    const showTextIndicators = useMemo(() => {
+        return true;
+    }, [primaryTexts, headlines, descriptions]);
 
     return (
         <Ariakit.HovercardProvider>
@@ -194,54 +210,83 @@ export function AdCreative({
                         </div>
                     </div>
 
-                    {!isDraggingCreative && (
-                        <div className="flex items-center">
-                            <div className="w-px h-4 bg-gray-100 mr-3" />
-                            <div
-                                data-no-dnd
-                                className="flex items-center gap-1 pointer-events-auto"
+                    <div className="flex items-center">
+                        {showTextIndicators && !editingLabel && (
+                            <div className="flex items-center gap-[3px] mr-3">
+                                <div
+                                    className={cn(
+                                        "font-semibold ring-1 ring-inset ring-black/5 bg-gray-50 text-[10px] px-2 inline-block rounded-full leading-4",
+                                        !primaryTexts?.[0]?.trim() &&
+                                            "opacity-30"
+                                    )}
+                                >
+                                    P
+                                </div>
+
+                                <div
+                                    className={cn(
+                                        "font-semibold ring-1 ring-inset ring-black/5 bg-gray-50 text-[10px] px-2 inline-block rounded-full leading-4",
+                                        !headlines?.[0]?.trim() && "opacity-30"
+                                    )}
+                                >
+                                    H
+                                </div>
+
+                                <div
+                                    className={cn(
+                                        "font-semibold ring-1 ring-inset ring-black/5 bg-gray-50 text-[10px] px-2 inline-block rounded-full leading-4",
+                                        !descriptions?.[0]?.trim() &&
+                                            "opacity-30"
+                                    )}
+                                >
+                                    D
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="w-px h-4 bg-gray-100 mr-3" />
+                        <div
+                            data-no-dnd
+                            className="flex items-center gap-1 pointer-events-auto"
+                        >
+                            <button
+                                onClick={() => {
+                                    setPopupCreativeId(creative.id);
+                                }}
+                                className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white"
                             >
+                                <i className="fa-regular fa-pencil" />
+                            </button>
+                            {type === "UNGROUPED" && (
+                                <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
+                                    <i className="fa-regular fa-folder-plus" />
+                                </button>
+                            )}
+                            {type === "ADSET" && (
                                 <button
-                                    onClick={() => {
-                                        setPopupCreativeId(creative.id);
-                                    }}
+                                    onClick={() => deleteFromGroup(creative.id)}
                                     className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white"
                                 >
-                                    <i className="fa-regular fa-pencil" />
+                                    <i className="fa-regular fa-folder-xmark" />
                                 </button>
-                                {type === "UNGROUPED" && (
-                                    <button className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white">
-                                        <i className="fa-regular fa-folder-plus" />
-                                    </button>
-                                )}
-                                {type === "ADSET" && (
-                                    <button
-                                        onClick={() =>
-                                            deleteFromGroup(creative.id)
-                                        }
-                                        className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-black hover:bg-white"
-                                    >
-                                        <i className="fa-regular fa-folder-xmark" />
-                                    </button>
-                                )}
-                                <button
-                                    onClick={() => {
-                                        // if (
-                                        //     confirm(
-                                        //         "Are you sure you want to delete this creative? Any unsaved changes will be lost."
-                                        //     )
-                                        // ) {
-                                        deleteFromGroup(creative.id);
-                                        deleteCreative(creative.id);
-                                        // }
-                                    }}
-                                    className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"
-                                >
-                                    <i className="fa-regular fa-trash-can" />
-                                </button>
-                            </div>
+                            )}
+                            <button
+                                onClick={() => {
+                                    // if (
+                                    //     confirm(
+                                    //         "Are you sure you want to delete this creative? Any unsaved changes will be lost."
+                                    //     )
+                                    // ) {
+                                    deleteFromGroup(creative.id);
+                                    deleteCreative(creative.id);
+                                    // }
+                                }}
+                                className="h-8 w-8 flex items-center justify-center cursor-pointer hover:shadow-base rounded-lg active:scale-[0.99] transition-[transform,color] duration-100 ease-in-out text-gray-400 hover:text-red-700 hover:bg-white"
+                            >
+                                <i className="fa-regular fa-trash-can" />
+                            </button>
                         </div>
-                    )}
+                    </div>
 
                     {isDraggingCreative && selectedIds.length > 1 && (
                         <div className="absolute -top-2.5 -left-2.5">

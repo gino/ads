@@ -11,6 +11,9 @@ import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 
 export type CreativeSettings = {
     cta: CallToActionType;
+    primaryTexts: string[];
+    headlines: string[];
+    descriptions: string[];
 };
 
 export type UploadedCreative = {

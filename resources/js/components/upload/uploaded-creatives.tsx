@@ -168,8 +168,10 @@ export function UploadedCreatives({ adSets }: Props) {
                 return;
             }
 
-            // Normal click: select only this creative
-            setSelectedIds([clickedId]);
+            // Normal click: select only this creative (and unselect if already selected)
+            setSelectedIds((prev) =>
+                prev.includes(clickedId) ? [] : [clickedId]
+            );
         },
         [selectedIds, getCreativesInCurrentGroup]
     );
@@ -682,6 +684,8 @@ export function UploadedCreatives({ adSets }: Props) {
         setAdSetGroups,
     ]);
 
+    const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
+
     return (
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">
             <div className="flex overflow-hidden flex-col h-full min-h-0 bg-white rounded-xl shadow-base">
@@ -714,9 +718,13 @@ export function UploadedCreatives({ adSets }: Props) {
                                 variant="primary"
                             >
                                 {creatives.length > 0
-                                    ? `Launch ${creatives.length} ad${
+                                    ? `${
+                                          scheduledDate ? "Schedule" : "Launch"
+                                      } ${creatives.length} ad${
                                           creatives.length === 1 ? "" : "s"
                                       }`
+                                    : scheduledDate
+                                    ? "Schedule ads"
                                     : "Launch ads"}
                             </Button>
                         </div>

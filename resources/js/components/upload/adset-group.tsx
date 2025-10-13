@@ -6,6 +6,7 @@ import { usePage } from "@inertiajs/react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import useMeasure from "react-use-measure";
+import { toast } from "../ui/toast";
 import { Tooltip } from "../ui/tooltip";
 import { AdCreative, HEIGHT as ADCREATIVE_HEIGHT } from "./ad-creative";
 import { useUploadContext } from "./upload-context";
@@ -73,6 +74,9 @@ export function AdSetGroup({
         if (trimmedLabel.length > 0) {
             if (!isExistingAdSet) {
                 updateGroupLabel(id, trimmedLabel);
+                toast({
+                    contents: `Ad set renamed to "${trimmedLabel}"`,
+                });
             }
         } else {
             setNewLabel(label);

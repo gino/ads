@@ -39,6 +39,9 @@ UploadContext.displayName = "UploadContext";
 
 export const defaultCreativeSettings: CreativeSettings = {
     cta: "SHOP_NOW",
+    primaryTexts: [],
+    headlines: [],
+    descriptions: [],
 };
 
 export function UploadProvider({ children }: PropsWithChildren) {

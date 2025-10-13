@@ -46,10 +46,15 @@ export function AdCreativeSettingsPopup() {
         return creatives.find((c) => c.id === popupCreativeId);
     }, [popupCreativeId, creatives]);
 
-    const { cta } = getCreativeSettings(popupCreativeId!);
+    const { cta, primaryTexts, headlines, descriptions } = getCreativeSettings(
+        popupCreativeId!
+    );
 
     const form = useForm<CreativeSettings & { name: string }>({
         name: "",
+        primaryTexts,
+        headlines,
+        descriptions,
         cta,
     });
 
@@ -58,13 +63,54 @@ export function AdCreativeSettingsPopup() {
         // Do this for every property inside of `form`
         form.setData("name", creative.label || creative.name);
         form.setData("cta", cta);
-    }, [popupCreativeId, creative, cta]);
+        form.setData("primaryTexts", primaryTexts);
+        form.setData("headlines", headlines);
+        form.setData("descriptions", descriptions);
+    }, [popupCreativeId, creative, cta, primaryTexts, headlines, descriptions]);
 
     const isDisabled = useMemo(() => {
         const hasName = form.data.name?.trim().length > 0;
         const hasCta = form.data.cta;
         return !(hasName && hasCta);
     }, [form.data.name, form.data.cta]);
+
+    const saveChanges = useCallback(
+        (creativeId: string) => {
+            updateCreativeSetting(
+                creativeId,
+                "primaryTexts",
+                form.data.primaryTexts
+            );
+            updateCreativeSetting(creativeId, "headlines", form.data.headlines);
+            updateCreativeSetting(
+                creativeId,
+                "descriptions",
+                form.data.descriptions
+            );
+            updateCreativeSetting(creativeId, "cta", form.data.cta);
+        },
+        [
+            form.data.primaryTexts,
+            form.data.headlines,
+            form.data.descriptions,
+            form.data.cta,
+        ]
+    );
+
+    const applyToAll = useCallback(() => {
+        for (const creative of creatives) {
+            saveChanges(creative.id);
+        }
+
+        if (form.isDirty) {
+            const amount = creatives.length;
+            toast({
+                contents: `Settings updated for ${amount} creative${
+                    amount === 1 ? "" : "s"
+                }`,
+            });
+        }
+    }, [saveChanges, creatives, form.isDirty]);
 
     const submit = useCallback(() => {
         if (isDisabled) {
@@ -75,7 +121,7 @@ export function AdCreativeSettingsPopup() {
             setCreativeLabel(popupCreativeId!, form.data.name.trim());
         }
 
-        updateCreativeSetting(popupCreativeId!, "cta", form.data.cta);
+        saveChanges(popupCreativeId!);
         setPopupCreativeId(null);
 
         if (form.isDirty) {
@@ -88,13 +134,13 @@ export function AdCreativeSettingsPopup() {
     }, [
         isDisabled,
         form.data.name,
-        form.data.cta,
         form.isDirty,
         popupCreativeId,
         creative?.label,
         creative?.name,
         setCreativeLabel,
         updateCreativeSetting,
+        saveChanges,
         setPopupCreativeId,
         toast,
     ]);
@@ -137,14 +183,25 @@ export function AdCreativeSettingsPopup() {
                         <div className="flex items-center justify-between mb-2">
                             <div className="font-semibold">Primary text</div>
                             <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
-                                1 of 5
+                                {Math.max(form.data.primaryTexts.length, 1)} of
+                                5
                             </div>
                         </div>
                         <textarea
+                            value={form.data.primaryTexts[0] || ""}
+                            onChange={(e) => {
+                                form.setData("primaryTexts.0", e.target.value);
+                            }}
                             placeholder="Tell people what your ad is about"
                             className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 h-24 placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
+
+                    {/* <div className="mt-2 flex justify-end">
+                        <Button icon="fa-regular fa-plus">
+                            Add text variation
+                        </Button>
+                    </div> */}
                 </div>
                 <div className="p-5 border-b border-gray-100">
                     <label>
@@ -156,10 +213,19 @@ export function AdCreativeSettingsPopup() {
                         </div>
                         <input
                             type="text"
+                            value={form.data.headlines[0] || ""}
+                            onChange={(e) => {
+                                form.setData("headlines.0", e.target.value);
+                            }}
                             placeholder="Write a short headline"
                             className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
+                    {/* <div className="mt-2 flex justify-end">
+                        <Button icon="fa-regular fa-plus">
+                            Add text variation
+                        </Button>
+                    </div> */}
                 </div>
                 <div className="p-5 border-b border-gray-100">
                     <label>
@@ -170,10 +236,19 @@ export function AdCreativeSettingsPopup() {
                             </div>
                         </div>
                         <textarea
+                            value={form.data.descriptions[0] || ""}
+                            onChange={(e) => {
+                                form.setData("descriptions.0", e.target.value);
+                            }}
                             placeholder="Add additional information"
                             className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 h-16 placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
+                    {/* <div className="mt-2 flex justify-end">
+                        <Button icon="fa-regular fa-plus">
+                            Add text variation
+                        </Button>
+                    </div> */}
                 </div>
                 <div className="p-5">
                     <div>
@@ -214,20 +289,39 @@ export function AdCreativeSettingsPopup() {
                 {/* Modal footer */}
                 <div className="p-5 sticky bottom-0 border-t border-gray-100 bg-white">
                     <div className="flex gap-2 justify-end items-center">
-                        <Button
-                            onClick={() => {
-                                setPopupCreativeId(null);
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            disabled={isDisabled}
-                        >
-                            Save changes
-                        </Button>
+                        {creatives.length > 1 && (
+                            <div className="flex-1">
+                                <Button
+                                    disabled={isDisabled}
+                                    onClick={() => {
+                                        if (isDisabled) {
+                                            return;
+                                        }
+
+                                        applyToAll();
+                                        setPopupCreativeId(null);
+                                    }}
+                                >
+                                    Apply to all creatives
+                                </Button>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                            <Button
+                                onClick={() => {
+                                    setPopupCreativeId(null);
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                disabled={isDisabled}
+                            >
+                                Save changes
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </form>
