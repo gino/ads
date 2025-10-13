@@ -77,18 +77,6 @@ export function UploadedCreatives({ adSets }: Props) {
     const [adSetGroups, setAdSetGroups] = useState<AdSetGroupType[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-    const toggleSelection = useCallback((id: string, e: MouseEvent) => {
-        if (e.shiftKey) {
-            setSelectedIds((prev) =>
-                prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-            );
-        } else {
-            setSelectedIds((prev) =>
-                prev.length === 1 && prev[0] === id ? [] : [id]
-            );
-        }
-    }, []);
-
     const clearSelection = useCallback(() => {
         setSelectedIds([]);
     }, [setSelectedIds]);
@@ -137,6 +125,46 @@ export function UploadedCreatives({ adSets }: Props) {
         hasSelectedAdSet,
         creatives,
     ]);
+
+    const toggleSelection = useCallback(
+        (id: string, e: MouseEvent) => {
+            const currentGroup = getCreativesInCurrentGroup();
+            const lastSelectedId = selectedIds[selectedIds.length - 1];
+
+            if (e.shiftKey && lastSelectedId && currentGroup.includes(id)) {
+                // Range selection within the current group
+                const startIndex = currentGroup.indexOf(lastSelectedId);
+                const endIndex = currentGroup.indexOf(id);
+
+                if (startIndex !== -1 && endIndex !== -1) {
+                    const [from, to] =
+                        startIndex < endIndex
+                            ? [startIndex, endIndex]
+                            : [endIndex, startIndex];
+
+                    const range = currentGroup.slice(from, to + 1);
+
+                    setSelectedIds((prev) =>
+                        Array.from(new Set([...prev, ...range]))
+                    );
+                    return;
+                }
+            }
+
+            if (e.metaKey || e.ctrlKey) {
+                // CMD/CTRL click: add/remove without affecting other selections
+                setSelectedIds((prev) =>
+                    prev.includes(id)
+                        ? prev.filter((x) => x !== id)
+                        : [...prev, id]
+                );
+            } else {
+                // Normal click without Shift/CMD: select only this creative
+                setSelectedIds([id]);
+            }
+        },
+        [selectedIds, getCreativesInCurrentGroup]
+    );
 
     const extendSelection = useCallback(
         (direction: "up" | "down") => {
