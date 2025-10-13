@@ -273,6 +273,7 @@ class UploadController extends Controller
 
             Bus::batch($batches)
                 ->then(function () use ($flow, $user) {
+                    // FIX: This doesn't run after all jobs, this runs in the middle for some reason (wip: https://chatgpt.com/c/68e91b71-5a90-8333-9754-1fc69900048d)
                     $flow->update(['status' => 'completed', 'completed_at' => now()]);
                     $user->notify(new AdCreationFlowCompleted($flow));
                 })

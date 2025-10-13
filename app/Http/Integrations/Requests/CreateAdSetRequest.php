@@ -29,6 +29,8 @@ class CreateAdSetRequest extends Request implements HasBody
 
     protected function defaultBody(): array
     {
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/#Creating
         return [
             'name' => $this->adSet->label,
             'status' => 'ACTIVE',
