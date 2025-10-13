@@ -132,6 +132,49 @@ export function AdCreativeSettingsPopup() {
                         />
                     </label>
                 </div>
+                <div className="p-5 border-b border-gray-100">
+                    <label>
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="font-semibold">Primary text</div>
+                            <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                                1 of 5
+                            </div>
+                        </div>
+                        <textarea
+                            placeholder="Tell people what your ad is about"
+                            className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 h-24 placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
+                        />
+                    </label>
+                </div>
+                <div className="p-5 border-b border-gray-100">
+                    <label>
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="font-semibold">Headline</div>
+                            <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                                1 of 5
+                            </div>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Write a short headline"
+                            className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
+                        />
+                    </label>
+                </div>
+                <div className="p-5 border-b border-gray-100">
+                    <label>
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="font-semibold">Description</div>
+                            <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                                1 of 5
+                            </div>
+                        </div>
+                        <textarea
+                            placeholder="Add additional information"
+                            className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 h-16 placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
+                        />
+                    </label>
+                </div>
                 <div className="p-5">
                     <div>
                         <Select
