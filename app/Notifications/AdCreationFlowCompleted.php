@@ -35,11 +35,12 @@ class AdCreationFlowCompleted extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        // TODO: Count all creatives inside the flow (not ad sets - creatives)
-        $this->adCreationFlow->adSets;
+        $totalCreatives = collect($this->adCreationFlow->adSets)
+            ->flatMap(fn ($adSet) => $adSet['creatives'] ?? [])
+            ->count();
 
         return (new MailMessage)
-            ->subject('Your 12 ads have been launched!')
+            ->subject("{$totalCreatives} ads have been launched")
             ->line('The introduction to the notification.')
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!');
