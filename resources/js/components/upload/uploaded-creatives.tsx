@@ -127,41 +127,49 @@ export function UploadedCreatives({ adSets }: Props) {
     ]);
 
     const toggleSelection = useCallback(
-        (id: string, e: MouseEvent) => {
+        (clickedId: string, e: MouseEvent) => {
+            // Get the group that the clicked creative belongs to
             const currentGroup = getCreativesInCurrentGroup();
-            const lastSelectedId = selectedIds[selectedIds.length - 1];
 
-            if (e.shiftKey && lastSelectedId && currentGroup.includes(id)) {
-                // Range selection within the current group
-                const startIndex = currentGroup.indexOf(lastSelectedId);
-                const endIndex = currentGroup.indexOf(id);
+            // Determine if Shift-selection should be applied
+            if (e.shiftKey) {
+                // Find the last selected item in the current group as the anchor
+                const lastSelectedInGroup = [...selectedIds]
+                    .reverse()
+                    .find((id) => currentGroup.includes(id));
 
-                if (startIndex !== -1 && endIndex !== -1) {
-                    const [from, to] =
-                        startIndex < endIndex
-                            ? [startIndex, endIndex]
-                            : [endIndex, startIndex];
+                if (lastSelectedInGroup && currentGroup.includes(clickedId)) {
+                    const startIndex =
+                        currentGroup.indexOf(lastSelectedInGroup);
+                    const endIndex = currentGroup.indexOf(clickedId);
 
-                    const range = currentGroup.slice(from, to + 1);
+                    if (startIndex !== -1 && endIndex !== -1) {
+                        const [from, to] =
+                            startIndex < endIndex
+                                ? [startIndex, endIndex]
+                                : [endIndex, startIndex];
 
-                    setSelectedIds((prev) =>
-                        Array.from(new Set([...prev, ...range]))
-                    );
-                    return;
+                        const range = currentGroup.slice(from, to + 1);
+
+                        // Replace selection with the range to preserve order
+                        setSelectedIds(range);
+                        return;
+                    }
                 }
             }
 
+            // CMD/CTRL click: toggle selection of this creative
             if (e.metaKey || e.ctrlKey) {
-                // CMD/CTRL click: add/remove without affecting other selections
                 setSelectedIds((prev) =>
-                    prev.includes(id)
-                        ? prev.filter((x) => x !== id)
-                        : [...prev, id]
+                    prev.includes(clickedId)
+                        ? prev.filter((id) => id !== clickedId)
+                        : [...prev, clickedId]
                 );
-            } else {
-                // Normal click without Shift/CMD: select only this creative
-                setSelectedIds([id]);
+                return;
             }
+
+            // Normal click: select only this creative
+            setSelectedIds([clickedId]);
         },
         [selectedIds, getCreativesInCurrentGroup]
     );
