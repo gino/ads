@@ -31,6 +31,8 @@ class CreateAdCreative implements ShouldQueue
         public ?string $instagramPageId,
         public string $cta,
         public array $primaryTexts,
+        public array $headlines,
+        public array $descriptions,
     ) {}
 
     /**
@@ -56,7 +58,9 @@ class CreateAdCreative implements ShouldQueue
             instagramPageId: $this->instagramPageId ?? null,
             cta: $this->cta,
             url: 'https://google.com',
-            primaryTexts: $this->primaryTexts
+            primaryTexts: $this->primaryTexts,
+            headlines: $this->headlines,
+            descriptions: $this->descriptions,
         );
 
         $response = $meta->send($request)->throw();

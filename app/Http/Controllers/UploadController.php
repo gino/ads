@@ -143,6 +143,10 @@ class UploadController extends Controller
                 'adSets.*.creatives.*.settings.cta' => ['required', 'string'],
                 'adSets.*.creatives.*.settings.primaryTexts' => ['array'],
                 'adSets.*.creatives.*.settings.primaryTexts.*' => ['string'],
+                'adSets.*.creatives.*.settings.headlines' => ['array'],
+                'adSets.*.creatives.*.settings.headlines.*' => ['string'],
+                'adSets.*.creatives.*.settings.descriptions' => ['array'],
+                'adSets.*.creatives.*.settings.descriptions.*' => ['string'],
                 //
                 'hasSelectedAdSet' => ['required', 'boolean'],
                 'campaignId' => ['required', 'string'],
@@ -187,10 +191,10 @@ class UploadController extends Controller
                 'scheduled_at' => $scheduledAt,
             ]);
 
+            $jobs = [];
+
             // Dispatch queue jobs
             foreach ($adSets as $adSetIndex => $adSet) {
-                $jobs = [];
-
                 if (! $hasSelectedAdSet) {
                     $jobs[] = new CreateAdSet(
                         adCreationFlow: $flow,
@@ -247,6 +251,8 @@ class UploadController extends Controller
                         instagramPageId: $instagramPageId,
                         cta: $creative['settings']['cta'],
                         primaryTexts: array_unique(array_filter($creative['settings']['primaryTexts'])),
+                        headlines: array_unique(array_filter($creative['settings']['headlines'])),
+                        descriptions: array_unique(array_filter($creative['settings']['descriptions'])),
                     );
                     $jobs[] = new CreateAd(
                         adCreationFlow: $flow,
@@ -256,21 +262,18 @@ class UploadController extends Controller
                         pausedByDefault: $settings['pausedByDefault']
                     );
                 }
-
-                $jobs = array_filter($jobs, fn ($job) => $job !== null);
-
-                if ($scheduledAt) {
-                    // Delay the first job in the chain
-                    $jobs[0]->delay($scheduledAt);
-                }
-
-                $jobs[] = new AdCreationFlowCompleted(
-                    adCreationFlow: $flow,
-                    user: $user
-                );
-
-                Bus::chain($jobs)->dispatch();
             }
+
+            if ($scheduledAt && count($jobs)) {
+                $jobs[0]->delay($scheduledAt);
+            }
+
+            $jobs[] = new AdCreationFlowCompleted(
+                adCreationFlow: $flow,
+                user: $user
+            );
+
+            Bus::chain($jobs)->dispatch();
 
             return response()->json($flow);
         } catch (Throwable $e) {

@@ -24,6 +24,8 @@ class CreateAdCreativeRequest extends Request implements HasBody
         public string $cta,
         public string $url,
         public array $primaryTexts,
+        public array $headlines,
+        public array $descriptions,
     ) {}
 
     public function resolveEndpoint(): string
@@ -42,7 +44,7 @@ class CreateAdCreativeRequest extends Request implements HasBody
             $objectStorySpec['instagram_user_id'] = $this->instagramPageId;
         }
 
-        $hasVariations = count($this->primaryTexts) > 1;
+        $hasVariations = count($this->primaryTexts) > 1 || count($this->headlines) > 1 || count($this->descriptions) > 1;
 
         // https://developers.facebook.com/docs/marketing-api/reference/ad-creative-object-story-spec/
         if (! is_null($this->videoId)) {
@@ -52,6 +54,8 @@ class CreateAdCreativeRequest extends Request implements HasBody
                 'image_hash' => $this->hash,
                 'video_id' => $this->videoId,
                 'message' => $this->primaryTexts[0] ?? null,
+                'name' => $this->headlines[0] ?? null,
+                'description' => $this->descriptions[0] ?? null,
                 'call_to_action' => [
                     'type' => $this->cta,
                     'value' => [
@@ -66,6 +70,8 @@ class CreateAdCreativeRequest extends Request implements HasBody
                 'image_hash' => $this->hash,
                 'link' => $this->url,
                 'message' => $this->primaryTexts[0] ?? null,
+                'name' => $this->headlines[0] ?? null,
+                'description' => $this->descriptions[0] ?? null,
                 'call_to_action' => [
                     'type' => $this->cta,
                     'value' => [
@@ -88,22 +94,8 @@ class CreateAdCreativeRequest extends Request implements HasBody
             $data['asset_feed_spec'] = [
                 'optimization_type' => 'DEGREES_OF_FREEDOM',
                 'bodies' => collect($this->primaryTexts)->map(fn ($text) => ['text' => $text])->toArray(),
-                // 'descriptions' => [
-                //     [
-                //         'text' => 'yeet',
-                //     ],
-                //     [
-                //         'text' => 'yeet 1',
-                //     ],
-                // ],
-                // 'titles' => [
-                //     [
-                //         'text' => 'yeet',
-                //     ],
-                //     [
-                //         'text' => 'yeet 3',
-                //     ],
-                // ],
+                'titles' => collect($this->headlines)->map(fn ($text) => ['text' => $text])->toArray(),
+                'descriptions' => collect($this->descriptions)->map(fn ($text) => ['text' => $text])->toArray(),
             ];
         }
 
