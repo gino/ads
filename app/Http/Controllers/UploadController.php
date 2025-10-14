@@ -246,7 +246,7 @@ class UploadController extends Controller
                         facebookPageId: $facebookPageId,
                         instagramPageId: $instagramPageId,
                         cta: $creative['settings']['cta'],
-                        primaryTexts: array_filter($creative['settings']['primaryTexts']),
+                        primaryTexts: array_unique(array_filter($creative['settings']['primaryTexts'])),
                     );
                     $jobs[] = new CreateAd(
                         adCreationFlow: $flow,

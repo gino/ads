@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('status')->default('pending');
             $table->foreignUlid('user_id')->index();
             $table->foreignUlid('ad_account_id')->index();
-            $table->string('batch_id')->nullable();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('scheduled_at')->nullable();
             $table->timestamp('completed_at')->nullable();
