@@ -36,10 +36,6 @@ class UploadAdVideoCreative implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->batch()?->cancelled()) {
-            return;
-        }
-
         $user = $this->adCreationFlow->user;
         $adAccount = $this->adCreationFlow->adAccount;
 

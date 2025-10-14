@@ -21,7 +21,9 @@ class CreateAdCreativeRequest extends Request implements HasBody
         public string $facebookPageId,
         public ?string $instagramPageId,
         public ?string $videoId,
-        public string $cta
+        public string $cta,
+        public string $url,
+        public array $primaryTexts,
     ) {}
 
     public function resolveEndpoint(): string
@@ -29,10 +31,9 @@ class CreateAdCreativeRequest extends Request implements HasBody
         return "{$this->adAccount->external_id}/adcreatives";
     }
 
+    // https://chatgpt.com/c/68dadcc5-64c4-832a-a647-4f5ec1736a32
     protected function defaultBody(): array
     {
-        // https://chatgpt.com/c/68dadcc5-64c4-832a-a647-4f5ec1736a32
-
         $objectStorySpec = [
             'page_id' => $this->facebookPageId,
         ];
@@ -41,72 +42,72 @@ class CreateAdCreativeRequest extends Request implements HasBody
             $objectStorySpec['instagram_user_id'] = $this->instagramPageId;
         }
 
-        $url = 'https://google.com';
-
-        $isVideo = ! is_null($this->videoId);
+        $hasVariations = count($this->primaryTexts) > 1;
 
         // https://developers.facebook.com/docs/marketing-api/reference/ad-creative-object-story-spec/
-        if ($isVideo) {
-            // Video https://developers.facebook.com/docs/marketing-api/reference/ad-creative-video-data/
+        if (! is_null($this->videoId)) {
+            // Video ad creative
+            // https://developers.facebook.com/docs/marketing-api/reference/ad-creative-video-data/
             $objectStorySpec['video_data'] = [
                 'image_hash' => $this->hash,
                 'video_id' => $this->videoId,
+                'message' => $this->primaryTexts[0] ?? null,
                 'call_to_action' => [
                     'type' => $this->cta,
                     'value' => [
-                        'link' => $url,
+                        'link' => $this->url,
                     ],
                 ],
             ];
         } else {
+            // Image ad creative
             // https://developers.facebook.com/docs/marketing-api/reference/ad-creative-link-data/
             $objectStorySpec['link_data'] = [
                 'image_hash' => $this->hash,
-                'link' => $url,
+                'link' => $this->url,
+                'message' => $this->primaryTexts[0] ?? null,
                 'call_to_action' => [
                     'type' => $this->cta,
                     'value' => [
-                        'link' => $url,
+                        'link' => $this->url,
                     ],
                 ],
             ];
         }
 
-        // https://developers.facebook.com/docs/marketing-api/reference/ad-creative#fields
-        return [
+        $data = [
             'name' => $this->name,
             'object_story_spec' => $objectStorySpec,
-            'asset_feed_spec' => [
-                'optimization_type' => 'DEGREES_OF_FREEDOM',
-                'bodies' => [
-                    [
-                        'text' => 'yeet',
-                    ],
-                    [
-                        'text' => 'yeet 2',
-                    ],
-                ],
-                'descriptions' => [
-                    [
-                        'text' => 'yeet',
-                    ],
-                    [
-                        'text' => 'yeet 1',
-                    ],
-                ],
-                'titles' => [
-                    [
-                        'text' => 'yeet',
-                    ],
-                    [
-                        'text' => 'yeet 3',
-                    ],
-                ],
-            ],
             // https://developers.facebook.com/docs/marketing-api/creative/multi-advertiser-ads/
             'contextual_multi_ads' => [
                 'enroll_status' => 'OPT_OUT',
             ],
         ];
+
+        if ($hasVariations) {
+            $data['asset_feed_spec'] = [
+                'optimization_type' => 'DEGREES_OF_FREEDOM',
+                'bodies' => collect($this->primaryTexts)->map(fn ($text) => ['text' => $text])->toArray(),
+                // 'descriptions' => [
+                //     [
+                //         'text' => 'yeet',
+                //     ],
+                //     [
+                //         'text' => 'yeet 1',
+                //     ],
+                // ],
+                // 'titles' => [
+                //     [
+                //         'text' => 'yeet',
+                //     ],
+                //     [
+                //         'text' => 'yeet 3',
+                //     ],
+                // ],
+            ];
+        }
+
+        // https://developers.facebook.com/docs/marketing-api/reference/ad-creative#fields
+        return $data;
     }
 }

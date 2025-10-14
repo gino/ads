@@ -14,6 +14,7 @@ use App\Http\Integrations\Requests\GetFacebookPagesRequest;
 use App\Http\Integrations\Requests\GetPixelsRequest;
 use App\Http\Integrations\Requests\GetTargetingCountries;
 use App\Http\Integrations\Requests\Inputs\AdSetInput;
+use App\Jobs\AdCreationFlowCompleted;
 use App\Jobs\CreateAd;
 use App\Jobs\CreateAdCreative;
 use App\Jobs\CreateAdSet;
@@ -21,11 +22,8 @@ use App\Jobs\UploadAdCreative;
 use App\Jobs\UploadAdVideoCreative;
 use App\Models\AdAccount;
 use App\Models\AdCreationFlow;
-use App\Notifications\AdCreationFlowCompleted;
-use Illuminate\Bus\Batch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\File;
@@ -142,7 +140,9 @@ class UploadController extends Controller
                 'adSets.*.creatives.*.path.file' => ['required', 'string'],
                 'adSets.*.creatives.*.path.thumbnail' => ['nullable', 'string'],
                 //
-                'adSets.*.creatives.*.settings.cta' => ['nullable', 'string'],
+                'adSets.*.creatives.*.settings.cta' => ['required', 'string'],
+                'adSets.*.creatives.*.settings.primaryTexts' => ['array'],
+                'adSets.*.creatives.*.settings.primaryTexts.*' => ['string'],
                 //
                 'hasSelectedAdSet' => ['required', 'boolean'],
                 'campaignId' => ['required', 'string'],
@@ -186,8 +186,6 @@ class UploadController extends Controller
                 'ad_account_id' => $adAccount->id,
                 'scheduled_at' => $scheduledAt,
             ]);
-
-            $batches = [];
 
             // Dispatch queue jobs
             foreach ($adSets as $adSetIndex => $adSet) {
@@ -247,7 +245,8 @@ class UploadController extends Controller
                         label: $creative['label'],
                         facebookPageId: $facebookPageId,
                         instagramPageId: $instagramPageId,
-                        cta: $creative['settings']['cta']
+                        cta: $creative['settings']['cta'],
+                        primaryTexts: array_filter($creative['settings']['primaryTexts']),
                     );
                     $jobs[] = new CreateAd(
                         adCreationFlow: $flow,
@@ -258,34 +257,20 @@ class UploadController extends Controller
                     );
                 }
 
-                $first = array_shift($jobs);
-                if (! $first) {
-                    continue;
-                }
+                $jobs = array_filter($jobs, fn ($job) => $job !== null);
 
                 if ($scheduledAt) {
-                    $first->delay($scheduledAt);
+                    // Delay the first job in the chain
+                    $jobs[0]->delay($scheduledAt);
                 }
 
-                $first->chain($jobs);
-                $batches[] = $first;
-            }
+                $jobs[] = new AdCreationFlowCompleted(
+                    adCreationFlow: $flow,
+                    user: $user
+                );
 
-            Bus::batch($batches)
-                ->then(function () use ($flow, $user) {
-                    // FIX: This doesn't run after all jobs, this runs in the middle for some reason (wip: https://chatgpt.com/c/68e91b71-5a90-8333-9754-1fc69900048d)
-                    $flow->update(['status' => 'completed', 'completed_at' => now()]);
-                    $user->notify(new AdCreationFlowCompleted($flow));
-                })
-                ->catch(function (Batch $batch, Throwable $e) use ($flow) {
-                    Log::error('Ad flow failed: '.$e->getMessage(), ['batch_id' => $batch->id]);
-                    $flow->update(['status' => 'failed']);
-                })
-                ->finally(function (Batch $batch) use ($flow) {
-                    $flow->update(['batch_id' => $batch->id]);
-                })
-                ->name('Ad Flow: '.$flow->id)
-                ->dispatch();
+                Bus::chain($jobs)->dispatch();
+            }
 
             return response()->json($flow);
         } catch (Throwable $e) {

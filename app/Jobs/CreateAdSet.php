@@ -36,10 +36,6 @@ class CreateAdSet implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->batch()?->cancelled()) {
-            return;
-        }
-
         if (! $this->adCreationFlow->started_at) {
             $this->adCreationFlow->update([
                 'started_at' => now(),

@@ -30,6 +30,7 @@ class CreateAdCreative implements ShouldQueue
         public string $facebookPageId,
         public ?string $instagramPageId,
         public string $cta,
+        public array $primaryTexts,
     ) {}
 
     /**
@@ -37,10 +38,6 @@ class CreateAdCreative implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->batch()?->cancelled()) {
-            return;
-        }
-
         $user = $this->adCreationFlow->user;
         $adAccount = $this->adCreationFlow->adAccount;
 
@@ -57,7 +54,9 @@ class CreateAdCreative implements ShouldQueue
             videoId: $creative['video_id'] ?? null,
             facebookPageId: $this->facebookPageId,
             instagramPageId: $this->instagramPageId ?? null,
-            cta: $this->cta
+            cta: $this->cta,
+            url: 'https://google.com',
+            primaryTexts: $this->primaryTexts
         );
 
         $response = $meta->send($request)->throw();
