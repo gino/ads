@@ -7,6 +7,7 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { useEffect, useMemo, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { Select } from "../ui/select";
 import { StatusTag } from "../ui/status-tag";
 import { Switch } from "../ui/switch";
@@ -186,7 +187,8 @@ export function UploadForm({
                                     form.setData("campaignId", value);
                                     form.reset("adSetId");
                                 }}
-                                items={!isLoadingCampaigns ? campaigns : []}
+                                isLoading={isLoadingCampaigns}
+                                items={campaigns}
                                 getItem={(campaign) => ({
                                     value: campaign.id,
                                     label: (
@@ -226,7 +228,8 @@ export function UploadForm({
                                 onChange={(value) =>
                                     form.setData("adSetId", value)
                                 }
-                                items={isLoadingAdSets ? [] : filteredAdSets}
+                                isLoading={isLoadingAdSets}
+                                items={filteredAdSets}
                                 getItem={(adSet) => ({
                                     value: adSet.id,
                                     label: (
@@ -253,7 +256,8 @@ export function UploadForm({
                                 onChange={(value) =>
                                     form.setData("pixelId", value)
                                 }
-                                items={isLoadingPixels ? [] : pixels}
+                                isLoading={isLoadingPixels}
+                                items={pixels}
                                 getItem={(pixel) => ({
                                     value: pixel.id,
                                     label: (
@@ -285,10 +289,9 @@ export function UploadForm({
                                 <span className="block mb-2 font-semibold">
                                     Website URL
                                 </span>
-                                <input
+                                <Input
                                     type="text"
                                     placeholder="Use default website URL"
-                                    className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                                 />
                             </label>
                         </div>
@@ -298,7 +301,8 @@ export function UploadForm({
                             <Select
                                 label="Facebook page"
                                 placeholder="Select a page"
-                                items={!isLoadingPages ? pages : []}
+                                isLoading={isLoadingPages}
+                                items={pages}
                                 value={form.data.facebookPageId}
                                 onChange={(value) => {
                                     form.setData("facebookPageId", value);
@@ -365,11 +369,8 @@ export function UploadForm({
                                         ? "Select a Facebook page"
                                         : "Select an Instagram account"
                                 }
-                                items={
-                                    !isLoadingPages
-                                        ? filteredInstagramAccounts
-                                        : []
-                                }
+                                isLoading={isLoadingPages}
+                                items={filteredInstagramAccounts}
                                 value={form.data.instagramPageId}
                                 disabled={
                                     filteredInstagramAccounts.length === 0

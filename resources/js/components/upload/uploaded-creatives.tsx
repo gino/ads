@@ -65,6 +65,7 @@ UploadedCreativesContext.displayName = "UploadedCreativesContext";
 export const defaultAdSetSettings: AdSetGroupSettings = {
     locations: ["US"],
     age: [18, 65],
+    gender: "all",
 };
 
 interface Props {

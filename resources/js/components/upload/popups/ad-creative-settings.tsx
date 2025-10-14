@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { CreativeSettings } from "@/pages/upload";
 import { useForm } from "@inertiajs/react";
@@ -168,7 +170,7 @@ export function AdCreativeSettingsPopup() {
                         <span className="block mb-2 font-semibold">
                             Name of ad
                         </span>
-                        <input
+                        <Input
                             type="text"
                             value={form.data.name}
                             placeholder={creative?.label || creative?.name}
@@ -176,7 +178,6 @@ export function AdCreativeSettingsPopup() {
                                 form.setData("name", e.target.value)
                             }
                             required
-                            className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
                 </div>
@@ -189,13 +190,12 @@ export function AdCreativeSettingsPopup() {
                                 {maxVariations}
                             </div>
                         </div>
-                        <textarea
+                        <Textarea
                             value={form.data.primaryTexts[0] || ""}
                             onChange={(e) => {
                                 form.setData("primaryTexts.0", e.target.value);
                             }}
                             placeholder="Tell people what your ad is about"
-                            className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 min-h-24 field-sizing-content placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
 
@@ -218,14 +218,13 @@ export function AdCreativeSettingsPopup() {
                                 {maxVariations}
                             </div>
                         </div>
-                        <input
+                        <Input
                             type="text"
                             value={form.data.headlines[0] || ""}
                             onChange={(e) => {
                                 form.setData("headlines.0", e.target.value);
                             }}
                             placeholder="Write a short headline"
-                            className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
 
@@ -248,13 +247,12 @@ export function AdCreativeSettingsPopup() {
                                 {maxVariations}
                             </div>
                         </div>
-                        <textarea
+                        <Textarea
                             value={form.data.descriptions[0] || ""}
                             onChange={(e) => {
                                 form.setData("descriptions.0", e.target.value);
                             }}
                             placeholder="Add additional information"
-                            className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 h-16 placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
                     <TextVariations
@@ -373,7 +371,7 @@ function TextVariations({
                         >
                             {type === "textarea" ? (
                                 <>
-                                    <textarea
+                                    <Textarea
                                         value={texts[index + 1] || ""}
                                         onChange={(e) => {
                                             onChange(
@@ -382,7 +380,7 @@ function TextVariations({
                                             );
                                         }}
                                         placeholder={placeholder}
-                                        className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 pr-10 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 min-h-16 field-sizing-content placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
+                                        className="min-h-16"
                                     />
                                     <button
                                         type="button"
@@ -399,7 +397,7 @@ function TextVariations({
                             ) : (
                                 type === "input" && (
                                     <>
-                                        <input
+                                        <Input
                                             type="text"
                                             value={texts[index + 1] || ""}
                                             onChange={(e) => {
@@ -409,7 +407,6 @@ function TextVariations({
                                                 );
                                             }}
                                             placeholder={placeholder}
-                                            className="w-full px-3.5 pr-10 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                                         />
                                         <button
                                             type="button"

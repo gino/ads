@@ -21,10 +21,12 @@ export function Tooltip({
 
     return (
         <Ariakit.TooltipProvider>
-            <Ariakit.TooltipAnchor>{children}</Ariakit.TooltipAnchor>
+            <Ariakit.TooltipAnchor className="flex">
+                {children}
+            </Ariakit.TooltipAnchor>
             <Ariakit.Tooltip
                 className={cn(
-                    "bg-white shadow-base-popup rounded-lg text-xs",
+                    "bg-white shadow-base-popup rounded-lg text-[12px]",
                     className
                 )}
             >

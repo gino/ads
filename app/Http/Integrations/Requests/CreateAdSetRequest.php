@@ -31,6 +31,13 @@ class CreateAdSetRequest extends Request implements HasBody
     {
         // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/
         // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/#Creating
+
+        $genders = match ($this->adSet->gender) {
+            'men' => [1],
+            'women' => [2],
+            default => [1, 2],
+        };
+
         return [
             'name' => $this->adSet->label,
             'status' => 'ACTIVE',
@@ -45,7 +52,7 @@ class CreateAdSetRequest extends Request implements HasBody
                 'geo_locations' => [
                     'countries' => $this->adSet->countries,
                 ],
-                'genders' => [1, 2],
+                'genders' => $genders,
                 'age_min' => $this->adSet->minAge,
                 'age_max' => $this->adSet->maxAge,
                 'targeting_automation' => [

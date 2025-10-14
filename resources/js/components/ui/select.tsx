@@ -19,6 +19,7 @@ interface Props<T extends object> {
     disabled?: boolean;
     getDisabledLabel?: () => ReactNode;
     clearable?: boolean;
+    isLoading?: boolean;
 }
 
 export function Select<T extends object>({
@@ -32,12 +33,17 @@ export function Select<T extends object>({
     disabled,
     getDisabledLabel,
     clearable = true,
+    isLoading,
 }: Props<T>) {
     const [isOpen, setIsOpen] = useState(false);
 
     const items = useMemo(() => {
+        if (isLoading) {
+            return [];
+        }
+
         return _items.map(getItem);
-    }, [_items]);
+    }, [_items, isLoading]);
 
     return (
         <Ariakit.SelectProvider
@@ -52,13 +58,23 @@ export function Select<T extends object>({
                 </Ariakit.SelectLabel>
 
                 <Ariakit.Select
-                    disabled={disabled}
-                    className="w-full flex items-center cursor-pointer pr-8 px-3.5 py-2.5 bg-white rounded-lg text-sm relative enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out shadow-base disabled:opacity-50 disabled:cursor-not-allowed disabled:!pointer-events-auto"
+                    disabled={disabled || isLoading}
+                    className={cn(
+                        "w-full flex items-center cursor-pointer pr-8 px-3.5 py-2.5 bg-white rounded-lg text-sm relative enabled:active:scale-[0.99] transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed disabled:!pointer-events-auto outline-none focus:ring-2 focus:ring-blue-100 ring-transparent focus:ring-offset-1 focus:ring-offset-black/5",
+                        !isLoading && "shadow-base"
+                    )}
                 >
+                    {isLoading && (
+                        <div className="absolute inset-0 z-10 cursor-wait">
+                            <div className="h-full rounded-lg ring-1 overflow-hidden bg-white ring-white">
+                                <div className="bg-gray-100 animate-pulse h-full"></div>
+                            </div>
+                        </div>
+                    )}
                     <Ariakit.SelectValue fallback="">
                         {(value) => {
                             const item =
-                                _items.find(
+                                _items?.find(
                                     (item) => getItem(item).value === value
                                 ) ?? null;
 

@@ -132,6 +132,7 @@ class UploadController extends Controller
                 'adSets.*.settings.locations.*' => ['required', 'string'],
                 'adSets.*.settings.age' => ['required', 'array'],
                 'adSets.*.settings.age.*' => ['required', 'numeric'],
+                'adSets.*.settings.gender' => ['required', 'string', 'in:all,men,women'],
                 //
                 'adSets.*.creatives' => ['required', 'array'],
                 'adSets.*.creatives.*.id' => ['required', 'string'],
@@ -203,7 +204,8 @@ class UploadController extends Controller
                             label: $adSet['label'],
                             countries: $adSet['settings']['locations'],
                             minAge: $adSet['settings']['age'][0],
-                            maxAge: $adSet['settings']['age'][1]
+                            maxAge: $adSet['settings']['age'][1],
+                            gender: $adSet['settings']['gender'],
                         ),
                         campaignId: $campaignId,
                         pixelId: $pixelId

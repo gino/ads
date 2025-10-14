@@ -12,5 +12,6 @@ class AdSetInput extends Data
         public array $countries,
         public int $minAge,
         public int $maxAge,
+        public string $gender,
     ) {}
 }

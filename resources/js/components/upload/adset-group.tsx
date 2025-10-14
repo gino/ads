@@ -227,9 +227,34 @@ export function AdSetGroup({
 
                     <div className="flex items-center relative">
                         <div className="flex items-center gap-1.5">
+                            {settings.gender !== "all" && type === "ADSET" && (
+                                <Tooltip
+                                    content={
+                                        <div className="capitalize font-semibold px-3 py-1.5">
+                                            {settings.gender}
+                                        </div>
+                                    }
+                                >
+                                    <div className="font-semibold text-pink-950 bg-pink-500/10 text-[12px] px-2 pl-[5px] inline-flex items-center rounded-full cursor-help leading-5 ring-1 ring-inset ring-pink-900/10">
+                                        <i
+                                            className={cn(
+                                                "fa-regular mr-0.5 text-[10px]",
+                                                settings.gender === "men" &&
+                                                    "fa-mars",
+                                                settings.gender === "women" &&
+                                                    "fa-venus"
+                                            )}
+                                        />
+                                        <span className="capitalize">
+                                            {settings.gender[0]}
+                                        </span>
+                                    </div>
+                                </Tooltip>
+                            )}
+
                             {isAgeModified && type === "ADSET" && (
                                 <div className="font-semibold text-blue-950 bg-blue-500/10 text-[12px] px-2 pl-1.5 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-blue-900/10">
-                                    <i className="fa-regular fa-user mr-0.5 text-[10px]" />
+                                    <i className="fa-regular fa-user mr-1 text-[10px]" />
                                     <span>
                                         {minAge} - {maxAge}
                                     </span>
@@ -240,11 +265,11 @@ export function AdSetGroup({
                                 <Tooltip
                                     content={
                                         <div className="px-3.5 py-2.5">
-                                            <div className="font-semibold mb-2">
+                                            <div className="font-semibold mb-1">
                                                 Selected locations (
                                                 {namedLocations.length}):
                                             </div>
-                                            <ul className="list-disc list-inside space-y-2">
+                                            <ul className="list-disc list-inside space-y-px">
                                                 {namedLocations.map(
                                                     (location) => (
                                                         <li
@@ -260,7 +285,6 @@ export function AdSetGroup({
                                             </ul>
                                         </div>
                                     }
-                                    className="min-w-64"
                                 >
                                     <div className="font-semibold text-purple-950 bg-purple-500/10 text-[12px] px-2 pl-1 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-purple-900/10 cursor-help">
                                         <i className="fa-regular fa-location-dot mr-0.5 text-[10px]" />

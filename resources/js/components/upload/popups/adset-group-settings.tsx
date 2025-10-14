@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
+import { Radio } from "@/components/ui/radio";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import useDeferred from "@/lib/hooks/use-deferred";
@@ -31,12 +33,13 @@ export function AdSetGroupSettingsPopup() {
         data: ["countries"],
     });
 
-    const { locations, age } = getSettings(popupAdSetId!);
+    const { locations, age, gender } = getSettings(popupAdSetId!);
 
     const form = useForm<AdSetGroupSettings & { name: string }>({
         name: "",
         locations,
         age,
+        gender,
     });
 
     useEffect(() => {
@@ -45,7 +48,8 @@ export function AdSetGroupSettingsPopup() {
         form.setData("name", adSetGroup.label);
         form.setData("locations", locations);
         form.setData("age", age);
-    }, [popupAdSetId, adSetGroup, locations, age]);
+        form.setData("gender", gender);
+    }, [popupAdSetId, adSetGroup, locations, age, gender]);
 
     const countries = useMemo(() => {
         if (isLoadingCountries) return [];
@@ -113,6 +117,7 @@ export function AdSetGroupSettingsPopup() {
 
         updateSetting(popupAdSetId!, "locations", form.data.locations);
         updateSetting(popupAdSetId!, "age", form.data.age);
+        updateSetting(popupAdSetId!, "gender", form.data.gender);
         setPopupAdSetId(null);
 
         if (form.isDirty) {
@@ -127,6 +132,7 @@ export function AdSetGroupSettingsPopup() {
         form.data.name,
         form.data.locations,
         form.data.age,
+        form.data.gender,
         form.isDirty,
         popupAdSetId,
         adSetGroup?.label,
@@ -157,7 +163,7 @@ export function AdSetGroupSettingsPopup() {
                         <span className="block mb-2 font-semibold">
                             Name of ad set
                         </span>
-                        <input
+                        <Input
                             type="text"
                             value={form.data.name}
                             placeholder={adSetGroup?.label}
@@ -165,7 +171,6 @@ export function AdSetGroupSettingsPopup() {
                                 form.setData("name", e.target.value)
                             }
                             required
-                            className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
                 </div>
@@ -280,6 +285,27 @@ export function AdSetGroupSettingsPopup() {
                 <div className="p-5">
                     <div>
                         <div className="mb-2 font-semibold">Gender</div>
+
+                        <Radio
+                            value={form.data.gender}
+                            onChange={(value) =>
+                                form.setData("gender", value as any)
+                            }
+                            options={[
+                                {
+                                    label: "All",
+                                    value: "all",
+                                },
+                                {
+                                    label: "Men",
+                                    value: "men",
+                                },
+                                {
+                                    label: "Women",
+                                    value: "women",
+                                },
+                            ]}
+                        />
                     </div>
                 </div>
 
