@@ -200,6 +200,7 @@ export function AdCreativeSettingsPopup() {
                     </label>
 
                     <TextVariations
+                        type="textarea"
                         texts={form.data.primaryTexts}
                         onChange={(key, values) => {
                             form.setData((`primaryTexts` + key) as any, values);
@@ -213,7 +214,8 @@ export function AdCreativeSettingsPopup() {
                         <div className="flex items-center justify-between mb-2">
                             <div className="font-semibold">Headline</div>
                             <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
-                                1 of {maxVariations}
+                                {Math.max(form.data.headlines.length, 1)} of{" "}
+                                {maxVariations}
                             </div>
                         </div>
                         <input
@@ -226,18 +228,24 @@ export function AdCreativeSettingsPopup() {
                             className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
-                    <div className="mt-2 flex justify-end">
-                        <Button icon="fa-circle-plus fa-regular">
-                            Add variation
-                        </Button>
-                    </div>
+
+                    <TextVariations
+                        type="input"
+                        texts={form.data.headlines}
+                        onChange={(key, values) => {
+                            form.setData((`headlines` + key) as any, values);
+                        }}
+                        placeholder="Add another option for the headline"
+                        maxVariations={maxVariations}
+                    />
                 </div>
                 <div className="p-5 border-b border-gray-100">
                     <label className="block -mb-1">
                         <div className="flex items-center justify-between mb-2">
                             <div className="font-semibold">Description</div>
                             <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
-                                1 of {maxVariations}
+                                {Math.max(form.data.descriptions.length, 1)} of{" "}
+                                {maxVariations}
                             </div>
                         </div>
                         <textarea
@@ -249,11 +257,15 @@ export function AdCreativeSettingsPopup() {
                             className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 h-16 placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
                         />
                     </label>
-                    <div className="mt-1 flex justify-end">
-                        <Button icon="fa-circle-plus fa-regular">
-                            Add variation
-                        </Button>
-                    </div>
+                    <TextVariations
+                        type="textarea"
+                        texts={form.data.descriptions}
+                        onChange={(key, values) => {
+                            form.setData((`descriptions` + key) as any, values);
+                        }}
+                        placeholder="Add another option for the description"
+                        maxVariations={maxVariations}
+                    />
                 </div>
                 <div className="p-5">
                     <div>
@@ -335,6 +347,7 @@ export function AdCreativeSettingsPopup() {
 }
 
 interface TextVariationsProps {
+    type: "input" | "textarea";
     texts: string[];
     placeholder: string;
     maxVariations: number;
@@ -342,6 +355,7 @@ interface TextVariationsProps {
 }
 
 function TextVariations({
+    type,
     texts,
     placeholder,
     maxVariations,
@@ -357,25 +371,60 @@ function TextVariations({
                             key={index}
                             className="first:mt-2 mt-2.5 flex gap-2 relative"
                         >
-                            <textarea
-                                value={texts[index + 1] || ""}
-                                onChange={(e) => {
-                                    onChange(`.${index + 1}`, e.target.value);
-                                }}
-                                placeholder={placeholder}
-                                className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 pr-10 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 min-h-16 field-sizing-content placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    const arr = texts;
-                                    arr.splice(index + 1, 1);
-                                    onChange("", arr);
-                                }}
-                                className="h-7 w-7 hover:bg-gray-100 rounded-md cursor-pointer text-gray-300 hover:text-black shrink-0 text-[12px] flex items-center justify-center ring-1 ring-transparent hover:ring-gray-100 absolute right-1.5 top-1.5"
-                            >
-                                <i className="fa-solid fa-times" />
-                            </button>
+                            {type === "textarea" ? (
+                                <>
+                                    <textarea
+                                        value={texts[index + 1] || ""}
+                                        onChange={(e) => {
+                                            onChange(
+                                                `.${index + 1}`,
+                                                e.target.value
+                                            );
+                                        }}
+                                        placeholder={placeholder}
+                                        className="ring-1 ring-gray-200 resize-none rounded-lg bg-white px-3.5 pr-10 py-2.5 w-full scroll-py-2.5 scroll-px-3.5 min-h-16 field-sizing-content placeholder-gray-400 font-semibold placeholder-shown:font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const arr = texts;
+                                            arr.splice(index + 1, 1);
+                                            onChange("", arr);
+                                        }}
+                                        className="h-7 w-7 hover:bg-gray-100 rounded-md cursor-pointer text-gray-300 hover:text-black shrink-0 text-[12px] flex items-center justify-center ring-1 active:scale-[0.99] transition-transform duration-100 ease-in-out ring-transparent hover:ring-gray-100 absolute right-1.5 top-1.5"
+                                    >
+                                        <i className="fa-solid fa-times" />
+                                    </button>
+                                </>
+                            ) : (
+                                type === "input" && (
+                                    <>
+                                        <input
+                                            type="text"
+                                            value={texts[index + 1] || ""}
+                                            onChange={(e) => {
+                                                onChange(
+                                                    `.${index + 1}`,
+                                                    e.target.value
+                                                );
+                                            }}
+                                            placeholder={placeholder}
+                                            className="w-full px-3.5 pr-10 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-blue-100 focus:ring-blue-100 transition duration-150 ease-in-out"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const arr = texts;
+                                                arr.splice(index + 1, 1);
+                                                onChange("", arr);
+                                            }}
+                                            className="h-7 w-7 hover:bg-gray-100 rounded-md cursor-pointer text-gray-300 hover:text-black shrink-0 text-[12px] flex items-center justify-center ring-1 active:scale-[0.99] transition-transform duration-100 ease-in-out ring-transparent hover:ring-gray-100 absolute right-1.5 top-1/2 -translate-y-1/2"
+                                        >
+                                            <i className="fa-solid fa-times" />
+                                        </button>
+                                    </>
+                                )
+                            )}
                         </div>
                     ))}
             </div>
@@ -385,7 +434,7 @@ function TextVariations({
                         onClick={() => {
                             onChange(`.${Math.max(texts.length, 1)}`, "");
                         }}
-                        icon="fa-circle-plus fa-regular"
+                        icon="fa-solid fa-plus text-[12px]"
                     >
                         Add variation
                     </Button>

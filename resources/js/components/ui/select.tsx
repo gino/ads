@@ -93,7 +93,7 @@ export function Select<T extends object>({
                             <div
                                 onClick={() => onChange("")}
                                 title="Clear selected value"
-                                className="h-6 w-6 rounded hover:bg-gray-100 hover:text-black text-gray-400 -mr-1 flex items-center justify-center pointer-events-auto cursor-pointer text-[12px]"
+                                className="h-6 w-6 rounded hover:bg-gray-100 hover:text-black text-gray-400 -mr-1 flex items-center justify-center pointer-events-auto cursor-pointer text-[12px] active:scale-[0.99] transition-transform duration-100 ease-in-out"
                             >
                                 <i className="fa-solid fa-times" />
                             </div>

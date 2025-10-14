@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Str;
 
 class AdCreationFlowCompleted extends Notification implements ShouldQueue
 {
@@ -39,8 +40,10 @@ class AdCreationFlowCompleted extends Notification implements ShouldQueue
             ->flatMap(fn ($adSet) => $adSet['creatives'] ?? [])
             ->count();
 
+        $label = Str::plural('ad', $totalCreatives);
+
         return (new MailMessage)
-            ->subject("{$totalCreatives} ads have been launched")
+            ->subject("{$totalCreatives} {$label} have been launched")
             ->line('The introduction to the notification.')
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!');

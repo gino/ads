@@ -6,6 +6,7 @@ import {
 } from "@/pages/upload";
 import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay, useSensor } from "@dnd-kit/core";
+import { router } from "@inertiajs/react";
 import axios from "axios";
 import { motion } from "motion/react";
 import {
@@ -651,11 +652,13 @@ export function UploadedCreatives({ adSets }: Props) {
                 type: "SUCCESS",
                 contents: `${creatives.length} ad${
                     creatives.length === 1 ? " is" : "s are"
-                } being launched in the background...`,
-                description: "You can safely close this page.",
+                } being launched...`,
+                description:
+                    "You can safely close this page - you'll be notified once your ads are launched",
             });
             setCreatives([]);
             setAdSetGroups([]);
+            router.reload({ only: ["adSets"] });
         } catch (err: any) {
             console.error(err);
             toast({

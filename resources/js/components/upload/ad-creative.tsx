@@ -220,7 +220,10 @@ export function AdCreative({
                                             "opacity-30"
                                     )}
                                 >
-                                    P
+                                    P{" "}
+                                    {primaryTexts.length > 1 && (
+                                        <>+{primaryTexts.length - 1}</>
+                                    )}
                                 </div>
 
                                 <div
@@ -229,7 +232,10 @@ export function AdCreative({
                                         !headlines?.[0]?.trim() && "opacity-30"
                                     )}
                                 >
-                                    H
+                                    H{" "}
+                                    {headlines.length > 1 && (
+                                        <>+{headlines.length - 1}</>
+                                    )}
                                 </div>
 
                                 <div
@@ -239,7 +245,10 @@ export function AdCreative({
                                             "opacity-30"
                                     )}
                                 >
-                                    D
+                                    D{" "}
+                                    {descriptions.length > 1 && (
+                                        <>+{descriptions.length - 1}</>
+                                    )}
                                 </div>
                             </div>
                         )}
