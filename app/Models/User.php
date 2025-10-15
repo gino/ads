@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'avatar',
         'account_id',
+        'last_selected_ad_account_id',
     ];
 
     protected $hidden = [

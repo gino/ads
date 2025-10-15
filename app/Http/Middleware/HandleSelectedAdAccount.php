@@ -22,13 +22,21 @@ class HandleSelectedAdAccount
         $sessionKey = 'selected_ad_account_id';
         $currentId = $request->session()->get($sessionKey);
 
+        // Fallback to last_selected_ad_account_id
+        if (! $currentId && $request->user()->last_selected_ad_account_id) {
+            $currentId = $request->user()->last_selected_ad_account_id;
+        }
+
         $selectable = $adAccounts->contains(function ($adAccount) use ($currentId) {
             return $adAccount->id === $currentId && $adAccount->isActive();
         });
 
         if (! $currentId || ! $selectable) {
-            $request->session()->put($sessionKey, $adAccounts->first()->id);
+            $currentId = $adAccounts->first()?->id;
         }
+
+        $request->session()->put($sessionKey, $currentId);
+        $request->user()->update(['last_selected_ad_account_id' => $currentId]);
 
         Inertia::share('selectedAdAccountId', fn () => $request->session()->get($sessionKey));
         Inertia::share('adAccounts', fn () => AdAccountData::collect($adAccounts));
