@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { CreativeSettings } from "@/pages/upload";
 import { useForm } from "@inertiajs/react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useUploadContext } from "../upload-context";
 
 // https://chatgpt.com/c/68e12406-2794-8328-a5ec-f5ce4fc1c3bc
@@ -33,7 +33,7 @@ const ctaTypes = {
 
 export type CallToActionType = keyof typeof ctaTypes;
 
-export function AdCreativeSettingsPopup() {
+function AdCreativeSettings() {
     const {
         popupCreativeId,
         setPopupCreativeId,
@@ -53,22 +53,12 @@ export function AdCreativeSettingsPopup() {
     );
 
     const form = useForm<CreativeSettings & { name: string }>({
-        name: "",
+        name: creative?.label || creative?.name || "",
         primaryTexts,
         headlines,
         descriptions,
         cta,
     });
-
-    useEffect(() => {
-        if (!popupCreativeId || !creative) return;
-        // Do this for every property inside of `form`
-        form.setData("name", creative.label || creative.name);
-        form.setData("cta", cta);
-        form.setData("primaryTexts", primaryTexts);
-        form.setData("headlines", headlines);
-        form.setData("descriptions", descriptions);
-    }, [popupCreativeId, creative, cta, primaryTexts, headlines, descriptions]);
 
     const isDisabled = useMemo(() => {
         const hasName = form.data.name?.trim().length > 0;
@@ -150,6 +140,190 @@ export function AdCreativeSettingsPopup() {
     const maxVariations = 5;
 
     return (
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                submit();
+            }}
+        >
+            <div className="p-5 border-b border-gray-100">
+                <label>
+                    <span className="block mb-2 font-semibold">Name of ad</span>
+                    <Input
+                        type="text"
+                        value={form.data.name}
+                        placeholder={creative?.label || creative?.name}
+                        onChange={(e) => form.setData("name", e.target.value)}
+                        required
+                    />
+                </label>
+            </div>
+            <div className="p-5 border-b border-gray-100">
+                <label className="block -mb-1">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="font-semibold">Primary text</div>
+                        <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                            {Math.max(form.data.primaryTexts.length, 1)} of{" "}
+                            {maxVariations}
+                        </div>
+                    </div>
+                    <Textarea
+                        value={form.data.primaryTexts[0] || ""}
+                        onChange={(e) => {
+                            form.setData("primaryTexts.0", e.target.value);
+                        }}
+                        placeholder="Tell people what your ad is about"
+                    />
+                </label>
+
+                <TextVariations
+                    type="textarea"
+                    texts={form.data.primaryTexts}
+                    onChange={(key, values) => {
+                        form.setData((`primaryTexts` + key) as any, values);
+                    }}
+                    placeholder="Add another option for the primary text"
+                    maxVariations={maxVariations}
+                />
+            </div>
+            <div className="p-5 border-b border-gray-100">
+                <label>
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="font-semibold">Headline</div>
+                        <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                            {Math.max(form.data.headlines.length, 1)} of{" "}
+                            {maxVariations}
+                        </div>
+                    </div>
+                    <Input
+                        type="text"
+                        value={form.data.headlines[0] || ""}
+                        onChange={(e) => {
+                            form.setData("headlines.0", e.target.value);
+                        }}
+                        placeholder="Write a short headline"
+                    />
+                </label>
+
+                <TextVariations
+                    type="input"
+                    texts={form.data.headlines}
+                    onChange={(key, values) => {
+                        form.setData((`headlines` + key) as any, values);
+                    }}
+                    placeholder="Add another option for the headline"
+                    maxVariations={maxVariations}
+                />
+            </div>
+            <div className="p-5 border-b border-gray-100">
+                <label className="block -mb-1">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="font-semibold">Description</div>
+                        <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                            {Math.max(form.data.descriptions.length, 1)} of{" "}
+                            {maxVariations}
+                        </div>
+                    </div>
+                    <Textarea
+                        value={form.data.descriptions[0] || ""}
+                        onChange={(e) => {
+                            form.setData("descriptions.0", e.target.value);
+                        }}
+                        placeholder="Add additional information"
+                    />
+                </label>
+                <TextVariations
+                    type="textarea"
+                    texts={form.data.descriptions}
+                    onChange={(key, values) => {
+                        form.setData((`descriptions` + key) as any, values);
+                    }}
+                    placeholder="Add another option for the description"
+                    maxVariations={maxVariations}
+                />
+            </div>
+            <div className="p-5">
+                <div>
+                    <Select
+                        label="Call-to-action"
+                        items={Object.entries(ctaTypes)}
+                        getItem={([cta, label]) => {
+                            return {
+                                label: (
+                                    <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                        <div className="flex-1 truncate">
+                                            <div className="font-semibold truncate">
+                                                {label}
+                                            </div>
+                                        </div>
+
+                                        {["SHOP_NOW"].includes(cta) && (
+                                            <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-hover:bg-gray-200 group-data-[selected='true']:bg-black/5 group-data-[active-item]:bg-gray-200">
+                                                Recommended
+                                            </div>
+                                        )}
+                                    </div>
+                                ),
+                                value: cta,
+                            };
+                        }}
+                        getSelectedItem={([_, label]) => (
+                            <div className="font-semibold">{label}</div>
+                        )}
+                        onChange={(value) => {
+                            form.setData("cta", value as CallToActionType);
+                        }}
+                        value={form.data.cta}
+                    />
+                </div>
+            </div>
+
+            {/* Modal footer */}
+            <div className="p-5 sticky bottom-0 border-t border-gray-100 bg-white">
+                <div className="flex gap-2 justify-end items-center">
+                    {creatives.length > 1 && (
+                        <div className="flex-1">
+                            <Button
+                                disabled={isDisabled}
+                                onClick={() => {
+                                    if (isDisabled) {
+                                        return;
+                                    }
+
+                                    applyToAll();
+                                    setPopupCreativeId(null);
+                                }}
+                            >
+                                Apply to all creatives
+                            </Button>
+                        </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={() => {
+                                setPopupCreativeId(null);
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            disabled={isDisabled}
+                        >
+                            Save changes
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    );
+}
+
+export function AdCreativeSettingsPopup() {
+    const { popupCreativeId, setPopupCreativeId } = useUploadContext();
+
+    return (
         <Modal
             open={popupCreativeId !== null}
             setOpen={(value) => {
@@ -159,187 +333,7 @@ export function AdCreativeSettingsPopup() {
             }}
             hideOnInteractOutside={false}
         >
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    submit();
-                }}
-            >
-                <div className="p-5 border-b border-gray-100">
-                    <label>
-                        <span className="block mb-2 font-semibold">
-                            Name of ad
-                        </span>
-                        <Input
-                            type="text"
-                            value={form.data.name}
-                            placeholder={creative?.label || creative?.name}
-                            onChange={(e) =>
-                                form.setData("name", e.target.value)
-                            }
-                            required
-                        />
-                    </label>
-                </div>
-                <div className="p-5 border-b border-gray-100">
-                    <label className="block -mb-1">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="font-semibold">Primary text</div>
-                            <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
-                                {Math.max(form.data.primaryTexts.length, 1)} of{" "}
-                                {maxVariations}
-                            </div>
-                        </div>
-                        <Textarea
-                            value={form.data.primaryTexts[0] || ""}
-                            onChange={(e) => {
-                                form.setData("primaryTexts.0", e.target.value);
-                            }}
-                            placeholder="Tell people what your ad is about"
-                        />
-                    </label>
-
-                    <TextVariations
-                        type="textarea"
-                        texts={form.data.primaryTexts}
-                        onChange={(key, values) => {
-                            form.setData((`primaryTexts` + key) as any, values);
-                        }}
-                        placeholder="Add another option for the primary text"
-                        maxVariations={maxVariations}
-                    />
-                </div>
-                <div className="p-5 border-b border-gray-100">
-                    <label>
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="font-semibold">Headline</div>
-                            <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
-                                {Math.max(form.data.headlines.length, 1)} of{" "}
-                                {maxVariations}
-                            </div>
-                        </div>
-                        <Input
-                            type="text"
-                            value={form.data.headlines[0] || ""}
-                            onChange={(e) => {
-                                form.setData("headlines.0", e.target.value);
-                            }}
-                            placeholder="Write a short headline"
-                        />
-                    </label>
-
-                    <TextVariations
-                        type="input"
-                        texts={form.data.headlines}
-                        onChange={(key, values) => {
-                            form.setData((`headlines` + key) as any, values);
-                        }}
-                        placeholder="Add another option for the headline"
-                        maxVariations={maxVariations}
-                    />
-                </div>
-                <div className="p-5 border-b border-gray-100">
-                    <label className="block -mb-1">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="font-semibold">Description</div>
-                            <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
-                                {Math.max(form.data.descriptions.length, 1)} of{" "}
-                                {maxVariations}
-                            </div>
-                        </div>
-                        <Textarea
-                            value={form.data.descriptions[0] || ""}
-                            onChange={(e) => {
-                                form.setData("descriptions.0", e.target.value);
-                            }}
-                            placeholder="Add additional information"
-                        />
-                    </label>
-                    <TextVariations
-                        type="textarea"
-                        texts={form.data.descriptions}
-                        onChange={(key, values) => {
-                            form.setData((`descriptions` + key) as any, values);
-                        }}
-                        placeholder="Add another option for the description"
-                        maxVariations={maxVariations}
-                    />
-                </div>
-                <div className="p-5">
-                    <div>
-                        <Select
-                            label="Call-to-action"
-                            items={Object.entries(ctaTypes)}
-                            getItem={([cta, label]) => {
-                                return {
-                                    label: (
-                                        <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
-                                            <div className="flex-1 truncate">
-                                                <div className="font-semibold truncate">
-                                                    {label}
-                                                </div>
-                                            </div>
-
-                                            {["SHOP_NOW"].includes(cta) && (
-                                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-hover:bg-gray-200 group-data-[selected='true']:bg-black/5 group-data-[active-item]:bg-gray-200">
-                                                    Recommended
-                                                </div>
-                                            )}
-                                        </div>
-                                    ),
-                                    value: cta,
-                                };
-                            }}
-                            getSelectedItem={([_, label]) => (
-                                <div className="font-semibold">{label}</div>
-                            )}
-                            onChange={(value) => {
-                                form.setData("cta", value as CallToActionType);
-                            }}
-                            value={form.data.cta}
-                        />
-                    </div>
-                </div>
-
-                {/* Modal footer */}
-                <div className="p-5 sticky bottom-0 border-t border-gray-100 bg-white">
-                    <div className="flex gap-2 justify-end items-center">
-                        {creatives.length > 1 && (
-                            <div className="flex-1">
-                                <Button
-                                    disabled={isDisabled}
-                                    onClick={() => {
-                                        if (isDisabled) {
-                                            return;
-                                        }
-
-                                        applyToAll();
-                                        setPopupCreativeId(null);
-                                    }}
-                                >
-                                    Apply to all creatives
-                                </Button>
-                            </div>
-                        )}
-                        <div className="flex items-center gap-2">
-                            <Button
-                                onClick={() => {
-                                    setPopupCreativeId(null);
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="primary"
-                                type="submit"
-                                disabled={isDisabled}
-                            >
-                                Save changes
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            <AdCreativeSettings />
         </Modal>
     );
 }

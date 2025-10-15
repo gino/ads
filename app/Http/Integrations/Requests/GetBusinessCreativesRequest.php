@@ -37,6 +37,7 @@ class GetBusinessCreativesRequest extends Request implements Paginatable
             'name',
             'image_url',
             'video_id',
+            // 'previews.ad_format(MOBILE_FEED_STANDARD){body}',
         ];
 
         return [

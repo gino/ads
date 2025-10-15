@@ -41,9 +41,10 @@ class AdCreationFlowCompleted extends Notification implements ShouldQueue
             ->count();
 
         $label = Str::plural('ad', $totalCreatives);
+        $verb = $totalCreatives === 1 ? 'has' : 'have';
 
         return (new MailMessage)
-            ->subject("{$totalCreatives} {$label} have been launched")
+            ->subject("{$totalCreatives} {$label} {$verb} been launched")
             ->line('The introduction to the notification.')
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!');

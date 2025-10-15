@@ -3,14 +3,14 @@ import { cva, VariantProps } from "class-variance-authority";
 import { ComponentProps, ReactNode } from "react";
 
 const button = cva(
-    "font-semibold px-3.5 py-2 rounded-md cursor-pointer enabled:active:scale-[0.99] disabled:cursor-not-allowed transition-transform duration-100 ease-in-out disabled:opacity-50 flex items-center justify-center gap-2 text-center",
+    "font-semibold px-3.5 py-2 rounded-md cursor-pointer enabled:active:scale-[0.99] disabled:cursor-not-allowed transition duration-150 ease-in-out disabled:opacity-50 flex items-center justify-center gap-2 text-center",
     {
         variants: {
             variant: {
                 secondary:
-                    "bg-white shadow-base hover:bg-gray-50 enabled:active:bg-white",
+                    "bg-white shadow-base hover:bg-gray-50 enabled:active:bg-white outline-none focus-visible:ring-2 focus-visible:ring-blue-100 ring-transparent focus-visible:ring-offset-1 focus-visible:ring-offset-black/5",
                 primary:
-                    "text-white ring-1 bg-brand-secondary ring-brand-secondary hover:opacity-90 enabled:active:opacity-100",
+                    "text-white ring-1 bg-brand-secondary ring-brand-secondary hover:opacity-90 enabled:active:opacity-100 outline-none focus-visible:ring-2 focus-visible:ring-blue-100",
             },
         },
         defaultVariants: {

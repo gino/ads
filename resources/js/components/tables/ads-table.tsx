@@ -171,9 +171,13 @@ export function AdsTable({ isLoading, ads }: Props) {
                             />
                             <div
                                 title={getValue<string>()}
-                                className="font-semibold w-96 truncate"
+                                className="font-semibold w-96 truncate flex items-center gap-3"
                             >
-                                {getValue<string>()}
+                                <span className="truncate">
+                                    {getValue<string>()}
+                                </span>
+                                {/* WIP adding on ad previews */}
+                                {/* <i className="fa-regular fa-eye text-[12px] text-gray-d500" /> */}
                             </div>
                         </div>
                     </div>

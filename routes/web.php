@@ -49,12 +49,9 @@ Route::middleware([
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $paginator = $meta->paginate(new GetBusinessCreativesRequest($adAccount));
+        // We have to implement manually cursor pagination since we wanna do some sort of lazy loading scroll
+        $request = $meta->send(new GetBusinessCreativesRequest($adAccount));
 
-        $request = $paginator->current();
-
-        return $request->json('data');
-
-        // 25204275622524085
+        return $request->json();
     });
 });

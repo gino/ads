@@ -60,7 +60,7 @@ export function Select<T extends object>({
                 <Ariakit.Select
                     disabled={disabled || isLoading}
                     className={cn(
-                        "w-full flex items-center cursor-pointer !pr-8 px-3.5 py-2.5 bg-white rounded-lg text-sm relative enabled:active:scale-[0.99] transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed disabled:!pointer-events-auto outline-none focus:ring-2 focus:ring-blue-100 ring-transparent focus:ring-offset-1 focus:ring-offset-black/5",
+                        "w-full flex items-center cursor-pointer !pr-8 px-3.5 py-2.5 bg-white rounded-lg text-sm relative enabled:active:scale-[0.99] transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed disabled:!pointer-events-auto outline-none focus-visible:ring-2 focus-visible:ring-blue-100 ring-transparent focus-visible:ring-offset-1 focus-visible:ring-offset-black/5",
                         !isLoading && "shadow-base"
                     )}
                 >

@@ -12,7 +12,7 @@ use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetFacebookPagesRequest;
 use App\Http\Integrations\Requests\GetPixelsRequest;
-use App\Http\Integrations\Requests\GetTargetingCountries;
+use App\Http\Integrations\Requests\GetTargetingCountriesRequest;
 use App\Http\Integrations\Requests\Inputs\AdSetInput;
 use App\Jobs\AdCreationFlowCompleted;
 use App\Jobs\CreateAd;
@@ -46,7 +46,7 @@ class UploadController extends Controller
                 $campaigns = $meta->paginate(new GetAdCampaignsRequest($adAccount))->collect();
 
                 return AdCampaignData::collect($campaigns);
-            }),
+            }, 'campaigns'),
             'adSets' => Inertia::defer(function () use ($meta, $adAccount, $campaignId) {
                 $adSets = $campaignId ? $meta->paginate(new GetAdSetsRequest($adAccount, $campaignId))->collect() : [];
 
@@ -63,7 +63,7 @@ class UploadController extends Controller
                 return FacebookPageData::collect($pages);
             }, 'pages'),
             'countries' => Inertia::defer(function () use ($meta) {
-                $countries = $meta->send(new GetTargetingCountries)->json('data', []);
+                $countries = $meta->send(new GetTargetingCountriesRequest)->json('data', []);
 
                 return TargetingCountryData::collect($countries);
             }, 'countries'),

@@ -10,7 +10,7 @@ use Saloon\CachePlugin\Traits\HasCaching;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 
-class GetTargetingCountries extends Request implements Cacheable
+class GetTargetingCountriesRequest extends Request implements Cacheable
 {
     use HasCaching;
 
