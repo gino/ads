@@ -15,6 +15,7 @@ import { toast } from "../ui/toast";
 import { allowedFileTypes } from "./constants";
 import { DropboxButton } from "./integrations/dropbox";
 import { GoogleDriveButton } from "./integrations/google-drive";
+import { MediaLibraryButton } from "./popups/media-library";
 import { defaultCreativeSettings, useUploadContext } from "./upload-context";
 
 interface Props {
@@ -239,7 +240,9 @@ export function UploadForm({
                                 onChange={(value) =>
                                     form.setData("adSetId", value)
                                 }
-                                isLoading={isLoadingAdSets}
+                                isLoading={
+                                    isLoadingAdSets || isLoadingCampaigns
+                                }
                                 items={adSets}
                                 getItem={(adSet) => ({
                                     value: adSet.id,
@@ -378,7 +381,7 @@ export function UploadForm({
                                 placeholder={
                                     !form.data.facebookPageId
                                         ? "Select a Facebook page"
-                                        : "Select an Instagram account"
+                                        : "Select an account"
                                 }
                                 isLoading={isLoadingPages}
                                 items={filteredInstagramAccounts}
@@ -447,9 +450,7 @@ export function UploadForm({
 
                                     <div>
                                         {/* https://chatgpt.com/c/68d51d71-a918-8332-b642-a591d2891117 */}
-                                        <Button>
-                                            Import from media library
-                                        </Button>
+                                        <MediaLibraryButton />
                                     </div>
                                 </div>
 
@@ -554,8 +555,8 @@ export function UploadForm({
                                         Disable all Advantage+ enhancements
                                     </div>
                                     <div className="text-xs font-medium text-gray-500">
-                                        Turns off all automated Advantage+
-                                        optimizations for newly created ads.
+                                        Turns off all Advantage+ optimizations
+                                        for newly created ads.
                                     </div>
                                 </div>
                                 <div>
@@ -566,12 +567,10 @@ export function UploadForm({
                             </label>
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
                                 <Switch
-                                    checked={
-                                        form.data.settings.disablePromoCodes
-                                    }
+                                    checked={form.data.settings.disableMultiAds}
                                     onChange={(value) => {
                                         form.setData(
-                                            "settings.disablePromoCodes",
+                                            "settings.disableMultiAds",
                                             value
                                         );
                                     }}
@@ -579,11 +578,11 @@ export function UploadForm({
                                 />
                                 <div className="flex-1">
                                     <div className="mb-1 font-semibold">
-                                        Turn off promo codes
+                                        Turn off Multi-advertiser ads
                                     </div>
                                     <div className="text-xs font-medium text-gray-500">
-                                        Automatically disables promo codes for
-                                        newly created ads.
+                                        Automatically disables Multi-advertiser
+                                        ads for newly created ads.
                                     </div>
                                 </div>
                                 <div>

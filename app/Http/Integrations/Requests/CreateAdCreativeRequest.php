@@ -26,6 +26,8 @@ class CreateAdCreativeRequest extends Request implements HasBody
         public array $primaryTexts,
         public array $headlines,
         public array $descriptions,
+        public bool $disableEnhancements,
+        public bool $disableMultiAds
     ) {}
 
     public function resolveEndpoint(): string
@@ -45,17 +47,18 @@ class CreateAdCreativeRequest extends Request implements HasBody
         }
 
         $hasVariations = count($this->primaryTexts) > 1 || count($this->headlines) > 1 || count($this->descriptions) > 1;
+        $isVideo = ! is_null($this->videoId);
 
         // https://developers.facebook.com/docs/marketing-api/reference/ad-creative-object-story-spec/
-        if (! is_null($this->videoId)) {
+        if ($isVideo) {
             // Video ad creative
             // https://developers.facebook.com/docs/marketing-api/reference/ad-creative-video-data/
             $objectStorySpec['video_data'] = [
                 'image_hash' => $this->hash,
                 'video_id' => $this->videoId,
                 'message' => $this->primaryTexts[0] ?? null,
-                'name' => $this->headlines[0] ?? null,
-                'description' => $this->descriptions[0] ?? null,
+                'title' => $this->headlines[0] ?? null,
+                'link_description' => $this->descriptions[0] ?? null,
                 'call_to_action' => [
                     'type' => $this->cta,
                     'value' => [
@@ -84,11 +87,14 @@ class CreateAdCreativeRequest extends Request implements HasBody
         $data = [
             'name' => $this->name,
             'object_story_spec' => $objectStorySpec,
-            // https://developers.facebook.com/docs/marketing-api/creative/multi-advertiser-ads/
-            'contextual_multi_ads' => [
-                'enroll_status' => 'OPT_OUT',
-            ],
         ];
+
+        if ($this->disableMultiAds) {
+            // https://developers.facebook.com/docs/marketing-api/creative/multi-advertiser-ads/
+            $data['contextual_multi_ads'] = [
+                'enroll_status' => 'OPT_OUT',
+            ];
+        }
 
         if ($hasVariations) {
             $data['asset_feed_spec'] = [
@@ -96,6 +102,35 @@ class CreateAdCreativeRequest extends Request implements HasBody
                 'bodies' => collect($this->primaryTexts)->map(fn ($text) => ['text' => $text])->toArray(),
                 'titles' => collect($this->headlines)->map(fn ($text) => ['text' => $text])->toArray(),
                 'descriptions' => collect($this->descriptions)->map(fn ($text) => ['text' => $text])->toArray(),
+            ];
+        }
+
+        // Disable standard-enabled Adv+ enhancements
+        if ($this->disableEnhancements) {
+            // https://developers.facebook.com/docs/marketing-api/advantage-catalog-ads/standard-enhancements/
+            // https://developers.facebook.com/docs/marketing-api/creative/advantage-creative/get-started
+            $commonFeatures = [
+                'text_optimizations',
+                'inline_comment',
+                'enhance_cta',
+                'image_background_gen',
+                'image_templates',
+                'image_touchups',
+                'image_brightness_and_contrast',
+                'standard_enhancements_catalog',
+            ];
+
+            $videoFeatures = [
+                'video_auto_crop',
+            ];
+
+            $features = collect($commonFeatures)
+                ->merge($isVideo ? $videoFeatures : [])
+                ->mapWithKeys(fn ($feature) => [$feature => ['enroll_status' => 'OPT_OUT']])
+                ->all();
+
+            $data['degrees_of_freedom_spec'] = [
+                'creative_features_spec' => $features,
             ];
         }
 

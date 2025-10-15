@@ -33,6 +33,8 @@ class CreateAdCreative implements ShouldQueue
         public array $primaryTexts,
         public array $headlines,
         public array $descriptions,
+        public bool $disableEnhancements,
+        public bool $disableMultiAds
     ) {}
 
     /**
@@ -61,6 +63,8 @@ class CreateAdCreative implements ShouldQueue
             primaryTexts: $this->primaryTexts,
             headlines: $this->headlines,
             descriptions: $this->descriptions,
+            disableEnhancements: $this->disableEnhancements,
+            disableMultiAds: $this->disableMultiAds
         );
 
         $response = $meta->send($request)->throw();

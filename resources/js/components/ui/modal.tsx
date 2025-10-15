@@ -1,3 +1,4 @@
+import { cn } from "@/lib/cn";
 import * as Ariakit from "@ariakit/react";
 import { AnimatePresence, motion } from "motion/react";
 import { ReactNode } from "react";
@@ -7,6 +8,7 @@ interface Props {
     setOpen: (value: boolean) => void;
     children: ReactNode;
     hideOnInteractOutside?: boolean;
+    width?: string;
 }
 
 export function Modal({
@@ -14,6 +16,7 @@ export function Modal({
     setOpen,
     children,
     hideOnInteractOutside = true,
+    width = "max-w-lg",
 }: Props) {
     const dialog = Ariakit.useDialogStore({
         open,
@@ -41,7 +44,10 @@ export function Modal({
                             <div {...props} />
                         </motion.div>
                     )}
-                    className="max-w-lg w-full flex flex-col max-h-[var(--dialog-viewport-height)] py-4 outline-none"
+                    className={cn(
+                        "w-full flex flex-col max-h-[var(--dialog-viewport-height)] py-4 outline-none",
+                        width
+                    )}
                 >
                     <motion.div
                         initial={{

@@ -55,7 +55,7 @@ export function UploadProvider({ children }: PropsWithChildren) {
         settings: {
             pausedByDefault: true,
             disableEnhancements: true,
-            disablePromoCodes: true,
+            disableMultiAds: true,
         },
     });
 

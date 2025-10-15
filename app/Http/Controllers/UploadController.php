@@ -150,7 +150,7 @@ class UploadController extends Controller
                 //
                 'settings.pausedByDefault' => ['required', 'boolean'],
                 'settings.disableEnhancements' => ['required', 'boolean'],
-                'settings.disablePromoCodes' => ['required', 'boolean'],
+                'settings.disableMultiAds' => ['required', 'boolean'],
             ]);
 
             /** @var AdAccount $adAccount */
@@ -248,6 +248,8 @@ class UploadController extends Controller
                         primaryTexts: array_unique(array_filter($creative['settings']['primaryTexts'])),
                         headlines: array_unique(array_filter($creative['settings']['headlines'])),
                         descriptions: array_unique(array_filter($creative['settings']['descriptions'])),
+                        disableEnhancements: $settings['disableEnhancements'],
+                        disableMultiAds: $settings['disableMultiAds']
                     );
                     $jobs[] = new CreateAd(
                         adCreationFlow: $flow,

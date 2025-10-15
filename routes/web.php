@@ -6,6 +6,7 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetBusinessCreativesRequest;
+use App\Http\Integrations\Requests\TestRequest;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
 use App\Models\AdAccount;
@@ -53,5 +54,16 @@ Route::middleware([
         $request = $meta->send(new GetBusinessCreativesRequest($adAccount));
 
         return $request->json();
+    });
+
+    Route::get('/test', function (Request $request) {
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $meta = new MetaConnector($request->user()->connection);
+
+        $data = $meta->send(new TestRequest($adAccount));
+
+        return $data->json();
     });
 });

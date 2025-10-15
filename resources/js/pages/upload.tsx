@@ -52,7 +52,7 @@ export type UploadForm = {
     settings: {
         pausedByDefault: boolean;
         disableEnhancements: boolean;
-        disablePromoCodes: boolean;
+        disableMultiAds: boolean;
     };
 };
 

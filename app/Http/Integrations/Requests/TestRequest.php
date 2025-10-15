@@ -21,7 +21,7 @@ class TestRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return '/1464058144879597';
+        return '/1377905993437055';
     }
 
     protected function defaultQuery(): array
@@ -30,8 +30,8 @@ class TestRequest extends Request
 
         $fields = [
             'id',
-            'object_story_spec',
-            'asset_feed_spec',
+            // 'creative',
+            'degrees_of_freedom_spec',
         ];
 
         return [
