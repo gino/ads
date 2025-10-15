@@ -654,8 +654,7 @@ export function UploadedCreatives({ adSets }: Props) {
                 contents: `${creatives.length} ad${
                     creatives.length === 1 ? " is" : "s are"
                 } being launched...`,
-                description:
-                    "You can safely close this page - you'll be notified once your ads are launched",
+                description: "You can safely close this page.",
             });
             setCreatives([]);
             setAdSetGroups([]);

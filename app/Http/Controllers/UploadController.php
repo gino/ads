@@ -39,41 +39,34 @@ class UploadController extends Controller
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $adCampaignsRequest = new GetAdCampaignsRequest($adAccount);
-        $adSetsRequest = new GetAdSetsRequest($adAccount);
-        $pixelsRequest = new GetPixelsRequest($adAccount);
-
-        $pagesRequest = new GetFacebookPagesRequest($adAccount);
-
-        $targetCountriesRequest = new GetTargetingCountries;
+        $campaignId = $request->query('campaignId');
 
         return Inertia::render('upload', [
-            'campaigns' => Inertia::defer(function () use ($meta, $adCampaignsRequest) {
-                $campaigns = $meta->paginate($adCampaignsRequest)->collect();
+            'campaigns' => Inertia::defer(function () use ($meta, $adAccount) {
+                $campaigns = $meta->paginate(new GetAdCampaignsRequest($adAccount))->collect();
 
                 return AdCampaignData::collect($campaigns);
             }),
-            'adSets' => Inertia::defer(function () use ($meta, $adSetsRequest) {
-                $adSets = $meta->paginate($adSetsRequest)->collect();
+            'adSets' => Inertia::defer(function () use ($meta, $adAccount, $campaignId) {
+                $adSets = $campaignId ? $meta->paginate(new GetAdSetsRequest($adAccount, $campaignId))->collect() : [];
 
                 return AdSetData::collect($adSets);
-            }),
-            'pixels' => Inertia::defer(function () use ($meta, $pixelsRequest) {
-                $pixels = $meta->paginate($pixelsRequest)->collect();
+            }, 'adSets'),
+            'pixels' => Inertia::defer(function () use ($meta, $adAccount) {
+                $pixels = $meta->paginate(new GetPixelsRequest($adAccount))->collect();
 
                 return PixelData::collect($pixels);
-            }),
-            'countries' => Inertia::defer(function () use ($meta, $targetCountriesRequest) {
-                $countries = $meta->send($targetCountriesRequest)->json('data', []);
-
-                return TargetingCountryData::collect($countries);
-            }),
-            'pages' => Inertia::defer(function () use ($meta, $pagesRequest) {
-                // $pages = $adAccount->business_id ? $meta->paginate($pagesRequest)->collect() : [];
-                $pages = $meta->paginate($pagesRequest)->collect();
+            }, 'pixels'),
+            'pages' => Inertia::defer(function () use ($meta, $adAccount) {
+                $pages = $meta->paginate(new GetFacebookPagesRequest($adAccount))->collect();
 
                 return FacebookPageData::collect($pages);
-            }),
+            }, 'pages'),
+            'countries' => Inertia::defer(function () use ($meta) {
+                $countries = $meta->send(new GetTargetingCountries)->json('data', []);
+
+                return TargetingCountryData::collect($countries);
+            }, 'countries'),
         ]);
     }
 

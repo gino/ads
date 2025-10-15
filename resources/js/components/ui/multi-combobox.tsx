@@ -24,6 +24,7 @@ interface Props<T extends SelectItem> {
     placeholder?: string;
     onChange: (values: T["value"][]) => void;
     value: T["value"][];
+    isLoading?: boolean;
 }
 
 export function MultiCombobox<T extends SelectItem>({
@@ -32,6 +33,7 @@ export function MultiCombobox<T extends SelectItem>({
     items,
     onChange,
     value: _value,
+    isLoading,
 }: Props<T>) {
     const [isPending, startTransition] = useTransition();
     const [searchValue, setSearchValue] = useState("");
@@ -71,11 +73,21 @@ export function MultiCombobox<T extends SelectItem>({
                     {label}
                 </Ariakit.ComboboxLabel>
             )}
-            <Ariakit.Combobox
-                placeholder={placeholder}
-                autoSelect
-                className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-black/5 focus:ring-blue-100 transition duration-150 ease-in-out"
-            />
+            <div className="relative">
+                <Ariakit.Combobox
+                    placeholder={placeholder}
+                    autoSelect
+                    disabled={isLoading}
+                    className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-black/5 focus:ring-blue-100 transition duration-150 ease-in-out"
+                />
+                {isLoading && (
+                    <div className="absolute inset-0 z-10 cursor-wait">
+                        <div className="h-full rounded-lg ring-1 overflow-hidden bg-white ring-white">
+                            <div className="bg-gray-100 animate-pulse h-full"></div>
+                        </div>
+                    </div>
+                )}
+            </div>
             <Ariakit.ComboboxPopover
                 unmountOnHide
                 gutter={8}

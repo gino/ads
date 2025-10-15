@@ -355,9 +355,9 @@ export function DateFilter() {
                                         >
                                             <div
                                                 className={cn(
-                                                    "h-4 w-4 rounded-full flex items-center justify-center",
+                                                    "h-4 w-4 rounded-full flex items-center relative justify-center",
                                                     isActive
-                                                        ? "bg-brand ring-1 ring-brand"
+                                                        ? "bg-brand ring-1 ring-brand after:absolute after:-inset-px after:ring-1 after:ring-inset after:ring-black/10 after:rounded-full"
                                                         : "bg-white shadow-base"
                                                 )}
                                             >

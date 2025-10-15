@@ -23,13 +23,22 @@ class GetAdSetsRequest extends Request implements Cacheable, Paginatable
 
     protected AdAccount $adAccount;
 
-    public function __construct(AdAccount $adAccount)
-    {
+    protected ?string $campaignId;
+
+    public function __construct(
+        AdAccount $adAccount,
+        ?string $campaignId = null
+    ) {
         $this->adAccount = $adAccount;
+        $this->campaignId = $campaignId;
     }
 
     public function resolveEndpoint(): string
     {
+        if (isset($this->campaignId)) {
+            return "{$this->campaignId}/adsets";
+        }
+
         return "{$this->adAccount->external_id}/adsets";
     }
 
@@ -48,11 +57,6 @@ class GetAdSetsRequest extends Request implements Cacheable, Paginatable
 
         return [
             'fields' => implode(',', $fields),
-            // https://chatgpt.com/c/68b80a11-b3e4-8324-9516-5c6b0e08a801
-            // 'time_range' => [
-            //     'since' => $this->getFormattedDateFrom(),
-            //     'until' => $this->getFormattedDateTo(),
-            // ],
             'date_preset' => 'maximum',
         ];
     }

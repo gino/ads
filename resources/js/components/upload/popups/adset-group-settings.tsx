@@ -76,9 +76,17 @@ export function AdSetGroupSettingsPopup() {
             return [];
         }
 
-        return form.data.locations.map((value) => {
-            return props.countries.find((c) => c.countryCode === value)!;
-        });
+        const named = form.data.locations
+            .map((value) => {
+                return props.countries.find((c) => c.countryCode === value)!;
+            })
+            .filter(Boolean);
+
+        if (!(named.length > 0)) {
+            return [];
+        }
+
+        return named;
     }, [
         popupAdSetId,
         form.data.locations,
@@ -178,7 +186,7 @@ export function AdSetGroupSettingsPopup() {
                     <div>
                         <div className="mb-2 font-semibold">Locations</div>
 
-                        {form.data.locations.length > 0 && (
+                        {namedLocations.length > 0 && (
                             <div className="flex items-center flex-wrap mb-3 gap-1.5">
                                 {namedLocations.map((location) => (
                                     <div
@@ -210,6 +218,7 @@ export function AdSetGroupSettingsPopup() {
 
                         <MultiCombobox
                             placeholder="Search locations..."
+                            isLoading={isLoadingCountries}
                             items={countries}
                             value={form.data.locations}
                             onChange={(values) => {

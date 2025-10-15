@@ -42,15 +42,21 @@ export function UploadForm({
     const { form, creatives, setCreatives } = useUploadContext();
     const { selectedAdAccount } = useSelectedAdAccount();
 
-    const filteredAdSets = useMemo(() => {
-        if (!form.data.campaignId || isLoadingAdSets) {
-            return [];
-        }
-
-        return adSets.filter(
-            (adSet) => adSet.campaignId === form.data.campaignId
+    // Fetch ad sets for selected campaign
+    useEffect(() => {
+        if (!form.data.campaignId) return;
+        router.get(
+            "/upload",
+            {
+                campaignId: form.data.campaignId,
+            },
+            {
+                only: ["adSets"],
+                preserveState: true,
+                preserveUrl: true,
+            }
         );
-    }, [isLoadingAdSets, form.data.campaignId, adSets]);
+    }, [form.data.campaignId]);
 
     const filteredInstagramAccounts = useMemo(() => {
         if (!form.data.facebookPageId || isLoadingPages) {
@@ -218,18 +224,23 @@ export function UploadForm({
                         <div className="mt-5">
                             <Select
                                 label="Ad set"
+                                disabled={!form.data.campaignId}
                                 placeholder={
-                                    <div className="flex gap-3 items-center">
-                                        <div className="h-[8px] w-[8px] rounded-full border-2 border-gray-300" />
-                                        <div>Create new ad sets</div>
-                                    </div>
+                                    !form.data.campaignId ? (
+                                        "Select a campaign"
+                                    ) : (
+                                        <div className="flex gap-3 items-center">
+                                            <div className="h-[8px] w-[8px] rounded-full border-2 border-gray-300" />
+                                            <div>Create new ad sets</div>
+                                        </div>
+                                    )
                                 }
                                 value={form.data.adSetId}
                                 onChange={(value) =>
                                     form.setData("adSetId", value)
                                 }
                                 isLoading={isLoadingAdSets}
-                                items={filteredAdSets}
+                                items={adSets}
                                 getItem={(adSet) => ({
                                     value: adSet.id,
                                     label: (

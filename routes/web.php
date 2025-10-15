@@ -6,7 +6,6 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetBusinessCreativesRequest;
-use App\Http\Integrations\Requests\TestRequest;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleSelectedAdAccount;
 use App\Models\AdAccount;
@@ -50,21 +49,12 @@ Route::middleware([
 
         $meta = new MetaConnector($request->user()->connection);
 
-        $foo = $meta->paginate(new GetBusinessCreativesRequest($adAccount));
+        $paginator = $meta->paginate(new GetBusinessCreativesRequest($adAccount));
 
-        // return $foo->json('data.0.previews.data.0.body');
-        return $foo->count();
-    });
+        $request = $paginator->current();
 
-    Route::get('/test', function (Request $request) {
-        /** @var AdAccount $adAccount */
-        $adAccount = $request->adAccount();
+        return $request->json('data');
 
-        $meta = new MetaConnector($request->user()->connection);
-
-        $foo = $meta->send(new TestRequest($adAccount));
-
-        // return $foo->json('data.0.previews.data.0.body');
-        return $foo->json();
+        // 25204275622524085
     });
 });

@@ -102,14 +102,22 @@ export function AdSetGroup({
     }, [settings.locations, isExistingAdSet, existingAdSet]);
 
     const namedLocations = useMemo(() => {
-        if (!(locations.length > 0) || isLoadingCountries) {
+        if (!(locations.length > 0) || isLoadingCountries || type !== "ADSET") {
             return [];
         }
 
-        return locations.map((value) => {
-            return props.countries.find((c) => c.countryCode === value)!;
-        });
-    }, [locations, isLoadingCountries]);
+        const named = locations
+            .map((value) => {
+                return props.countries.find((c) => c.countryCode === value)!;
+            })
+            .filter(Boolean);
+
+        if (!(named.length > 0)) {
+            return [];
+        }
+
+        return named;
+    }, [locations, isLoadingCountries, type]);
 
     const minAge = useMemo(() => {
         return settings.age[0];
@@ -261,7 +269,7 @@ export function AdSetGroup({
                                 </div>
                             )}
 
-                            {locations.length > 0 && type === "ADSET" && (
+                            {namedLocations.length > 0 && type === "ADSET" && (
                                 <Tooltip
                                     content={
                                         <div className="px-3.5 py-2.5">
@@ -278,7 +286,7 @@ export function AdSetGroup({
                                                             }
                                                             className="font-semibold"
                                                         >
-                                                            {location.name}
+                                                            {location?.name}
                                                         </li>
                                                     )
                                                 )}

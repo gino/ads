@@ -1,3 +1,4 @@
+import { cn } from "@/lib/cn";
 import * as Ariakit from "@ariakit/react";
 
 interface SelectItem {
@@ -29,10 +30,13 @@ export function Radio<T extends SelectItem>({
                     >
                         <div className="relative h-4 w-4">
                             <Ariakit.Radio
-                                className="appearance-none h-full w-full rounded-full bg-white aria-[checked='true']:bg-brand aria-[checked='true']:ring-1 aria-[checked='true']:ring-brand aria-[checked='false']:shadow-base"
+                                className={cn(
+                                    "appearance-none h-full w-full rounded-full bg-white aria-[checked='true']:bg-brand aria-[checked='true']:ring-1 aria-[checked='true']:ring-brand aria-[checked='false']:shadow-base peer relative",
+                                    "after:absolute after:-inset-px after:ring-1 after:ring-inset after:ring-black/10 after:rounded-full"
+                                )}
                                 value={option.value}
                             />
-                            <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="absolute inset-0 flex items-center justify-center peer-aria-[checked='true']:opacity-100 opacity-0">
                                 <div className="h-[7px] w-[7px] bg-white rounded-full" />
                             </div>
                         </div>
