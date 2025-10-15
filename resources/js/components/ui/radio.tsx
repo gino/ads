@@ -32,7 +32,7 @@ export function Radio<T extends SelectItem>({
                             <Ariakit.Radio
                                 className={cn(
                                     "appearance-none h-full w-full rounded-full bg-white aria-[checked='true']:bg-brand aria-[checked='true']:ring-1 aria-[checked='true']:ring-brand aria-[checked='false']:shadow-base peer relative",
-                                    "after:absolute after:-inset-px after:ring-1 after:ring-inset after:ring-black/10 after:rounded-full"
+                                    "after:absolute after:-inset-px after:ring-1 after:ring-inset after:ring-black/5 after:rounded-full"
                                 )}
                                 value={option.value}
                             />

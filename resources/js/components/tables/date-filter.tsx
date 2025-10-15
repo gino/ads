@@ -324,10 +324,10 @@ export function DateFilter() {
                 }}
                 portal
                 gutter={8}
-                className="bg-gray-50 rounded-xl shadow-base-popup overflow-hidden"
+                className="bg-gray-50 rounded-2xl shadow-base-popup overflow-hidden"
             >
                 <div className="flex w-full">
-                    <div className="w-56 max-h-[380px] p-1.5 scroll-p-1.5 overflow-y-auto">
+                    <div className="w-56 max-h-[380px] p-1 scroll-p-1 shrink-0 overflow-y-auto">
                         <div className="space-y-1.5">
                             {Object.entries(presets).map(
                                 ([preset, getRange]) => {
@@ -347,7 +347,7 @@ export function DateFilter() {
                                                 apply(range);
                                             }}
                                             className={cn(
-                                                "cursor-pointer flex items-center w-full gap-3 px-3 py-2.5 text-left rounded-lg font-semibold active:scale-[0.99] transition-transform duration-100 ease-in-out",
+                                                "cursor-pointer flex items-center w-full gap-3 px-3 py-2.5 text-left rounded-xl font-semibold active:scale-[0.99] transition-transform duration-100 ease-in-out",
                                                 isActive
                                                     ? "bg-gray-100 font-semibold"
                                                     : "hover:bg-gray-100 font-semibold"
@@ -357,7 +357,7 @@ export function DateFilter() {
                                                 className={cn(
                                                     "h-4 w-4 rounded-full flex items-center relative justify-center",
                                                     isActive
-                                                        ? "bg-brand ring-1 ring-brand after:absolute after:-inset-px after:ring-1 after:ring-inset after:ring-black/10 after:rounded-full"
+                                                        ? "bg-brand ring-1 ring-brand after:absolute after:-inset-px after:ring-1 after:ring-inset after:ring-black/5 after:rounded-full"
                                                         : "bg-white shadow-base"
                                                 )}
                                             >
@@ -373,37 +373,39 @@ export function DateFilter() {
                         </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col gap-4 bg-white p-4 shadow-base rounded-l-xl">
-                        <div className="flex-1">
-                            <DatePicker
-                                selected={draftDate}
-                                setSelected={setDraftDate}
-                                month={displayMonth}
-                                onMonthChange={setDisplayMonth}
-                            />
-                        </div>
-                        <div className="flex items-center justify-end gap-2">
-                            <Button
-                                onClick={() => {
-                                    handleOpenChange(false);
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="primary"
-                                onClick={() => {
-                                    handleOpenChange(false);
+                    <div className="flex-1 p-1 pl-0">
+                        <div className="h-full w-full flex flex-col gap-4 bg-white p-4 shadow-base rounded-xl">
+                            <div className="flex-1">
+                                <DatePicker
+                                    selected={draftDate}
+                                    setSelected={setDraftDate}
+                                    month={displayMonth}
+                                    onMonthChange={setDisplayMonth}
+                                />
+                            </div>
+                            <div className="flex items-center justify-end gap-2">
+                                <Button
+                                    onClick={() => {
+                                        handleOpenChange(false);
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => {
+                                        handleOpenChange(false);
 
-                                    if (!draftDate?.from || !draftDate?.to)
-                                        return;
+                                        if (!draftDate?.from || !draftDate?.to)
+                                            return;
 
-                                    setSelectedDate(draftDate);
-                                    apply(draftDate);
-                                }}
-                            >
-                                Apply
-                            </Button>
+                                        setSelectedDate(draftDate);
+                                        apply(draftDate);
+                                    }}
+                                >
+                                    Apply
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -469,6 +471,7 @@ function DatePicker(props: {
                 ),
                 range_start: cn(
                     "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold bg-brand/10 rounded-l-lg",
+                    "[&>button]:relative [&>button]:after:absolute [&>button]:after:ring-1 [&>button]:after:inset-0 [&>button]:after:ring-black/5 [&>button]:after:ring-inset [&>button]:after:rounded-[inherit]",
                     defaultClassNames.range_start
                 ),
                 range_middle: cn(
@@ -478,6 +481,7 @@ function DatePicker(props: {
                 ),
                 range_end: cn(
                     "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold not-first:bg-brand/10 rounded-r-lg",
+                    "[&>button]:relative [&>button]:after:absolute [&>button]:after:ring-1 [&>button]:after:inset-0 [&>button]:after:ring-black/5 [&>button]:after:ring-inset [&>button]:after:rounded-[inherit]",
                     defaultClassNames.range_end
                 ),
                 today: cn(

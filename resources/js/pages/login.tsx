@@ -5,7 +5,7 @@ export default function Index() {
         <div className="flex justify-center items-center min-h-screen">
             <button
                 onClick={() => router.post("/login")}
-                className="bg-[#1877F2] flex items-center gap-3 pr-5 px-4 py-3 rounded-lg font-bold text-white cursor-pointer"
+                className="bg-[#1877F2] flex items-center gap-3 pr-5 px-4 py-3 rounded-lg font-bold text-white cursor-pointer active:scale-[0.99] transition duration-150 ease-in-out"
             >
                 <i className="text-lg fa-brands fa-facebook fa-fw" />
                 <span>Continue with Facebook</span>

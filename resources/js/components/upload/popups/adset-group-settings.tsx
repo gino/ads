@@ -229,7 +229,7 @@ function AdSetGroupSettings() {
                         >
                             <Slider.Control className="flex w-full touch-none items-center pt-4 pb-2 select-none">
                                 <Slider.Track className="h-2 w-full rounded bg-gray-100 ring-1 ring-inset ring-black/5 select-none">
-                                    <Slider.Indicator className="rounded bg-brand select-none ring-1 ring-inset ring-black/10" />
+                                    <Slider.Indicator className="rounded bg-brand select-none ring-1 ring-inset ring-black/5" />
                                     {[0, 1].map((index) => (
                                         <Slider.Thumb
                                             key={index}
