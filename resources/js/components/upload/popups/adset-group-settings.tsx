@@ -10,6 +10,7 @@ import useDeferred from "@/lib/hooks/use-deferred";
 import { AdSetGroupSettings as AdSetGroupSettingsType } from "@/pages/upload";
 import { Slider } from "@base-ui-components/react/slider";
 import { useForm, usePage } from "@inertiajs/react";
+import { isBefore, startOfDay } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
@@ -81,11 +82,19 @@ function AdSetGroupSettings() {
         return named;
     }, [form.data.locations, props.countries, isLoadingCountries]);
 
+    // Eventually move this to our existing adset settings form thing:
+    const [date, setDate] = useState<Date | null>(new Date());
+
     const isDisabled = useMemo(() => {
         const hasName = form.data.name?.trim().length > 0;
         const hasLocations = form.data.locations.length > 0;
-        return !(hasName && hasLocations);
-    }, [form.data.name, form.data.locations]);
+
+        // Consider today as valid
+        const today = startOfDay(new Date());
+        const hasStartDate = date !== null && !isBefore(date, today);
+
+        return !(hasName && hasLocations && hasStartDate);
+    }, [form.data.name, form.data.locations, date]);
 
     const minAge = useMemo(() => {
         return form.data.age[0];
@@ -136,9 +145,6 @@ function AdSetGroupSettings() {
         setPopupAdSetId,
         toast,
     ]);
-
-    // Eventually move this to our existing adset settings form thing:
-    const [date, setDate] = useState<Date | null>(new Date());
 
     return (
         <form

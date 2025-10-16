@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 import { format, isValid, parse } from "date-fns";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DayPicker as ReactDayPicker } from "react-day-picker";
 import { DatePickerComponents, getDatePickerClasses } from "./date-picker";
 import { Input } from "./input";
@@ -24,17 +24,6 @@ export function DatePickerInput({ value, onChange }: Props) {
     const [inputValue, setInputValue] = useState(
         value && isValid(value) ? format(value, formatString) : ""
     );
-
-    useEffect(() => {
-        if (value && isValid(value)) {
-            setSelectedDate(value);
-            setMonth(value);
-            setInputValue(format(value, formatString));
-        } else {
-            setSelectedDate(undefined);
-            setInputValue("");
-        }
-    }, [value]);
 
     return (
         <Ariakit.PopoverProvider
@@ -61,8 +50,10 @@ export function DatePickerInput({ value, onChange }: Props) {
                             if (isValid(parsedDate)) {
                                 setSelectedDate(parsedDate);
                                 setMonth(parsedDate);
+                                onChange(parsedDate);
                             } else {
                                 setSelectedDate(undefined);
+                                onChange(null);
                             }
                         }}
                         value={inputValue}
@@ -85,18 +76,22 @@ export function DatePickerInput({ value, onChange }: Props) {
                         if (!date) {
                             setInputValue("");
                             setSelectedDate(undefined);
+                            onChange(null);
                         } else {
                             setSelectedDate(date);
                             setMonth(date);
                             setInputValue(format(date, formatString));
+                            onChange(date);
                         }
                         setOpen(false);
                     }}
+                    weekStartsOn={1}
                     month={month}
                     selected={selectedDate}
                     onMonthChange={setMonth}
                     classNames={classNames}
                     components={DatePickerComponents}
+                    disabled={{ before: new Date() }}
                 />
             </Ariakit.Popover>
         </Ariakit.PopoverProvider>
