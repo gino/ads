@@ -10,7 +10,7 @@ export function Sidebar() {
     const { props } = usePage<SharedData>();
 
     return (
-        <aside className="flex overflow-y-auto flex-col gap-3 p-3 w-72 min-h-0 shadow-base bg-white mr-px">
+        <aside className="flex overflow-y-auto flex-col gap-3 p-3 w-72 min-h-0 bg-white">
             <div className="flex-1">
                 <div className="mb-3">
                     <AdAccountSelector adAccounts={props.adAccounts} />

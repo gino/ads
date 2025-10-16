@@ -1,4 +1,3 @@
-import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { Head } from "@inertiajs/react";
 import { PropsWithChildren } from "react";
 import { Sidebar } from "../sidebar/sidebar";
@@ -8,7 +7,17 @@ interface Props extends PropsWithChildren {
 }
 
 export function Layout({ title, children }: Props) {
-    const { selectedAdAccount } = useSelectedAdAccount();
+    return (
+        <div className="flex h-screen">
+            <Head title={title} />
+            <Sidebar />
+            <main className="overflow-hidden flex-1 flex flex-col p-2 pl-0 bg-white">
+                <div className="bg-gray-50 ml-px ring-1 ring-black/[0.06] rounded-2xl p-3 flex-1 min-h-0 overflow-y-auto">
+                    {children}
+                </div>
+            </main>
+        </div>
+    );
 
     return (
         <div className="flex h-screen">
@@ -33,7 +42,6 @@ export function Layout({ title, children }: Props) {
                         </div>
                     </div>
                 </div> */}
-
                 <div className="p-5 flex-1 min-h-0 overflow-y-auto">
                     {children}
                 </div>
