@@ -23,14 +23,10 @@ import {
     subMonths,
 } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
-import {
-    DateRange,
-    getDefaultClassNames,
-    OnSelectHandler,
-    DayPicker as ReactDayPicker,
-} from "react-day-picker";
+import { DateRange, DayPicker as ReactDayPicker } from "react-day-picker";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Button } from "../ui/button";
+import { DatePickerComponents, getDatePickerClasses } from "../ui/date-picker";
 import { isRangeEqual } from "./utils";
 
 const presets = {
@@ -106,6 +102,9 @@ export function DateFilter() {
         props: { ziggy },
     } = usePage<SharedData>();
     const [open, setOpen] = useState(false);
+
+    const classNames = getDatePickerClasses();
+
     const [displayMonth, setDisplayMonth] = useState<Date | undefined>(
         undefined
     );
@@ -376,11 +375,25 @@ export function DateFilter() {
                     <div className="flex-1 p-1 pl-0">
                         <div className="h-full w-full flex flex-col gap-4 bg-white p-4 shadow-base rounded-xl">
                             <div className="flex-1">
-                                <DatePicker
+                                {/* <DatePicker
                                     selected={draftDate}
                                     setSelected={setDraftDate}
                                     month={displayMonth}
                                     onMonthChange={setDisplayMonth}
+                                /> */}
+
+                                <ReactDayPicker
+                                    mode="range"
+                                    numberOfMonths={2}
+                                    selected={draftDate}
+                                    onSelect={setDraftDate}
+                                    month={displayMonth}
+                                    onMonthChange={setDisplayMonth}
+                                    weekStartsOn={1}
+                                    required
+                                    disabled={{ after: new Date() }}
+                                    classNames={classNames}
+                                    components={DatePickerComponents}
                                 />
                             </div>
                             <div className="flex items-center justify-end gap-2">
@@ -411,117 +424,5 @@ export function DateFilter() {
                 </div>
             </Ariakit.Popover>
         </Ariakit.PopoverProvider>
-    );
-}
-
-function DatePicker(props: {
-    selected: DateRange | undefined;
-    setSelected: OnSelectHandler<DateRange>;
-    month?: Date;
-    onMonthChange?: (month: Date) => void;
-}) {
-    const defaultClassNames = getDefaultClassNames();
-
-    return (
-        <ReactDayPicker
-            mode="range"
-            numberOfMonths={2}
-            selected={props.selected}
-            onSelect={props.setSelected}
-            month={props.month}
-            onMonthChange={props.onMonthChange}
-            weekStartsOn={1}
-            required
-            disabled={{ after: new Date() }}
-            classNames={{
-                root: cn("w-fit", defaultClassNames.root),
-                months: cn(
-                    "flex gap-4 flex-col md:flex-row relative",
-                    defaultClassNames.months
-                ),
-                month: cn(
-                    "flex flex-col w-full gap-4",
-                    defaultClassNames.month
-                ),
-                nav: cn(
-                    "flex items-center gap-1 w-full absolute top-0 inset-x-0 justify-between",
-                    defaultClassNames.nav
-                ),
-                month_caption: cn(
-                    "flex items-center justify-center font-semibold h-6 w-full",
-                    defaultClassNames.month_caption
-                ),
-                table: "w-full border-collapse",
-                weekdays: cn("flex", defaultClassNames.weekdays),
-                weekday: cn(
-                    "rounded-lg flex-1 select-none font-semibold text-gray-500 text-[12px]",
-                    defaultClassNames.weekday
-                ),
-                week: cn("flex w-full mt-2", defaultClassNames.week),
-                week_number_header: cn(
-                    "select-none",
-                    defaultClassNames.week_number_header
-                ),
-                week_number: cn("select-none", defaultClassNames.week_number),
-                day: cn(
-                    "relative p-0 text-center group/day aspect-square flex items-center font-medium justify-center select-none h-8 w-8 [&>button]:cursor-pointer text-xs hover:not-data-[selected=true]:bg-gray-100 hover:not-data-[selected=true]:rounded-lg",
-                    // "[&:first-child[data-selected=true]_button]:rounded-l-lg [&:last-child[data-selected=true]_button]:rounded-r-lg",
-                    "[&>button]:w-full [&>button]:h-full",
-                    defaultClassNames.day
-                ),
-                range_start: cn(
-                    "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold bg-brand/10 rounded-l-lg",
-                    "[&>button]:relative [&>button]:after:absolute [&>button]:after:ring-1 [&>button]:after:inset-0 [&>button]:after:ring-black/5 [&>button]:after:ring-inset [&>button]:after:rounded-[inherit]",
-                    defaultClassNames.range_start
-                ),
-                range_middle: cn(
-                    "bg-brand/10",
-                    "[&:first-child:not(:empty)]:rounded-l-lg [&:last-child:not(:empty)]:rounded-r-lg",
-                    defaultClassNames.range_middle
-                ),
-                range_end: cn(
-                    "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold not-first:bg-brand/10 rounded-r-lg",
-                    "[&>button]:relative [&>button]:after:absolute [&>button]:after:ring-1 [&>button]:after:inset-0 [&>button]:after:ring-black/5 [&>button]:after:ring-inset [&>button]:after:rounded-[inherit]",
-                    defaultClassNames.range_end
-                ),
-                today: cn(
-                    "not-data-[selected=true]:text-brand not-data-[selected=true]:rounded-lg font-semibold",
-                    defaultClassNames.today
-                ),
-                outside: cn(
-                    "aria-selected:text-muted-foreground",
-                    defaultClassNames.outside
-                ),
-                disabled: cn(
-                    "text-gray-400 [&>button]:!cursor-not-allowed",
-                    defaultClassNames.disabled
-                ),
-                hidden: cn("invisible", defaultClassNames.hidden),
-            }}
-            components={{
-                PreviousMonthButton: ({ className, ...props }) => (
-                    <button
-                        {...props}
-                        className={cn(
-                            className,
-                            "bg-white rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-[11px] shadow-base flex items-center justify-center h-6 w-6"
-                        )}
-                    >
-                        <i className="fa-solid fa-angle-left" />
-                    </button>
-                ),
-                NextMonthButton: ({ className, ...props }) => (
-                    <button
-                        {...props}
-                        className={cn(
-                            className,
-                            "bg-white rounded-md cursor-pointer active:scale-[0.99] transition-transform duration-100 ease-in-out text-[11px] shadow-base flex items-center justify-center h-6 w-6"
-                        )}
-                    >
-                        <i className="fa-solid fa-angle-right" />
-                    </button>
-                ),
-            }}
-        />
     );
 }

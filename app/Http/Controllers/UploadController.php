@@ -177,6 +177,7 @@ class UploadController extends Controller
 
             // $scheduledAt = now()->addMinutes(5);
             $scheduledAt = null;
+            // We just wanna use the default adset-level scheduling that is also possible through Meta Ad dashboard
 
             $flow = AdCreationFlow::create([
                 'adSets' => $mappedAdSets,
@@ -259,10 +260,6 @@ class UploadController extends Controller
                         pausedByDefault: $settings['pausedByDefault']
                     );
                 }
-            }
-
-            if ($scheduledAt && count($jobs)) {
-                $jobs[0]->delay($scheduledAt);
             }
 
             $jobs[] = new AdCreationFlowCompleted(

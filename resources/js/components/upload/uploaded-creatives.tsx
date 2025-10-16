@@ -656,8 +656,8 @@ export function UploadedCreatives({ adSets }: Props) {
                 } being launched...`,
                 description: "You can safely close this page.",
             });
-            setCreatives([]);
-            setAdSetGroups([]);
+            // setCreatives([]);
+            // setAdSetGroups([]);
             router.reload({ only: ["adSets"] });
         } catch (err: any) {
             console.error(err);

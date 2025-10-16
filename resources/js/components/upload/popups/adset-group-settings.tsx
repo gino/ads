@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
@@ -9,7 +10,7 @@ import useDeferred from "@/lib/hooks/use-deferred";
 import { AdSetGroupSettings as AdSetGroupSettingsType } from "@/pages/upload";
 import { Slider } from "@base-ui-components/react/slider";
 import { useForm, usePage } from "@inertiajs/react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
 function AdSetGroupSettings() {
@@ -136,6 +137,9 @@ function AdSetGroupSettings() {
         toast,
     ]);
 
+    // Eventually move this to our existing adset settings form thing:
+    const [date, setDate] = useState<Date | null>(new Date());
+
     return (
         <form
             onSubmit={(e) => {
@@ -155,6 +159,12 @@ function AdSetGroupSettings() {
                         onChange={(e) => form.setData("name", e.target.value)}
                         required
                     />
+                </label>
+            </div>
+            <div className="p-5 border-b border-gray-100">
+                <label>
+                    <span className="block mb-2 font-semibold">Start date</span>
+                    <DatePickerInput value={date} onChange={setDate} />
                 </label>
             </div>
             <div className="p-5 border-b border-gray-100">
