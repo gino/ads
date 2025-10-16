@@ -192,6 +192,7 @@ export function AdSetGroup({
                                                     isAbleToEdit &&
                                                         "cursor-text peer"
                                                 )}
+                                                title={label}
                                             >
                                                 {label}
                                             </span>
@@ -261,7 +262,7 @@ export function AdSetGroup({
                             )}
 
                             {isAgeModified && type === "ADSET" && (
-                                <div className="font-semibold text-blue-950 bg-blue-500/10 text-[12px] px-2 pl-1.5 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-blue-900/10">
+                                <div className="font-semibold text-rose-950 bg-rose-500/10 text-[12px] px-2 pl-1.5 inline-flex items-center rounded-full leading-5 ring-1 ring-inset ring-rose-900/10">
                                     <i className="fa-regular fa-user mr-1 text-[10px]" />
                                     <span>
                                         {minAge} - {maxAge}

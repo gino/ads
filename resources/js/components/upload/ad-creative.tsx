@@ -161,6 +161,9 @@ export function AdCreative({
                                             onDoubleClick={() => {
                                                 setEditingLabel(true);
                                             }}
+                                            title={
+                                                creative.label || creative.name
+                                            }
                                             className="truncate cursor-text peer"
                                         >
                                             {creative.label || creative.name}

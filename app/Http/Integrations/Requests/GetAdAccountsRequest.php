@@ -28,6 +28,9 @@ class GetAdAccountsRequest extends Request implements Paginatable
             'account_status',
             'currency',
             'business{id}',
+            //
+            'default_dsa_payor',
+            'default_dsa_beneficiary',
         ];
 
         return [

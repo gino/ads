@@ -104,8 +104,7 @@ class AuthController extends Controller
         $meta = new MetaConnector($connection);
         $paginator = $meta->paginate(new GetAdAccountsRequest);
 
-        $collection = $paginator->collect();
-        $results = $collection->map(function ($entry) use ($connection) {
+        return $paginator->collect()->map(function ($entry) use ($connection) {
             return [
                 'external_id' => $entry['id'],
                 'name' => $entry['name'],
@@ -114,9 +113,7 @@ class AuthController extends Controller
                 'connection_id' => $connection->id,
                 'business_id' => $entry['business']['id'] ?? null,
             ];
-        });
-
-        return $results->all();
+        })->all();
     }
 
     public function selectAdAccount(Request $request)
