@@ -83,7 +83,7 @@ export default function Upload({ campaigns, adSets, pixels, pages }: Props) {
         <Layout title="Upload">
             {/* We're resetting the full component state since a lot of data depend on this selected ad account - easiest and best way */}
             <UploadProvider key={selectedAdAccountId}>
-                <div className="grid grid-cols-2 h-full gap-2.5">
+                <div className="grid grid-cols-2 h-full gap-3">
                     <UploadForm
                         campaigns={campaigns}
                         adSets={adSets}
