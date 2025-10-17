@@ -33,6 +33,7 @@ export type AdSetGroupSettings = {
     locations: string[];
     age: [number, number];
     gender: "all" | "men" | "women";
+    startDate: Date | null;
 };
 
 export type AdSetGroup = {

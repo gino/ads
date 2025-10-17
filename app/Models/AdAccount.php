@@ -17,6 +17,8 @@ class AdAccount extends Model
         'connection_id',
         'status',
         'business_id',
+        'timezone',
+        'timezone_offset_utc',
     ];
 
     public function connection()

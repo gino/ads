@@ -22,4 +22,8 @@ class AdAccountData extends Data
     public string $externalId;
 
     public ?string $businessId;
+
+    public string $timezone;
+
+    public float $timezoneOffsetUtc;
 }

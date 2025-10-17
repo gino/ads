@@ -17,7 +17,6 @@ class AdCreationFlow extends Model
         'ad_account_id',
         'completed_at',
         'started_at',
-        'scheduled_at',
     ];
 
     protected $casts = [

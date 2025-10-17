@@ -78,6 +78,8 @@ class AuthController extends Controller
             'currency',
             'status',
             'business_id',
+            'timezone',
+            'timezone_offset_utc',
         ]);
 
         Auth::login($user);
@@ -104,6 +106,8 @@ class AuthController extends Controller
         $meta = new MetaConnector($connection);
         $paginator = $meta->paginate(new GetAdAccountsRequest);
 
+        // dd($paginator->collect()->all());
+
         return $paginator->collect()->map(function ($entry) use ($connection) {
             return [
                 'external_id' => $entry['id'],
@@ -112,6 +116,8 @@ class AuthController extends Controller
                 'status' => $entry['account_status'],
                 'connection_id' => $connection->id,
                 'business_id' => $entry['business']['id'] ?? null,
+                'timezone' => $entry['timezone_name'],
+                'timezone_offset_utc' => $entry['timezone_offset_hours_utc'],
             ];
         })->all();
     }

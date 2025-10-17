@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('currency');
             $table->integer('status');
+            $table->string('timezone');
+            $table->decimal('timezone_offset_utc', 4, 2);
             $table->string('business_id')->nullable();
             $table->foreignUlid('connection_id')->index();
             $table->timestamps();

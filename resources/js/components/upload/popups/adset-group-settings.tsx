@@ -11,8 +11,8 @@ import useDeferred from "@/lib/hooks/use-deferred";
 import { AdSetGroupSettings as AdSetGroupSettingsType } from "@/pages/upload";
 import { Slider } from "@base-ui-components/react/slider";
 import { useForm, usePage } from "@inertiajs/react";
-import { addHours, formatDistanceToNowStrict } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { formatDistanceToNowStrict } from "date-fns";
+import { useCallback, useMemo } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
 function AdSetGroupSettings() {
@@ -36,13 +36,14 @@ function AdSetGroupSettings() {
         data: ["countries"],
     });
 
-    const { locations, age, gender } = getSettings(popupAdSetId!);
+    const { locations, age, gender, startDate } = getSettings(popupAdSetId!);
 
     const form = useForm<AdSetGroupSettingsType & { name: string }>({
         name: adSetGroup?.label || "",
         locations,
         age,
         gender,
+        startDate,
     });
 
     const countries = useMemo(() => {
@@ -83,13 +84,8 @@ function AdSetGroupSettings() {
         return named;
     }, [form.data.locations, props.countries, isLoadingCountries]);
 
-    // Eventually move this to our existing adset settings form thing:
-    const [date, setDate] = useState<Date | null>(() => {
-        return addHours(new Date(), 1);
-    });
-
     const nowUntilDate = useMemo(() => {
-        if (!date) return null;
+        if (!form.data.startDate) return null;
 
         const FUTURE_BUFFER_MINUTES = 5;
         const now = new Date();
@@ -97,24 +93,25 @@ function AdSetGroupSettings() {
             now.getTime() + FUTURE_BUFFER_MINUTES * 60 * 1000
         );
 
-        if (date < bufferTime) {
+        if (form.data.startDate < bufferTime) {
             return null;
         }
 
-        return formatDistanceToNowStrict(date, {
+        return formatDistanceToNowStrict(form.data.startDate, {
             addSuffix: true,
         });
-    }, [date]);
+    }, [form.data.startDate]);
 
     const isDisabled = useMemo(() => {
         const hasName = form.data.name?.trim().length > 0;
         const hasLocations = form.data.locations.length > 0;
 
         const hasStartDate =
-            date !== null && date.getTime() > new Date().getTime();
+            form.data.startDate !== null &&
+            form.data.startDate.getTime() > new Date().getTime();
 
         return !(hasName && hasLocations && hasStartDate);
-    }, [form.data.name, form.data.locations, date]);
+    }, [form.data.name, form.data.locations, form.data.startDate]);
 
     const minAge = useMemo(() => {
         return form.data.age[0];
@@ -142,6 +139,7 @@ function AdSetGroupSettings() {
         updateSetting(popupAdSetId!, "locations", form.data.locations);
         updateSetting(popupAdSetId!, "age", form.data.age);
         updateSetting(popupAdSetId!, "gender", form.data.gender);
+        updateSetting(popupAdSetId!, "startDate", form.data.startDate);
         setPopupAdSetId(null);
 
         if (form.isDirty) {
@@ -198,8 +196,14 @@ function AdSetGroupSettings() {
                         )}
                     </div>
                     <div className="grid grid-cols-2 gap-2.5">
-                        <DatePickerInput value={date} onChange={setDate} />
-                        <TimeInput value={date} onChange={setDate} />
+                        <DatePickerInput
+                            value={form.data.startDate}
+                            onChange={(date) => form.setData("startDate", date)}
+                        />
+                        <TimeInput
+                            value={form.data.startDate}
+                            onChange={(date) => form.setData("startDate", date)}
+                        />
                     </div>
                 </label>
             </div>

@@ -126,6 +126,7 @@ class UploadController extends Controller
                 'adSets.*.settings.age' => ['required', 'array'],
                 'adSets.*.settings.age.*' => ['required', 'numeric'],
                 'adSets.*.settings.gender' => ['required', 'string', 'in:all,men,women'],
+                'adSets.*.settings.startDate*' => ['required', 'date'],
                 //
                 'adSets.*.creatives' => ['required', 'array'],
                 'adSets.*.creatives.*.id' => ['required', 'string'],
@@ -175,15 +176,10 @@ class UploadController extends Controller
                 ])->toArray(),
             ])->toArray();
 
-            // $scheduledAt = now()->addMinutes(5);
-            $scheduledAt = null;
-            // We just wanna use the default adset-level scheduling that is also possible through Meta Ad dashboard
-
             $flow = AdCreationFlow::create([
                 'adSets' => $mappedAdSets,
                 'user_id' => $user->id,
                 'ad_account_id' => $adAccount->id,
-                'scheduled_at' => $scheduledAt,
             ]);
 
             $jobs = [];
@@ -200,6 +196,7 @@ class UploadController extends Controller
                             minAge: $adSet['settings']['age'][0],
                             maxAge: $adSet['settings']['age'][1],
                             gender: $adSet['settings']['gender'],
+                            // startDate:
                         ),
                         campaignId: $campaignId,
                         pixelId: $pixelId

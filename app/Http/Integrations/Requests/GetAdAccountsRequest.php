@@ -31,6 +31,9 @@ class GetAdAccountsRequest extends Request implements Paginatable
             //
             'default_dsa_payor',
             'default_dsa_beneficiary',
+            //
+            'timezone_name',
+            'timezone_offset_hours_utc',
         ];
 
         return [
