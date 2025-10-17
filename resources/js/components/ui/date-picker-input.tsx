@@ -10,8 +10,7 @@ const formatString = "dd/MM/yyyy";
 interface Props {
     value: Date | null;
     onChange: (value: Date | null) => void;
-    // utc offset in hours for the ad account timezone (e.g., +2, -5)
-    utcOffset?: number;
+    utcOffset: number;
 }
 
 export function DatePickerInput({ value, onChange, utcOffset }: Props) {

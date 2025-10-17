@@ -197,7 +197,7 @@ class UploadController extends Controller
                             minAge: $adSet['settings']['age'][0],
                             maxAge: $adSet['settings']['age'][1],
                             gender: $adSet['settings']['gender'],
-                            startDate: Carbon::parse($adSet['settings']['startDate'])->subHours($adAccount->timezone_offset_utc)
+                            startDate: Carbon::parse($adSet['settings']['startDate'])
                         ),
                         campaignId: $campaignId,
                         pixelId: $pixelId

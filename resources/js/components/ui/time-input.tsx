@@ -4,8 +4,7 @@ import { Input } from "./input";
 interface Props {
     value: Date | null;
     onChange: (date: Date) => void;
-    // utc offset in hours for the ad account timezone (e.g., +2, -5)
-    utcOffset?: number;
+    utcOffset: number;
 }
 
 export function TimeInput({ value, onChange, utcOffset }: Props) {
@@ -58,8 +57,10 @@ export function TimeInput({ value, onChange, utcOffset }: Props) {
             <div className="absolute top-1/2 -translate-y-1/2 left-3 pointer-events-none">
                 <i className="fa-regular fa-clock text-xs text-gray-400" />
             </div>
-            <div className="absolute top-1/2 -translate-y-1/2 right-3 pointer-events-none">
-                <span>TODO</span>
+            <div className="absolute top-1/2 -translate-y-1/2 right-3.5 pointer-events-none">
+                <span className="font-semibold text-gray-500">
+                    GMT{utcOffset >= 0 ? `+${utcOffset}` : `-${utcOffset}`}
+                </span>
             </div>
         </div>
     );

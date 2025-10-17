@@ -189,7 +189,6 @@ function AdSetGroupSettings() {
                             utcOffset={selectedAdAccount.timezoneOffsetUtc}
                         />
                     </div>
-                    {JSON.stringify(form.data.startDate)}
                 </label>
             </div>
             <div className="p-5 border-b border-gray-100">
