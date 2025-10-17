@@ -1,5 +1,5 @@
 import * as Ariakit from "@ariakit/react";
-import { format, isValid, parse } from "date-fns";
+import { format, isValid, parse, startOfDay } from "date-fns";
 import { useEffect, useState } from "react";
 import { DayPicker as ReactDayPicker } from "react-day-picker";
 import { DatePickerComponents, getDatePickerClasses } from "./date-picker";
@@ -10,31 +10,61 @@ const formatString = "dd/MM/yyyy";
 interface Props {
     value: Date | null;
     onChange: (value: Date | null) => void;
+    // utc offset in hours for the ad account timezone (e.g., +2, -5)
+    utcOffset?: number;
 }
 
-export function DatePickerInput({ value, onChange }: Props) {
+export function DatePickerInput({ value, onChange, utcOffset }: Props) {
     const [open, setOpen] = useState(false);
 
     const classNames = getDatePickerClasses();
 
-    const [month, setMonth] = useState(value ?? new Date());
+    // Compute shift (in minutes) so that local browser Date methods render in the ad account timezone
+    const browserOffsetMinutes = -new Date().getTimezoneOffset();
+    const accountOffsetMinutes =
+        utcOffset != null ? Math.round(utcOffset * 60) : undefined;
+    const shiftMinutes =
+        accountOffsetMinutes != null
+            ? accountOffsetMinutes - browserOffsetMinutes
+            : 0;
+
+    const toDisplayDate = (date: Date | null): Date | null => {
+        if (!date) return null;
+        return new Date(date.getTime() + shiftMinutes * 60_000);
+    };
+
+    const fromDisplayDate = (date: Date | null): Date | null => {
+        if (!date) return null;
+        return new Date(date.getTime() - shiftMinutes * 60_000);
+    };
+
+    const displayValue = toDisplayDate(value);
+    const displayNowStartOfDay = startOfDay(
+        new Date(Date.now() + shiftMinutes * 60_000)
+    );
+
+    const [month, setMonth] = useState(displayValue ?? new Date());
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-        value ?? undefined
+        displayValue ?? undefined
     );
     const [inputValue, setInputValue] = useState(
-        value && isValid(value) ? format(value, formatString) : ""
+        displayValue && isValid(displayValue)
+            ? format(displayValue, formatString)
+            : ""
     );
 
     useEffect(() => {
-        if (value && isValid(value)) {
-            setSelectedDate(value);
-            setMonth(value);
-            setInputValue(format(value, formatString));
+        const nextDisplay = toDisplayDate(value);
+        if (nextDisplay && isValid(nextDisplay)) {
+            setSelectedDate(nextDisplay);
+            setMonth(nextDisplay);
+            setInputValue(format(nextDisplay, formatString));
         } else {
             setSelectedDate(undefined);
             setInputValue("");
         }
-    }, [value]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value, utcOffset]);
 
     return (
         <Ariakit.PopoverProvider
@@ -60,9 +90,10 @@ export function DatePickerInput({ value, onChange }: Props) {
                                 );
 
                                 if (isValid(parsedDate)) {
+                                    // interpret parsed local date as account timezone date
                                     setSelectedDate(parsedDate);
                                     setMonth(parsedDate);
-                                    onChange(parsedDate);
+                                    onChange(fromDisplayDate(parsedDate));
                                 } else {
                                     setSelectedDate(undefined);
                                     onChange(null);
@@ -98,7 +129,7 @@ export function DatePickerInput({ value, onChange }: Props) {
                             setSelectedDate(date);
                             setMonth(date);
                             setInputValue(format(date, formatString));
-                            onChange(date);
+                            onChange(fromDisplayDate(date));
                         }
                         setOpen(false);
                     }}
@@ -108,7 +139,7 @@ export function DatePickerInput({ value, onChange }: Props) {
                     onMonthChange={setMonth}
                     classNames={classNames}
                     components={DatePickerComponents}
-                    disabled={{ before: new Date() }}
+                    disabled={{ before: displayNowStartOfDay }}
                 />
             </Ariakit.Popover>
         </Ariakit.PopoverProvider>

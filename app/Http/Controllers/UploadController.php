@@ -22,6 +22,7 @@ use App\Jobs\UploadAdCreative;
 use App\Jobs\UploadAdVideoCreative;
 use App\Models\AdAccount;
 use App\Models\AdCreationFlow;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
@@ -196,7 +197,7 @@ class UploadController extends Controller
                             minAge: $adSet['settings']['age'][0],
                             maxAge: $adSet['settings']['age'][1],
                             gender: $adSet['settings']['gender'],
-                            // startDate:
+                            startDate: Carbon::parse($adSet['settings']['startDate'])->subHours($adAccount->timezone_offset_utc)
                         ),
                         campaignId: $campaignId,
                         pixelId: $pixelId

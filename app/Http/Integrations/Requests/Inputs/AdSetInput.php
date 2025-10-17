@@ -2,6 +2,7 @@
 
 namespace App\Http\Integrations\Requests\Inputs;
 
+use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 
 class AdSetInput extends Data
@@ -13,5 +14,6 @@ class AdSetInput extends Data
         public int $minAge,
         public int $maxAge,
         public string $gender,
+        public Carbon $startDate,
     ) {}
 }

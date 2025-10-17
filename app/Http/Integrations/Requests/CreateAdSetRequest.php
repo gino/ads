@@ -46,7 +46,7 @@ class CreateAdSetRequest extends Request implements HasBody
             'optimization_goal' => 'OFFSITE_CONVERSIONS',
             'bid_strategy' => 'LOWEST_COST_WITHOUT_CAP',
             // https://developers.facebook.com/docs/marketing-api/reference/ad-campaign/#Creating
-            'start_time' => '2025-10-17 16:00:00',
+            'start_time' => $this->adSet->startDate,
             'promoted_object' => [
                 'pixel_id' => $this->pixelId,
                 'custom_event_type' => 'PURCHASE',

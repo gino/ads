@@ -8,14 +8,16 @@ import { TimeInput } from "@/components/ui/time-input";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import useDeferred from "@/lib/hooks/use-deferred";
+import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { AdSetGroupSettings as AdSetGroupSettingsType } from "@/pages/upload";
 import { Slider } from "@base-ui-components/react/slider";
 import { useForm, usePage } from "@inertiajs/react";
-import { formatDistanceToNowStrict } from "date-fns";
 import { useCallback, useMemo } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
 function AdSetGroupSettings() {
+    const { selectedAdAccount } = useSelectedAdAccount();
+
     const {
         popupAdSetId,
         setPopupAdSetId,
@@ -83,24 +85,6 @@ function AdSetGroupSettings() {
 
         return named;
     }, [form.data.locations, props.countries, isLoadingCountries]);
-
-    const nowUntilDate = useMemo(() => {
-        if (!form.data.startDate) return null;
-
-        const FUTURE_BUFFER_MINUTES = 5;
-        const now = new Date();
-        const bufferTime = new Date(
-            now.getTime() + FUTURE_BUFFER_MINUTES * 60 * 1000
-        );
-
-        if (form.data.startDate < bufferTime) {
-            return null;
-        }
-
-        return formatDistanceToNowStrict(form.data.startDate, {
-            addSuffix: true,
-        });
-    }, [form.data.startDate]);
 
     const isDisabled = useMemo(() => {
         const hasName = form.data.name?.trim().length > 0;
@@ -189,22 +173,23 @@ function AdSetGroupSettings() {
                 <label>
                     <div className="flex items-center justify-between mb-2">
                         <div className="font-semibold">Start date</div>
-                        {nowUntilDate && (
-                            <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
-                                {nowUntilDate}
-                            </div>
-                        )}
+                        <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                            {selectedAdAccount.timezone}
+                        </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2.5">
                         <DatePickerInput
                             value={form.data.startDate}
                             onChange={(date) => form.setData("startDate", date)}
+                            utcOffset={selectedAdAccount.timezoneOffsetUtc}
                         />
                         <TimeInput
                             value={form.data.startDate}
                             onChange={(date) => form.setData("startDate", date)}
+                            utcOffset={selectedAdAccount.timezoneOffsetUtc}
                         />
                     </div>
+                    {JSON.stringify(form.data.startDate)}
                 </label>
             </div>
             <div className="p-5 border-b border-gray-100">
