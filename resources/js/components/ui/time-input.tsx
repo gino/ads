@@ -52,13 +52,13 @@ export function TimeInput({ value, onChange, utcOffset }: Props) {
                 type="time"
                 value={formatTime(value)}
                 onChange={handleChange}
-                className="pl-10 pr-10 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                className="pl-10 pr-17 appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
             />
             <div className="absolute top-1/2 -translate-y-1/2 left-3 pointer-events-none">
                 <i className="fa-regular fa-clock text-xs text-gray-400" />
             </div>
             <div className="absolute top-1/2 -translate-y-1/2 right-3.5 pointer-events-none">
-                <span className="font-semibold text-gray-500">
+                <span className="font-semibold text-gray-400 text-xs">
                     GMT{utcOffset >= 0 ? `+${utcOffset}` : `-${utcOffset}`}
                 </span>
             </div>
