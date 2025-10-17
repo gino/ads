@@ -531,11 +531,11 @@ export function UploadForm({
                                         instead of the active state.
                                     </div>
                                 </div>
-                                <div>
+                                {/* <div>
                                     <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5">
                                         Recommended
                                     </div>
-                                </div>
+                                </div> */}
                             </label>
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
                                 <Switch

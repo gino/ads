@@ -1,6 +1,6 @@
 import * as Ariakit from "@ariakit/react";
 import { format, isValid, parse } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DayPicker as ReactDayPicker } from "react-day-picker";
 import { DatePickerComponents, getDatePickerClasses } from "./date-picker";
 import { Input } from "./input";
@@ -25,6 +25,17 @@ export function DatePickerInput({ value, onChange }: Props) {
         value && isValid(value) ? format(value, formatString) : ""
     );
 
+    useEffect(() => {
+        if (value && isValid(value)) {
+            setSelectedDate(value);
+            setMonth(value);
+            setInputValue(format(value, formatString));
+        } else {
+            setSelectedDate(undefined);
+            setInputValue("");
+        }
+    }, [value]);
+
     return (
         <Ariakit.PopoverProvider
             open={open}
@@ -34,32 +45,38 @@ export function DatePickerInput({ value, onChange }: Props) {
             <Ariakit.PopoverDisclosure
                 toggleOnClick={false}
                 render={(props) => (
-                    <Input
-                        onFocus={() => {
-                            setOpen(true);
-                        }}
-                        onChange={(e) => {
-                            setInputValue(e.target.value);
+                    <div className="relative">
+                        <Input
+                            onFocus={() => {
+                                setOpen(true);
+                            }}
+                            onChange={(e) => {
+                                setInputValue(e.target.value);
 
-                            const parsedDate = parse(
-                                e.target.value,
-                                formatString,
-                                new Date()
-                            );
+                                const parsedDate = parse(
+                                    e.target.value,
+                                    formatString,
+                                    new Date()
+                                );
 
-                            if (isValid(parsedDate)) {
-                                setSelectedDate(parsedDate);
-                                setMonth(parsedDate);
-                                onChange(parsedDate);
-                            } else {
-                                setSelectedDate(undefined);
-                                onChange(null);
-                            }
-                        }}
-                        value={inputValue}
-                        placeholder={formatString.toLowerCase()}
-                        {...props}
-                    />
+                                if (isValid(parsedDate)) {
+                                    setSelectedDate(parsedDate);
+                                    setMonth(parsedDate);
+                                    onChange(parsedDate);
+                                } else {
+                                    setSelectedDate(undefined);
+                                    onChange(null);
+                                }
+                            }}
+                            value={inputValue}
+                            placeholder={formatString.toLowerCase()}
+                            className="pl-10"
+                            {...props}
+                        />
+                        <div className="absolute top-1/2 -translate-y-1/2 left-3 pointer-events-none">
+                            <i className="fa-regular fa-calendar text-xs text-gray-400" />
+                        </div>
+                    </div>
                 )}
             />
             <Ariakit.Popover

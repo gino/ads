@@ -5,7 +5,7 @@ export const getDatePickerClasses = (): PropsBase["classNames"] => {
     const defaultClassNames = getDefaultClassNames();
 
     return {
-        root: cn("w-fit", defaultClassNames.root),
+        root: cn("w-fit group/root", defaultClassNames.root),
         months: cn(
             "flex gap-4 flex-col md:flex-row relative",
             defaultClassNames.months
@@ -33,7 +33,6 @@ export const getDatePickerClasses = (): PropsBase["classNames"] => {
         week_number: cn("select-none", defaultClassNames.week_number),
         day: cn(
             "relative p-0 text-center group/day aspect-square flex items-center font-medium justify-center select-none h-8 w-8 [&>button]:cursor-pointer text-xs hover:not-data-[selected=true]:bg-gray-100 hover:not-data-[selected=true]:rounded-lg",
-            // "[&:first-child[data-selected=true]_button]:rounded-l-lg [&:last-child[data-selected=true]_button]:rounded-r-lg",
             "[&>button]:w-full [&>button]:h-full",
             defaultClassNames.day
         ),
@@ -43,8 +42,8 @@ export const getDatePickerClasses = (): PropsBase["classNames"] => {
             defaultClassNames.range_start
         ),
         selected: cn(
-            "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold bg-brand/10 rounded-lg",
-            "[&>button]:relative [&>button]:after:absolute [&>button]:after:ring-1 [&>button]:after:inset-0 [&>button]:after:ring-black/5 [&>button]:after:ring-inset [&>button]:after:rounded-[inherit]",
+            "group-data-[mode='single']/root:[&>button]:bg-brand group-data-[mode='single']/root:[&>button]:text-white group-data-[mode='single']/root:[&>button]:rounded-lg group-data-[mode='single']/root:[&>button]:font-semibold group-data-[mode='single']/root:bg-brand/10 group-data-[mode='single']/root:rounded-lg",
+            "group-data-[mode='single']/root:[&>button]:relative group-data-[mode='single']/root:[&>button]:after:absolute group-data-[mode='single']/root:[&>button]:after:ring-1 group-data-[mode='single']/root:[&>button]:after:inset-0 group-data-[mode='single']/root:[&>button]:after:ring-black/5 group-data-[mode='single']/root:[&>button]:after:ring-inset group-data-[mode='single']/root:[&>button]:after:rounded-[inherit]",
             defaultClassNames.selected
         ),
         range_middle: cn(

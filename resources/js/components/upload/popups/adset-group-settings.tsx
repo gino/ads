@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { MultiCombobox } from "@/components/ui/multi-combobox";
 import { Radio } from "@/components/ui/radio";
+import { TimeInput } from "@/components/ui/time-input";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import useDeferred from "@/lib/hooks/use-deferred";
 import { AdSetGroupSettings as AdSetGroupSettingsType } from "@/pages/upload";
 import { Slider } from "@base-ui-components/react/slider";
 import { useForm, usePage } from "@inertiajs/react";
-import { isBefore, startOfDay } from "date-fns";
+import { addHours, formatDistanceToNowStrict } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
 
@@ -83,15 +84,34 @@ function AdSetGroupSettings() {
     }, [form.data.locations, props.countries, isLoadingCountries]);
 
     // Eventually move this to our existing adset settings form thing:
-    const [date, setDate] = useState<Date | null>(new Date());
+    const [date, setDate] = useState<Date | null>(() => {
+        return addHours(new Date(), 1);
+    });
+
+    const nowUntilDate = useMemo(() => {
+        if (!date) return null;
+
+        const FUTURE_BUFFER_MINUTES = 5;
+        const now = new Date();
+        const bufferTime = new Date(
+            now.getTime() + FUTURE_BUFFER_MINUTES * 60 * 1000
+        );
+
+        if (date < bufferTime) {
+            return null;
+        }
+
+        return formatDistanceToNowStrict(date, {
+            addSuffix: true,
+        });
+    }, [date]);
 
     const isDisabled = useMemo(() => {
         const hasName = form.data.name?.trim().length > 0;
         const hasLocations = form.data.locations.length > 0;
 
-        // Consider today as valid
-        const today = startOfDay(new Date());
-        const hasStartDate = date !== null && !isBefore(date, today);
+        const hasStartDate =
+            date !== null && date.getTime() > new Date().getTime();
 
         return !(hasName && hasLocations && hasStartDate);
     }, [form.data.name, form.data.locations, date]);
@@ -169,8 +189,18 @@ function AdSetGroupSettings() {
             </div>
             <div className="p-5 border-b border-gray-100">
                 <label>
-                    <span className="block mb-2 font-semibold">Start date</span>
-                    <DatePickerInput value={date} onChange={setDate} />
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="font-semibold">Start date</div>
+                        {nowUntilDate && (
+                            <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
+                                {nowUntilDate}
+                            </div>
+                        )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2.5">
+                        <DatePickerInput value={date} onChange={setDate} />
+                        <TimeInput value={date} onChange={setDate} />
+                    </div>
                 </label>
             </div>
             <div className="p-5 border-b border-gray-100">

@@ -22,7 +22,7 @@ export function Radio<T extends SelectItem>({
             value={value}
             setValue={(value) => onChange(value as T["value"])}
         >
-            <Ariakit.RadioGroup className="flex items-center gap-2 justify-between">
+            <Ariakit.RadioGroup className="flex items-center gap-2.5 justify-between">
                 {options.map((option) => (
                     <label
                         key={option.value}

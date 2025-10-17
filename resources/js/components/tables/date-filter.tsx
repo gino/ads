@@ -375,13 +375,6 @@ export function DateFilter() {
                     <div className="flex-1 p-1 pl-0">
                         <div className="h-full w-full flex flex-col gap-4 bg-white p-4 shadow-base rounded-xl">
                             <div className="flex-1">
-                                {/* <DatePicker
-                                    selected={draftDate}
-                                    setSelected={setDraftDate}
-                                    month={displayMonth}
-                                    onMonthChange={setDisplayMonth}
-                                /> */}
-
                                 <ReactDayPicker
                                     mode="range"
                                     numberOfMonths={2}

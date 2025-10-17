@@ -53,7 +53,7 @@ export function UploadProvider({ children }: PropsWithChildren) {
         facebookPageId: "",
         instagramPageId: "",
         settings: {
-            pausedByDefault: true,
+            pausedByDefault: false,
             disableEnhancements: true,
             disableMultiAds: true,
         },
