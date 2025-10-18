@@ -1,7 +1,7 @@
 import { Layout } from "@/components/layouts/app-layout";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { SharedData } from "@/types";
-import { router, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 
 export default function Index() {
     const user = useAuth();
@@ -19,12 +19,6 @@ export default function Index() {
                             2
                         )}
                     </pre>
-                    <button
-                        className="cursor-pointer"
-                        onClick={() => router.post(route("logout"))}
-                    >
-                        logout
-                    </button>
                 </div>
             </div>
         </Layout>
