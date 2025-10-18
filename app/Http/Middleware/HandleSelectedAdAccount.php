@@ -33,10 +33,14 @@ class HandleSelectedAdAccount
 
         if (! $currentId || ! $selectable) {
             $currentId = $adAccounts->first()?->id;
+
+            // There's one edge case to be aware of: if the user selected an ad account that later becomes inactive or gets deleted, your middleware will fall back to the first available account. But the database still has the old last_selected_ad_account_id.
+            if ($currentId !== $request->user()->last_selected_ad_account_id) {
+                $request->user()->update(['last_selected_ad_account_id' => $currentId]);
+            }
         }
 
         $request->session()->put($sessionKey, $currentId);
-        $request->user()->update(['last_selected_ad_account_id' => $currentId]);
 
         Inertia::share('selectedAdAccountId', fn () => $request->session()->get($sessionKey));
         Inertia::share('adAccounts', fn () => AdAccountData::collect($adAccounts));

@@ -59,7 +59,7 @@ export function TimeInput({ value, onChange, utcOffset }: Props) {
             </div>
             <div className="absolute top-1/2 -translate-y-1/2 right-3.5 pointer-events-none">
                 <span className="font-semibold text-gray-400 text-xs">
-                    GMT{utcOffset >= 0 ? `+${utcOffset}` : `-${utcOffset}`}
+                    UTC{utcOffset >= 0 ? `+${utcOffset}` : `-${utcOffset}`}
                 </span>
             </div>
         </div>

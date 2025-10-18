@@ -8,6 +8,7 @@ import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay, useSensor } from "@dnd-kit/core";
 import { router } from "@inertiajs/react";
 import axios from "axios";
+import { addHours } from "date-fns";
 import { motion } from "motion/react";
 import {
     createContext,
@@ -66,7 +67,7 @@ export const defaultAdSetSettings: AdSetGroupSettings = {
     locations: ["US"],
     age: [18, 65],
     gender: "all",
-    startDate: new Date(),
+    startDate: addHours(new Date(), 1),
 };
 
 interface Props {

@@ -11,41 +11,81 @@ interface InsightSums {
     roas: number;
 }
 
-// https://chatgpt.com/c/68b827eb-ee6c-8330-9d88-6fe48c10b6b8
+/**
+ * Safely divides two numbers, returning NaN if the result would be invalid
+ * (division by zero, infinity, or no valid data)
+ */
+function safeDivide(numerator: number, denominator: number): number {
+    // If numerator is 0 and denominator is 0, there's no meaningful data
+    if (numerator === 0 && denominator === 0) {
+        return NaN;
+    }
+
+    // If only denominator is 0, prevent division by zero
+    if (denominator === 0) {
+        return NaN;
+    }
+
+    const result = numerator / denominator;
+
+    // Check for infinity or invalid results
+    if (!isFinite(result)) {
+        return NaN;
+    }
+
+    return result;
+}
 
 export function aggregateInsights<
     T extends { insights: App.Data.InsightsData | null }[]
 >(data: T): InsightSums {
-    if (!data) {
+    // Return all NaN if no data provided
+    if (!data || data.length === 0) {
         return {
-            spend: 0,
-            cpc: 0,
-            cpm: 0,
-            ctr: 0,
-            clicks: 0,
-            impressions: 0,
-            atc: 0,
-            conversions: 0,
-            cpa: 0,
-            roas: 0,
+            spend: NaN,
+            cpc: NaN,
+            cpm: NaN,
+            ctr: NaN,
+            clicks: NaN,
+            impressions: NaN,
+            atc: NaN,
+            conversions: NaN,
+            cpa: NaN,
+            roas: NaN,
         };
     }
 
-    const spend = data.reduce((a, b) => a + (b.insights?.spend || 0), 0);
-    const clicks = data.reduce((a, b) => a + (b.insights?.clicks || 0), 0);
+    // Aggregate raw metrics
+    const spend = data.reduce(
+        (acc, item) => acc + (item.insights?.spend || 0),
+        0
+    );
+    const clicks = data.reduce(
+        (acc, item) => acc + (item.insights?.clicks || 0),
+        0
+    );
     const impressions = data.reduce(
-        (a, b) => a + (b.insights?.impressions || 0),
+        (acc, item) => acc + (item.insights?.impressions || 0),
         0
     );
-    const cpc = spend / clicks;
-    const cpm = (spend / impressions) * 1000;
-    const ctr = (clicks / impressions) * 100;
-    const atc = data.reduce((a, b) => a + (b.insights?.atc || 0), 0);
+    const atc = data.reduce((acc, item) => acc + (item.insights?.atc || 0), 0);
     const conversions = data.reduce(
-        (a, b) => a + (b.insights?.conversions || 0),
+        (acc, item) => acc + (item.insights?.conversions || 0),
         0
     );
-    const cpa = Math.min(spend / conversions, 0);
+
+    // TODO: Couldn't do this yet:
+    // https://chatgpt.com/c/68f34920-b504-832c-b433-7b87fbc454c6
+    // const revenue = data.reduce((acc, item) => acc + (item.insights?.revenue || 0), 0);
+
+    // Calculate derived metrics safely
+    const cpc = safeDivide(spend, clicks);
+    const cpm = safeDivide(spend, impressions) * 1000;
+    const ctr = safeDivide(clicks, impressions) * 100;
+    const cpa = safeDivide(spend, conversions);
+
+    // const roas = safeDivide(revenue, spend);
+    const roas = 0;
 
     return {
         spend,
@@ -57,6 +97,6 @@ export function aggregateInsights<
         atc,
         conversions,
         cpa,
-        roas: 0,
+        roas,
     };
 }

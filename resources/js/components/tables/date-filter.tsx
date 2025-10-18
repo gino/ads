@@ -169,7 +169,7 @@ export function DateFilter() {
             formatted = format(selectedDate.from, formatStr);
         } else {
             // At this point, selectedDate.to is defined
-            formatted = `${format(selectedDate.from, formatStr)} - ${format(
+            formatted = `${format(selectedDate.from, formatStr)} — ${format(
                 selectedDate.to as Date,
                 formatStr
             )}`;

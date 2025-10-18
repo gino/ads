@@ -129,7 +129,14 @@ class AuthController extends Controller
         ]);
 
         $request->session()->put('selected_ad_account_id', $validated['ad_account_id']);
+        $request->user()->update(['last_selected_ad_account_id' => $validated['ad_account_id']]);
 
-        return redirect()->back();
+        // This one preserves query params, not sure if we want that:
+        // return redirect()->back();
+
+        $previous = url()->previous(); // e.g. https://yourapp.com/campaigns?from=...
+        $path = parse_url($previous, PHP_URL_PATH); // gives "/campaigns"
+
+        return redirect($path);
     }
 }
