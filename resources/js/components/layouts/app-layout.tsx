@@ -12,7 +12,7 @@ export function Layout({ title, children }: Props) {
             <Head title={title} />
             <Sidebar />
             <main className="overflow-hidden flex-1 flex flex-col p-2 pl-0 bg-white">
-                <div className="bg-gray-50 ml-px ring-1 ring-black/[0.06] rounded-2xl p-3 flex-1 min-h-0 overflow-y-auto">
+                <div className="bg-gray-50 ml-px ring-1 ring-black/[0.06] rounded-2xl flex-1 min-h-0 overflow-hidden">
                     {children}
                 </div>
             </main>

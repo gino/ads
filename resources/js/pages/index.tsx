@@ -10,20 +10,22 @@ export default function Index() {
 
     return (
         <Layout title="Dashboard">
-            <div className="bg-white shadow-base p-5 rounded-xl overflow-y-auto max-h-full">
-                <pre className="font-sans text-xs">
-                    {JSON.stringify(
-                        { user, adAccounts: props.adAccounts },
-                        null,
-                        2
-                    )}
-                </pre>
-                <button
-                    className="cursor-pointer"
-                    onClick={() => router.post(route("logout"))}
-                >
-                    logout
-                </button>
+            <div className="p-3 h-full overflow-y-auto">
+                <div className="bg-white shadow-base p-5 rounded-xl">
+                    <pre className="font-sans text-xs">
+                        {JSON.stringify(
+                            { user, adAccounts: props.adAccounts },
+                            null,
+                            2
+                        )}
+                    </pre>
+                    <button
+                        className="cursor-pointer"
+                        onClick={() => router.post(route("logout"))}
+                    >
+                        logout
+                    </button>
+                </div>
             </div>
         </Layout>
     );

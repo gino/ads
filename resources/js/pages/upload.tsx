@@ -83,26 +83,28 @@ export default function Upload({ campaigns, adSets, pixels, pages }: Props) {
 
     return (
         <Layout title="Upload">
-            {/* We're resetting the full component state since a lot of data depend on this selected ad account - easiest and best way */}
-            <UploadProvider key={selectedAdAccountId}>
-                <div className="grid grid-cols-2 h-full gap-3">
-                    <UploadForm
-                        campaigns={campaigns}
-                        adSets={adSets}
-                        pixels={pixels}
-                        pages={pages}
-                        //
-                        isLoadingCampaigns={isLoadingCampaigns}
-                        isLoadingAdSets={isLoadingAdSets}
-                        isLoadingPixels={isLoadingPixels}
-                        isLoadingPages={isLoadingPages}
-                    />
+            <div className="p-3 h-full overflow-y-auto">
+                {/* We're resetting the full component state since a lot of data depend on this selected ad account - easiest and best way */}
+                <UploadProvider key={selectedAdAccountId}>
+                    <div className="grid grid-cols-2 h-full gap-3">
+                        <UploadForm
+                            campaigns={campaigns}
+                            adSets={adSets}
+                            pixels={pixels}
+                            pages={pages}
+                            //
+                            isLoadingCampaigns={isLoadingCampaigns}
+                            isLoadingAdSets={isLoadingAdSets}
+                            isLoadingPixels={isLoadingPixels}
+                            isLoadingPages={isLoadingPages}
+                        />
 
-                    <UploadedCreatives adSets={adSets} />
-                </div>
+                        <UploadedCreatives adSets={adSets} />
+                    </div>
 
-                <AdCreativeSettingsPopup />
-            </UploadProvider>
+                    <AdCreativeSettingsPopup />
+                </UploadProvider>
+            </div>
         </Layout>
     );
 }
