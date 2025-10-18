@@ -41,7 +41,9 @@ export function Sidebar() {
                         Analytics
                     </SidebarItem>
                     <SidebarItem icon="fa-circle-nodes">Events</SidebarItem>
-                    <SidebarItem icon="fa-cog">Settings</SidebarItem>
+                    <SidebarItem icon="fa-cog" href="dashboard.settings">
+                        Settings
+                    </SidebarItem>
                 </div>
             </div>
             <div className="flex flex-col gap-3">

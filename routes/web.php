@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CampaignsController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
 use App\Http\Integrations\MetaConnector;
@@ -40,6 +41,8 @@ Route::middleware([
     Route::patch('/campaigns/status', [CampaignsController::class, 'updateCampaignStatus'])->name('campaigns.status.update');
     Route::patch('/adsets/status', [CampaignsController::class, 'updateAdSetStatus'])->name('adSets.status.update');
     Route::patch('/ads/status', [CampaignsController::class, 'updateAdStatus'])->name('ads.status.update');
+
+    Route::get('/settings', [SettingsController::class, 'index'])->name('dashboard.settings');
 
     Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
