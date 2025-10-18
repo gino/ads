@@ -146,6 +146,7 @@ class UploadController extends Controller
                 //
                 'hasSelectedAdSet' => ['required', 'boolean'],
                 'campaignId' => ['required', 'string'],
+                'websiteUrl' => ['nullable', 'string', 'url'],
                 'pixelId' => ['required', 'string'],
                 'facebookPageId' => ['required', 'string'],
                 'instagramPageId' => ['nullable', 'string'],
@@ -153,6 +154,8 @@ class UploadController extends Controller
                 'settings.pausedByDefault' => ['required', 'boolean'],
                 'settings.disableEnhancements' => ['required', 'boolean'],
                 'settings.disableMultiAds' => ['required', 'boolean'],
+                //
+                'utmParameters' => ['nullable', 'string'],
             ]);
 
             /** @var AdAccount $adAccount */
@@ -162,11 +165,13 @@ class UploadController extends Controller
 
             $adSets = $validated['adSets'];
             $campaignId = $validated['campaignId'];
+            $websiteUrl = $validated['websiteUrl'];
             $pixelId = $validated['pixelId'];
             $facebookPageId = $validated['facebookPageId'];
             $instagramPageId = $validated['instagramPageId'];
             $settings = $validated['settings'];
             $hasSelectedAdSet = $validated['hasSelectedAdSet'];
+            $utmParameters = $validated['utmParameters'];
 
             $mappedAdSets = collect($validated['adSets'])->map(fn ($adSet) => [
                 'id' => $hasSelectedAdSet ? $adSet['id'] : null,
@@ -242,13 +247,15 @@ class UploadController extends Controller
                         creativeIndex: $creativeIndex,
                         label: $creative['label'],
                         facebookPageId: $facebookPageId,
+                        websiteUrl: is_null($websiteUrl) ? 'https://google.com' : $websiteUrl, // TODO: Get default from ad account settings if null
                         instagramPageId: $instagramPageId,
                         cta: $creative['settings']['cta'],
                         primaryTexts: array_unique(array_filter($creative['settings']['primaryTexts'])),
                         headlines: array_unique(array_filter($creative['settings']['headlines'])),
                         descriptions: array_unique(array_filter($creative['settings']['descriptions'])),
                         disableEnhancements: $settings['disableEnhancements'],
-                        disableMultiAds: $settings['disableMultiAds']
+                        disableMultiAds: $settings['disableMultiAds'],
+                        utmParameters: $utmParameters ?? null
                     );
                     $jobs[] = new CreateAd(
                         adCreationFlow: $flow,

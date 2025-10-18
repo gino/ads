@@ -57,6 +57,8 @@ export function UploadProvider({ children }: PropsWithChildren) {
             disableEnhancements: true,
             disableMultiAds: true,
         },
+        utmParameters:
+            "utm_campaign={{campaign.id}}&utm_ad_group={{adset.id}}&utm_ad={{ad.id}}&utm_source=meta",
     });
 
     const [creatives, setCreatives] = useState<UploadedCreative[]>([]);

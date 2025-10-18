@@ -27,7 +27,8 @@ class CreateAdCreativeRequest extends Request implements HasBody
         public array $headlines,
         public array $descriptions,
         public bool $disableEnhancements,
-        public bool $disableMultiAds
+        public bool $disableMultiAds,
+        public ?string $utmParameters
     ) {}
 
     public function resolveEndpoint(): string
@@ -132,6 +133,10 @@ class CreateAdCreativeRequest extends Request implements HasBody
             $data['degrees_of_freedom_spec'] = [
                 'creative_features_spec' => $features,
             ];
+        }
+
+        if (! is_null($this->utmParameters)) {
+            $data['url_tags'] = $this->utmParameters;
         }
 
         // https://developers.facebook.com/docs/marketing-api/reference/ad-creative#fields

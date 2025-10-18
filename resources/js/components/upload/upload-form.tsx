@@ -306,6 +306,13 @@ export function UploadForm({
                                 <Input
                                     type="text"
                                     placeholder="Use default website URL"
+                                    value={form.data.websiteUrl}
+                                    onChange={(e) =>
+                                        form.setData(
+                                            "websiteUrl",
+                                            e.target.value
+                                        )
+                                    }
                                 />
                             </label>
                         </div>
@@ -497,6 +504,25 @@ export function UploadForm({
                                 <GoogleDriveButton />
                             </div>
                         </div>
+                    </div>
+
+                    <div className="p-5 border-t border-gray-100">
+                        <label>
+                            <span className="block mb-2 font-semibold">
+                                UTM Parameters
+                            </span>
+                            <Input
+                                type="text"
+                                placeholder="utm_campaign={{campaign.id}}&utm_ad_group={{adset.id}}&utm_ad={{ad.id}}&utm_source=meta"
+                                value={form.data.utmParameters}
+                                onChange={(e) => {
+                                    form.setData(
+                                        "utmParameters",
+                                        e.target.value
+                                    );
+                                }}
+                            />
+                        </label>
                     </div>
 
                     <div className="p-5 border-t border-gray-100">

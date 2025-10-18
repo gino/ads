@@ -28,13 +28,15 @@ class CreateAdCreative implements ShouldQueue
         public int $creativeIndex,
         public string $label,
         public string $facebookPageId,
+        public string $websiteUrl,
         public ?string $instagramPageId,
         public string $cta,
         public array $primaryTexts,
         public array $headlines,
         public array $descriptions,
         public bool $disableEnhancements,
-        public bool $disableMultiAds
+        public bool $disableMultiAds,
+        public ?string $utmParameters,
     ) {}
 
     /**
@@ -59,12 +61,13 @@ class CreateAdCreative implements ShouldQueue
             facebookPageId: $this->facebookPageId,
             instagramPageId: $this->instagramPageId ?? null,
             cta: $this->cta,
-            url: 'https://google.com',
+            url: $this->websiteUrl,
             primaryTexts: $this->primaryTexts,
             headlines: $this->headlines,
             descriptions: $this->descriptions,
             disableEnhancements: $this->disableEnhancements,
-            disableMultiAds: $this->disableMultiAds
+            disableMultiAds: $this->disableMultiAds,
+            utmParameters: $this->utmParameters
         );
 
         $response = $meta->send($request)->throw();

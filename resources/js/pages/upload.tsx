@@ -55,6 +55,7 @@ export type UploadForm = {
         disableEnhancements: boolean;
         disableMultiAds: boolean;
     };
+    utmParameters: string;
 };
 
 interface Props {

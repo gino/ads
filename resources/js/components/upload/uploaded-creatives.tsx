@@ -644,10 +644,12 @@ export function UploadedCreatives({ adSets }: Props) {
                 }),
                 hasSelectedAdSet,
                 campaignId: form.data.campaignId,
+                websiteUrl: form.data.websiteUrl,
                 pixelId: form.data.pixelId,
                 facebookPageId: form.data.facebookPageId,
                 instagramPageId: form.data.instagramPageId,
                 settings: form.data.settings,
+                utmParameters: form.data.utmParameters,
             });
 
             sonnerToast.dismiss(toastId);
@@ -680,10 +682,12 @@ export function UploadedCreatives({ adSets }: Props) {
         hasSelectedAdSet,
         selectedAdSet,
         form.data.campaignId,
+        form.data.websiteUrl,
         form.data.pixelId,
         form.data.facebookPageId,
         form.data.instagramPageId,
         form.data.settings,
+        form.data.utmParameters,
         setIsLoading,
         setCreatives,
         setAdSetGroups,
