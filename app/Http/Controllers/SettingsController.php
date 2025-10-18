@@ -6,8 +6,8 @@ use Inertia\Inertia;
 
 class SettingsController extends Controller
 {
-    public function index()
+    public function account()
     {
-        return Inertia::render('settings/index');
+        return Inertia::render('settings/account');
     }
 }

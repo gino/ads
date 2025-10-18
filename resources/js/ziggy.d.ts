@@ -85,6 +85,7 @@ declare module 'ziggy-js' {
     "adSets.status.update": [],
     "ads.status.update": [],
     "dashboard.settings": [],
+    "dashboard.settings.account": [],
     "select-ad-account": [],
     "logout": [],
     "storage.local": [

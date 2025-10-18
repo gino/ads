@@ -1,16 +1,21 @@
-import { Layout } from "@/components/layouts/app-layout";
+import { Layout as AppLayout } from "@/components/layouts/app-layout";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { router } from "@inertiajs/react";
+import { ComponentProps, PropsWithChildren } from "react";
 
-export default function Settings() {
+interface Props extends PropsWithChildren, ComponentProps<typeof AppLayout> {
+    //
+}
+
+export function Layout({ children, ...props }: Props) {
     const { selectedAdAccount } = useSelectedAdAccount();
 
     return (
-        <Layout title="Settings">
+        <AppLayout {...props}>
             <div className="flex flex-1 min-h-0 h-full">
                 <div className="w-80 p-1 shrink-0">
                     <div className="bg-white shadow-base rounded-xl h-full flex flex-col overflow-y-auto">
-                        <div className="p-1.5 flex-1">
+                        <div className="p-1.5 flex-1 flex flex-col">
                             <div className="space-y-1.5">
                                 <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-gray-100 hover:ring-gray-100 cursor-pointer items-center gap-3 group">
                                     <span className="flex-1">Account</span>
@@ -66,20 +71,16 @@ export default function Settings() {
                                 </button>
                                 <button
                                     onClick={() => router.post(route("logout"))}
-                                    className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-red-900/5 hover:ring-red-900/5 cursor-pointer items-center gap-3 group"
+                                    className="text-red-800 font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-red-900/5 hover:ring-red-900/5 cursor-pointer items-center gap-3 group"
                                 >
-                                    <span className="text-red-800 flex-1">
-                                        Log out
-                                    </span>
+                                    <span className="flex-1">Log out</span>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="flex-1 p-3 overflow-y-auto">
-                    {/* <div>yeet</div> */}
-                </div>
+                <div className="flex-1 overflow-y-auto">{children}</div>
             </div>
-        </Layout>
+        </AppLayout>
     );
 }

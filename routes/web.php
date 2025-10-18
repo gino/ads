@@ -42,7 +42,8 @@ Route::middleware([
     Route::patch('/adsets/status', [CampaignsController::class, 'updateAdSetStatus'])->name('adSets.status.update');
     Route::patch('/ads/status', [CampaignsController::class, 'updateAdStatus'])->name('ads.status.update');
 
-    Route::get('/settings', [SettingsController::class, 'index'])->name('dashboard.settings');
+    Route::redirect('/settings', '/settings/account')->name('dashboard.settings');
+    Route::get('/settings/account', [SettingsController::class, 'account'])->name('dashboard.settings.account');
 
     Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
