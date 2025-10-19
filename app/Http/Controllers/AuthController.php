@@ -125,7 +125,7 @@ class AuthController extends Controller
                 'business_id' => $entry['business']['id'] ?? null,
                 'timezone' => $entry['timezone_name'],
                 'timezone_offset_utc' => $entry['timezone_offset_hours_utc'],
-                'permissions' => json_encode($entry['user_tasks']),
+                'permissions' => json_encode($entry['user_tasks'] ?? []),
             ];
         })->all();
     }

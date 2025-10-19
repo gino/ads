@@ -18,7 +18,7 @@ class AdAccountData extends Data
 
     public string $currency;
 
-    public string $status;
+    public bool $isActive;
 
     public string $externalId;
 

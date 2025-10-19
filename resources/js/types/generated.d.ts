@@ -3,7 +3,7 @@ export type AdAccountData = {
 id: string;
 name: string;
 currency: string;
-status: string;
+isActive: boolean;
 externalId: string;
 businessId: string | null;
 timezone: string;

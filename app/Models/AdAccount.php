@@ -26,6 +26,8 @@ class AdAccount extends Model
         'permissions' => 'array',
     ];
 
+    protected $appends = ['isActive'];
+
     public function connection()
     {
         return $this->belongsTo(Connection::class);
@@ -36,7 +38,7 @@ class AdAccount extends Model
         return $this->hasMany(AdCreationFlow::class);
     }
 
-    public function isActive()
+    public function getIsActiveAttribute()
     {
         return $this->status === 'active' && $this->canAdvertise();
     }

@@ -8,11 +8,10 @@ interface Props {
     adAccounts: App.Data.AdAccountData[];
 }
 
-export default function Account({ adAccounts }: Props) {
+export default function AdAccounts({ adAccounts }: Props) {
     const sortedAdAccounts = useMemo(() => {
         return adAccounts.sort(
-            (a, b) =>
-                Number(a.status !== "active") - Number(b.status !== "active")
+            (a, b) => Number(b.isActive) - Number(a.isActive)
         );
     }, [adAccounts]);
 
@@ -32,16 +31,13 @@ export default function Account({ adAccounts }: Props) {
                                     {sortedAdAccounts.map((adAccount) => (
                                         <div
                                             key={adAccount.id}
-                                            aria-disabled={
-                                                adAccount.status !== "active"
-                                            }
+                                            aria-disabled={!adAccount.isActive}
                                             className="px-5 py-4.5 grid grid-cols-3 items-center gap-3 group aria-disabled:[&>*]:opacity-50"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <div className="w-[16px] self-start">
-                                                    {adAccount.status !==
-                                                    "active" ? (
-                                                        <i className="fa-solid fa-triangle-exclamation text-red-800 text-xs fa-fw" />
+                                                    {!adAccount.isActive ? (
+                                                        <i className="fa-solid fa-triangle-exclamation text-red-800 text-xs fa-fw mt-1" />
                                                     ) : (
                                                         <i className="fa-brands fa-meta text-[12px] text-[#0081FB] fa-fw" />
                                                     )}
@@ -97,21 +93,13 @@ export default function Account({ adAccounts }: Props) {
                                 </div>
 
                                 <div className="flex justify-end mt-5 items-center gap-2">
-                                    {/* <Button
+                                    <Button
                                         onClick={() => {
-                                            router.reload({
-                                                only: ["adAccounts"],
-                                                onStart: () =>
-                                                    setIsLoading(true),
-                                                onFinish: () =>
-                                                    setIsLoading(false),
-                                            });
+                                            router.get(route("reauthenticate"));
                                         }}
-                                        disabled={isLoading}
-                                        variant="secondary"
                                     >
                                         Refresh accounts
-                                    </Button> */}
+                                    </Button>
                                     <Button
                                         onClick={() => {
                                             router.get(route("reauthenticate"));

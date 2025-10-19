@@ -28,7 +28,7 @@ class HandleSelectedAdAccount
         }
 
         $selectable = $adAccounts->contains(function ($adAccount) use ($currentId) {
-            return $adAccount->id === $currentId && $adAccount->isActive();
+            return $adAccount->id === $currentId && $adAccount->isActive;
         });
 
         if (! $currentId || ! $selectable) {

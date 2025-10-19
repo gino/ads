@@ -80,7 +80,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                     <Ariakit.SelectItem
                         key={adAccount.id}
                         value={adAccount.id}
-                        disabled={adAccount.status !== "active"}
+                        disabled={!adAccount.isActive}
                         className="data-[active-item]:bg-gray-100 px-3 py-2.5 rounded-lg cursor-pointer font-semibold gap-3 flex items-start group aria-disabled:opacity-50"
                     >
                         <div className="w-[16px]">
@@ -97,9 +97,9 @@ export function AdAccountSelector({ adAccounts }: Props) {
                             </div>
                         </div>
                         <div>
-                            {adAccount.status !== "active" ? (
+                            {!adAccount.isActive ? (
                                 <span className="font-semibold bg-gray-100 text-[12px] px-2 capitalize inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
-                                    {adAccount.status}
+                                    Inactive
                                 </span>
                             ) : (
                                 <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[active-item]:bg-gray-200">
