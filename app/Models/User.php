@@ -39,4 +39,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(AdCreationFlow::class);
     }
+
+    public function adAccounts()
+    {
+        return $this->hasManyThrough(AdAccount::class, Connection::class)->latest();
+    }
 }

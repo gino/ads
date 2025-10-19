@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('currency');
             $table->integer('status');
             $table->string('timezone');
+            $table->json('permissions')->default('[]');
             $table->decimal('timezone_offset_utc', 4, 2);
             $table->string('business_id')->nullable();
             $table->foreignUlid('connection_id')->index();

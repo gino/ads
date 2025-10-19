@@ -10,6 +10,7 @@ use App\Models\Connection;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -40,6 +41,13 @@ class AuthController extends Controller
         Auth::logout();
 
         return to_route('login');
+    }
+
+    public function reauthenticate()
+    {
+        Redirect::setIntendedUrl('/settings/ad-accounts');
+
+        return $this->login();
     }
 
     public function callback()
@@ -80,6 +88,7 @@ class AuthController extends Controller
             'business_id',
             'timezone',
             'timezone_offset_utc',
+            'permissions',
         ]);
 
         Auth::login($user);
@@ -106,8 +115,6 @@ class AuthController extends Controller
         $meta = new MetaConnector($connection);
         $paginator = $meta->paginate(new GetAdAccountsRequest);
 
-        // dd($paginator->collect()->all());
-
         return $paginator->collect()->map(function ($entry) use ($connection) {
             return [
                 'external_id' => $entry['id'],
@@ -118,6 +125,7 @@ class AuthController extends Controller
                 'business_id' => $entry['business']['id'] ?? null,
                 'timezone' => $entry['timezone_name'],
                 'timezone_offset_utc' => $entry['timezone_offset_hours_utc'],
+                'permissions' => json_encode($entry['user_tasks']),
             ];
         })->all();
     }

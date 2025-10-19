@@ -17,7 +17,7 @@ class HandleSelectedAdAccount
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $adAccounts = $request->user()->connection->adAccounts()->get();
+        $adAccounts = $request->user()->adAccounts()->get();
 
         $sessionKey = 'selected_ad_account_id';
         $currentId = $request->session()->get($sessionKey);

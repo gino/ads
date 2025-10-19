@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import * as Ariakit from "@ariakit/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
     adAccounts: App.Data.AdAccountData[];
@@ -34,6 +34,12 @@ export function AdAccountSelector({ adAccounts }: Props) {
 
     const [value, setValue] = useState(selectedAdAccountId);
     const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        if (!selectedAdAccountId) return;
+
+        setValue(selectedAdAccountId);
+    }, [selectedAdAccountId, setValue]);
 
     return (
         <Ariakit.SelectProvider

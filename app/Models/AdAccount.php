@@ -19,6 +19,11 @@ class AdAccount extends Model
         'business_id',
         'timezone',
         'timezone_offset_utc',
+        'permissions',
+    ];
+
+    protected $casts = [
+        'permissions' => 'array',
     ];
 
     public function connection()
@@ -33,7 +38,12 @@ class AdAccount extends Model
 
     public function isActive()
     {
-        return $this->status === 'active';
+        return $this->status === 'active' && $this->canAdvertise();
+    }
+
+    public function canAdvertise()
+    {
+        return in_array('ADVERTISE', $this->permissions);
     }
 
     public function getStatusAttribute($status)

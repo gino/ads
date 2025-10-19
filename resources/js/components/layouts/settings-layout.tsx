@@ -2,6 +2,7 @@ import { Layout as AppLayout } from "@/components/layouts/app-layout";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { router } from "@inertiajs/react";
 import { ComponentProps, PropsWithChildren } from "react";
+import { SidebarItem } from "../settings/settings-sidebar-item";
 
 interface Props extends PropsWithChildren, ComponentProps<typeof AppLayout> {
     //
@@ -17,26 +18,22 @@ export function Layout({ children, ...props }: Props) {
                     <div className="bg-white shadow-base rounded-xl h-full flex flex-col overflow-y-auto">
                         <div className="p-1.5 flex-1 flex flex-col">
                             <div className="space-y-1.5">
-                                <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-gray-100 hover:ring-gray-100 cursor-pointer items-center gap-3 group">
-                                    <span className="flex-1">Account</span>
-                                </button>
-
-                                <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-gray-100 hover:ring-gray-100 cursor-pointer items-center gap-3 group">
-                                    <span className="flex-1">Billing</span>
-                                    <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-enabled:group-hover:bg-gray-200 rounded-full">
-                                        Free
-                                    </span>
-                                </button>
-
-                                <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-gray-100 hover:ring-gray-100 cursor-pointer items-center gap-3 group">
-                                    <span className="flex-1">Ad accounts</span>
-                                </button>
-
-                                <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-gray-100 hover:ring-gray-100 cursor-pointer items-center gap-3 group">
-                                    <span className="flex-1">
-                                        Notifications
-                                    </span>
-                                </button>
+                                <SidebarItem href="dashboard.settings.account">
+                                    Account
+                                </SidebarItem>
+                                <SidebarItem
+                                    suffix={
+                                        <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-hover:bg-gray-200 rounded-full">
+                                            Free
+                                        </span>
+                                    }
+                                >
+                                    Billing
+                                </SidebarItem>
+                                <SidebarItem href="dashboard.settings.ad-accounts">
+                                    Ad accounts
+                                </SidebarItem>
+                                <SidebarItem>Notifications</SidebarItem>
                             </div>
                             <div className="mx-2 my-3">
                                 <div className="w-full bg-gray-100 h-px" />
@@ -48,27 +45,21 @@ export function Layout({ children, ...props }: Props) {
                                     </span>
                                 </div>
 
-                                <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 text-sm bg-gray-100 cursor-pointer items-center gap-3 group ring-gray-100">
-                                    <span className="flex-1">Defaults</span>
-                                </button>
+                                <SidebarItem href="dashboard.settings.ad-account.general">
+                                    General
+                                </SidebarItem>
 
-                                <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-gray-100 hover:ring-gray-100 cursor-pointer items-center gap-3 group">
-                                    <span className="flex-1">
-                                        Advertising identity
-                                    </span>
-                                </button>
+                                <SidebarItem>Advertising identity</SidebarItem>
 
-                                <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-gray-100 hover:ring-gray-100 cursor-pointer items-center gap-3 group">
-                                    <span className="flex-1">Integrations</span>
-                                </button>
+                                <SidebarItem>Defaults</SidebarItem>
+
+                                <SidebarItem>Integrations</SidebarItem>
                             </div>
                             <div className="mx-2 my-3">
                                 <div className="w-full bg-gray-100 h-px" />
                             </div>
                             <div className="space-y-1.5">
-                                <button className="font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-gray-100 hover:ring-gray-100 cursor-pointer items-center gap-3 group">
-                                    <span className="flex-1">Shortcuts</span>
-                                </button>
+                                <SidebarItem>Shortcuts</SidebarItem>
                                 <button
                                     onClick={() => router.post(route("logout"))}
                                     className="text-red-800 font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-red-900/5 hover:ring-red-900/5 cursor-pointer items-center gap-3 group"

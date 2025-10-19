@@ -8,6 +8,7 @@ externalId: string;
 businessId: string | null;
 timezone: string;
 timezoneOffsetUtc: number;
+createdAt: string;
 };
 export type AdCampaignData = {
 id: string;
