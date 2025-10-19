@@ -65,6 +65,7 @@ export default function AdvertisingIdentity({
                                                     e.target.value
                                                 );
                                             }}
+                                            required
                                             placeholder="Your business name e.g. Acme"
                                         />
                                     </label>
@@ -82,6 +83,7 @@ export default function AdvertisingIdentity({
                                                     e.target.value
                                                 );
                                             }}
+                                            required
                                             placeholder="Your full name e.g. John Doe"
                                         />
                                     </label>

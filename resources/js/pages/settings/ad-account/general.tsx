@@ -53,7 +53,7 @@ export default function General() {
 
                                 <label>
                                     <span className="block mb-2 font-semibold">
-                                        External ID
+                                        External identifier
                                     </span>
                                     <Input
                                         type="text"
