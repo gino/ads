@@ -38,7 +38,7 @@ class CreateAdSetRequest extends Request implements HasBody
             default => [1, 2],
         };
 
-        return [
+        $data = [
             'name' => $this->adSet->label,
             'status' => 'ACTIVE',
             'campaign_id' => $this->campaignId,
@@ -63,5 +63,20 @@ class CreateAdSetRequest extends Request implements HasBody
                 ],
             ],
         ];
+
+        $settings = $this->adAccount->getSettings([
+            'dsa_payor',
+            'dsa_beneficiary',
+        ]);
+
+        if ($settings['dsa_payor']) {
+            $data['dsa_payor'] = $settings['dsa_payor'];
+        }
+
+        if ($settings['dsa_beneficiary']) {
+            $data['dsa_beneficiary'] = $settings['dsa_beneficiary'];
+        }
+
+        return $data;
     }
 }

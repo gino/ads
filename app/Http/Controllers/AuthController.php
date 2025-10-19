@@ -113,7 +113,7 @@ class AuthController extends Controller
 
             if (isset($adAccount['default_dsa_payor'])) {
                 $settings[] = [
-                    'key' => 'default_dsa_payor',
+                    'key' => 'dsa_payor',
                     'value' => json_encode($adAccount['default_dsa_payor']),
                     'ad_account_id' => $adAccountId,
                 ];
@@ -121,17 +121,13 @@ class AuthController extends Controller
 
             if (isset($adAccount['default_dsa_beneficiary'])) {
                 $settings[] = [
-                    'key' => 'default_dsa_beneficiary',
+                    'key' => 'dsa_beneficiary',
                     'value' => json_encode($adAccount['default_dsa_beneficiary']),
                     'ad_account_id' => $adAccountId,
                 ];
             }
         }
-        AdAccountSetting::upsert(
-            $settings,
-            ['ad_account_id', 'key'],
-            ['value', 'updated_at']
-        );
+        AdAccountSetting::upsert($settings, uniqueBy: ['ad_account_id', 'key'], update: []);
 
         Auth::login($user);
 

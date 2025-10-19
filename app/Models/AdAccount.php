@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasSettings;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AdAccount extends Model
 {
-    use HasUlids, SoftDeletes;
+    use HasSettings, HasUlids, SoftDeletes;
 
     protected $fillable = [
         'external_id',

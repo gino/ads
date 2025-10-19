@@ -46,7 +46,9 @@ Route::middleware([
     Route::get('/settings/account', [SettingsController::class, 'account'])->name('dashboard.settings.account');
     Route::get('/settings/ad-accounts', [SettingsController::class, 'adAccounts'])->name('dashboard.settings.ad-accounts');
     Route::get('/settings/ad-account/general', [SettingsController::class, 'general'])->name('dashboard.settings.ad-account.general');
+
     Route::get('/settings/ad-account/advertising-identity', [SettingsController::class, 'advertisingIdentity'])->name('dashboard.settings.ad-account.advertising-identity');
+    Route::patch('/settings/ad-account/advertising-identity', [SettingsController::class, 'updateAdvertisingIdentity'])->name('update-advertising-identity');
 
     Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
