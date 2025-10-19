@@ -32,7 +32,7 @@ class HandleSelectedAdAccount
         });
 
         if (! $currentId || ! $selectable) {
-            $currentId = $adAccounts->first()?->id;
+            $currentId = $adAccounts->first(fn ($adAccount) => $adAccount->isActive)?->id;
 
             // There's one edge case to be aware of: if the user selected an ad account that later becomes inactive or gets deleted, your middleware will fall back to the first available account. But the database still has the old last_selected_ad_account_id.
             if ($currentId !== $request->user()->last_selected_ad_account_id) {

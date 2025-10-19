@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layouts/settings-layout";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 import { router } from "@inertiajs/react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useMemo } from "react";
@@ -27,70 +28,85 @@ export default function AdAccounts({ adAccounts }: Props) {
                                 </div>
                             </div>
                             <div className="p-5">
-                                <div className="rounded-lg ring divide-y divide-gray-200 ring-gray-200 overflow-hidden">
-                                    {sortedAdAccounts.map((adAccount) => (
-                                        <div
-                                            key={adAccount.id}
-                                            aria-disabled={!adAccount.isActive}
-                                            className="px-5 py-4.5 grid grid-cols-3 items-center gap-3 group aria-disabled:[&>*]:opacity-50"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-[16px] self-start">
-                                                    {!adAccount.isActive ? (
-                                                        <i className="fa-solid fa-triangle-exclamation text-red-800 text-xs fa-fw mt-1" />
-                                                    ) : (
-                                                        <i className="fa-brands fa-meta text-[12px] text-[#0081FB] fa-fw" />
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <div>
-                                                        <div className="font-semibold mb-px">
-                                                            {adAccount.name}
+                                <table className="w-full rounded-lg ring ring-gray-200">
+                                    <tbody className="divide-y divide-gray-200">
+                                        {sortedAdAccounts.map((adAccount) => (
+                                            <tr
+                                                key={adAccount.id}
+                                                className={cn(
+                                                    !adAccount.isActive &&
+                                                        "opacity-50"
+                                                )}
+                                            >
+                                                <td className="px-5 py-4.5">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-[16px] self-start">
+                                                            {adAccount.isActive ? (
+                                                                <i className="fa-brands fa-meta text-[12px] text-[#0081FB] fa-fw" />
+                                                            ) : (
+                                                                <i className="fa-solid fa-triangle-exclamation text-red-800 text-xs fa-fw mt-1" />
+                                                            )}
                                                         </div>
-                                                        <div className="text-[12px] font-medium text-gray-500">
-                                                            ID:{" "}
-                                                            {adAccount.externalId.replace(
-                                                                "act_",
-                                                                ""
+                                                        <div>
+                                                            <div>
+                                                                <div className="font-semibold mb-px">
+                                                                    {
+                                                                        adAccount.name
+                                                                    }
+                                                                </div>
+                                                                <div className="text-[12px] font-medium text-gray-500">
+                                                                    ID:{" "}
+                                                                    {adAccount.externalId.replace(
+                                                                        "act_",
+                                                                        ""
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-4.5">
+                                                    {adAccount.isActive && (
+                                                        <i className="fa-solid fa-check-circle text-emerald-700 text-base" />
+                                                    )}
+                                                </td>
+                                                <td className="px-5 py-4.5">
+                                                    <div className="flex justify-end">
+                                                        <div className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 rounded-full">
+                                                            {adAccount.currency}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-4.5">
+                                                    <div className="text-right">
+                                                        <div className="text-[12px] font-semibold text-gray-500 mb-px">
+                                                            Timezone
+                                                        </div>
+                                                        <div className="font-semibold text-xs">
+                                                            {adAccount.timezone}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-4.5">
+                                                    <div className="text-right">
+                                                        <div className="text-[12px] font-semibold text-gray-500 mb-px">
+                                                            Since
+                                                        </div>
+                                                        <div className="font-semibold text-xs">
+                                                            {formatDistanceToNowStrict(
+                                                                adAccount.createdAt,
+                                                                {
+                                                                    addSuffix:
+                                                                        true,
+                                                                }
                                                             )}
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex mx-auto items-center gap-3">
-                                                <div className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 rounded-full">
-                                                    {adAccount.currency}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center justify-end gap-10 whitespace-nowrap text-right">
-                                                <div>
-                                                    <div className="text-[12px] font-semibold text-gray-500 mb-px">
-                                                        Timezone
-                                                    </div>
-                                                    <div className="font-semibold text-xs">
-                                                        {adAccount.timezone}
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <div className="text-[12px] font-semibold text-gray-500 mb-px">
-                                                        Since
-                                                    </div>
-                                                    <div className="font-semibold text-xs">
-                                                        {formatDistanceToNowStrict(
-                                                            adAccount.createdAt,
-                                                            {
-                                                                addSuffix: true,
-                                                            }
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
 
                                 <div className="flex justify-end mt-5 items-center gap-2">
                                     <Button
