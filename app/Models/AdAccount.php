@@ -55,4 +55,9 @@ class AdAccount extends Model
             default => 'inactive'
         };
     }
+
+    public function settings()
+    {
+        return $this->hasMany(AdAccountSetting::class);
+    }
 }

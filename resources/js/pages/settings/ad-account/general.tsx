@@ -7,14 +7,14 @@ export default function General() {
     const { selectedAdAccount } = useSelectedAdAccount();
 
     return (
-        <Layout title={`General / ${selectedAdAccount.name}`}>
+        <Layout title="General">
             <div className="p-3">
                 <div className="max-w-3xl mx-auto">
                     <div className="p-1 bg-gray-100 rounded-2xl ring-gray-200/30 ring-inset ring-1">
                         <div className="bg-white rounded-xl shadow-base divide-y divide-gray-100">
                             <div className="px-5 py-4 flex items-center">
                                 <div className="font-semibold flex-1">
-                                    General / {selectedAdAccount.name}
+                                    General
                                 </div>
                                 <div>
                                     <div className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-hover:bg-gray-200 rounded-full">

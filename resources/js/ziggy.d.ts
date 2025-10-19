@@ -88,6 +88,7 @@ declare module 'ziggy-js' {
     "dashboard.settings.account": [],
     "dashboard.settings.ad-accounts": [],
     "dashboard.settings.ad-account.general": [],
+    "dashboard.settings.ad-account.advertising-identity": [],
     "select-ad-account": [],
     "logout": [],
     "reauthenticate": [],

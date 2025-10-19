@@ -26,4 +26,12 @@ class SettingsController extends Controller
     {
         return Inertia::render('settings/ad-account/general');
     }
+
+    public function advertisingIdentity(Request $request)
+    {
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        return $adAccount;
+    }
 }

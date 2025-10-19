@@ -6,6 +6,7 @@ use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetAdAccountsRequest;
 use App\Http\Integrations\Requests\RenewTokenRequest;
 use App\Models\AdAccount;
+use App\Models\AdAccountSetting;
 use App\Models\Connection;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -81,7 +82,20 @@ class AuthController extends Controller
 
         // Maybe we wanna off load this request to a queue job so we can show some type of pending/loading state in the UI
         $adAccounts = $this->fetchAdAccounts($connection);
-        AdAccount::upsert($adAccounts, uniqueBy: ['external_id'], update: [
+
+        AdAccount::upsert($adAccounts->map(function ($adAccount) use ($connection) {
+            return [
+                'external_id' => $adAccount['id'],
+                'name' => $adAccount['name'],
+                'currency' => $adAccount['currency'],
+                'status' => $adAccount['account_status'],
+                'connection_id' => $connection->id,
+                'business_id' => $adAccount['business']['id'] ?? null,
+                'timezone' => $adAccount['timezone_name'],
+                'timezone_offset_utc' => $adAccount['timezone_offset_hours_utc'],
+                'permissions' => json_encode($adAccount['user_tasks'] ?? []),
+            ];
+        })->all(), uniqueBy: ['external_id'], update: [
             'name',
             'currency',
             'status',
@@ -90,6 +104,34 @@ class AuthController extends Controller
             'timezone_offset_utc',
             'permissions',
         ]);
+
+        $ids = AdAccount::whereIn('external_id', array_column($adAccounts->all(), 'id'))->pluck('id', 'external_id');
+
+        $settings = [];
+        foreach ($adAccounts->all() as $adAccount) {
+            $adAccountId = $ids[$adAccount['id']];
+
+            if (isset($adAccount['default_dsa_payor'])) {
+                $settings[] = [
+                    'key' => 'default_dsa_payor',
+                    'value' => json_encode($adAccount['default_dsa_payor']),
+                    'ad_account_id' => $adAccountId,
+                ];
+            }
+
+            if (isset($adAccount['default_dsa_beneficiary'])) {
+                $settings[] = [
+                    'key' => 'default_dsa_beneficiary',
+                    'value' => json_encode($adAccount['default_dsa_beneficiary']),
+                    'ad_account_id' => $adAccountId,
+                ];
+            }
+        }
+        AdAccountSetting::upsert(
+            $settings,
+            ['ad_account_id', 'key'],
+            ['value', 'updated_at']
+        );
 
         Auth::login($user);
 
@@ -115,19 +157,7 @@ class AuthController extends Controller
         $meta = new MetaConnector($connection);
         $paginator = $meta->paginate(new GetAdAccountsRequest);
 
-        return $paginator->collect()->map(function ($entry) use ($connection) {
-            return [
-                'external_id' => $entry['id'],
-                'name' => $entry['name'],
-                'currency' => $entry['currency'],
-                'status' => $entry['account_status'],
-                'connection_id' => $connection->id,
-                'business_id' => $entry['business']['id'] ?? null,
-                'timezone' => $entry['timezone_name'],
-                'timezone_offset_utc' => $entry['timezone_offset_hours_utc'],
-                'permissions' => json_encode($entry['user_tasks'] ?? []),
-            ];
-        })->all();
+        return $paginator->collect();
     }
 
     public function selectAdAccount(Request $request)
