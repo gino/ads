@@ -1,8 +1,8 @@
+import { LocationsInput } from "@/components/shared-inputs/locations-input";
 import { Button } from "@/components/ui/button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { MultiCombobox } from "@/components/ui/multi-combobox";
 import { Radio } from "@/components/ui/radio";
 import { TimeInput } from "@/components/ui/time-input";
 import { toast } from "@/components/ui/toast";
@@ -47,44 +47,6 @@ function AdSetGroupSettings() {
         gender,
         startDate,
     });
-
-    const countries = useMemo(() => {
-        if (isLoadingCountries) return [];
-        return props.countries.map((country) => ({
-            label: (
-                <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
-                    <div className="flex-1 truncate">
-                        <div className="font-semibold truncate">
-                            {country.name}
-                        </div>
-                    </div>
-                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-hover:bg-gray-200 group-data-[selected='true']:bg-black/5 group-data-[active-item]:bg-gray-200">
-                        {country.countryCode}
-                    </div>
-                </div>
-            ),
-            rawLabel: country.name,
-            value: country.countryCode,
-        }));
-    }, [props.countries, isLoadingCountries]);
-
-    const namedLocations = useMemo(() => {
-        if (!form.data.locations || isLoadingCountries) {
-            return [];
-        }
-
-        const named = form.data.locations
-            .map((value) => {
-                return props.countries.find((c) => c.countryCode === value)!;
-            })
-            .filter(Boolean);
-
-        if (!(named.length > 0)) {
-            return [];
-        }
-
-        return named;
-    }, [form.data.locations, props.countries, isLoadingCountries]);
 
     const isDisabled = useMemo(() => {
         const hasName = form.data.name?.trim().length > 0;
@@ -192,48 +154,14 @@ function AdSetGroupSettings() {
                 </label>
             </div>
             <div className="p-5 border-b border-gray-100">
-                <div>
-                    <div className="mb-2 font-semibold">Locations</div>
-
-                    {namedLocations.length > 0 && (
-                        <div className="flex items-center flex-wrap mb-3 gap-1.5">
-                            {namedLocations.map((location) => (
-                                <div
-                                    key={location.countryCode}
-                                    className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5"
-                                >
-                                    <div>{location.name}</div>
-                                    <button
-                                        onClick={() => {
-                                            form.setData((obj) => ({
-                                                ...obj,
-                                                locations: obj.locations.filter(
-                                                    (code) =>
-                                                        code !==
-                                                        location.countryCode
-                                                ),
-                                            }));
-                                        }}
-                                        type="button"
-                                        className="cursor-pointer text-[8px] flex mt-px ml-1"
-                                    >
-                                        <i className="fa-solid fa-times" />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <MultiCombobox
-                        placeholder="Search locations..."
-                        isLoading={isLoadingCountries}
-                        items={countries}
-                        value={form.data.locations}
-                        onChange={(values) => {
-                            form.setData("locations", values);
-                        }}
-                    />
-                </div>
+                <LocationsInput
+                    countries={props.countries}
+                    isLoading={isLoadingCountries}
+                    value={form.data.locations}
+                    onChange={(values) => {
+                        form.setData("locations", values);
+                    }}
+                />
             </div>
             <div className="p-5 border-b border-gray-100">
                 <div>

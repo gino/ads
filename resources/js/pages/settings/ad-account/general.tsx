@@ -102,7 +102,7 @@ export default function General() {
                             <div className="p-5 flex items-center justify-between gap-5">
                                 <div>
                                     <div className="font-semibold mb-1">
-                                        Refresh account
+                                        Refresh ad account
                                     </div>
                                     <div className="text-xs font-medium text-gray-500 leading-relaxed">
                                         In case of any issues or outdated
@@ -116,9 +116,8 @@ export default function General() {
                                         onClick={() => {
                                             router.get(route("reauthenticate"));
                                         }}
-                                        // variant="primary"
                                     >
-                                        Refresh account
+                                        Refresh ad account
                                     </Button>
                                 </div>
                             </div>

@@ -7,17 +7,16 @@ import { useSyncedForm } from "@/lib/hooks/use-synced-form";
 import { useMemo } from "react";
 
 interface Props {
-    dsaPayor: string | null;
-    dsaBeneficiary: string | null;
+    defaults: {
+        dsaPayor: string | null;
+        dsaBeneficiary: string | null;
+    };
 }
 
-export default function AdvertisingIdentity({
-    dsaPayor,
-    dsaBeneficiary,
-}: Props) {
+export default function AdvertisingIdentity({ defaults }: Props) {
     const form = useSyncedForm({
-        dsaPayor: dsaPayor ?? "",
-        dsaBeneficiary: dsaBeneficiary ?? "",
+        dsaPayor: defaults.dsaPayor ?? "",
+        dsaBeneficiary: defaults.dsaBeneficiary ?? "",
     });
 
     const isDisabled = useMemo(() => {

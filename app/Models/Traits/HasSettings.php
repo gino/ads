@@ -36,20 +36,33 @@ trait HasSettings
 
     public function setSettings(array $settings): void
     {
-        $data = [];
+        $upsertData = [];
+        $deleteKeys = [];
 
         foreach ($settings as $key => $value) {
-            $data[] = [
+            if ($value === null || $value === '') {
+                $deleteKeys[] = $key;
+
+                continue;
+            }
+
+            $upsertData[] = [
+                'ad_account_id' => $this->id,
                 'key' => $key,
                 'value' => json_encode($value),
-                'ad_account_id' => $this->id,
             ];
         }
 
-        $this->settings()->upsert(
-            $data,
-            ['ad_account_id', 'key'],
-            ['value', 'updated_at']
-        );
+        if (! empty($deleteKeys)) {
+            $this->settings()->whereIn('key', $deleteKeys)->delete();
+        }
+
+        if (! empty($upsertData)) {
+            $this->settings()->upsert(
+                $upsertData,
+                ['ad_account_id', 'key'],
+                ['value', 'updated_at']
+            );
+        }
     }
 }
