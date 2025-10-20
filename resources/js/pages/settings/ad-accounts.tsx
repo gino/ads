@@ -1,4 +1,5 @@
 import { Layout } from "@/components/layouts/settings-layout";
+import { SettingsHeader } from "@/components/settings/settings-header";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { router } from "@inertiajs/react";
@@ -23,9 +24,9 @@ export default function AdAccounts({ adAccounts }: Props) {
                     <div className="p-1 bg-gray-100 rounded-2xl ring-gray-200/30 ring-inset ring-1">
                         <div className="bg-white rounded-xl shadow-base divide-y divide-gray-100">
                             <div className="px-5 py-4 flex items-center">
-                                <div className="font-semibold flex-1">
+                                <SettingsHeader>
                                     Ad accounts ({adAccounts.length})
-                                </div>
+                                </SettingsHeader>
                             </div>
                             <div className="p-5">
                                 <table className="w-full rounded-lg ring ring-gray-200">

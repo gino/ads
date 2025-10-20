@@ -53,7 +53,9 @@ export function Layout({ children, ...props }: Props) {
                                     Advertising identity
                                 </SidebarItem>
 
-                                <SidebarItem>Defaults</SidebarItem>
+                                <SidebarItem href="dashboard.settings.ad-account.defaults">
+                                    Defaults
+                                </SidebarItem>
 
                                 <SidebarItem>Integrations</SidebarItem>
                             </div>

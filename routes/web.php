@@ -42,13 +42,18 @@ Route::middleware([
     Route::patch('/adsets/status', [CampaignsController::class, 'updateAdSetStatus'])->name('adSets.status.update');
     Route::patch('/ads/status', [CampaignsController::class, 'updateAdStatus'])->name('ads.status.update');
 
-    Route::redirect('/settings', '/settings/account')->name('dashboard.settings');
-    Route::get('/settings/account', [SettingsController::class, 'account'])->name('dashboard.settings.account');
-    Route::get('/settings/ad-accounts', [SettingsController::class, 'adAccounts'])->name('dashboard.settings.ad-accounts');
-    Route::get('/settings/ad-account/general', [SettingsController::class, 'general'])->name('dashboard.settings.ad-account.general');
+    Route::prefix('/settings')->group(function () {
+        Route::redirect('/', '/settings/account')->name('dashboard.settings');
+        Route::get('/account', [SettingsController::class, 'account'])->name('dashboard.settings.account');
+        Route::get('/ad-accounts', [SettingsController::class, 'adAccounts'])->name('dashboard.settings.ad-accounts');
+        Route::get('/ad-account/general', [SettingsController::class, 'general'])->name('dashboard.settings.ad-account.general');
 
-    Route::get('/settings/ad-account/advertising-identity', [SettingsController::class, 'advertisingIdentity'])->name('dashboard.settings.ad-account.advertising-identity');
-    Route::patch('/settings/ad-account/advertising-identity', [SettingsController::class, 'updateAdvertisingIdentity'])->name('update-advertising-identity');
+        Route::get('/ad-account/advertising-identity', [SettingsController::class, 'advertisingIdentity'])->name('dashboard.settings.ad-account.advertising-identity');
+        Route::patch('/ad-account/advertising-identity', [SettingsController::class, 'updateAdvertisingIdentity'])->name('update-advertising-identity');
+
+        Route::get('/ad-account/defaults', [SettingsController::class, 'defaults'])->name('dashboard.settings.ad-account.defaults');
+        Route::patch('/ad-account/defaults', [SettingsController::class, 'updateDefaults'])->name('update-defaults');
+    });
 
     Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

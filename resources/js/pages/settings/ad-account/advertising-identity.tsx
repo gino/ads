@@ -1,6 +1,8 @@
 import { Layout } from "@/components/layouts/settings-layout";
+import { SettingsHeader } from "@/components/settings/settings-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/toast";
 import { useSyncedForm } from "@/lib/hooks/use-synced-form";
 import { useMemo } from "react";
 
@@ -33,9 +35,9 @@ export default function AdvertisingIdentity({
                     <div className="p-1 bg-gray-100 rounded-2xl ring-gray-200/30 ring-inset ring-1">
                         <div className="bg-white rounded-xl shadow-base divide-y divide-gray-100">
                             <div className="px-5 py-4 flex items-center">
-                                <div className="font-semibold flex-1">
+                                <SettingsHeader includeAdAccount>
                                     Advertising identity
-                                </div>
+                                </SettingsHeader>
                             </div>
                             <form
                                 onSubmit={(e) => {
@@ -46,7 +48,22 @@ export default function AdvertisingIdentity({
                                     }
 
                                     form.patch(
-                                        route("update-advertising-identity")
+                                        route("update-advertising-identity"),
+                                        {
+                                            onSuccess: () => {
+                                                toast({
+                                                    contents:
+                                                        "Advertising identity saved successfully",
+                                                });
+                                            },
+                                            onError: (errors) => {
+                                                toast({
+                                                    type: "ERROR",
+                                                    contents:
+                                                        "Something went wrong, please try again.",
+                                                });
+                                            },
+                                        }
                                     );
                                 }}
                                 className="p-5"

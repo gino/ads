@@ -38,7 +38,7 @@ class SettingsController extends Controller
             'dsa_beneficiary',
         ]);
 
-        return Inertia::render('settings/advertising-identity', [
+        return Inertia::render('settings/ad-account/advertising-identity', [
             'dsaPayor' => fn () => $settings['dsa_payor'],
             'dsaBeneficiary' => fn () => $settings['dsa_beneficiary'],
         ]);
@@ -57,6 +57,36 @@ class SettingsController extends Controller
         $adAccount->setSettings([
             'dsa_payor' => $validated['dsaPayor'],
             'dsa_beneficiary' => $validated['dsaBeneficiary'],
+        ]);
+
+        return redirect()->back();
+    }
+
+    public function defaults(Request $request)
+    {
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $settings = $adAccount->getSettings([
+            'website_url',
+        ]);
+
+        return Inertia::render('settings/ad-account/defaults', [
+            'websiteUrl' => $settings['website_url'],
+        ]);
+    }
+
+    public function updateDefaults(Request $request)
+    {
+        $validated = $request->validate([
+            'websiteUrl' => ['required', 'string', 'url'],
+        ]);
+
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
+
+        $adAccount->setSettings([
+            'website_url' => $validated['websiteUrl'],
         ]);
 
         return redirect()->back();

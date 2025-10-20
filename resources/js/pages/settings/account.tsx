@@ -1,4 +1,6 @@
 import { Layout } from "@/components/layouts/settings-layout";
+import { SettingsHeader } from "@/components/settings/settings-header";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { format } from "date-fns";
@@ -13,9 +15,7 @@ export default function Account() {
                     <div className="p-1 bg-gray-100 rounded-2xl ring-gray-200/30 ring-inset ring-1">
                         <div className="bg-white rounded-xl shadow-base divide-y divide-gray-100">
                             <div className="px-5 py-4 flex items-center">
-                                <div className="font-semibold flex-1">
-                                    Account
-                                </div>
+                                <SettingsHeader>Account</SettingsHeader>
                             </div>
                             <div className="p-5">
                                 <label>
@@ -71,6 +71,23 @@ export default function Account() {
                                         disabled
                                     />
                                 </label>
+                            </div>
+                            <div className="p-5 flex items-center justify-between gap-5">
+                                <div>
+                                    <div className="font-semibold mb-1">
+                                        Account deletion
+                                    </div>
+                                    <div className="text-xs font-medium text-gray-500 leading-relaxed">
+                                        All of your account data will be
+                                        permanently deleted and this action is
+                                        irreversible.
+                                    </div>
+                                </div>
+                                <div className="whitespace-nowrap">
+                                    <Button className="text-red-800">
+                                        Delete my account
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
