@@ -2,9 +2,10 @@ import {
     CreativeSettings,
     UploadedCreative,
     UploadForm,
+    UploadFormDefaults,
     UploadForm as UploadFormType,
 } from "@/pages/upload";
-import { InertiaFormProps, useForm } from "@inertiajs/react";
+import { InertiaFormProps, useForm, usePage } from "@inertiajs/react";
 import {
     createContext,
     Dispatch,
@@ -45,19 +46,24 @@ export const defaultCreativeSettings: CreativeSettings = {
 };
 
 export function UploadProvider({ children }: PropsWithChildren) {
+    const {
+        props: { defaults },
+    } = usePage<{ defaults: UploadFormDefaults }>();
+
     const form = useForm<UploadForm>({
         campaignId: "",
         adSetId: "",
-        pixelId: "",
-        websiteUrl: "",
-        facebookPageId: "",
-        instagramPageId: "",
+        pixelId: defaults.pixelId ?? "",
+        websiteUrl: defaults.websiteUrl ?? "",
+        facebookPageId: defaults.facebookPageId ?? "",
+        instagramPageId: defaults.instagramPageId ?? "",
         settings: {
-            pausedByDefault: false,
-            disableEnhancements: true,
-            disableMultiAds: true,
+            pausedByDefault: defaults.pausedByDefault ?? false,
+            disableEnhancements: defaults.disableEnhancements ?? true,
+            disableMultiAds: defaults.disableMultiAds ?? true,
         },
         utmParameters:
+            defaults.utmParameters ??
             "utm_campaign={{campaign.id}}&utm_ad_group={{adset.id}}&utm_ad={{ad.id}}&utm_source=meta",
     });
 

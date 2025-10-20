@@ -40,8 +40,8 @@ export default function Defaults({
         instagramPageId: defaults.instagramPageId ?? "",
         utmParameters: defaults.utmParameters ?? "",
         pausedByDefault: defaults.pausedByDefault ?? false,
-        disableEnhancements: defaults.disableEnhancements ?? false,
-        disableMultiAds: defaults.disableMultiAds ?? false,
+        disableEnhancements: defaults.disableEnhancements ?? true,
+        disableMultiAds: defaults.disableMultiAds ?? true,
         locations: defaults.locations ?? [],
     });
 

@@ -693,14 +693,25 @@ export function UploadedCreatives({ adSets }: Props) {
         setAdSetGroups,
     ]);
 
-    const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
-
     return (
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">
             <div className="flex overflow-hidden flex-col h-full min-h-0 bg-white rounded-xl shadow-base">
                 <div className="overflow-y-auto flex-1 min-h-0">
-                    <div className="p-5 border-b border-gray-100">
-                        <div className="flex gap-2 justify-end items-center">
+                    <div className="p-5 border-b border-gray-100 flex items-center">
+                        <div className="flex-1">
+                            <Button
+                                onClick={() => {
+                                    router.visit(
+                                        route(
+                                            "dashboard.settings.ad-account.defaults"
+                                        )
+                                    );
+                                }}
+                            >
+                                Configure defaults
+                            </Button>
+                        </div>
+                        <div className="flex gap-2 items-center">
                             {!hasSelectedAdSet && (
                                 <Button
                                     onClick={() => {
@@ -727,13 +738,9 @@ export function UploadedCreatives({ adSets }: Props) {
                                 variant="primary"
                             >
                                 {creatives.length > 0
-                                    ? `${
-                                          scheduledDate ? "Schedule" : "Launch"
-                                      } ${creatives.length} ad${
+                                    ? `Launch ${creatives.length} ad${
                                           creatives.length === 1 ? "" : "s"
                                       }`
-                                    : scheduledDate
-                                    ? "Schedule ads"
                                     : "Launch ads"}
                             </Button>
                         </div>

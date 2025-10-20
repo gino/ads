@@ -58,6 +58,17 @@ export type UploadForm = {
     utmParameters: string;
 };
 
+export type UploadFormDefaults = {
+    websiteUrl: string | null;
+    pixelId: string | null;
+    facebookPageId: string | null;
+    instagramPageId: string | null;
+    utmParameters: string | null;
+    pausedByDefault: boolean;
+    disableEnhancements: boolean;
+    disableMultiAds: boolean;
+};
+
 interface Props {
     campaigns: App.Data.AdCampaignData[];
     adSets: App.Data.AdSetData[];

@@ -42,6 +42,17 @@ class UploadController extends Controller
 
         $campaignId = $request->query('campaignId');
 
+        $defaults = $adAccount->getSettings([
+            'website_url',
+            'pixel_id',
+            'facebook_page_id',
+            'instagram_page_id',
+            'utm_parameters',
+            'paused_by_default',
+            'disable_enhancements',
+            'disable_multi_ads',
+        ]);
+
         return Inertia::render('upload', [
             'campaigns' => Inertia::defer(function () use ($meta, $adAccount) {
                 $campaigns = $meta->paginate(new GetAdCampaignsRequest($adAccount))->collect();
@@ -68,6 +79,16 @@ class UploadController extends Controller
 
                 return TargetingCountryData::collect($countries);
             }, 'countries'),
+            'defaults' => fn () => [
+                'websiteUrl' => $defaults['website_url'],
+                'pixelId' => $defaults['pixel_id'],
+                'facebookPageId' => $defaults['facebook_page_id'],
+                'instagramPageId' => $defaults['instagram_page_id'],
+                'utmParameters' => $defaults['utm_parameters'],
+                'pausedByDefault' => $defaults['paused_by_default'],
+                'disableEnhancements' => $defaults['disable_enhancements'],
+                'disableMultiAds' => $defaults['disable_multi_ads'],
+            ],
         ]);
     }
 

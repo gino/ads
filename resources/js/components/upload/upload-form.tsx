@@ -1,12 +1,11 @@
 import { cn } from "@/lib/cn";
 import { formatFileSize, getBase64, getVideoThumbnail } from "@/lib/utils";
-import { UploadedCreative } from "@/pages/upload";
-import { router } from "@inertiajs/react";
-import { useEffect, useMemo, useRef } from "react";
+import { UploadedCreative, UploadFormDefaults } from "@/pages/upload";
+import { router, usePage } from "@inertiajs/react";
+import { useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { PagesInput } from "../shared-inputs/pages-input";
 import { PixelInput } from "../shared-inputs/pixel-input";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select } from "../ui/select";
 import { StatusTag } from "../ui/status-tag";
@@ -40,6 +39,9 @@ export function UploadForm({
     isLoadingPixels,
     isLoadingPages,
 }: Props) {
+    const {
+        props: { defaults },
+    } = usePage<{ defaults: UploadFormDefaults }>();
     const { form, creatives, setCreatives } = useUploadContext();
 
     // Fetch ad sets for selected campaign
@@ -57,22 +59,6 @@ export function UploadForm({
             }
         );
     }, [form.data.campaignId]);
-
-    const filteredInstagramAccounts = useMemo(() => {
-        if (!form.data.facebookPageId || isLoadingPages) {
-            return [];
-        }
-
-        const { instagramAccount } = pages.find(
-            (p) => p.id === form.data.facebookPageId
-        )!;
-
-        if (!instagramAccount) {
-            return [];
-        }
-
-        return [instagramAccount];
-    }, [form.data.facebookPageId, isLoadingPages, pages]);
 
     const isDirtyCreatives = creatives.length > 0;
     const isDirty = form.isDirty || isDirtyCreatives;
@@ -150,7 +136,7 @@ export function UploadForm({
     return (
         <div className="p-1 min-w-0 h-full min-h-0 bg-gray-100 rounded-2xl ring-1 ring-inset shrink-0 ring-gray-200/30">
             <div className="flex overflow-hidden flex-col h-full min-h-0 bg-white rounded-xl shadow-base">
-                <div className="overflow-y-auto flex-1 min-h-0">
+                <div className="overflow-y-auto flex-1 min-h-0 divide-y divide-gray-100">
                     <div className="p-5">
                         <div>
                             <Select
@@ -228,8 +214,8 @@ export function UploadForm({
                             />
                         </div>
                     </div>
-                    <div className="p-5 border-t border-gray-100">
-                        <div>
+                    {!defaults.pixelId && (
+                        <div className="p-5">
                             <PixelInput
                                 value={form.data.pixelId}
                                 onChange={(value) => {
@@ -239,40 +225,41 @@ export function UploadForm({
                                 isLoading={isLoadingPixels}
                             />
                         </div>
-                        <div className="mt-5">
-                            <label>
-                                <span className="block mb-2 font-semibold">
-                                    Website URL
-                                </span>
-                                <Input
-                                    type="text"
-                                    placeholder="Use default website URL"
-                                    value={form.data.websiteUrl}
-                                    onChange={(e) =>
-                                        form.setData(
-                                            "websiteUrl",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                            </label>
+                    )}
+
+                    <div className="p-5">
+                        <label>
+                            <span className="block mb-2 font-semibold">
+                                Website URL
+                            </span>
+                            <Input
+                                type="text"
+                                placeholder="e.g. the URL of your product page"
+                                value={form.data.websiteUrl}
+                                onChange={(e) =>
+                                    form.setData("websiteUrl", e.target.value)
+                                }
+                            />
+                        </label>
+                    </div>
+
+                    {!defaults.facebookPageId && (
+                        <div className="p-5">
+                            <PagesInput
+                                pages={pages}
+                                isLoading={isLoadingPages}
+                                facebookPageId={form.data.facebookPageId}
+                                instagramPageId={form.data.instagramPageId}
+                                onChangeFacebookPageId={(value) => {
+                                    form.setData("facebookPageId", value);
+                                }}
+                                onChangeInstagramPageId={(value) => {
+                                    form.setData("instagramPageId", value);
+                                }}
+                            />
                         </div>
-                    </div>
-                    <div className="p-5 border-t border-gray-100">
-                        <PagesInput
-                            pages={pages}
-                            isLoading={isLoadingPages}
-                            facebookPageId={form.data.facebookPageId}
-                            instagramPageId={form.data.instagramPageId}
-                            onChangeFacebookPageId={(value) => {
-                                form.setData("facebookPageId", value);
-                            }}
-                            onChangeInstagramPageId={(value) => {
-                                form.setData("instagramPageId", value);
-                            }}
-                        />
-                    </div>
-                    <div className="p-5 border-t border-gray-100">
+                    )}
+                    <div className="p-5">
                         <div>
                             <div>
                                 <div className="flex justify-between items-center">
@@ -331,45 +318,31 @@ export function UploadForm({
                         </div>
                     </div>
 
-                    <div className="p-5 border-t border-gray-100">
-                        <label>
-                            <span className="block mb-2 font-semibold">
-                                UTM parameters
-                            </span>
-                            <Input
-                                type="text"
-                                placeholder="Use default UTM parameters"
-                                value={form.data.utmParameters}
-                                onChange={(e) => {
-                                    form.setData(
-                                        "utmParameters",
-                                        e.target.value
-                                    );
-                                }}
-                            />
-                        </label>
-                    </div>
-
-                    <div className="p-5 border-t border-gray-100">
-                        <div className="flex justify-between items-center mb-3">
-                            <span className="block font-semibold">
-                                Ad launch settings
-                            </span>
-
-                            <div>
-                                <Button
-                                    onClick={() =>
-                                        router.visit(
-                                            route(
-                                                "dashboard.settings.ad-account.defaults"
-                                            )
-                                        )
-                                    }
-                                >
-                                    Configure defaults
-                                </Button>
-                            </div>
+                    {!defaults.utmParameters && (
+                        <div className="p-5">
+                            <label>
+                                <span className="block mb-2 font-semibold">
+                                    UTM parameters
+                                </span>
+                                <Input
+                                    type="text"
+                                    placeholder="utm_campaign={{campaign.id}}&utm_ad_group={{adset.id}}&utm_ad={{ad.id}}&utm_source=meta"
+                                    value={form.data.utmParameters}
+                                    onChange={(e) => {
+                                        form.setData(
+                                            "utmParameters",
+                                            e.target.value
+                                        );
+                                    }}
+                                />
+                            </label>
                         </div>
+                    )}
+
+                    <div className="p-5">
+                        <span className="block mb-3 font-semibold">
+                            Ad launch settings
+                        </span>
 
                         <div className="rounded-lg divide-y divide-gray-200 ring ring-gray-200">
                             <label className="flex items-start cursor-pointer gap-5 px-5 py-4.5">
