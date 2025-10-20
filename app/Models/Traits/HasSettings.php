@@ -5,6 +5,8 @@ namespace App\Models\Traits;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
+// https://chatgpt.com/c/68f4de2c-fef4-8330-9957-120688f67f47
+
 trait HasSettings
 {
     protected function cacheKey(): string

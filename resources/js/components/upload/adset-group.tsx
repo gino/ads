@@ -10,10 +10,7 @@ import { toast } from "../ui/toast";
 import { Tooltip } from "../ui/tooltip";
 import { AdCreative, HEIGHT as ADCREATIVE_HEIGHT } from "./ad-creative";
 import { useUploadContext } from "./upload-context";
-import {
-    defaultAdSetSettings,
-    useUploadedCreativesContext,
-} from "./uploaded-creatives";
+import { useUploadedCreativesContext } from "./uploaded-creatives";
 
 export type FolderType = "ADSET" | "UNGROUPED";
 
@@ -135,10 +132,10 @@ export function AdSetGroup({
 
     const isAgeModified = useMemo(() => {
         const [minAge, maxAge] = settings.age;
-        const [defaultMinAge, defaultMaxAge] = defaultAdSetSettings.age;
+        const [defaultMinAge, defaultMaxAge] = [18, 65];
 
         return minAge !== defaultMinAge || maxAge !== defaultMaxAge;
-    }, [settings.age, defaultAdSetSettings.age]);
+    }, [settings.age]);
 
     return (
         <div

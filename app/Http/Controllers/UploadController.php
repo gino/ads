@@ -51,6 +51,7 @@ class UploadController extends Controller
             'paused_by_default',
             'disable_enhancements',
             'disable_multi_ads',
+            'locations',
         ]);
 
         return Inertia::render('upload', [
@@ -88,6 +89,7 @@ class UploadController extends Controller
                 'pausedByDefault' => $defaults['paused_by_default'],
                 'disableEnhancements' => $defaults['disable_enhancements'],
                 'disableMultiAds' => $defaults['disable_multi_ads'],
+                'locations' => $defaults['locations'],
             ],
         ]);
     }

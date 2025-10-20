@@ -3,10 +3,11 @@ import { base64ToFile } from "@/lib/utils";
 import {
     AdSetGroupSettings,
     AdSetGroup as AdSetGroupType,
+    UploadFormDefaults,
 } from "@/pages/upload";
 import { Portal } from "@ariakit/react";
 import { DndContext, DragOverlay, useSensor } from "@dnd-kit/core";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import axios from "axios";
 import { addHours } from "date-fns";
 import { motion } from "motion/react";
@@ -63,13 +64,6 @@ const UploadedCreativesContext = createContext<UploadedCreativesContextType>(
 );
 UploadedCreativesContext.displayName = "UploadedCreativesContext";
 
-export const defaultAdSetSettings: AdSetGroupSettings = {
-    locations: ["US"],
-    age: [18, 65],
-    gender: "all",
-    startDate: addHours(new Date(), 1),
-};
-
 interface Props {
     adSets: App.Data.AdSetData[];
 }
@@ -77,6 +71,17 @@ interface Props {
 export function UploadedCreatives({ adSets }: Props) {
     const { form, popupCreativeId, creatives, setCreatives } =
         useUploadContext();
+
+    const {
+        props: { defaults },
+    } = usePage<{ defaults: UploadFormDefaults }>();
+
+    const defaultAdSetSettings: AdSetGroupSettings = {
+        locations: defaults.locations ?? ["US"],
+        age: [18, 65],
+        gender: "all",
+        startDate: addHours(new Date(), 1),
+    };
 
     const [adSetGroups, setAdSetGroups] = useState<AdSetGroupType[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);

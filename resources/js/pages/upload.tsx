@@ -67,6 +67,7 @@ export type UploadFormDefaults = {
     pausedByDefault: boolean;
     disableEnhancements: boolean;
     disableMultiAds: boolean;
+    locations: string[];
 };
 
 interface Props {
