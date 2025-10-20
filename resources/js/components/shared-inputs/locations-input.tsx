@@ -76,7 +76,7 @@ export function LocationsInput({
                                     );
                                 }}
                                 type="button"
-                                className="cursor-pointer text-[8px] flex mt-px ml-1"
+                                className="cursor-pointer text-[8px] flex mt-px ml-1 focus-visible:ring"
                             >
                                 <i className="fa-solid fa-times" />
                             </button>
