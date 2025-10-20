@@ -2,36 +2,44 @@
 
 namespace App\Models\Traits;
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+
 trait HasSettings
 {
+    protected function cacheKey(): string
+    {
+        return "ad_account:{$this->id}:settings";
+    }
+
+    protected function cacheTtl(): Carbon
+    {
+        return now()->addHours(1);
+    }
+
     public function getSetting(string $key, mixed $default = null)
     {
-        return $this->settings()->where('key', $key)->first()?->value ?? $default;
+        $settings = $this->getSettings();
+
+        return $settings[$key] ?? $default;
     }
 
     public function getSettings(?array $keys = null): array
     {
-        $query = $this->settings();
+        $settings = Cache::remember($this->cacheKey(), $this->cacheTtl(), function () {
+            return $this->settings()->pluck('value', 'key')->toArray();
+        });
 
-        if ($keys !== null) {
-            $query->whereIn('key', $keys);
+        if ($keys === null) {
+            return $settings;
         }
 
-        $data = $query->get()->pluck('value', 'key')->toArray();
-
-        if ($keys !== null) {
-            $data = array_merge(array_fill_keys($keys, null), $data);
-        }
-
-        return $data;
+        return array_merge(array_fill_keys($keys, null), array_intersect_key($settings, array_flip($keys)));
     }
 
     public function setSetting(string $key, mixed $value): void
     {
-        $this->settings()->updateOrCreate(
-            ['key' => $key],
-            ['value' => $value]
-        );
+        $this->setSettings([$key => $value]);
     }
 
     public function setSettings(array $settings): void
@@ -64,5 +72,8 @@ trait HasSettings
                 ['value', 'updated_at']
             );
         }
+
+        // Invalidate cache after any change
+        Cache::forget($this->cacheKey());
     }
 }

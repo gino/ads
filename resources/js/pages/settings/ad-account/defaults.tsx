@@ -189,7 +189,7 @@ export default function Defaults({
                                 </div>
                                 <div className="p-5">
                                     <span className="block mb-3 font-semibold">
-                                        Ad launch settings
+                                        Default ad launch settings
                                     </span>
 
                                     <div className="rounded-lg divide-y divide-gray-200 ring ring-gray-200">
