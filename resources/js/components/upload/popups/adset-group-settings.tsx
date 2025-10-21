@@ -1,16 +1,15 @@
+import { AgeRangeInput } from "@/components/shared-inputs/age-range-input";
+import { GenderInput } from "@/components/shared-inputs/gender-input";
 import { LocationsInput } from "@/components/shared-inputs/locations-input";
 import { Button } from "@/components/ui/button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { Radio } from "@/components/ui/radio";
 import { TimeInput } from "@/components/ui/time-input";
 import { toast } from "@/components/ui/toast";
-import { cn } from "@/lib/cn";
 import useDeferred from "@/lib/hooks/use-deferred";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { AdSetGroupSettings as AdSetGroupSettingsType } from "@/pages/upload";
-import { Slider } from "@base-ui-components/react/slider";
 import { useForm, usePage } from "@inertiajs/react";
 import { useCallback, useMemo } from "react";
 import { useUploadedCreativesContext } from "../uploaded-creatives";
@@ -58,20 +57,6 @@ function AdSetGroupSettings() {
 
         return !(hasName && hasLocations && hasStartDate);
     }, [form.data.name, form.data.locations, form.data.startDate]);
-
-    const minAge = useMemo(() => {
-        return form.data.age[0];
-    }, [form.data.age]);
-
-    const maxAge = useMemo(() => {
-        const maxAge = form.data.age[1];
-
-        if (maxAge === 65) {
-            return "65+";
-        }
-
-        return maxAge;
-    }, [form.data.age]);
 
     const submit = useCallback(() => {
         if (isDisabled) {
@@ -164,94 +149,20 @@ function AdSetGroupSettings() {
                 />
             </div>
             <div className="p-5 border-b border-gray-100">
-                <div>
-                    <div className="flex items-center justify-between">
-                        <div className="font-semibold">Age range</div>
-                        <div className="font-semibold flex items-center bg-gray-100 text-[12px] px-2 rounded-full leading-5">
-                            {minAge} - {maxAge}
-                        </div>
-                    </div>
-
-                    <div>
-                        <Slider.Root
-                            value={form.data.age}
-                            onValueChange={(age) => {
-                                // const [min, max] = age;
-
-                                // Meta restriction: max must be 65, min must be <= 25
-                                // When using Advantage+ Audience, the age range must be 25-65+. Switch to Original Audience in your settings to select any age range between 18-65+.
-                                // if (max < 65) return;
-                                // if (min > 25) return;
-
-                                form.setData("age", age);
-                            }}
-                            min={18}
-                            max={65}
-                            thumbAlignment="edge"
-                        >
-                            <Slider.Control className="flex w-full touch-none items-center pt-4 pb-2 select-none">
-                                <Slider.Track className="h-2 w-full rounded bg-gray-100 ring-1 ring-inset ring-black/5 select-none">
-                                    <Slider.Indicator className="rounded bg-brand select-none ring-1 ring-inset ring-black/5" />
-                                    {[0, 1].map((index) => (
-                                        <Slider.Thumb
-                                            key={index}
-                                            index={index}
-                                            disabled
-                                            className="size-5 rounded-full bg-white shadow-base cursor-pointer select-none flex items-center justify-center"
-                                        >
-                                            <div
-                                                className={cn(
-                                                    "h-[8px] w-[8px] bg-brand/10 rounded-full ring-1 ring-inset ring-black/10"
-                                                )}
-                                            />
-                                        </Slider.Thumb>
-                                    ))}
-                                </Slider.Track>
-                            </Slider.Control>
-                        </Slider.Root>
-                    </div>
-
-                    {/* <div className="bg-gray-50 flex ring-1 ring-inset ring-gray-50 px-4 py-3 rounded-lg text-xs leading-relaxed mt-3 gap-4">
-                            <i className="fa-regular fa-exclamation-circle mt-[5px] text-sm text-gray-400" />
-                            <div>
-                                <div className="font-semibold">
-                                    Advantage+ Audience
-                                </div>
-                                <div>
-                                    When using Advantage+ Audience, the age
-                                    range must be 25-65+. Switch to Original
-                                    Audience in your settings to select any age
-                                    range between 18-65+.
-                                </div>
-                            </div>
-                        </div> */}
-                </div>
+                <AgeRangeInput
+                    value={form.data.age}
+                    onChange={(range) => {
+                        form.setData("age", range);
+                    }}
+                />
             </div>
             <div className="p-5">
-                <div>
-                    <div className="mb-2 font-semibold">Gender</div>
-
-                    <Radio
-                        value={form.data.gender}
-                        onChange={(value) =>
-                            form.setData("gender", value as any)
-                        }
-                        options={[
-                            {
-                                label: "All",
-                                value: "all",
-                            },
-                            {
-                                label: "Men",
-                                value: "men",
-                            },
-                            {
-                                label: "Women",
-                                value: "women",
-                            },
-                        ]}
-                    />
-                </div>
+                <GenderInput
+                    value={form.data.gender}
+                    onChange={(value) => {
+                        form.setData("gender", value as any);
+                    }}
+                />
             </div>
 
             {/* Modal footer */}

@@ -6,7 +6,7 @@ import { useUploadContext } from "../upload-context";
 import { createUploadedCreative } from "../upload-form";
 
 export function DropboxButton() {
-    const { setCreatives } = useUploadContext();
+    const { setCreatives, defaultCreativeSettings } = useUploadContext();
 
     return (
         <DropboxChooser
@@ -20,7 +20,10 @@ export function DropboxButton() {
                             type: blob.type || "application/octet-stream",
                         });
 
-                        return createUploadedCreative(file);
+                        return createUploadedCreative(
+                            file,
+                            defaultCreativeSettings
+                        );
                     })
                 );
 

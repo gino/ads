@@ -1,11 +1,15 @@
 import { Layout } from "@/components/layouts/settings-layout";
 import { SettingsHeader } from "@/components/settings/settings-header";
+import { AgeRangeInput } from "@/components/shared-inputs/age-range-input";
+import { CallToActionInput } from "@/components/shared-inputs/call-to-action-input";
+import { GenderInput } from "@/components/shared-inputs/gender-input";
 import { LocationsInput } from "@/components/shared-inputs/locations-input";
 import { PagesInput } from "@/components/shared-inputs/pages-input";
 import { PixelInput } from "@/components/shared-inputs/pixel-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import useDeferred from "@/lib/hooks/use-deferred";
 import { useSyncedForm } from "@/lib/hooks/use-synced-form";
@@ -21,6 +25,12 @@ interface Props {
         disableEnhancements: boolean;
         disableMultiAds: boolean;
         locations: string[];
+        age: [number, number];
+        gender: "all" | "men" | "women";
+        primaryText: string | null;
+        headline: string | null;
+        description: string | null;
+        cta: string | null;
     };
     pixels: App.Data.PixelData[];
     pages: App.Data.FacebookPageData[];
@@ -43,6 +53,12 @@ export default function Defaults({
         disableEnhancements: defaults.disableEnhancements ?? true,
         disableMultiAds: defaults.disableMultiAds ?? true,
         locations: defaults.locations ?? [],
+        age: defaults.age ?? [18, 65],
+        gender: defaults.gender ?? "all",
+        primaryText: defaults.primaryText ?? "",
+        headline: defaults.headline ?? "",
+        description: defaults.description ?? "",
+        cta: defaults.cta ?? "SHOP_NOW",
     });
 
     const { isLoading: isLoadingPixels } = useDeferred({
@@ -184,6 +200,88 @@ export default function Defaults({
                                                 "locations",
                                                 locations
                                             );
+                                        }}
+                                    />
+                                </div>
+                                <div className="p-5">
+                                    <AgeRangeInput
+                                        label="Default age range"
+                                        value={form.data.age}
+                                        onChange={(range) => {
+                                            form.setData("age", range);
+                                        }}
+                                    />
+                                </div>
+                                <div className="p-5">
+                                    <GenderInput
+                                        label="Default gender"
+                                        value={form.data.gender}
+                                        onChange={(value) => {
+                                            form.setData(
+                                                "gender",
+                                                value as any
+                                            );
+                                        }}
+                                    />
+                                </div>
+                                <div className="p-5">
+                                    <label className="block -mb-1">
+                                        <div className="font-semibold mb-2">
+                                            Default primary text
+                                        </div>
+                                        <Textarea
+                                            value={form.data.primaryText || ""}
+                                            onChange={(e) => {
+                                                form.setData(
+                                                    "primaryText",
+                                                    e.target.value
+                                                );
+                                            }}
+                                            placeholder="Tell people what your ad is about"
+                                        />
+                                    </label>
+                                </div>
+                                <div className="p-5">
+                                    <label>
+                                        <span className="block mb-2 font-semibold">
+                                            Default headline
+                                        </span>
+                                        <Input
+                                            type="text"
+                                            value={form.data.headline || ""}
+                                            onChange={(e) => {
+                                                form.setData(
+                                                    "headline",
+                                                    e.target.value
+                                                );
+                                            }}
+                                            placeholder="Write a short headline"
+                                        />
+                                    </label>
+                                </div>
+                                <div className="p-5">
+                                    <label className="block -mb-1">
+                                        <div className="font-semibold mb-2">
+                                            Default description
+                                        </div>
+                                        <Textarea
+                                            value={form.data.description || ""}
+                                            onChange={(e) => {
+                                                form.setData(
+                                                    "description",
+                                                    e.target.value
+                                                );
+                                            }}
+                                            placeholder="Add additional information"
+                                        />
+                                    </label>
+                                </div>
+                                <div className="p-5">
+                                    <CallToActionInput
+                                        label="Default call-to-action"
+                                        value={form.data.cta}
+                                        onChange={(value) => {
+                                            form.setData("cta", value);
                                         }}
                                     />
                                 </div>

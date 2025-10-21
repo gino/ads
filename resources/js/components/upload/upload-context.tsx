@@ -16,6 +16,7 @@ import {
     useMemo,
     useState,
 } from "react";
+import { CallToActionType } from "../shared-inputs/call-to-action-input";
 
 interface UploadContextType {
     form: InertiaFormProps<UploadFormType>;
@@ -33,22 +34,23 @@ interface UploadContextType {
         value: CreativeSettings[T]
     ) => void;
     getCreativeSettings: (creativeId: string) => CreativeSettings;
+    defaultCreativeSettings: CreativeSettings;
 }
 
 const UploadContext = createContext<UploadContextType>(null!);
 UploadContext.displayName = "UploadContext";
 
-export const defaultCreativeSettings: CreativeSettings = {
-    cta: "SHOP_NOW",
-    primaryTexts: [],
-    headlines: [],
-    descriptions: [],
-};
-
 export function UploadProvider({ children }: PropsWithChildren) {
     const {
         props: { defaults },
     } = usePage<{ defaults: UploadFormDefaults }>();
+
+    const defaultCreativeSettings: CreativeSettings = {
+        cta: (defaults.cta as CallToActionType) ?? "SHOP_NOW",
+        primaryTexts: defaults.primaryText ? [defaults.primaryText] : [],
+        headlines: defaults.headline ? [defaults.headline] : [],
+        descriptions: defaults.description ? [defaults.description] : [],
+    };
 
     const form = useForm<UploadForm>({
         campaignId: "",
@@ -134,6 +136,7 @@ export function UploadProvider({ children }: PropsWithChildren) {
             setPopupCreativeId,
             getCreativeSettings,
             updateCreativeSetting,
+            defaultCreativeSettings,
         }),
         [
             form,
@@ -145,6 +148,7 @@ export function UploadProvider({ children }: PropsWithChildren) {
             setPopupCreativeId,
             getCreativeSettings,
             updateCreativeSetting,
+            defaultCreativeSettings,
         ]
     );
 

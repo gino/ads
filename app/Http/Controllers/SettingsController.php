@@ -88,6 +88,12 @@ class SettingsController extends Controller
             'disable_enhancements',
             'disable_multi_ads',
             'locations',
+            'age',
+            'gender',
+            'primary_text',
+            'headline',
+            'description',
+            'cta',
         ]);
 
         return Inertia::render('settings/ad-account/defaults', [
@@ -101,6 +107,12 @@ class SettingsController extends Controller
                 'disableEnhancements' => $defaults['disable_enhancements'],
                 'disableMultiAds' => $defaults['disable_multi_ads'],
                 'locations' => $defaults['locations'],
+                'age' => $defaults['age'],
+                'gender' => $defaults['gender'],
+                'primaryText' => $defaults['primary_text'],
+                'headline' => $defaults['headline'],
+                'description' => $defaults['description'],
+                'cta' => $defaults['cta'],
             ],
             'pixels' => Inertia::defer(function () use ($meta, $adAccount) {
                 $pixels = $meta->paginate(new GetPixelsRequest($adAccount))->collect();
@@ -132,6 +144,12 @@ class SettingsController extends Controller
             'disableEnhancements' => ['nullable', 'boolean'],
             'disableMultiAds' => ['nullable', 'boolean'],
             'locations' => ['nullable', 'array'],
+            'age' => ['nullable', 'array'],
+            'gender' => ['nullable', 'string'],
+            'primaryText' => ['nullable', 'string'],
+            'headline' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
+            'cta' => ['nullable', 'string'],
         ]);
 
         /** @var AdAccount $adAccount */
@@ -147,6 +165,12 @@ class SettingsController extends Controller
             'disable_enhancements' => $validated['disableEnhancements'],
             'disable_multi_ads' => $validated['disableMultiAds'],
             'locations' => $validated['locations'],
+            'age' => $validated['age'],
+            'gender' => $validated['gender'],
+            'primary_text' => $validated['primaryText'],
+            'headline' => $validated['headline'],
+            'description' => $validated['description'],
+            'cta' => $validated['cta'],
         ]);
 
         return redirect()->back();

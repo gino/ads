@@ -7,7 +7,7 @@ import { useUploadContext } from "../upload-context";
 import { createUploadedCreative } from "../upload-form";
 
 export function GoogleDriveButton() {
-    const { setCreatives } = useUploadContext();
+    const { setCreatives, defaultCreativeSettings } = useUploadContext();
 
     const [openPicker, authResponse] = useDrivePicker();
     let accessToken = useRef<string | undefined>(undefined);
@@ -53,7 +53,10 @@ export function GoogleDriveButton() {
                                         type: blob.type || doc.mimeType,
                                     });
 
-                                    return createUploadedCreative(file);
+                                    return createUploadedCreative(
+                                        file,
+                                        defaultCreativeSettings
+                                    );
                                 })
                             );
 

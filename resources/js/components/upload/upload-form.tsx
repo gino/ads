@@ -1,6 +1,10 @@
 import { cn } from "@/lib/cn";
 import { formatFileSize, getBase64, getVideoThumbnail } from "@/lib/utils";
-import { UploadedCreative, UploadFormDefaults } from "@/pages/upload";
+import {
+    CreativeSettings,
+    UploadedCreative,
+    UploadFormDefaults,
+} from "@/pages/upload";
 import { router, usePage } from "@inertiajs/react";
 import { useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
@@ -15,7 +19,7 @@ import { allowedFileTypes } from "./constants";
 import { DropboxButton } from "./integrations/dropbox";
 import { GoogleDriveButton } from "./integrations/google-drive";
 import { MediaLibraryButton } from "./popups/media-library";
-import { defaultCreativeSettings, useUploadContext } from "./upload-context";
+import { useUploadContext } from "./upload-context";
 
 interface Props {
     campaigns: App.Data.AdCampaignData[];
@@ -42,7 +46,8 @@ export function UploadForm({
     const {
         props: { defaults },
     } = usePage<{ defaults: UploadFormDefaults }>();
-    const { form, creatives, setCreatives } = useUploadContext();
+    const { form, creatives, setCreatives, defaultCreativeSettings } =
+        useUploadContext();
 
     // Fetch ad sets for selected campaign
     useEffect(() => {
@@ -99,7 +104,9 @@ export function UploadForm({
         accept: allowedFileTypes,
         onDrop: async (files) => {
             const mappedCreatives = await Promise.all(
-                files.map(createUploadedCreative)
+                files.map((file) =>
+                    createUploadedCreative(file, defaultCreativeSettings)
+                )
             );
 
             toast({
@@ -434,7 +441,8 @@ export function UploadForm({
 }
 
 export async function createUploadedCreative(
-    file: File
+    file: File,
+    settings: CreativeSettings
 ): Promise<UploadedCreative> {
     let thumbnail: string | null = null;
 
@@ -453,6 +461,6 @@ export async function createUploadedCreative(
         preview: URL.createObjectURL(file),
         type: file.type,
         thumbnail,
-        settings: defaultCreativeSettings,
+        settings,
     };
 }

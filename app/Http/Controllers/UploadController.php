@@ -52,6 +52,12 @@ class UploadController extends Controller
             'disable_enhancements',
             'disable_multi_ads',
             'locations',
+            'age',
+            'gender',
+            'primary_text',
+            'headline',
+            'description',
+            'cta',
         ]);
 
         return Inertia::render('upload', [
@@ -90,6 +96,12 @@ class UploadController extends Controller
                 'disableEnhancements' => $defaults['disable_enhancements'],
                 'disableMultiAds' => $defaults['disable_multi_ads'],
                 'locations' => $defaults['locations'],
+                'age' => $defaults['age'],
+                'gender' => $defaults['gender'],
+                'primaryText' => $defaults['primary_text'],
+                'headline' => $defaults['headline'],
+                'description' => $defaults['description'],
+                'cta' => $defaults['cta'],
             ],
         ]);
     }

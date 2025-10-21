@@ -1,8 +1,6 @@
 import { Layout } from "@/components/layouts/app-layout";
-import {
-    AdCreativeSettingsPopup,
-    CallToActionType,
-} from "@/components/upload/popups/ad-creative-settings";
+import { CallToActionType } from "@/components/shared-inputs/call-to-action-input";
+import { AdCreativeSettingsPopup } from "@/components/upload/popups/ad-creative-settings";
 import { UploadProvider } from "@/components/upload/upload-context";
 import { UploadForm } from "@/components/upload/upload-form";
 import { UploadedCreatives } from "@/components/upload/uploaded-creatives";
@@ -68,6 +66,12 @@ export type UploadFormDefaults = {
     disableEnhancements: boolean;
     disableMultiAds: boolean;
     locations: string[];
+    age: [number, number];
+    gender: "all" | "men" | "women";
+    primaryText: string | null;
+    headline: string | null;
+    description: string | null;
+    cta: string | null;
 };
 
 interface Props {

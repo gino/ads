@@ -77,9 +77,9 @@ export function UploadedCreatives({ adSets }: Props) {
     } = usePage<{ defaults: UploadFormDefaults }>();
 
     const defaultAdSetSettings: AdSetGroupSettings = {
-        locations: defaults.locations ?? ["US"],
-        age: [18, 65],
-        gender: "all",
+        locations: defaults.locations?.length > 0 ? defaults.locations : ["US"],
+        age: defaults.age?.length > 0 ? defaults.age : [18, 65],
+        gender: defaults.gender ?? "all",
         startDate: addHours(new Date(), 1),
     };
 
