@@ -63,6 +63,7 @@ export function Layout({ children, ...props }: Props) {
                                 <div className="w-full bg-gray-100 h-px" />
                             </div>
                             <div className="space-y-1.5">
+                                <SidebarItem>Command menu</SidebarItem>
                                 <SidebarItem>Shortcuts</SidebarItem>
                                 <button
                                     onClick={() => router.post(route("logout"))}

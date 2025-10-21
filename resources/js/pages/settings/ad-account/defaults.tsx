@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
+import { cn } from "@/lib/cn";
 import useDeferred from "@/lib/hooks/use-deferred";
 import { useSyncedForm } from "@/lib/hooks/use-synced-form";
 
@@ -58,7 +59,7 @@ export default function Defaults({
         primaryText: defaults.primaryText ?? "",
         headline: defaults.headline ?? "",
         description: defaults.description ?? "",
-        cta: defaults.cta ?? "SHOP_NOW",
+        cta: defaults.cta ?? "",
     });
 
     const { isLoading: isLoadingPixels } = useDeferred({
@@ -285,7 +286,7 @@ export default function Defaults({
                                         }}
                                     />
                                 </div>
-                                <div className="p-5">
+                                <div className="p-5 border-b-0">
                                     <span className="block mb-3 font-semibold">
                                         Default ad launch settings
                                     </span>
@@ -383,7 +384,18 @@ export default function Defaults({
                                         </label>
                                     </div>
                                 </div>
-                                <div className="p-5 flex justify-end items-center">
+
+                                <div
+                                    className={cn(
+                                        "p-5 flex justify-end items-center gap-2 bg-white rounded-b-xl border-t border-gray-100",
+                                        form.isDirty && "sticky bottom-0"
+                                    )}
+                                >
+                                    {form.isDirty && (
+                                        <Button onClick={() => form.reset()}>
+                                            Discard
+                                        </Button>
+                                    )}
                                     <Button
                                         type="submit"
                                         disabled={isDisabled}

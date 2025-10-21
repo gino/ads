@@ -1,5 +1,6 @@
 import { Head } from "@inertiajs/react";
 import { PropsWithChildren } from "react";
+import { CommandMenu } from "../command-menu/command-menu";
 import { Sidebar } from "../sidebar/sidebar";
 
 interface Props extends PropsWithChildren {
@@ -16,6 +17,8 @@ export function Layout({ title, children }: Props) {
                     {children}
                 </div>
             </main>
+
+            <CommandMenu />
         </div>
     );
 

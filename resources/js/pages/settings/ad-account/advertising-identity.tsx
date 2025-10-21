@@ -114,6 +114,13 @@ export default function AdvertisingIdentity({ defaults }: Props) {
                                         </span>
                                     </div>
                                     <div className="flex justify-end items-center gap-2">
+                                        {form.isDirty && (
+                                            <Button
+                                                onClick={() => form.reset()}
+                                            >
+                                                Discard
+                                            </Button>
+                                        )}
                                         <Button
                                             type="submit"
                                             disabled={isDisabled}
