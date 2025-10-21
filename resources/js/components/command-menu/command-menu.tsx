@@ -9,6 +9,10 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { CommandItem } from "./command-item";
 export function CommandMenu() {
     const [open, setOpen] = useState(false);
+    const dialog = Ariakit.useDialogStore({
+        open,
+        setOpen,
+    });
 
     const { selectedAdAccount } = useSelectedAdAccount();
 
@@ -20,17 +24,12 @@ export function CommandMenu() {
         [setOpen]
     );
 
-    const dialog = Ariakit.useDialogStore({
-        open,
-        setOpen,
-    });
-
     return (
         <AnimatePresence>
             {open && (
                 <Ariakit.Dialog
-                    store={dialog}
                     portal
+                    store={dialog}
                     alwaysVisible
                     hideOnInteractOutside
                     autoFocusOnShow={false}
@@ -83,7 +82,7 @@ export function CommandMenu() {
                                 <div className="p-2 shrink-0">
                                     <div className="relative">
                                         <Command.Input
-                                            className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold focus:ring-2 outline-none focus:ring-offset-1 focus:ring-offset-black/5 focus:ring-blue-100 transition duration-150 ease-in-out"
+                                            className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold outline-none transition duration-150 ease-in-out"
                                             placeholder="Type a command or search..."
                                             autoFocus
                                         />
@@ -117,6 +116,17 @@ export function CommandMenu() {
                                                     Item {index + 1}
                                                 </CommandItem>
                                             ))}
+                                    </Command.Group>
+
+                                    <Command.Group className="p-2">
+                                        <CommandItem
+                                            onSelect={() => {
+                                                setOpen(false);
+                                            }}
+                                            icon="fa-regular fa-rectangle-history"
+                                        >
+                                            Switch ad account
+                                        </CommandItem>
                                     </Command.Group>
 
                                     <Command.Group className="p-2">
@@ -167,44 +177,7 @@ export function CommandMenu() {
                                     </Command.Group>
                                 </Command.List>
 
-                                <div className="bg-gray-50 h-10 shadow-base shrink-0">
-                                    <div></div>
-                                </div>
-
-                                {/* Modal footer */}
-                                {/* <div className="bg-gray-50 shadow-base pl-2.5 pr-3.5 py-2.5">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <div className="text-[12px] font-semibold bg-gray-200/50 px-2.5 leading-6 rounded-full">
-                                                {selectedAdAccount.name}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <div className="flex items-center gap-2 pr-3 mr-3 border-r border-gray-200/50">
-                                                <div className="font-semibold text-gray-500/70 text-[12px]">
-                                                    Navigate through items
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <div className="text-[9px] h-5 w-5 bg-white text-gray-500 shadow-base flex justify-center items-center rounded">
-                                                        <i className="fa-solid fa-arrow-up" />
-                                                    </div>
-                                                    <div className="text-[9px] h-5 w-5 bg-white text-gray-500 shadow-base flex justify-center items-center rounded">
-                                                        <i className="fa-solid fa-arrow-down" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-2">
-                                                <div className="font-semibold text-gray-500/70 text-[12px]">
-                                                    Jump to
-                                                </div>
-                                                <div className="text-[9px] h-5 w-5 bg-white text-gray-500 shadow-base flex justify-center items-center rounded">
-                                                    <i className="fa-solid fa-arrow-turn-down-left" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> */}
+                                <div className="bg-gray-50 h-8 shadow-base shrink-0"></div>
                             </Command>
                         </div>
                     </motion.div>
