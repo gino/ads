@@ -65,13 +65,13 @@ class UploadController extends Controller
 
                 return AdSetData::collect($adSets);
             }, 'adSets'),
-            'pixels' => Inertia::defer(function () use ($meta, $adAccount) {
-                $pixels = $meta->paginate(new GetPixelsRequest($adAccount))->collect();
+            'pixels' => Inertia::defer(function () use ($meta, $adAccount, $defaults) {
+                $pixels = ! $defaults['pixel_id'] ? $meta->paginate(new GetPixelsRequest($adAccount))->collect() : [];
 
                 return PixelData::collect($pixels);
             }, 'pixels'),
-            'pages' => Inertia::defer(function () use ($meta, $adAccount) {
-                $pages = $meta->paginate(new GetFacebookPagesRequest($adAccount))->collect();
+            'pages' => Inertia::defer(function () use ($meta, $adAccount, $defaults) {
+                $pages = ! $defaults['facebook_page_id'] ? $meta->paginate(new GetFacebookPagesRequest($adAccount))->collect() : [];
 
                 return FacebookPageData::collect($pages);
             }, 'pages'),

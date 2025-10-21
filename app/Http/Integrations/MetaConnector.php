@@ -26,6 +26,7 @@ class MetaConnector extends Connector implements HasPagination
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
+        RequestLoggerPlugin::boot($this);
     }
 
     public function resolveBaseUrl(): string
@@ -87,7 +88,7 @@ class MetaConnector extends Connector implements HasPagination
             return false;
         }
 
-        Log::debug($this->connection->id.' Checking if token needs renewal');
+        // Log::debug($this->connection->id.' Checking if token needs renewal');
 
         $expirationBuffer = now()->addDays(7);
 
@@ -97,7 +98,7 @@ class MetaConnector extends Connector implements HasPagination
             return true;
         }
 
-        Log::debug($this->connection->id.' Token expiration is outside of expiration buffer - not renewing');
+        // Log::debug($this->connection->id.' Token expiration is outside of expiration buffer - not renewing');
 
         return false;
     }
