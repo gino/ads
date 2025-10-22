@@ -41,7 +41,8 @@ export function Campaigns() {
                             })
                         );
                     }}
-                    value={`${campaign.id} - ${campaign.name}`}
+                    keywords={[campaign.id, campaign.name]}
+                    value={campaign.id}
                 >
                     <div className="flex items-center gap-3 w-full truncate">
                         <div className="flex flex-1 gap-3 items-center truncate">

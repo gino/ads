@@ -41,7 +41,8 @@ export function AdSets() {
                             })
                         );
                     }}
-                    value={`${adSet.id} - ${adSet.name}`}
+                    keywords={[adSet.id, adSet.name]}
+                    value={adSet.id}
                 >
                     <div className="flex gap-3 items-center truncate">
                         <StatusTag status={adSet.status} showLabel={false} />

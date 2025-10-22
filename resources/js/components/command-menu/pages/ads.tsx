@@ -41,7 +41,8 @@ export function Ads() {
                             })
                         );
                     }}
-                    value={`${ad.id} - ${ad.name}`}
+                    keywords={[ad.id, ad.name]}
+                    value={ad.id}
                 >
                     <div className="flex gap-3 items-center truncate">
                         <StatusTag status={ad.status} showLabel={false} />
