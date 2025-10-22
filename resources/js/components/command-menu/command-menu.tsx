@@ -1,37 +1,46 @@
 import { cn } from "@/lib/cn";
-import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import * as Ariakit from "@ariakit/react";
 import { router } from "@inertiajs/react";
 import { Command } from "cmdk";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { CommandItem } from "./command-item";
+import { AdAccountSelector } from "./pages/ad-account-selector";
+import { useCommandMenu } from "./store";
+
+export type CommandMenuPage = "index" | "ad-accounts";
+
 export function CommandMenu() {
-    const [open, setOpen] = useState(false);
+    const { isOpen, setIsOpen, page, setPage, search, setSearch } =
+        useCommandMenu();
+
     const dialog = Ariakit.useDialogStore({
-        open,
-        setOpen,
+        open: isOpen,
+        setOpen: (value) => {
+            setIsOpen(value);
+            setPage("index");
+            setSearch("");
+        },
     });
 
-    const { selectedAdAccount } = useSelectedAdAccount();
-
     useHotkeys(
-        ["meta+k", "ctrl+k"],
+        ["meta+k", "ctrl+k", "Slash"],
         () => {
-            setOpen((o) => !o);
+            setIsOpen((o) => !o);
         },
-        [setOpen]
+        [setIsOpen],
+        { preventDefault: true }
     );
 
     return (
         <AnimatePresence>
-            {open && (
+            {isOpen && (
                 <Ariakit.Dialog
                     portal
                     store={dialog}
                     alwaysVisible
                     hideOnInteractOutside
+                    // hideOnEscape={false}
                     autoFocusOnShow={false}
                     render={(props) => (
                         <motion.div
@@ -76,12 +85,20 @@ export function CommandMenu() {
                     >
                         <div className="overflow-hidden w-full bg-white rounded-2xl shadow-dialog flex flex-col h-full min-h-0 ring-1 ring-black/5">
                             <Command
-                                className="flex flex-col h-full min-h-0"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Backspace" && !search) {
+                                        e.preventDefault();
+                                        setPage("index");
+                                    }
+                                }}
                                 loop
+                                className="flex flex-col h-full min-h-0"
                             >
                                 <div className="p-2 shrink-0">
                                     <div className="relative">
                                         <Command.Input
+                                            value={search}
+                                            onValueChange={setSearch}
                                             className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold outline-none transition duration-150 ease-in-out"
                                             placeholder="Type a command or search..."
                                             autoFocus
@@ -100,81 +117,101 @@ export function CommandMenu() {
                                         </div>
                                     </Command.Empty>
 
-                                    <Command.Group className="p-2">
-                                        {Array(10)
-                                            .fill(null)
-                                            .map((_, index) => (
+                                    {page === "index" && (
+                                        <>
+                                            <Command.Group className="p-2">
+                                                {Array(10)
+                                                    .fill(null)
+                                                    .map((_, index) => (
+                                                        <CommandItem
+                                                            key={index}
+                                                            onSelect={(
+                                                                value
+                                                            ) => {
+                                                                console.log(
+                                                                    "yeet " +
+                                                                        value
+                                                                );
+                                                            }}
+                                                            icon="fa-regular fa-arrow-right"
+                                                        >
+                                                            Item {index + 1}
+                                                        </CommandItem>
+                                                    ))}
+                                            </Command.Group>
+
+                                            <Command.Group className="p-2">
                                                 <CommandItem
-                                                    key={index}
-                                                    onSelect={(value) => {
-                                                        console.log(
-                                                            "yeet " + value
+                                                    onSelect={() => {
+                                                        setSearch("");
+                                                        setPage("ad-accounts");
+                                                    }}
+                                                    icon="fa-regular fa-rectangle-history"
+                                                >
+                                                    Switch ad account
+                                                </CommandItem>
+                                            </Command.Group>
+
+                                            <Command.Group className="p-2">
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setIsOpen(false);
+                                                        router.visit(
+                                                            route(
+                                                                "dashboard.index"
+                                                            )
                                                         );
                                                     }}
-                                                    icon="fa-regular fa-arrow-right"
+                                                    icon="fa-regular fa-grid-2"
                                                 >
-                                                    Item {index + 1}
+                                                    Dashboard
                                                 </CommandItem>
-                                            ))}
-                                    </Command.Group>
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setIsOpen(false);
+                                                        router.visit(
+                                                            route(
+                                                                "dashboard.upload"
+                                                            )
+                                                        );
+                                                    }}
+                                                    icon="fa-regular fa-arrow-up-from-bracket"
+                                                >
+                                                    Upload
+                                                </CommandItem>
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setIsOpen(false);
+                                                        router.visit(
+                                                            route(
+                                                                "dashboard.campaigns"
+                                                            )
+                                                        );
+                                                    }}
+                                                    icon="fa-regular fa-list"
+                                                >
+                                                    Campaigns
+                                                </CommandItem>
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setIsOpen(false);
+                                                        router.visit(
+                                                            route(
+                                                                "dashboard.settings"
+                                                            )
+                                                        );
+                                                    }}
+                                                    icon="fa-regular fa-cog"
+                                                >
+                                                    Settings
+                                                </CommandItem>
+                                            </Command.Group>
+                                        </>
+                                    )}
 
-                                    <Command.Group className="p-2">
-                                        <CommandItem
-                                            onSelect={() => {
-                                                setOpen(false);
-                                            }}
-                                            icon="fa-regular fa-rectangle-history"
-                                        >
-                                            Switch ad account
-                                        </CommandItem>
-                                    </Command.Group>
-
-                                    <Command.Group className="p-2">
-                                        <CommandItem
-                                            onSelect={() => {
-                                                setOpen(false);
-                                                router.visit(
-                                                    route("dashboard.index")
-                                                );
-                                            }}
-                                            icon="fa-regular fa-grid-2"
-                                        >
-                                            Dashboard
-                                        </CommandItem>
-                                        <CommandItem
-                                            onSelect={() => {
-                                                setOpen(false);
-                                                router.visit(
-                                                    route("dashboard.upload")
-                                                );
-                                            }}
-                                            icon="fa-regular fa-arrow-up-from-bracket"
-                                        >
-                                            Upload
-                                        </CommandItem>
-                                        <CommandItem
-                                            onSelect={() => {
-                                                setOpen(false);
-                                                router.visit(
-                                                    route("dashboard.campaigns")
-                                                );
-                                            }}
-                                            icon="fa-regular fa-list"
-                                        >
-                                            Campaigns
-                                        </CommandItem>
-                                        <CommandItem
-                                            onSelect={() => {
-                                                setOpen(false);
-                                                router.visit(
-                                                    route("dashboard.settings")
-                                                );
-                                            }}
-                                            icon="fa-regular fa-cog"
-                                        >
-                                            Settings
-                                        </CommandItem>
-                                    </Command.Group>
+                                    {page === "ad-accounts" && (
+                                        <AdAccountSelector />
+                                    )}
                                 </Command.List>
 
                                 <div className="bg-gray-50 h-8 shadow-base shrink-0"></div>

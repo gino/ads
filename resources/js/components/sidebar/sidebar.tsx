@@ -1,6 +1,7 @@
 import { useAuth } from "@/lib/hooks/use-auth";
 import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
+import { useCommandMenu } from "../command-menu/store";
 import { AdAccountSelector } from "./ad-account-selector";
 import { SidebarItem } from "./sidebar-item";
 
@@ -8,6 +9,8 @@ export function Sidebar() {
     const user = useAuth();
 
     const { props } = usePage<SharedData>();
+
+    const { setIsOpen: setIsCommandMenuOpen } = useCommandMenu();
 
     return (
         <aside className="flex overflow-y-auto flex-col gap-3 px-3 py-3 w-72 min-h-0 bg-white">
@@ -17,6 +20,21 @@ export function Sidebar() {
                 </div>
 
                 <div className="space-y-2">
+                    <SidebarItem
+                        icon="fa-search"
+                        suffix={
+                            <div className="flex items-center gap-px text-[14px] font-semibold text-gray-400">
+                                <i className="fa-solid fa-command text-[10px]" />
+                                <span>K</span>
+                            </div>
+                        }
+                        onClick={() => {
+                            setIsCommandMenuOpen((o) => !o);
+                        }}
+                        className="bg-gray-50"
+                    >
+                        Search
+                    </SidebarItem>
                     <SidebarItem icon="fa-grid-2" href="dashboard.index">
                         Dashboard
                     </SidebarItem>
@@ -40,7 +58,7 @@ export function Sidebar() {
                     >
                         Analytics
                     </SidebarItem>
-                    <SidebarItem icon="fa-circle-nodes">Events</SidebarItem>
+                    {/* <SidebarItem icon="fa-circle-nodes">Events</SidebarItem> */}
                     <SidebarItem icon="fa-cog" href="dashboard.settings">
                         Settings
                     </SidebarItem>

@@ -1,9 +1,9 @@
 import { cn } from "@/lib/cn";
 import { Command } from "cmdk";
-import { ComponentProps } from "react";
+import { ComponentProps, ReactNode } from "react";
 
 interface Props extends ComponentProps<typeof Command.Item> {
-    children: string;
+    children: ReactNode;
     icon?: string;
 }
 
@@ -24,7 +24,7 @@ export function CommandItem({ children, icon, className, ...props }: Props) {
                     )}
                 />
             )}
-            <span>{children}</span>
+            {children}
         </Command.Item>
     );
 }

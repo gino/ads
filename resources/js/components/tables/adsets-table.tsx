@@ -180,7 +180,13 @@ export function AdSetsTable({ isLoading, adSets }: Props) {
                     );
                 },
                 footer: (info) => (
-                    <div className="text-right">{formatMoney(sums.spend)}</div>
+                    <div className="text-right">
+                        {isNaN(sums.spend) ? (
+                            <>&mdash;</>
+                        ) : (
+                            formatMoney(sums.spend)
+                        )}
+                    </div>
                 ),
             },
             {
