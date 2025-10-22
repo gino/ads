@@ -122,14 +122,18 @@ export function CommandMenu() {
                                             placeholder={placeholder}
                                             autoFocus
                                         />
+
+                                        {isLoading && (
+                                            <div className="absolute top-1/2 -translate-y-1/2 right-3.5 pointer-events-none">
+                                                <i className="fa-solid fa-spinner-third animate-spin text-[12px] text-gray-300" />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 <Command.List className="shadow-base overflow-y-auto flex-1 scroll-p-2 outline-none [&>*]:divide-y [&>*]:divide-gray-100">
                                     {isLoading ? (
-                                        <Command.Loading className="p-2">
-                                            {/* Loading */}
-                                        </Command.Loading>
+                                        <Command.Loading className="h-90"></Command.Loading>
                                     ) : (
                                         <Command.Empty className="text-center py-10">
                                             <div className="font-semibold mb-1">
@@ -195,6 +199,33 @@ export function CommandMenu() {
                                                     icon="fa-regular fa-rectangle-history"
                                                 >
                                                     Search ads
+                                                </CommandItem>
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setIsOpen(false);
+                                                        router.visit(
+                                                            route(
+                                                                "dashboard.upload"
+                                                            )
+                                                        );
+                                                    }}
+                                                    icon="fa-regular fa-plus"
+                                                >
+                                                    Create ads
+                                                </CommandItem>
+
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setIsOpen(false);
+                                                        router.visit(
+                                                            route(
+                                                                "dashboard.upload"
+                                                            )
+                                                        );
+                                                    }}
+                                                    icon="fa-regular fa-plus"
+                                                >
+                                                    Create ad sets
                                                 </CommandItem>
                                             </Command.Group>
 

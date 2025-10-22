@@ -85,6 +85,7 @@ Route::middleware([
         $meta = new MetaConnector($request->user()->connection);
 
         $data = $meta->send(new TestRequest($adAccount));
+        // $data = $meta->send(new GetTargetingCountriesRequest);
 
         return $data->json();
     });

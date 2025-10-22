@@ -1,4 +1,5 @@
 import { StatusTag } from "@/components/ui/status-tag";
+import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
 import { useEffect, useState } from "react";
@@ -7,7 +8,7 @@ import { useCommandMenu } from "../store";
 
 export function AdSets() {
     const [adSets, setAdSets] = useState<App.Data.AdSetData[]>([]);
-    const { isLoading, setIsLoading } = useCommandMenu();
+    const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
 
     useEffect(() => {
         setIsLoading(true);
@@ -30,6 +31,16 @@ export function AdSets() {
             {adSets.map((adSet) => (
                 <CommandItem
                     key={adSet.id}
+                    onSelect={() => {
+                        setIsOpen(false);
+                        router.visit(
+                            route("dashboard.campaigns.adSets", {
+                                _query: {
+                                    selected_adset_ids: adSet.id,
+                                },
+                            })
+                        );
+                    }}
                     value={`${adSet.id} - ${adSet.name}`}
                 >
                     <div className="flex gap-3 items-center truncate">

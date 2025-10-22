@@ -1,4 +1,5 @@
 import { StatusTag } from "@/components/ui/status-tag";
+import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
 import { useEffect, useState } from "react";
@@ -7,7 +8,7 @@ import { useCommandMenu } from "../store";
 
 export function Campaigns() {
     const [campaigns, setCampaigns] = useState<App.Data.AdCampaignData[]>([]);
-    const { isLoading, setIsLoading } = useCommandMenu();
+    const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
 
     useEffect(() => {
         setIsLoading(true);
@@ -30,6 +31,16 @@ export function Campaigns() {
             {campaigns.map((campaign) => (
                 <CommandItem
                     key={campaign.id}
+                    onSelect={() => {
+                        setIsOpen(false);
+                        router.visit(
+                            route("dashboard.campaigns", {
+                                _query: {
+                                    selected_campaign_ids: campaign.id,
+                                },
+                            })
+                        );
+                    }}
                     value={`${campaign.id} - ${campaign.name}`}
                 >
                     <div className="flex items-center gap-3 w-full truncate">

@@ -36,11 +36,6 @@ class GetTargetingCountriesRequest extends Request implements Cacheable
         return new LaravelCacheDriver(Cache::store('redis'));
     }
 
-    protected function cacheKey(): ?string
-    {
-        return 'targeting-countries';
-    }
-
     public function cacheExpiryInSeconds(): int
     {
         // 24 hours - no need to cache this for anything shorter
