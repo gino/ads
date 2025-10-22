@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import * as Ariakit from "@ariakit/react";
 import { router } from "@inertiajs/react";
 import { Command } from "cmdk";
@@ -6,9 +7,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { CommandItem } from "./command-item";
 import { AdAccountSelector } from "./pages/ad-account-selector";
-import { useCommandMenu } from "./store";
+import { Settings } from "./pages/settings";
+import { initialPlaceholder, useCommandMenu } from "./store";
 
-export type CommandMenuPage = "ad-accounts";
+export type CommandMenuPage = "ad-accounts" | "settings";
 
 export function CommandMenu() {
     const {
@@ -16,21 +18,18 @@ export function CommandMenu() {
         setIsOpen,
         pages,
         setPage,
+        setPages,
         search,
         setSearch,
-        resetPage,
         placeholder,
         setPlaceholder,
     } = useCommandMenu();
 
-    const page = pages[pages.length - 1];
+    const { selectedAdAccount } = useSelectedAdAccount();
 
     const dialog = Ariakit.useDialogStore({
         open: isOpen,
-        setOpen: (value) => {
-            setIsOpen(value);
-            resetPage();
-        },
+        setOpen: setIsOpen,
     });
 
     useHotkeys(
@@ -41,6 +40,8 @@ export function CommandMenu() {
         [setIsOpen],
         { preventDefault: true }
     );
+
+    const page = pages[pages.length - 1];
 
     return (
         <AnimatePresence>
@@ -95,7 +96,8 @@ export function CommandMenu() {
                                 onKeyDown={(e) => {
                                     if (e.key === "Backspace" && !search) {
                                         e.preventDefault();
-                                        resetPage();
+                                        setPages((pages) => pages.slice(0, -1));
+                                        setPlaceholder(initialPlaceholder);
                                     }
                                 }}
                                 loop
@@ -127,27 +129,6 @@ export function CommandMenu() {
                                     {!page && (
                                         <>
                                             <Command.Group className="p-2">
-                                                {Array(10)
-                                                    .fill(null)
-                                                    .map((_, index) => (
-                                                        <CommandItem
-                                                            key={index}
-                                                            onSelect={(
-                                                                value
-                                                            ) => {
-                                                                console.log(
-                                                                    "yeet " +
-                                                                        value
-                                                                );
-                                                            }}
-                                                            icon="fa-regular fa-arrow-right"
-                                                        >
-                                                            Item {index + 1}
-                                                        </CommandItem>
-                                                    ))}
-                                            </Command.Group>
-
-                                            <Command.Group className="p-2">
                                                 <CommandItem
                                                     onSelect={() => {
                                                         setPage("ad-accounts");
@@ -157,7 +138,22 @@ export function CommandMenu() {
                                                     }}
                                                     icon="fa-regular fa-rectangle-history"
                                                 >
-                                                    Switch ad account
+                                                    <div className="flex-1">
+                                                        Switch ad account
+                                                    </div>
+                                                    <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                                        {selectedAdAccount.name}
+                                                    </span>
+                                                </CommandItem>
+
+                                                <CommandItem icon="fa-regular fa-rectangle-history">
+                                                    Search campaigns
+                                                </CommandItem>
+                                                <CommandItem icon="fa-regular fa-rectangle-history">
+                                                    Search ad sets
+                                                </CommandItem>
+                                                <CommandItem icon="fa-regular fa-rectangle-history">
+                                                    Search ads
                                                 </CommandItem>
                                             </Command.Group>
 
@@ -203,16 +199,31 @@ export function CommandMenu() {
                                                 </CommandItem>
                                                 <CommandItem
                                                     onSelect={() => {
-                                                        setIsOpen(false);
-                                                        router.visit(
-                                                            route(
-                                                                "dashboard.settings"
-                                                            )
+                                                        setPage("settings");
+                                                        setPlaceholder(
+                                                            "Search settings..."
                                                         );
                                                     }}
                                                     icon="fa-regular fa-cog"
                                                 >
                                                     Settings
+                                                </CommandItem>
+                                            </Command.Group>
+
+                                            <Command.Group className="p-2">
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setIsOpen(false);
+                                                        router.post(
+                                                            route("logout")
+                                                        );
+                                                    }}
+                                                    className="data-[selected='true']:ring-red-900/5 data-[selected='true']:bg-red-900/5"
+                                                >
+                                                    <div className="flex items-center gap-4 text-red-800">
+                                                        <i className="fa-fw fa-regular fa-sign-out -ml-0.5" />
+                                                        <div>Log out</div>
+                                                    </div>
                                                 </CommandItem>
                                             </Command.Group>
                                         </>
@@ -221,10 +232,48 @@ export function CommandMenu() {
                                     {page === "ad-accounts" && (
                                         <AdAccountSelector />
                                     )}
+
+                                    {page === "settings" && <Settings />}
                                 </Command.List>
 
-                                <div className="bg-gray-50 h-8 shadow-base shrink-0">
-                                    {JSON.stringify(pages)}
+                                <div className="bg-gray-50 px-4 py-3 shadow-base shrink-0">
+                                    <div className="flex items-center justify-end divide-x divide-gray-200/50">
+                                        <div className="flex items-center gap-2 px-4 last:pr-0">
+                                            <div className="text-[12px] font-semibold text-gray-400">
+                                                Jump to
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <div className="h-4 w-4 rounded bg-gray-200/50 ring-1 ring-gray-200/50 flex items-center justify-center text-[11px] font-semibold text-gray-400">
+                                                    <i className="fa-solid fa-arrow-turn-down-left text-[8px]" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 px-4 last:pr-0">
+                                            <div className="text-[12px] font-semibold text-gray-400">
+                                                Navigate
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <div className="h-4 w-4 rounded bg-gray-200/50 ring-1 ring-gray-200/50 flex items-center justify-center text-[11px] font-semibold text-gray-400">
+                                                    <i className="fa-solid fa-arrow-up text-[8px]" />
+                                                </div>
+                                                <div className="h-4 w-4 rounded bg-gray-200/50 ring-1 ring-gray-200/50 flex items-center justify-center text-[11px] font-semibold text-gray-400">
+                                                    <i className="fa-solid fa-arrow-down text-[8px]" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 px-4 last:pr-0">
+                                            <div className="text-[12px] font-semibold text-gray-400">
+                                                Close menu
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <div className="py-0 px-1 rounded bg-gray-200/50 ring-1 ring-gray-200/50 flex items-center justify-center text-[10px] font-semibold text-gray-400">
+                                                    esc
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </Command>
                         </div>

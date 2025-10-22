@@ -10,12 +10,14 @@ export function SettingsHeader({ children, includeAdAccount }: Props) {
     const { selectedAdAccount } = useSelectedAdAccount();
 
     return (
-        <div className="font-semibold flex-1 flex items-center gap-1">
+        <div className="font-semibold flex-1 flex items-center gap-2">
             {includeAdAccount && (
-                <span className="text-xs text-gray-400">
-                    {selectedAdAccount.name}{" "}
-                    <i className="fa-solid fa-angle-right text-[10px] text-gray-300" />
-                </span>
+                <>
+                    <div className="text-xs text-gray-400 flex items-center">
+                        {selectedAdAccount.name}{" "}
+                    </div>
+                    <div className="text-gray-300">/</div>
+                </>
             )}
             <span>{children}</span>
         </div>

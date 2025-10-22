@@ -10,7 +10,7 @@ export function AdAccountSelector() {
 
     const { selectAdAccount, selectedAdAccountId } = useSelectedAdAccount();
 
-    const { setIsOpen, resetPage } = useCommandMenu();
+    const { setIsOpen } = useCommandMenu();
 
     return (
         <Command.Group className="p-2">
@@ -22,7 +22,6 @@ export function AdAccountSelector() {
                             selectAdAccount(adAccount.id);
                         }
 
-                        resetPage();
                         setIsOpen(false);
                     }}
                     disabled={!adAccount.isActive}

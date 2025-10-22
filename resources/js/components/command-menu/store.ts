@@ -9,6 +9,11 @@ interface CommandMenuStore {
     setIsOpen: (value: boolean | ((prev: boolean) => boolean)) => void;
     pages: CommandMenuPage[];
     setPage: (page: CommandMenuPage) => void;
+    setPages: (
+        value:
+            | CommandMenuPage[]
+            | ((prev: CommandMenuPage[]) => CommandMenuPage[])
+    ) => void;
     resetPage: () => void;
     search: string;
     setSearch: (value: string) => void;
@@ -16,18 +21,31 @@ interface CommandMenuStore {
     setPlaceholder: (value: string) => void;
 }
 
-const initialPlaceholder = "Type a command or search...";
+export const initialPlaceholder = "Type a command or search...";
 
-export const useCommandMenuStore = create<CommandMenuStore>((set) => ({
+export const useCommandMenuStore = create<CommandMenuStore>((set, get) => ({
     isOpen: false,
     setIsOpen: (value) => {
-        return set((state) => ({
-            isOpen: typeof value === "function" ? value(state.isOpen) : value,
-        }));
+        set((state) => {
+            const next =
+                typeof value === "function" ? value(state.isOpen) : value;
+
+            if (!next) {
+                // if we're closing, reset the page
+                get().resetPage();
+            }
+
+            return { isOpen: next };
+        });
     },
     pages: [],
     setPage: (page) => {
         return set((state) => ({ pages: [...state.pages, page], search: "" }));
+    },
+    setPages: (value) => {
+        return set((state) => ({
+            pages: typeof value === "function" ? value(state.pages) : value,
+        }));
     },
     search: "",
     setSearch: (value) => {
@@ -53,6 +71,7 @@ export function useCommandMenu() {
             setIsOpen: state.setIsOpen,
             pages: state.pages,
             setPage: state.setPage,
+            setPages: state.setPages,
             search: state.search,
             setSearch: state.setSearch,
             placeholder: state.placeholder,
