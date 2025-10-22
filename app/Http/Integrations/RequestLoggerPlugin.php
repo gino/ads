@@ -19,6 +19,8 @@ class RequestLoggerPlugin
                 'url' => $request->resolveEndpoint(),
                 'status' => $response->status(),
                 'cached' => method_exists($response, 'isCached') && $response->isCached(),
+                'body' => $response->body(),
+                'successful' => $response->successful(),
             ]);
         });
     }

@@ -7,10 +7,18 @@ import { AnimatePresence, motion } from "motion/react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { CommandItem } from "./command-item";
 import { AdAccountSelector } from "./pages/ad-account-selector";
+import { AdSets } from "./pages/ad-sets";
+import { Ads } from "./pages/ads";
+import { Campaigns } from "./pages/campaigns";
 import { Settings } from "./pages/settings";
 import { initialPlaceholder, useCommandMenu } from "./store";
 
-export type CommandMenuPage = "ad-accounts" | "settings";
+export type CommandMenuPage =
+    | "ad-accounts"
+    | "settings"
+    | "campaigns"
+    | "adsets"
+    | "ads";
 
 export function CommandMenu() {
     const {
@@ -23,6 +31,7 @@ export function CommandMenu() {
         setSearch,
         placeholder,
         setPlaceholder,
+        isLoading,
     } = useCommandMenu();
 
     const { selectedAdAccount } = useSelectedAdAccount();
@@ -93,6 +102,7 @@ export function CommandMenu() {
                     >
                         <div className="overflow-hidden w-full bg-white rounded-2xl shadow-dialog flex flex-col h-full min-h-0 ring-1 ring-black/5">
                             <Command
+                                label="Global command menu"
                                 onKeyDown={(e) => {
                                     if (e.key === "Backspace" && !search) {
                                         e.preventDefault();
@@ -116,15 +126,22 @@ export function CommandMenu() {
                                 </div>
 
                                 <Command.List className="shadow-base overflow-y-auto flex-1 scroll-p-2 outline-none [&>*]:divide-y [&>*]:divide-gray-100">
-                                    <Command.Empty className="text-center py-10">
-                                        <div className="font-semibold mb-1">
-                                            No results found
-                                        </div>
-                                        <div className="text-xs font-medium text-gray-500">
-                                            We couldn't find any resources or
-                                            commands matching your search.
-                                        </div>
-                                    </Command.Empty>
+                                    {isLoading ? (
+                                        <Command.Loading className="p-2">
+                                            {/* Loading */}
+                                        </Command.Loading>
+                                    ) : (
+                                        <Command.Empty className="text-center py-10">
+                                            <div className="font-semibold mb-1">
+                                                No results found
+                                            </div>
+                                            <div className="text-xs font-medium text-gray-500">
+                                                We couldn't find any resources
+                                                or commands matching your
+                                                search.
+                                            </div>
+                                        </Command.Empty>
+                                    )}
 
                                     {!page && (
                                         <>
@@ -146,13 +163,37 @@ export function CommandMenu() {
                                                     </span>
                                                 </CommandItem>
 
-                                                <CommandItem icon="fa-regular fa-rectangle-history">
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setPage("campaigns");
+                                                        setPlaceholder(
+                                                            "Search campaigns..."
+                                                        );
+                                                    }}
+                                                    icon="fa-regular fa-rectangle-history"
+                                                >
                                                     Search campaigns
                                                 </CommandItem>
-                                                <CommandItem icon="fa-regular fa-rectangle-history">
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setPage("adsets");
+                                                        setPlaceholder(
+                                                            "Search ad sets..."
+                                                        );
+                                                    }}
+                                                    icon="fa-regular fa-rectangle-history"
+                                                >
                                                     Search ad sets
                                                 </CommandItem>
-                                                <CommandItem icon="fa-regular fa-rectangle-history">
+                                                <CommandItem
+                                                    onSelect={() => {
+                                                        setPage("ads");
+                                                        setPlaceholder(
+                                                            "Search ads..."
+                                                        );
+                                                    }}
+                                                    icon="fa-regular fa-rectangle-history"
+                                                >
                                                     Search ads
                                                 </CommandItem>
                                             </Command.Group>
@@ -234,11 +275,14 @@ export function CommandMenu() {
                                     )}
 
                                     {page === "settings" && <Settings />}
+                                    {page === "campaigns" && <Campaigns />}
+                                    {page === "adsets" && <AdSets />}
+                                    {page === "ads" && <Ads />}
                                 </Command.List>
 
                                 <div className="bg-gray-50 px-4 py-3 shadow-base shrink-0">
-                                    <div className="flex items-center justify-end divide-x divide-gray-200/50">
-                                        <div className="flex items-center gap-2 px-4 last:pr-0">
+                                    <div className="flex items-center justify-end gap-4">
+                                        <div className="flex items-center gap-2">
                                             <div className="text-[12px] font-semibold text-gray-400">
                                                 Jump to
                                             </div>
@@ -249,7 +293,7 @@ export function CommandMenu() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2 px-4 last:pr-0">
+                                        <div className="flex items-center gap-2">
                                             <div className="text-[12px] font-semibold text-gray-400">
                                                 Navigate
                                             </div>
@@ -263,7 +307,7 @@ export function CommandMenu() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2 px-4 last:pr-0">
+                                        <div className="flex items-center gap-2">
                                             <div className="text-[12px] font-semibold text-gray-400">
                                                 Close menu
                                             </div>

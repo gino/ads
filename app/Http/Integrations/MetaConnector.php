@@ -116,6 +116,7 @@ class MetaConnector extends Connector implements HasPagination
     protected function handleTooManyAttempts(Response $response, Limit $limit): void
     {
         $status = $response->status();
+
         $retryAfter = RetryAfterHelper::parse($response->header('Retry-After'));
 
         $errorBody = $response->json('error') ?? [];

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CampaignsController;
+use App\Http\Controllers\CommandMenuController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
@@ -53,6 +54,12 @@ Route::middleware([
 
         Route::get('/ad-account/defaults', [SettingsController::class, 'defaults'])->name('dashboard.settings.ad-account.defaults');
         Route::patch('/ad-account/defaults', [SettingsController::class, 'updateDefaults'])->name('update-defaults');
+    });
+
+    Route::prefix('/command-menu')->group(function () {
+        Route::get('/api/campaigns', [CommandMenuController::class, 'campaigns'])->name('command-menu.api.campaigns');
+        Route::get('/api/adsets', [CommandMenuController::class, 'adSets'])->name('command-menu.api.adSets');
+        Route::get('/api/ads', [CommandMenuController::class, 'ads'])->name('command-menu.api.ads');
     });
 
     Route::post('/select-ad-account', [AuthController::class, 'selectAdAccount'])->name('select-ad-account');

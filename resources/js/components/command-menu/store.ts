@@ -7,6 +7,8 @@ import { CommandMenuPage } from "./command-menu";
 interface CommandMenuStore {
     isOpen: boolean;
     setIsOpen: (value: boolean | ((prev: boolean) => boolean)) => void;
+    isLoading: boolean;
+    setIsLoading: (value: boolean) => void;
     pages: CommandMenuPage[];
     setPage: (page: CommandMenuPage) => void;
     setPages: (
@@ -37,6 +39,10 @@ export const useCommandMenuStore = create<CommandMenuStore>((set, get) => ({
 
             return { isOpen: next };
         });
+    },
+    isLoading: false,
+    setIsLoading: (value) => {
+        return set(() => ({ isLoading: value }));
     },
     pages: [],
     setPage: (page) => {
@@ -69,6 +75,8 @@ export function useCommandMenu() {
         useShallow((state) => ({
             isOpen: state.isOpen,
             setIsOpen: state.setIsOpen,
+            isLoading: state.isLoading,
+            setIsLoading: state.setIsLoading,
             pages: state.pages,
             setPage: state.setPage,
             setPages: state.setPages,
