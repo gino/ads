@@ -11,7 +11,7 @@ export function CommandItem({ children, icon, className, ...props }: Props) {
     return (
         <Command.Item
             className={cn(
-                "px-4 cursor-pointer py-3 ring-1 ring-transparent data-[selected='true']:ring-gray-100 data-[selected='true']:bg-gray-100 mb-1 rounded-lg text-sm last:mb-0 flex items-center gap-4 font-semibold group",
+                "px-4 cursor-pointer py-3 ring-1 ring-transparent data-[selected='true']:ring-gray-100 data-[selected='true']:bg-gray-100 mb-1 rounded-lg text-sm last:mb-0 flex items-center gap-4 font-semibold group data-[disabled='true']:opacity-50 data-[disabled='true']:cursor-not-allowed",
                 className
             )}
             {...props}

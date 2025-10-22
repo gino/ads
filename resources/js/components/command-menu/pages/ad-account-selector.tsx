@@ -10,21 +10,19 @@ export function AdAccountSelector() {
 
     const { selectAdAccount, selectedAdAccountId } = useSelectedAdAccount();
 
-    const { setIsOpen, setPage, setSearch } = useCommandMenu();
+    const { setIsOpen, resetPage } = useCommandMenu();
 
     return (
         <Command.Group className="p-2">
             {props.adAccounts.map((adAccount) => (
                 <CommandItem
                     key={adAccount.id}
-                    value={adAccount.name}
                     onSelect={() => {
                         if (adAccount.id !== selectedAdAccountId) {
                             selectAdAccount(adAccount.id);
                         }
 
-                        setPage("index");
-                        setSearch("");
+                        resetPage();
                         setIsOpen(false);
                     }}
                     disabled={!adAccount.isActive}
@@ -45,9 +43,15 @@ export function AdAccountSelector() {
                         </div>
 
                         <div>
-                            <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
-                                {adAccount.currency}
-                            </span>
+                            {!adAccount.isActive ? (
+                                <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                    Inactive
+                                </span>
+                            ) : (
+                                <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                    {adAccount.currency}
+                                </span>
+                            )}
                         </div>
                     </div>
                 </CommandItem>

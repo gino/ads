@@ -7,11 +7,16 @@ import { CommandMenuPage } from "./command-menu";
 interface CommandMenuStore {
     isOpen: boolean;
     setIsOpen: (value: boolean | ((prev: boolean) => boolean)) => void;
-    page: CommandMenuPage;
+    pages: CommandMenuPage[];
     setPage: (page: CommandMenuPage) => void;
+    resetPage: () => void;
     search: string;
     setSearch: (value: string) => void;
+    placeholder: string;
+    setPlaceholder: (value: string) => void;
 }
+
+const initialPlaceholder = "Type a command or search...";
 
 export const useCommandMenuStore = create<CommandMenuStore>((set) => ({
     isOpen: false,
@@ -20,13 +25,24 @@ export const useCommandMenuStore = create<CommandMenuStore>((set) => ({
             isOpen: typeof value === "function" ? value(state.isOpen) : value,
         }));
     },
-    page: "index",
+    pages: [],
     setPage: (page) => {
-        return set(() => ({ page }));
+        return set((state) => ({ pages: [...state.pages, page], search: "" }));
     },
     search: "",
     setSearch: (value) => {
         return set(() => ({ search: value }));
+    },
+    placeholder: initialPlaceholder,
+    setPlaceholder: (value) => {
+        return set(() => ({ placeholder: value }));
+    },
+    resetPage: () => {
+        return set(() => ({
+            pages: [],
+            search: "",
+            placeholder: initialPlaceholder,
+        }));
     },
 }));
 
@@ -35,10 +51,13 @@ export function useCommandMenu() {
         useShallow((state) => ({
             isOpen: state.isOpen,
             setIsOpen: state.setIsOpen,
-            page: state.page,
+            pages: state.pages,
             setPage: state.setPage,
             search: state.search,
             setSearch: state.setSearch,
+            placeholder: state.placeholder,
+            setPlaceholder: state.setPlaceholder,
+            resetPage: state.resetPage,
         }))
     );
 }

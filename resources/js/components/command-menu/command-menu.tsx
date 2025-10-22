@@ -8,18 +8,28 @@ import { CommandItem } from "./command-item";
 import { AdAccountSelector } from "./pages/ad-account-selector";
 import { useCommandMenu } from "./store";
 
-export type CommandMenuPage = "index" | "ad-accounts";
+export type CommandMenuPage = "ad-accounts";
 
 export function CommandMenu() {
-    const { isOpen, setIsOpen, page, setPage, search, setSearch } =
-        useCommandMenu();
+    const {
+        isOpen,
+        setIsOpen,
+        pages,
+        setPage,
+        search,
+        setSearch,
+        resetPage,
+        placeholder,
+        setPlaceholder,
+    } = useCommandMenu();
+
+    const page = pages[pages.length - 1];
 
     const dialog = Ariakit.useDialogStore({
         open: isOpen,
         setOpen: (value) => {
             setIsOpen(value);
-            setPage("index");
-            setSearch("");
+            resetPage();
         },
     });
 
@@ -48,7 +58,7 @@ export function CommandMenu() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             hidden={!open}
-                            transition={{ duration: 0.15, ease: "easeInOut" }}
+                            transition={{ duration: 0.1, ease: "easeInOut" }}
                             className="flex z-50 fixed inset-0 justify-center items-center"
                         >
                             <div {...props} />
@@ -62,33 +72,30 @@ export function CommandMenu() {
                         initial={{
                             opacity: 0,
                             scale: 0.98,
-                            translateY: 8,
                             filter: "blur(1px)",
                         }}
                         animate={{
                             opacity: 1,
                             scale: 1,
-                            translateY: 0,
                             filter: "blur(0px)",
                         }}
                         exit={{
                             opacity: 0,
                             scale: 0.98,
-                            translateY: 8,
                             filter: "blur(1px)",
                         }}
                         transition={{
-                            duration: 0.15,
+                            duration: 0.1,
                             ease: "easeInOut",
                         }}
-                        className="w-full shadow-xs bg-white/60 p-2 rounded-3xl backdrop-blur-[1px] flex flex-col h-full min-h-0 origin-bottom ring-1 ring-black/10"
+                        className="w-full shadow-xs bg-white/60 p-2 rounded-3xl backdrop-blur-[1px] flex flex-col h-full min-h-0 origin-center ring-1 ring-black/10"
                     >
                         <div className="overflow-hidden w-full bg-white rounded-2xl shadow-dialog flex flex-col h-full min-h-0 ring-1 ring-black/5">
                             <Command
                                 onKeyDown={(e) => {
                                     if (e.key === "Backspace" && !search) {
                                         e.preventDefault();
-                                        setPage("index");
+                                        resetPage();
                                     }
                                 }}
                                 loop
@@ -100,7 +107,7 @@ export function CommandMenu() {
                                             value={search}
                                             onValueChange={setSearch}
                                             className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold outline-none transition duration-150 ease-in-out"
-                                            placeholder="Type a command or search..."
+                                            placeholder={placeholder}
                                             autoFocus
                                         />
                                     </div>
@@ -117,7 +124,7 @@ export function CommandMenu() {
                                         </div>
                                     </Command.Empty>
 
-                                    {page === "index" && (
+                                    {!page && (
                                         <>
                                             <Command.Group className="p-2">
                                                 {Array(10)
@@ -143,8 +150,10 @@ export function CommandMenu() {
                                             <Command.Group className="p-2">
                                                 <CommandItem
                                                     onSelect={() => {
-                                                        setSearch("");
                                                         setPage("ad-accounts");
+                                                        setPlaceholder(
+                                                            "Search ad account..."
+                                                        );
                                                     }}
                                                     icon="fa-regular fa-rectangle-history"
                                                 >
@@ -214,7 +223,9 @@ export function CommandMenu() {
                                     )}
                                 </Command.List>
 
-                                <div className="bg-gray-50 h-8 shadow-base shrink-0"></div>
+                                <div className="bg-gray-50 h-8 shadow-base shrink-0">
+                                    {JSON.stringify(pages)}
+                                </div>
                             </Command>
                         </div>
                     </motion.div>
