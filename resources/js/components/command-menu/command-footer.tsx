@@ -1,12 +1,6 @@
-import { useCommandState } from "cmdk";
-
 export function CommandFooter() {
-    const value = useCommandState((state) => state.value);
-
     return (
         <div className="bg-gray-50 px-4 py-3 shadow-base shrink-0">
-            {JSON.stringify(value)}
-
             <div className="flex items-center justify-end gap-4">
                 <div className="flex items-center gap-2">
                     <div className="text-[12px] font-semibold text-gray-400">
