@@ -2,6 +2,7 @@
 
 namespace App\Http\Integrations\Requests;
 
+use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\AdAccount;
 use Illuminate\Support\Facades\Cache;
 use Saloon\CachePlugin\Contracts\Cacheable;
@@ -17,7 +18,7 @@ use Saloon\PaginationPlugin\Contracts\Paginatable;
 
 class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
 {
-    use HasCaching;
+    use HasCaching, HasRateLimits;
 
     protected Method $method = Method::GET;
 
@@ -47,11 +48,6 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
 
         return [
             'fields' => implode(',', $fields),
-            // https://chatgpt.com/c/68b80a11-b3e4-8324-9516-5c6b0e08a801
-            // 'time_range' => [
-            //     'since' => $this->getFormattedDateFrom(),
-            //     'until' => $this->getFormattedDateTo(),
-            // ],
             'date_preset' => 'maximum',
         ];
     }
@@ -83,5 +79,10 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
     {
         // 15 minutes
         return 60 * 15;
+    }
+
+    protected function getLimiterPrefix(): ?string
+    {
+        return "ad-account-id-{$this->adAccount->id}";
     }
 }

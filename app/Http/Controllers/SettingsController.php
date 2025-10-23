@@ -76,7 +76,8 @@ class SettingsController extends Controller
         /** @var AdAccount $adAccount */
         $adAccount = $request->adAccount();
 
-        $meta = new MetaConnector($request->user()->connection);
+        $connection = $request->user()->connection;
+        $meta = new MetaConnector($connection);
 
         $defaults = $adAccount->getSettings([
             'website_url',
@@ -119,13 +120,13 @@ class SettingsController extends Controller
 
                 return PixelData::collect($pixels);
             }, 'pixels'),
-            'pages' => Inertia::defer(function () use ($meta, $adAccount) {
-                $pages = $meta->paginate(new GetFacebookPagesRequest($adAccount))->collect();
+            'pages' => Inertia::defer(function () use ($meta, $connection) {
+                $pages = $meta->paginate(new GetFacebookPagesRequest($connection))->collect();
 
                 return FacebookPageData::collect($pages);
             }, 'pages'),
-            'countries' => Inertia::defer(function () use ($meta) {
-                $countries = $meta->send(new GetTargetingCountriesRequest)->json('data', []);
+            'countries' => Inertia::defer(function () use ($meta, $connection) {
+                $countries = $meta->send(new GetTargetingCountriesRequest($connection))->json('data', []);
 
                 return TargetingCountryData::collect($countries);
             }, 'countries'),

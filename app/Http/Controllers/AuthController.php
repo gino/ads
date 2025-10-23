@@ -151,7 +151,7 @@ class AuthController extends Controller
     private function fetchAdAccounts(Connection $connection)
     {
         $meta = new MetaConnector($connection);
-        $paginator = $meta->paginate(new GetAdAccountsRequest);
+        $paginator = $meta->paginate(new GetAdAccountsRequest($connection));
 
         return $paginator->collect();
     }

@@ -38,7 +38,8 @@ class UploadController extends Controller
         /** @var AdAccount $adAccount */
         $adAccount = $request->adAccount();
 
-        $meta = new MetaConnector($request->user()->connection);
+        $connection = $request->user()->connection;
+        $meta = new MetaConnector($connection);
 
         $campaignId = $request->query('campaignId');
 
@@ -76,13 +77,13 @@ class UploadController extends Controller
 
                 return PixelData::collect($pixels);
             }, 'pixels'),
-            'pages' => Inertia::defer(function () use ($meta, $adAccount, $defaults) {
-                $pages = ! $defaults['facebook_page_id'] ? $meta->paginate(new GetFacebookPagesRequest($adAccount))->collect() : [];
+            'pages' => Inertia::defer(function () use ($meta, $connection, $defaults) {
+                $pages = ! $defaults['facebook_page_id'] ? $meta->paginate(new GetFacebookPagesRequest($connection))->collect() : [];
 
                 return FacebookPageData::collect($pages);
             }, 'pages'),
-            'countries' => Inertia::defer(function () use ($meta) {
-                $countries = $meta->send(new GetTargetingCountriesRequest)->json('data', []);
+            'countries' => Inertia::defer(function () use ($meta, $connection) {
+                $countries = $meta->send(new GetTargetingCountriesRequest($connection))->json('data', []);
 
                 return TargetingCountryData::collect($countries);
             }, 'countries'),

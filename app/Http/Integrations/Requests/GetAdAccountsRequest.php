@@ -2,6 +2,7 @@
 
 namespace App\Http\Integrations\Requests;
 
+use App\Models\Connection;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\PaginationPlugin\Contracts\Paginatable;
@@ -10,9 +11,9 @@ use Saloon\PaginationPlugin\Contracts\Paginatable;
 
 class GetAdAccountsRequest extends Request implements Paginatable
 {
-    // Add caching but disable for login call
-
     protected Method $method = Method::GET;
+
+    public function __construct(public Connection $connection) {}
 
     public function resolveEndpoint(): string
     {
@@ -40,5 +41,10 @@ class GetAdAccountsRequest extends Request implements Paginatable
         return [
             'fields' => implode(',', $fields),
         ];
+    }
+
+    protected function getLimiterPrefix(): ?string
+    {
+        return "connection-id-{$this->connection->id}";
     }
 }
