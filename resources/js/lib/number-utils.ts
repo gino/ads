@@ -70,23 +70,18 @@ const currencyLocaleMap = {
     VES: "es-VE", // Bolivar Soberano
 };
 
-export function formatMoney(amount: number) {
-    const { selectedAdAccount } = useSelectedAdAccount();
-    const currency = selectedAdAccount.currency;
-
+// Core formatting functions that don't use hooks
+export function formatMoneyWithLocale(amount: number, currency: string) {
     // @ts-ignore
     const locale = currencyLocaleMap[currency];
 
     return Intl.NumberFormat(locale, {
         style: "currency",
-        currency: selectedAdAccount.currency,
+        currency: currency,
     }).format(amount);
 }
 
-export function formatPercentage(value: number) {
-    const { selectedAdAccount } = useSelectedAdAccount();
-    const currency = selectedAdAccount.currency;
-
+export function formatPercentageWithLocale(value: number, currency: string) {
     // @ts-ignore
     const locale = currencyLocaleMap[currency];
 
@@ -96,12 +91,25 @@ export function formatPercentage(value: number) {
     }).format(value / 100);
 }
 
-export function formatNumber(value: number) {
-    const { selectedAdAccount } = useSelectedAdAccount();
-    const currency = selectedAdAccount.currency;
-
+export function formatNumberWithLocale(value: number, currency: string) {
     // @ts-ignore
     const locale = currencyLocaleMap[currency];
 
     return Intl.NumberFormat(locale).format(value);
+}
+
+// Hook-based versions for tanstack table (keep these unchanged)
+export function formatMoney(amount: number) {
+    const { selectedAdAccount } = useSelectedAdAccount();
+    return formatMoneyWithLocale(amount, selectedAdAccount.currency);
+}
+
+export function formatPercentage(value: number) {
+    const { selectedAdAccount } = useSelectedAdAccount();
+    return formatPercentageWithLocale(value, selectedAdAccount.currency);
+}
+
+export function formatNumber(value: number) {
+    const { selectedAdAccount } = useSelectedAdAccount();
+    return formatNumberWithLocale(value, selectedAdAccount.currency);
 }
