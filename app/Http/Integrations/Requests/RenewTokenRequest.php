@@ -4,6 +4,7 @@ namespace App\Http\Integrations\Requests;
 
 use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\Connection;
+use ReflectionClass;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 
@@ -37,6 +38,8 @@ class RenewTokenRequest extends Request
 
     protected function getLimiterPrefix(): ?string
     {
-        return "connection-id-{$this->connection->id}";
+        $requestName = (new ReflectionClass($this))->getShortName();
+
+        return "connection-id-{$this->connection->id}:{$requestName}";
     }
 }

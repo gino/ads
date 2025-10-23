@@ -21,8 +21,10 @@ class CommandMenuController extends Controller
         $meta = new MetaConnector($request->user()->connection);
 
         $adCampaignsRequest = new GetAdCampaignsRequest($adAccount);
-
         $campaigns = collect($meta->paginate($adCampaignsRequest)->collect()->all());
+        // for ($i = 0; $i < 1; $i++) {
+        //     dump(AdCampaignData::collect($campaigns));
+        // }
 
         return AdCampaignData::collect($campaigns);
     }

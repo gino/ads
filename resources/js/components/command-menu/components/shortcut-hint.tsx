@@ -1,4 +1,5 @@
-import { ReactNode } from "react";
+import { cn } from "@/lib/cn";
+import { ComponentProps, forwardRef, ReactNode } from "react";
 
 interface Props {
     label: string;
@@ -45,9 +46,19 @@ export function ShortcutIconHint({ label, keys }: Props) {
     );
 }
 
-export function ShortcutButtonHint({ label, keys }: Props) {
+export const ShortcutButtonHint = forwardRef<
+    HTMLButtonElement,
+    Props & ComponentProps<"button">
+>(({ label, keys, className, ...props }, ref) => {
     return (
-        <button className="flex items-center gap-2 cursor-pointer hover:bg-gray-200/50 ring-1 hover:ring-gray-200/50 ring-transparent px-2 pr-1.5 py-1 -my-1 rounded-md group -mr-1.5 -ml-2 active:scale-[0.99] transition-transform duration-150 ease-in-out">
+        <button
+            ref={ref}
+            className={cn(
+                className,
+                "flex items-center gap-2 cursor-pointer hover:bg-gray-200/50 ring-1 hover:ring-gray-200/50 ring-transparent px-2 pr-1.5 py-1 -my-1 rounded-md group -mr-1.5 -ml-2 active:scale-[0.99] transition-transform duration-150 ease-in-out"
+            )}
+            {...props}
+        >
             <div className="text-[12px] font-semibold text-gray-500 group-hover:text-black">
                 {label}
             </div>
@@ -63,4 +74,4 @@ export function ShortcutButtonHint({ label, keys }: Props) {
             </div>
         </button>
     );
-}
+});

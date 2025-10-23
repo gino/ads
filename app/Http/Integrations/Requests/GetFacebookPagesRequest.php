@@ -5,6 +5,7 @@ namespace App\Http\Integrations\Requests;
 use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\Connection;
 use Illuminate\Support\Facades\Cache;
+use ReflectionClass;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
@@ -70,6 +71,8 @@ class GetFacebookPagesRequest extends Request implements Cacheable, Paginatable
 
     protected function getLimiterPrefix(): ?string
     {
-        return "connection-id-{$this->connection->id}";
+        $requestName = (new ReflectionClass($this))->getShortName();
+
+        return "connection-id-{$this->connection->id}:{$requestName}";
     }
 }

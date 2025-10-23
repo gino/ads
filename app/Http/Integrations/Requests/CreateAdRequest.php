@@ -4,6 +4,7 @@ namespace App\Http\Integrations\Requests;
 
 use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\AdAccount;
+use ReflectionClass;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
@@ -45,6 +46,8 @@ class CreateAdRequest extends Request implements HasBody
 
     protected function getLimiterPrefix(): ?string
     {
-        return "ad-account-id-{$this->adAccount->id}";
+        $requestName = (new ReflectionClass($this))->getShortName();
+
+        return "ad-account-id-{$this->adAccount->id}:{$requestName}";
     }
 }

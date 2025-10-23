@@ -6,6 +6,7 @@ use App\Http\Integrations\Requests\Traits\FilteringByDate;
 use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\AdAccount;
 use Illuminate\Support\Facades\Cache;
+use ReflectionClass;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
@@ -98,6 +99,8 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
 
     protected function getLimiterPrefix(): ?string
     {
-        return "ad-account-id-{$this->adAccount->id}";
+        $requestName = (new ReflectionClass($this))->getShortName();
+
+        return "ad-account-id-{$this->adAccount->id}:{$requestName}";
     }
 }
