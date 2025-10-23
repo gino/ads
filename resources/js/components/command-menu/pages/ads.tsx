@@ -31,6 +31,7 @@ export function Ads() {
             {ads.map((ad) => (
                 <CommandItem
                     key={ad.id}
+                    id="ad-item"
                     onSelect={() => {
                         setIsOpen(false);
                         router.visit(

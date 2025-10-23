@@ -42,6 +42,7 @@ export function Settings() {
             {items.map((item, index) => (
                 <CommandItem
                     key={index}
+                    id="setting-item"
                     onSelect={() => {
                         setIsOpen(false);
                         router.visit(item.href);

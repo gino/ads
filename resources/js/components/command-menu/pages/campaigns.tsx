@@ -31,6 +31,7 @@ export function Campaigns() {
             {campaigns.map((campaign) => (
                 <CommandItem
                     key={campaign.id}
+                    id="campaign-item"
                     onSelect={() => {
                         setIsOpen(false);
                         router.visit(

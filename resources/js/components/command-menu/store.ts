@@ -21,6 +21,8 @@ interface CommandMenuStore {
     setSearch: (value: string) => void;
     placeholder: string;
     setPlaceholder: (value: string) => void;
+    selectedItemId: string | null;
+    setSelectedItemId: (id: string) => void;
 }
 
 export const initialPlaceholder = "Type a command or search...";
@@ -46,11 +48,16 @@ export const useCommandMenuStore = create<CommandMenuStore>((set, get) => ({
     },
     pages: [],
     setPage: (page) => {
-        return set((state) => ({ pages: [...state.pages, page], search: "" }));
+        return set((state) => ({
+            pages: [...state.pages, page],
+            search: "",
+            selectedItemId: null,
+        }));
     },
     setPages: (value) => {
         return set((state) => ({
             pages: typeof value === "function" ? value(state.pages) : value,
+            selectedItemId: null,
         }));
     },
     search: "",
@@ -66,7 +73,12 @@ export const useCommandMenuStore = create<CommandMenuStore>((set, get) => ({
             pages: [],
             search: "",
             placeholder: initialPlaceholder,
+            selectedItemId: null,
         }));
+    },
+    selectedItemId: "",
+    setSelectedItemId: (value) => {
+        return set(() => ({ selectedItemId: value }));
     },
 }));
 
@@ -85,6 +97,8 @@ export function useCommandMenu() {
             placeholder: state.placeholder,
             setPlaceholder: state.setPlaceholder,
             resetPage: state.resetPage,
+            selectedItemId: state.selectedItemId,
+            setSelectedItemId: state.setSelectedItemId,
         }))
     );
 }

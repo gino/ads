@@ -17,6 +17,7 @@ export function AdAccountSelector() {
             {props.adAccounts.map((adAccount) => (
                 <CommandItem
                     key={adAccount.id}
+                    id="ad-account-item"
                     onSelect={() => {
                         if (adAccount.id !== selectedAdAccountId) {
                             selectAdAccount(adAccount.id);

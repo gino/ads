@@ -45,9 +45,13 @@ export function CommandMenu() {
     useHotkeys(
         ["meta+k", "ctrl+k", "Slash"],
         () => {
-            setIsOpen((o) => !o);
+            if (isOpen) {
+                return;
+            }
+
+            setIsOpen(true);
         },
-        [setIsOpen],
+        [setIsOpen, isOpen],
         { preventDefault: true }
     );
 
@@ -152,6 +156,7 @@ export function CommandMenu() {
                                         <>
                                             <Command.Group className="p-2">
                                                 <CommandItem
+                                                    id="switch-ad-account"
                                                     onSelect={() => {
                                                         setPage("ad-accounts");
                                                         setPlaceholder(
@@ -169,6 +174,7 @@ export function CommandMenu() {
                                                 </CommandItem>
 
                                                 <CommandItem
+                                                    id="search-campaigns"
                                                     onSelect={() => {
                                                         setPage("campaigns");
                                                         setPlaceholder(
@@ -180,6 +186,7 @@ export function CommandMenu() {
                                                     Search campaigns
                                                 </CommandItem>
                                                 <CommandItem
+                                                    id="search-adsets"
                                                     onSelect={() => {
                                                         setPage("adsets");
                                                         setPlaceholder(
@@ -191,6 +198,7 @@ export function CommandMenu() {
                                                     Search ad sets
                                                 </CommandItem>
                                                 <CommandItem
+                                                    id="search-ads"
                                                     onSelect={() => {
                                                         setPage("ads");
                                                         setPlaceholder(
@@ -202,6 +210,7 @@ export function CommandMenu() {
                                                     Search ads
                                                 </CommandItem>
                                                 <CommandItem
+                                                    id="create-ads"
                                                     onSelect={() => {
                                                         setIsOpen(false);
                                                         router.visit(
@@ -216,6 +225,7 @@ export function CommandMenu() {
                                                 </CommandItem>
 
                                                 <CommandItem
+                                                    id="create-adsets"
                                                     onSelect={() => {
                                                         setIsOpen(false);
                                                         router.visit(
@@ -232,6 +242,7 @@ export function CommandMenu() {
 
                                             <Command.Group className="p-2">
                                                 <CommandItem
+                                                    id="dashboard"
                                                     onSelect={() => {
                                                         setIsOpen(false);
                                                         router.visit(
@@ -245,6 +256,7 @@ export function CommandMenu() {
                                                     Dashboard
                                                 </CommandItem>
                                                 <CommandItem
+                                                    id="upload"
                                                     onSelect={() => {
                                                         setIsOpen(false);
                                                         router.visit(
@@ -258,6 +270,7 @@ export function CommandMenu() {
                                                     Upload
                                                 </CommandItem>
                                                 <CommandItem
+                                                    id="campaigns"
                                                     onSelect={() => {
                                                         setIsOpen(false);
                                                         router.visit(
@@ -271,6 +284,7 @@ export function CommandMenu() {
                                                     Campaigns
                                                 </CommandItem>
                                                 <CommandItem
+                                                    id="settings"
                                                     onSelect={() => {
                                                         setPage("settings");
                                                         setPlaceholder(
@@ -285,6 +299,7 @@ export function CommandMenu() {
 
                                             <Command.Group className="p-2">
                                                 <CommandItem
+                                                    id="logout"
                                                     onSelect={() => {
                                                         setIsOpen(false);
                                                         router.post(

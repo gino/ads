@@ -31,6 +31,7 @@ export function AdSets() {
             {adSets.map((adSet) => (
                 <CommandItem
                     key={adSet.id}
+                    id="adset-item"
                     onSelect={() => {
                         setIsOpen(false);
                         router.visit(
