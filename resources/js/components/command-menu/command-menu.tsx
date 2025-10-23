@@ -64,9 +64,15 @@ export function CommandMenu() {
                     portal
                     store={dialog}
                     alwaysVisible
-                    hideOnInteractOutside
-                    // hideOnEscape={false}
-                    autoFocusOnShow={false}
+                    hideOnInteractOutside={(event) => {
+                        if (event instanceof FocusEvent) {
+                            return false;
+                        }
+
+                        return true;
+                    }}
+                    hideOnEscape
+                    autoFocusOnShow
                     render={(props) => (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -80,7 +86,7 @@ export function CommandMenu() {
                         </motion.div>
                     )}
                     className={cn(
-                        "w-full flex flex-col max-h-[min(var(--dialog-viewport-height),500px)] py-4 outline-none max-w-2xl"
+                        "w-full flex flex-col max-h-[min(var(--dialog-viewport-height),500px)] px-4 py-4 outline-none max-w-3xl"
                     )}
                 >
                     <motion.div
@@ -116,7 +122,7 @@ export function CommandMenu() {
                                     }
                                 }}
                                 loop
-                                className="flex flex-col h-full min-h-0"
+                                className="flex flex-col h-full min-h-0 outline-none"
                             >
                                 <div className="p-2 shrink-0">
                                     <div className="relative">

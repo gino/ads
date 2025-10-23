@@ -32,6 +32,7 @@ export function Modal({
                     alwaysVisible
                     hideOnInteractOutside={hideOnInteractOutside}
                     autoFocusOnShow={false}
+                    unmountOnHide
                     render={(props) => (
                         <motion.div
                             initial={{ opacity: 0 }}

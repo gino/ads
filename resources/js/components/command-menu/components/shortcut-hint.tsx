@@ -55,18 +55,18 @@ export const ShortcutButtonHint = forwardRef<
             ref={ref}
             className={cn(
                 className,
-                "flex items-center gap-2 cursor-pointer hover:bg-gray-200/50 ring-1 hover:ring-gray-200/50 ring-transparent px-2 pr-1.5 py-1 -my-1 rounded-md group -mr-1.5 -ml-2 active:scale-[0.99] transition-transform duration-150 ease-in-out"
+                "flex items-center gap-2 cursor-pointer aria-[expanded='true']:bg-gray-200/50 hover:bg-gray-200/50 ring-1 hover:ring-gray-200/50 ring-transparent px-2 pr-1.5 py-1 -my-1 rounded-md group -mr-1.5 -ml-2 active:scale-[0.99] transition-transform duration-150 ease-in-out"
             )}
             {...props}
         >
-            <div className="text-[12px] font-semibold text-gray-500 group-hover:text-black">
+            <div className="text-[12px] font-semibold text-gray-500 group-hover:text-black group-aria-[expanded='true']:text-black">
                 {label}
             </div>
             <div className="flex items-center gap-1">
                 {keys.map((key, index) => (
                     <div
                         key={index}
-                        className="h-4 w-4 rounded bg-gray-200/50 ring-1 ring-gray-200/50 flex items-center justify-center text-[11px] font-semibold text-gray-500 group-hover:text-black group-hover:bg-gray-200 group-hover:ring-gray-200"
+                        className="h-4 w-4 rounded bg-gray-200/50 ring-1 ring-gray-200/50 flex items-center justify-center text-[11px] font-semibold text-gray-500 group-aria-[expanded='true']:text-black group-aria-[expanded='true']:bg-gray-200 group-aria-[expanded='true']:ring-gray-200 group-hover:text-black group-hover:bg-gray-200 group-hover:ring-gray-200"
                     >
                         {key}
                     </div>

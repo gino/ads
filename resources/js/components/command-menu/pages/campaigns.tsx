@@ -3,6 +3,7 @@ import * as Ariakit from "@ariakit/react";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { CommandItem } from "../command-item";
@@ -71,22 +72,26 @@ export function Campaigns() {
 export function CampaignContextMenu() {
     const [isOpen, setIsOpen] = useState(false);
 
+    const store = Ariakit.usePopoverStore({
+        open: isOpen,
+        setOpen: setIsOpen,
+    });
+
     useHotkeys(
         ["meta+k", "ctrl+k"],
         () => {
             setIsOpen((o) => !o);
         },
         [setIsOpen],
-        { preventDefault: true, enableOnFormTags: true }
+        {
+            preventDefault: true,
+            enableOnFormTags: true,
+        }
     );
 
     return (
-        <Ariakit.MenuProvider
-            open={isOpen}
-            setOpen={setIsOpen}
-            placement="top-end"
-        >
-            <Ariakit.MenuButton
+        <Ariakit.PopoverProvider store={store} placement="top-end">
+            <Ariakit.PopoverDisclosure
                 render={(props) => (
                     <ShortcutButtonHint
                         label="Actions"
@@ -97,36 +102,71 @@ export function CampaignContextMenu() {
                             <i className="fa-solid fa-command text-[8px]" />,
                             <span>K</span>,
                         ]}
+                        aria-expanded={isOpen}
                         {...props}
                     />
                 )}
             />
-            <Ariakit.Menu className="bg-red-500 z-50" portal>
-                <Ariakit.MenuItem
-                    className="menu-item"
-                    onClick={() => alert("Edit")}
-                >
-                    Edit
-                </Ariakit.MenuItem>
-                <Ariakit.MenuItem className="menu-item">Share</Ariakit.MenuItem>
-                <Ariakit.MenuItem className="menu-item" disabled>
-                    Delete
-                </Ariakit.MenuItem>
-                <Ariakit.MenuSeparator className="separator" />
-                <Ariakit.MenuItem className="menu-item">
-                    Report
-                </Ariakit.MenuItem>
-            </Ariakit.Menu>
-        </Ariakit.MenuProvider>
-    );
 
-    return (
-        <ShortcutButtonHint
-            label="Actions"
-            keys={[
-                <i className="fa-solid fa-command text-[8px]" />,
-                <span>K</span>,
-            ]}
-        />
+            <Ariakit.Popover
+                store={store}
+                portal
+                gutter={18}
+                alwaysVisible
+                autoFocusOnHide
+                finalFocus={
+                    document.querySelector("input[cmdk-input]") as HTMLElement
+                }
+                // unmountOnHide
+                className="z-50 w-80"
+            >
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.div
+                            initial={{
+                                opacity: 0,
+                                scale: 0.98,
+                                filter: "blur(1px)",
+                            }}
+                            animate={{
+                                opacity: 1,
+                                scale: 1,
+                                filter: "blur(0px)",
+                            }}
+                            exit={{
+                                opacity: 0,
+                                scale: 0.98,
+                                filter: "blur(1px)",
+                            }}
+                            transition={{
+                                duration: 0.1,
+                                ease: "easeInOut",
+                            }}
+                            className="bg-white shadow-base-popup origin-bottom-right w-full p-1 space-y-1 scroll-p-1 rounded-xl max-h-72 overflow-y-auto"
+                        >
+                            <Command className="outline-none">
+                                <Command.List className="outline-none">
+                                    <Command.Group>
+                                        {Array(20)
+                                            .fill(null)
+                                            .map((_, index) => (
+                                                <Command.Item
+                                                    key={index}
+                                                    onSelect={() => {
+                                                        setIsOpen(false);
+                                                    }}
+                                                    className="data-[selected='true']:bg-gray-100 px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold"
+                                                >
+                                                    yeet {index + 1}
+                                                </Command.Item>
+                                            ))}
+                                    </Command.Group>
+                                </Command.List>
+                            </Command>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </Ariakit.Popover>
+        </Ariakit.PopoverProvider>
     );
 }
