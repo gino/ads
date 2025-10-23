@@ -1,5 +1,6 @@
 import { StatusTag } from "@/components/ui/status-tag";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
+import { formatMoneyWithLocale } from "@/lib/number-utils";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
@@ -102,19 +103,38 @@ export function CampaignContextMenu() {
             <Command loop className="outline-none">
                 <Command.List className="outline-none">
                     <Command.Group>
-                        {Array(20)
-                            .fill(null)
-                            .map((_, index) => (
-                                <Command.Item
-                                    key={index}
-                                    onSelect={() => {
-                                        setIsOpen(false);
-                                    }}
-                                    className="data-[selected='true']:bg-gray-100 px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
-                                >
-                                    {JSON.stringify(campaign)} {index + 1}
-                                </Command.Item>
-                            ))}
+                        <Command.Item
+                            onSelect={() => {
+                                setIsOpen(false);
+                            }}
+                            className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
+                        >
+                            <div className="flex items-center truncate">
+                                <div className="flex-1 truncate">
+                                    Set daily budget
+                                </div>
+
+                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                    {formatMoneyWithLocale(
+                                        parseInt(campaign.dailyBudget!) / 100,
+                                        selectedAdAccount.currency
+                                    )}
+                                </div>
+                            </div>
+                        </Command.Item>
+
+                        <Command.Item
+                            onSelect={() => {
+                                setIsOpen(false);
+                            }}
+                            className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
+                        >
+                            <div className="flex items-center truncate">
+                                <div className="flex-1 truncate">
+                                    Turn campaign on
+                                </div>
+                            </div>
+                        </Command.Item>
                     </Command.Group>
                 </Command.List>
             </Command>
