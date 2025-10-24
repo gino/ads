@@ -1,4 +1,5 @@
-import { Fragment } from "react/jsx-runtime";
+import { Portal } from "@ariakit/react";
+import { PropsWithChildren } from "react";
 import { ShortcutIconHint, ShortcutKeyHint } from "./components/shortcut-hint";
 import { footerActions } from "./footer-actions";
 import { useCommandMenu } from "./store";
@@ -13,10 +14,6 @@ export function CommandFooter() {
 
     return (
         <div className="bg-gray-50 px-4 py-3 shadow-base shrink-0 relative">
-            {/* <div className="absolute text-[12px]">
-                {JSON.stringify({ selectedItemId })}
-            </div> */}
-
             <div className="flex items-center justify-end gap-4">
                 <ShortcutKeyHint label="Close menu" keys={["esc"]} />
                 <ShortcutIconHint
@@ -27,19 +24,13 @@ export function CommandFooter() {
                     ]}
                 />
 
-                {Array.isArray(action?.keys) && action.keys.length > 0 ? (
-                    action.keys.map((key, index) => (
-                        <Fragment key={index}>{key}</Fragment>
-                    ))
-                ) : (
-                    <ShortcutIconHint
-                        label={action?.label || "Jump to"}
-                        keys={[
-                            <i className="fa-solid fa-arrow-turn-down-left text-[8px]" />,
-                        ]}
-                    />
-                )}
+                <div id="command-footer-actions" className="empty:hidden" />
             </div>
         </div>
     );
+}
+
+export function CommandFooterPortal({ children }: PropsWithChildren) {
+    const portalElement = document.getElementById("command-footer-actions")!;
+    return <Portal portalElement={portalElement}>{children}</Portal>;
 }

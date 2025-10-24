@@ -1,10 +1,12 @@
 import { StatusTag } from "@/components/ui/status-tag";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatMoneyWithLocale } from "@/lib/number-utils";
+import { Portal } from "@ariakit/react";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
 import { useEffect, useState } from "react";
+import { CommandFooterPortal } from "../command-footer";
 import { CommandItem } from "../command-item";
 import { CommandSubMenu } from "../command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
@@ -69,13 +71,14 @@ export function Campaigns() {
                     </div>
                 </CommandItem>
             ))}
+
+            <CampaignContextMenu foo={"yeet"} />
         </Command.Group>
     );
 }
 
-export function CampaignContextMenu() {
-    const { selectedItemData } = useCommandMenu();
-    const campaign = selectedItemData as App.Data.AdCampaignData;
+export function CampaignContextMenu({ foo }: { foo: any }) {
+    const campaign = {} as App.Data.AdCampaignData;
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -86,18 +89,21 @@ export function CampaignContextMenu() {
             setIsOpen={setIsOpen}
             isOpen={isOpen}
             disclosure={(props) => (
-                <ShortcutButtonHint
-                    label="Actions"
-                    onClick={() => {
-                        setIsOpen((o) => !o);
-                    }}
-                    keys={[
-                        <i className="fa-solid fa-command text-[8px]" />,
-                        <span>K</span>,
-                    ]}
-                    aria-expanded={isOpen}
-                    {...props}
-                />
+                <CommandFooterPortal>
+                    {JSON.stringify(foo)}
+                    <ShortcutButtonHint
+                        label="Actions"
+                        onClick={() => {
+                            setIsOpen((o) => !o);
+                        }}
+                        keys={[
+                            <i className="fa-solid fa-command text-[8px]" />,
+                            <span>K</span>,
+                        ]}
+                        aria-expanded={isOpen}
+                        {...props}
+                    />
+                </CommandFooterPortal>
             )}
         >
             <Command loop className="outline-none">
@@ -157,5 +163,21 @@ export function CampaignContextMenu() {
                 </Command.List>
             </Command>
         </CommandSubMenu>
+    );
+}
+
+function CampaignContextMenu2() {
+    return (
+        <Portal
+            portalElement={document.getElementById("command-footer-actions")!}
+        >
+            <ShortcutButtonHint
+                label="Actions"
+                keys={[
+                    <i className="fa-solid fa-command text-[8px]" />,
+                    <span>K</span>,
+                ]}
+            />
+        </Portal>
     );
 }
