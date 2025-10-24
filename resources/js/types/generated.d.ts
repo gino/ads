@@ -32,6 +32,7 @@ id: string;
 name: string;
 effectiveStatus: string;
 status: string;
+dailyBudget: string | null;
 campaignId: string;
 insights: App.Data.InsightsData | null;
 countries: Array<any>;

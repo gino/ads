@@ -53,6 +53,7 @@ class GetAdSetsRequest extends Request implements Cacheable, Paginatable
             'name',
             'effective_status',
             'status',
+            'daily_budget', // ABO (budget on adset level)
             'campaign_id',
             'targeting',
         ];

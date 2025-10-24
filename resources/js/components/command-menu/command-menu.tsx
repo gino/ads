@@ -124,18 +124,18 @@ export function CommandMenu() {
                                 loop
                                 className="flex flex-col h-full min-h-0 outline-none"
                             >
-                                <div className="p-2 shrink-0">
+                                <div className="shrink-0 border-b border-gray-100">
                                     <div className="relative">
                                         <Command.Input
                                             value={search}
                                             onValueChange={setSearch}
-                                            className="w-full px-3.5 py-2.5 bg-white rounded-lg ring-1 ring-gray-200 placeholder-gray-400 font-semibold outline-none transition duration-150 ease-in-out"
+                                            className="w-full px-5 py-4 bg-white placeholder-gray-400 font-semibold outline-none transition duration-150 ease-in-out"
                                             placeholder={placeholder}
                                             autoFocus
                                         />
 
                                         {isLoading && (
-                                            <div className="absolute top-1/2 -translate-y-1/2 right-3.5 pointer-events-none">
+                                            <div className="absolute top-1/2 -translate-y-1/2 right-5 pointer-events-none">
                                                 <i className="fa-solid fa-spinner-third animate-spin text-[12px] text-gray-300" />
                                             </div>
                                         )}

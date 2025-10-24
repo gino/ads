@@ -44,7 +44,7 @@ class GetAdCampaignsRequest extends Request implements Cacheable, Paginatable
             'name',
             'effective_status',
             'status',
-            'daily_budget',
+            'daily_budget', // CBO (budget on campaign level)
         ];
 
         return [
