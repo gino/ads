@@ -5,6 +5,7 @@ import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
 import { useEffect, useState } from "react";
+import { CommandFooterPortal } from "../command-footer";
 import { CommandItem } from "../command-item";
 import { CommandSubMenu } from "../command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
@@ -12,8 +13,9 @@ import { useCommandMenu } from "../store";
 
 export function AdSets() {
     const [adSets, setAdSets] = useState<App.Data.AdSetData[]>([]);
-    const { setIsOpen, isLoading, setIsLoading, setSelectedItemData } =
-        useCommandMenu();
+    const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
+
+    const [selected, setSelected] = useState<App.Data.AdSetData | null>(null);
 
     useEffect(() => {
         setIsLoading(true);
@@ -48,7 +50,7 @@ export function AdSets() {
                         );
                     }}
                     onSelectedChange={() => {
-                        setSelectedItemData(adSet);
+                        setSelected(adSet);
                     }}
                     keywords={[adSet.id, adSet.name]}
                     value={adSet.id}
@@ -61,35 +63,44 @@ export function AdSets() {
                     </div>
                 </CommandItem>
             ))}
+
+            <AdSetContextMenu adSet={selected} />
         </Command.Group>
     );
 }
 
-export function AdSetContextMenu() {
-    const { selectedItemData } = useCommandMenu();
-    const adSet = selectedItemData as App.Data.AdSetData;
+interface AdSetContextMenuProps {
+    adSet: App.Data.AdSetData | null;
+}
 
+export function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const { selectedAdAccount } = useSelectedAdAccount();
+
+    if (!adSet) {
+        return null;
+    }
 
     return (
         <CommandSubMenu
             setIsOpen={setIsOpen}
             isOpen={isOpen}
             disclosure={(props) => (
-                <ShortcutButtonHint
-                    label="Actions"
-                    onClick={() => {
-                        setIsOpen((o) => !o);
-                    }}
-                    keys={[
-                        <i className="fa-solid fa-command text-[8px]" />,
-                        <span>K</span>,
-                    ]}
-                    aria-expanded={isOpen}
-                    {...props}
-                />
+                <CommandFooterPortal>
+                    <ShortcutButtonHint
+                        label="Actions"
+                        onClick={() => {
+                            setIsOpen((o) => !o);
+                        }}
+                        keys={[
+                            <i className="fa-solid fa-command text-[8px]" />,
+                            <span>K</span>,
+                        ]}
+                        aria-expanded={isOpen}
+                        {...props}
+                    />
+                </CommandFooterPortal>
             )}
         >
             <Command loop className="outline-none">

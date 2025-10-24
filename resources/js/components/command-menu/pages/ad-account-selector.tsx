@@ -2,7 +2,10 @@ import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
 import { Command } from "cmdk";
+import { useState } from "react";
+import { CommandFooterPortal } from "../command-footer";
 import { CommandItem } from "../command-item";
+import { ShortcutIconHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
 
 export function AdAccountSelector() {
@@ -11,6 +14,10 @@ export function AdAccountSelector() {
     const { selectAdAccount, selectedAdAccountId } = useSelectedAdAccount();
 
     const { setIsOpen } = useCommandMenu();
+
+    const [selected, setSelected] = useState<App.Data.AdAccountData | null>(
+        null
+    );
 
     return (
         <Command.Group className="p-2">
@@ -24,6 +31,9 @@ export function AdAccountSelector() {
                         }
 
                         setIsOpen(false);
+                    }}
+                    onSelectedChange={() => {
+                        setSelected(adAccount);
                     }}
                     disabled={!adAccount.isActive}
                 >
@@ -56,6 +66,17 @@ export function AdAccountSelector() {
                     </div>
                 </CommandItem>
             ))}
+
+            {selected && (
+                <CommandFooterPortal>
+                    <ShortcutIconHint
+                        label="Switch to"
+                        keys={[
+                            <i className="fa-solid fa-arrow-turn-down-left text-[8px]" />,
+                        ]}
+                    />
+                </CommandFooterPortal>
+            )}
         </Command.Group>
     );
 }

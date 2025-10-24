@@ -1,7 +1,6 @@
 import { StatusTag } from "@/components/ui/status-tag";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatMoneyWithLocale } from "@/lib/number-utils";
-import { Portal } from "@ariakit/react";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
@@ -14,8 +13,11 @@ import { useCommandMenu } from "../store";
 
 export function Campaigns() {
     const [campaigns, setCampaigns] = useState<App.Data.AdCampaignData[]>([]);
-    const { setIsOpen, isLoading, setIsLoading, setSelectedItemData } =
-        useCommandMenu();
+    const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
+
+    const [selected, setSelected] = useState<App.Data.AdCampaignData | null>(
+        null
+    );
 
     useEffect(() => {
         setIsLoading(true);
@@ -50,7 +52,7 @@ export function Campaigns() {
                         );
                     }}
                     onSelectedChange={() => {
-                        setSelectedItemData(campaign);
+                        setSelected(campaign);
                     }}
                     keywords={[campaign.id, campaign.name]}
                     value={campaign.id}
@@ -72,17 +74,23 @@ export function Campaigns() {
                 </CommandItem>
             ))}
 
-            <CampaignContextMenu foo={"yeet"} />
+            <CampaignContextMenu campaign={selected} />
         </Command.Group>
     );
 }
 
-export function CampaignContextMenu({ foo }: { foo: any }) {
-    const campaign = {} as App.Data.AdCampaignData;
+interface CampaignContextMenuProps {
+    campaign: App.Data.AdCampaignData | null;
+}
 
+export function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const { selectedAdAccount } = useSelectedAdAccount();
+
+    if (!campaign) {
+        return null;
+    }
 
     return (
         <CommandSubMenu
@@ -90,7 +98,6 @@ export function CampaignContextMenu({ foo }: { foo: any }) {
             isOpen={isOpen}
             disclosure={(props) => (
                 <CommandFooterPortal>
-                    {JSON.stringify(foo)}
                     <ShortcutButtonHint
                         label="Actions"
                         onClick={() => {
@@ -163,21 +170,5 @@ export function CampaignContextMenu({ foo }: { foo: any }) {
                 </Command.List>
             </Command>
         </CommandSubMenu>
-    );
-}
-
-function CampaignContextMenu2() {
-    return (
-        <Portal
-            portalElement={document.getElementById("command-footer-actions")!}
-        >
-            <ShortcutButtonHint
-                label="Actions"
-                keys={[
-                    <i className="fa-solid fa-command text-[8px]" />,
-                    <span>K</span>,
-                ]}
-            />
-        </Portal>
     );
 }
