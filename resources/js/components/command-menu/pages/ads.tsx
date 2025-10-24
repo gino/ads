@@ -1,10 +1,11 @@
 import { StatusTag } from "@/components/ui/status-tag";
 import { router } from "@inertiajs/react";
 import axios from "axios";
-import { Command } from "cmdk";
+import { Command, CommandSeparator } from "cmdk";
 import { useEffect, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
+import { CommandSubItem } from "../components/command-sub-item";
 import { CommandSubMenu } from "../components/command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
@@ -47,8 +48,10 @@ export function Ads() {
                             })
                         );
                     }}
-                    onSelectedChange={() => {
-                        setSelected(ad);
+                    onSelectedChange={(selected) => {
+                        if (selected) {
+                            setSelected(ad);
+                        }
                     }}
                     keywords={[ad.id, ad.name]}
                     value={ad.id}
@@ -69,7 +72,7 @@ interface AdContextMenuProps {
     ad: App.Data.AdData | null;
 }
 
-export function AdContextMenu({ ad }: AdContextMenuProps) {
+function AdContextMenu({ ad }: AdContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     if (!ad) {
@@ -100,11 +103,10 @@ export function AdContextMenu({ ad }: AdContextMenuProps) {
             <Command loop className="outline-none">
                 <Command.List className="outline-none">
                     <Command.Group>
-                        <Command.Item
+                        <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
                             }}
-                            className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                         >
                             <div className="flex items-center truncate">
                                 <div className="flex-1 truncate">
@@ -113,20 +115,19 @@ export function AdContextMenu({ ad }: AdContextMenuProps) {
                                         : "Turn ad on"}
                                 </div>
                             </div>
-                        </Command.Item>
-                        <Command.Separator className="bg-gray-100 h-px my-1 -mx-1" />
-                        <Command.Item
+                        </CommandSubItem>
+                        <CommandSeparator />
+                        <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
                             }}
-                            className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                         >
                             <div className="flex items-center truncate">
                                 <div className="flex-1 truncate">
                                     View ad insights
                                 </div>
                             </div>
-                        </Command.Item>
+                        </CommandSubItem>
                     </Command.Group>
                 </Command.List>
             </Command>

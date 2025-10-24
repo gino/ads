@@ -3,10 +3,11 @@ import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatMoneyWithLocale } from "@/lib/number-utils";
 import { router } from "@inertiajs/react";
 import axios from "axios";
-import { Command } from "cmdk";
+import { Command, CommandSeparator } from "cmdk";
 import { useEffect, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
+import { CommandSubItem } from "../components/command-sub-item";
 import { CommandSubMenu } from "../components/command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
@@ -49,8 +50,10 @@ export function AdSets() {
                             })
                         );
                     }}
-                    onSelectedChange={() => {
-                        setSelected(adSet);
+                    onSelectedChange={(selected) => {
+                        if (selected) {
+                            setSelected(adSet);
+                        }
                     }}
                     keywords={[adSet.id, adSet.name]}
                     value={adSet.id}
@@ -73,7 +76,7 @@ interface AdSetContextMenuProps {
     adSet: App.Data.AdSetData | null;
 }
 
-export function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
+function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const { selectedAdAccount } = useSelectedAdAccount();
@@ -107,11 +110,10 @@ export function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
                 <Command.List className="outline-none">
                     <Command.Group>
                         {adSet.dailyBudget && (
-                            <Command.Item
+                            <CommandSubItem
                                 onSelect={() => {
                                     setIsOpen(false);
                                 }}
-                                className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                             >
                                 <div className="flex items-center truncate">
                                     <div className="flex-1 truncate">
@@ -125,14 +127,13 @@ export function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
                                         )}
                                     </div>
                                 </div>
-                            </Command.Item>
+                            </CommandSubItem>
                         )}
 
-                        <Command.Item
+                        <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
                             }}
-                            className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                         >
                             <div className="flex items-center truncate">
                                 <div className="flex-1 truncate">
@@ -141,20 +142,19 @@ export function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
                                         : "Turn ad set on"}
                                 </div>
                             </div>
-                        </Command.Item>
-                        <Command.Separator className="bg-gray-100 h-px my-1 -mx-1" />
-                        <Command.Item
+                        </CommandSubItem>
+                        <CommandSeparator />
+                        <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
                             }}
-                            className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                         >
                             <div className="flex items-center truncate">
                                 <div className="flex-1 truncate">
                                     View ad set insights
                                 </div>
                             </div>
-                        </Command.Item>
+                        </CommandSubItem>
                     </Command.Group>
                 </Command.List>
             </Command>

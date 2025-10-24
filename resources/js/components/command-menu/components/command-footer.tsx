@@ -4,7 +4,7 @@ import { ShortcutIconHint, ShortcutKeyHint } from "./shortcut-hint";
 
 export function CommandFooter() {
     return (
-        <div className="bg-gray-50 px-4 py-3 shadow-base shrink-0 relative">
+        <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 shrink-0 relative">
             <div className="flex items-center justify-end gap-4">
                 <ShortcutKeyHint label="Close menu" keys={["esc"]} />
                 <ShortcutIconHint
@@ -22,5 +22,13 @@ export function CommandFooter() {
 
 export function CommandFooterPortal({ children }: PropsWithChildren) {
     const portalElement = document.getElementById("command-footer-actions")!;
-    return <Portal portalElement={portalElement}>{children}</Portal>;
+
+    return (
+        <Portal
+            portalElement={portalElement}
+            className="flex items-center gap-4"
+        >
+            {children}
+        </Portal>
+    );
 }

@@ -1,11 +1,17 @@
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { SharedData } from "@/types";
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { Command } from "cmdk";
 import { useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
-import { ShortcutIconHint } from "../components/shortcut-hint";
+import { CommandSeperator } from "../components/command-seperator";
+import { CommandSubItem } from "../components/command-sub-item";
+import { CommandSubMenu } from "../components/command-sub-menu";
+import {
+    ShortcutButtonHint,
+    ShortcutIconHint,
+} from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
 
 export function AdAccountSelector() {
@@ -32,8 +38,10 @@ export function AdAccountSelector() {
 
                         setIsOpen(false);
                     }}
-                    onSelectedChange={() => {
-                        setSelected(adAccount);
+                    onSelectedChange={(selected) => {
+                        if (selected) {
+                            setSelected(adAccount);
+                        }
                     }}
                     disabled={!adAccount.isActive}
                 >
@@ -67,7 +75,30 @@ export function AdAccountSelector() {
                 </CommandItem>
             ))}
 
-            {selected && (
+            <AdAccountContextMenu adAccount={selected} />
+        </Command.Group>
+    );
+}
+
+interface AdAccountContextMenuProps {
+    adAccount: App.Data.AdAccountData | null;
+}
+
+function AdAccountContextMenu({ adAccount }: AdAccountContextMenuProps) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
+    const { selectAdAccount, selectedAdAccountId } = useSelectedAdAccount();
+
+    if (!adAccount) {
+        return null;
+    }
+
+    return (
+        <CommandSubMenu
+            setIsOpen={setIsOpen}
+            isOpen={isOpen}
+            disclosure={(props) => (
                 <CommandFooterPortal>
                     <ShortcutIconHint
                         label="Switch to"
@@ -75,8 +106,66 @@ export function AdAccountSelector() {
                             <i className="fa-solid fa-arrow-turn-down-left text-[8px]" />,
                         ]}
                     />
+                    <ShortcutButtonHint
+                        label="Actions"
+                        onClick={() => {
+                            setIsOpen((o) => !o);
+                        }}
+                        keys={[
+                            <i className="fa-solid fa-command text-[8px]" />,
+                            <span>K</span>,
+                        ]}
+                        aria-expanded={isOpen}
+                        {...props}
+                    />
                 </CommandFooterPortal>
             )}
-        </Command.Group>
+        >
+            <Command loop className="outline-none">
+                <Command.List className="outline-none">
+                    <Command.Group>
+                        <CommandSubItem
+                            onSelect={() => {
+                                if (adAccount.id !== selectedAdAccountId) {
+                                    selectAdAccount(adAccount.id);
+                                }
+
+                                setIsOpen(false);
+                                setCommandMenuIsOpen(false);
+                            }}
+                            disabled={selectedAdAccountId === adAccount.id}
+                        >
+                            <div className="flex items-center truncate">
+                                <div className="flex-1 truncate">
+                                    Select ad account
+                                </div>
+
+                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                    {adAccount.name}
+                                </div>
+                            </div>
+                        </CommandSubItem>
+                        <CommandSeperator />
+                        <CommandSubItem
+                            onSelect={() => {
+                                setIsOpen(false);
+                                setCommandMenuIsOpen(false);
+                                router.visit(
+                                    route(
+                                        "dashboard.settings.ad-account.general"
+                                    )
+                                );
+                            }}
+                        >
+                            <div className="flex items-center truncate">
+                                <div className="flex-1 truncate">
+                                    Configure ad account
+                                </div>
+                            </div>
+                        </CommandSubItem>
+                    </Command.Group>
+                </Command.List>
+            </Command>
+        </CommandSubMenu>
     );
 }

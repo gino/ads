@@ -1,7 +1,10 @@
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { router } from "@inertiajs/react";
 import { Command } from "cmdk";
+import { useState } from "react";
+import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
+import { ShortcutIconHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
 
 /* Make these dynamic (from settings sidebar layout) */
@@ -31,11 +34,13 @@ const items = [
         href: route("dashboard.settings.ad-account.defaults"),
         includeAdAccount: true,
     },
-];
+] as const;
 
 export function Settings() {
     const { setIsOpen } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
+
+    const [selected, setSelected] = useState<(typeof items)[number] | null>();
 
     return (
         <Command.Group className="p-2">
@@ -46,6 +51,9 @@ export function Settings() {
                     onSelect={() => {
                         setIsOpen(false);
                         router.visit(item.href);
+                    }}
+                    onSelectedChange={() => {
+                        setSelected(item);
                     }}
                 >
                     <div className="flex items-center gap-2">
@@ -64,6 +72,17 @@ export function Settings() {
                     </div>
                 </CommandItem>
             ))}
+
+            {selected && (
+                <CommandFooterPortal>
+                    <ShortcutIconHint
+                        label="Jump to"
+                        keys={[
+                            <i className="fa-solid fa-arrow-turn-down-left text-[8px]" />,
+                        ]}
+                    />
+                </CommandFooterPortal>
+            )}
         </Command.Group>
     );
 }

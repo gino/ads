@@ -7,6 +7,8 @@ import { Command } from "cmdk";
 import { useEffect, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
+import { CommandSeperator } from "../components/command-seperator";
+import { CommandSubItem } from "../components/command-sub-item";
 import { CommandSubMenu } from "../components/command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
@@ -51,8 +53,10 @@ export function Campaigns() {
                             })
                         );
                     }}
-                    onSelectedChange={() => {
-                        setSelected(campaign);
+                    onSelectedChange={(selected) => {
+                        if (selected) {
+                            setSelected(campaign);
+                        }
                     }}
                     keywords={[campaign.id, campaign.name]}
                     value={campaign.id}
@@ -83,7 +87,7 @@ interface CampaignContextMenuProps {
     campaign: App.Data.AdCampaignData | null;
 }
 
-export function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
+function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const { selectedAdAccount } = useSelectedAdAccount();
@@ -117,11 +121,10 @@ export function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
                 <Command.List className="outline-none">
                     <Command.Group>
                         {campaign.dailyBudget && (
-                            <Command.Item
+                            <CommandSubItem
                                 onSelect={() => {
                                     setIsOpen(false);
                                 }}
-                                className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                             >
                                 <div className="flex items-center truncate">
                                     <div className="flex-1 truncate">
@@ -136,14 +139,13 @@ export function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
                                         )}
                                     </div>
                                 </div>
-                            </Command.Item>
+                            </CommandSubItem>
                         )}
 
-                        <Command.Item
+                        <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
                             }}
-                            className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                         >
                             <div className="flex items-center truncate">
                                 <div className="flex-1 truncate">
@@ -152,9 +154,9 @@ export function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
                                         : "Turn campaign on"}
                                 </div>
                             </div>
-                        </Command.Item>
-                        <Command.Separator className="bg-gray-100 h-px my-1 -mx-1" />
-                        <Command.Item
+                        </CommandSubItem>
+                        <CommandSeperator />
+                        <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
                             }}
@@ -165,7 +167,7 @@ export function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
                                     View campaign insights
                                 </div>
                             </div>
-                        </Command.Item>
+                        </CommandSubItem>
                     </Command.Group>
                 </Command.List>
             </Command>

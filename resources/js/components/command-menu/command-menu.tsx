@@ -5,8 +5,12 @@ import { router } from "@inertiajs/react";
 import { Command } from "cmdk";
 import { AnimatePresence, motion } from "motion/react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { CommandFooter } from "./components/command-footer";
+import {
+    CommandFooter,
+    CommandFooterPortal,
+} from "./components/command-footer";
 import { CommandItem } from "./components/command-item";
+import { ShortcutIconHint } from "./components/shortcut-hint";
 import { AdAccountSelector } from "./pages/ad-account-selector";
 import { AdSets } from "./pages/ad-sets";
 import { Ads } from "./pages/ads";
@@ -33,6 +37,7 @@ export function CommandMenu() {
         placeholder,
         setPlaceholder,
         isLoading,
+        selectedItemId,
     } = useCommandMenu();
 
     const { selectedAdAccount } = useSelectedAdAccount();
@@ -115,7 +120,11 @@ export function CommandMenu() {
                             <Command
                                 label="Global command menu"
                                 onKeyDown={(e) => {
-                                    if (e.key === "Backspace" && !search) {
+                                    if (
+                                        e.key === "Backspace" &&
+                                        !search &&
+                                        pages.length > 0
+                                    ) {
                                         e.preventDefault();
                                         setPages((pages) => pages.slice(0, -1));
                                         setPlaceholder(initialPlaceholder);
@@ -142,7 +151,7 @@ export function CommandMenu() {
                                     </div>
                                 </div>
 
-                                <Command.List className="shadow-base overflow-y-auto flex-1 scroll-p-2 outline-none [&>*]:divide-y [&>*]:divide-gray-100">
+                                <Command.List className="overflow-y-auto flex-1 scroll-p-2 outline-none [&>*]:divide-y [&>*]:divide-gray-100">
                                     {isLoading ? (
                                         <Command.Loading className="h-90"></Command.Loading>
                                     ) : (
@@ -332,6 +341,17 @@ export function CommandMenu() {
                                     {page === "adsets" && <AdSets />}
                                     {page === "ads" && <Ads />}
                                 </Command.List>
+
+                                {!page && selectedItemId && (
+                                    <CommandFooterPortal>
+                                        <ShortcutIconHint
+                                            label="Jump to"
+                                            keys={[
+                                                <i className="fa-solid fa-arrow-turn-down-left text-[8px]" />,
+                                            ]}
+                                        />
+                                    </CommandFooterPortal>
+                                )}
 
                                 <CommandFooter />
                             </Command>
