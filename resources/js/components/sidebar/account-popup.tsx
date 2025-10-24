@@ -45,6 +45,7 @@ export function AccountPopup() {
                 portal
                 sameWidth
                 unmountOnHide
+                hideOnInteractOutside
                 slide={false}
                 className="rounded-xl outline-none bg-white shadow-base-popup p-1 space-y-1 max-h-[var(--popover-available-height)] overflow-y-auto"
             >
@@ -66,7 +67,7 @@ export function AccountPopup() {
                     className="flex items-center outline-none data-[active-item='true']:bg-gray-100 data-[disabled='true']:opacity-50 data-[disabled='true']:cursor-not-allowed group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                 >
                     <div className="flex-1 truncate">Billing</div>
-                    <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-hover:bg-gray-200 rounded-full">
+                    <span className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-data-[active-item='true']:bg-gray-200 rounded-full">
                         Free
                     </span>
                 </Ariakit.MenuItem>
