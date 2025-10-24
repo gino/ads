@@ -40,7 +40,7 @@ export function Settings() {
     const { setIsOpen } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
 
-    const [selected, setSelected] = useState<(typeof items)[number] | null>();
+    const [selectedIndex, setSelectedIndex] = useState<number | null>();
 
     return (
         <Command.Group className="p-2">
@@ -53,7 +53,7 @@ export function Settings() {
                         router.visit(item.href);
                     }}
                     onSelectedChange={() => {
-                        setSelected(item);
+                        setSelectedIndex(items.indexOf(item));
                     }}
                 >
                     <div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ export function Settings() {
                 </CommandItem>
             ))}
 
-            {selected && (
+            {selectedIndex !== null && (
                 <CommandFooterPortal>
                     <ShortcutIconHint
                         label="Jump to"

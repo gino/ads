@@ -1,13 +1,14 @@
 import { StatusTag } from "@/components/ui/status-tag";
+import { toast } from "@/components/ui/toast";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatMoneyWithLocale } from "@/lib/number-utils";
 import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
-import { CommandSeperator } from "../components/command-seperator";
+import { CommandSeparator } from "../components/command-separator";
 import { CommandSubItem } from "../components/command-sub-item";
 import { CommandSubMenu } from "../components/command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
@@ -17,9 +18,11 @@ export function Campaigns() {
     const [campaigns, setCampaigns] = useState<App.Data.AdCampaignData[]>([]);
     const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
 
-    const [selected, setSelected] = useState<App.Data.AdCampaignData | null>(
-        null
-    );
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+
+    const selected = useMemo(() => {
+        return campaigns.find((c) => c.id === selectedId) ?? null;
+    }, [selectedId, campaigns]);
 
     useEffect(() => {
         setIsLoading(true);
@@ -55,7 +58,7 @@ export function Campaigns() {
                     }}
                     onSelectedChange={(selected) => {
                         if (selected) {
-                            setSelected(campaign);
+                            setSelectedId(campaign.id);
                         }
                     }}
                     keywords={[campaign.id, campaign.name]}
@@ -78,18 +81,41 @@ export function Campaigns() {
                 </CommandItem>
             ))}
 
-            <CampaignContextMenu campaign={selected} />
+            <CampaignContextMenu
+                campaign={selected}
+                handleCampaignStatusChange={(campaignId, status) => {
+                    setCampaigns((data) => {
+                        return data.map((campaign) =>
+                            campaign.id === campaignId
+                                ? { ...campaign, effectiveStatus: status }
+                                : campaign
+                        );
+                    });
+
+                    toast({
+                        contents: `Campaign updated`,
+                    });
+                }}
+            />
         </Command.Group>
     );
 }
 
 interface CampaignContextMenuProps {
     campaign: App.Data.AdCampaignData | null;
+    handleCampaignStatusChange: (
+        campaignId: string,
+        status: App.Data.AdCampaignData["status"]
+    ) => void;
 }
 
-function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
+function CampaignContextMenu({
+    campaign,
+    handleCampaignStatusChange,
+}: CampaignContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
+    const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
 
     if (!campaign) {
@@ -145,20 +171,35 @@ function CampaignContextMenu({ campaign }: CampaignContextMenuProps) {
                         <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
+
+                                handleCampaignStatusChange(
+                                    campaign.id,
+                                    campaign.effectiveStatus === "ACTIVE"
+                                        ? "PAUSED"
+                                        : "ACTIVE"
+                                );
                             }}
                         >
                             <div className="flex items-center truncate">
                                 <div className="flex-1 truncate">
-                                    {campaign.status === "ACTIVE"
+                                    {campaign.effectiveStatus === "ACTIVE"
                                         ? "Turn campaign off"
                                         : "Turn campaign on"}
                                 </div>
                             </div>
                         </CommandSubItem>
-                        <CommandSeperator />
+                        <CommandSeparator />
                         <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
+                                setCommandMenuIsOpen(false);
+                                router.visit(
+                                    route("dashboard.campaigns", {
+                                        _query: {
+                                            selected_campaign_ids: campaign.id,
+                                        },
+                                    })
+                                );
                             }}
                             className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                         >

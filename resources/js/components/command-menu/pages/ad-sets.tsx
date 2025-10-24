@@ -3,10 +3,11 @@ import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatMoneyWithLocale } from "@/lib/number-utils";
 import { router } from "@inertiajs/react";
 import axios from "axios";
-import { Command, CommandSeparator } from "cmdk";
-import { useEffect, useState } from "react";
+import { Command } from "cmdk";
+import { useEffect, useMemo, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
+import { CommandSeparator } from "../components/command-separator";
 import { CommandSubItem } from "../components/command-sub-item";
 import { CommandSubMenu } from "../components/command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
@@ -16,7 +17,11 @@ export function AdSets() {
     const [adSets, setAdSets] = useState<App.Data.AdSetData[]>([]);
     const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
 
-    const [selected, setSelected] = useState<App.Data.AdSetData | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+
+    const selected = useMemo(() => {
+        return adSets.find((c) => c.id === selectedId) ?? null;
+    }, [selectedId, adSets]);
 
     useEffect(() => {
         setIsLoading(true);
@@ -52,7 +57,7 @@ export function AdSets() {
                     }}
                     onSelectedChange={(selected) => {
                         if (selected) {
-                            setSelected(adSet);
+                            setSelectedId(adSet.id);
                         }
                     }}
                     keywords={[adSet.id, adSet.name]}
@@ -79,6 +84,7 @@ interface AdSetContextMenuProps {
 function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
+    const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
 
     if (!adSet) {
@@ -147,6 +153,14 @@ function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
                         <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
+                                setCommandMenuIsOpen(false);
+                                router.visit(
+                                    route("dashboard.campaigns.adSets", {
+                                        _query: {
+                                            selected_adset_ids: adSet.id,
+                                        },
+                                    })
+                                );
                             }}
                         >
                             <div className="flex items-center truncate">

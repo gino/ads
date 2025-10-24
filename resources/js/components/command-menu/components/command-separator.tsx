@@ -1,5 +1,5 @@
 import { Command } from "cmdk";
 
-export function CommandSeperator() {
+export function CommandSeparator() {
     return <Command.Separator className="bg-gray-100 h-px my-1 -mx-1" />;
 }

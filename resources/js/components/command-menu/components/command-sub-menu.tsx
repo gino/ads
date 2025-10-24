@@ -50,6 +50,7 @@ export function CommandSubMenu({
                 gutter={18}
                 alwaysVisible
                 hideOnInteractOutside
+                unmountOnHide
                 autoFocusOnHide
                 finalFocus={
                     document.querySelector("input[cmdk-input]") as HTMLElement

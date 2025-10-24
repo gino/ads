@@ -50,6 +50,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                 setValue(value);
                 selectAdAccount(value);
             }}
+            focusLoop
         >
             <Ariakit.Select className="cursor-pointer px-2.5 py-2.5 font-semibold shadow-base text-sm rounded-lg active:scale-[0.99] transition-transform duration-100 ease-in-out w-full relative flex items-center">
                 <Ariakit.SelectValue fallback="">

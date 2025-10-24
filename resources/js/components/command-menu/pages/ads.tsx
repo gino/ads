@@ -1,10 +1,11 @@
 import { StatusTag } from "@/components/ui/status-tag";
 import { router } from "@inertiajs/react";
 import axios from "axios";
-import { Command, CommandSeparator } from "cmdk";
-import { useEffect, useState } from "react";
+import { Command } from "cmdk";
+import { useEffect, useMemo, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
+import { CommandSeparator } from "../components/command-separator";
 import { CommandSubItem } from "../components/command-sub-item";
 import { CommandSubMenu } from "../components/command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
@@ -14,7 +15,11 @@ export function Ads() {
     const [ads, setAds] = useState<App.Data.AdData[]>([]);
     const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
 
-    const [selected, setSelected] = useState<App.Data.AdData | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+
+    const selected = useMemo(() => {
+        return ads.find((c) => c.id === selectedId) ?? null;
+    }, [selectedId, ads]);
 
     useEffect(() => {
         setIsLoading(true);
@@ -50,7 +55,7 @@ export function Ads() {
                     }}
                     onSelectedChange={(selected) => {
                         if (selected) {
-                            setSelected(ad);
+                            setSelectedId(ad.id);
                         }
                     }}
                     keywords={[ad.id, ad.name]}
@@ -74,6 +79,8 @@ interface AdContextMenuProps {
 
 function AdContextMenu({ ad }: AdContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
+
+    const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
 
     if (!ad) {
         return null;
@@ -120,6 +127,14 @@ function AdContextMenu({ ad }: AdContextMenuProps) {
                         <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
+                                setCommandMenuIsOpen(false);
+                                router.visit(
+                                    route("dashboard.campaigns.ads", {
+                                        _query: {
+                                            selected_ad_ids: ad.id,
+                                        },
+                                    })
+                                );
                             }}
                         >
                             <div className="flex items-center truncate">

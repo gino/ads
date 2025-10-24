@@ -2,10 +2,10 @@ import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { SharedData } from "@/types";
 import { router, usePage } from "@inertiajs/react";
 import { Command } from "cmdk";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
 import { CommandItem } from "../components/command-item";
-import { CommandSeperator } from "../components/command-seperator";
+import { CommandSeparator } from "../components/command-separator";
 import { CommandSubItem } from "../components/command-sub-item";
 import { CommandSubMenu } from "../components/command-sub-menu";
 import {
@@ -21,9 +21,11 @@ export function AdAccountSelector() {
 
     const { setIsOpen } = useCommandMenu();
 
-    const [selected, setSelected] = useState<App.Data.AdAccountData | null>(
-        null
-    );
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+
+    const selected = useMemo(() => {
+        return props.adAccounts.find((c) => c.id === selectedId) ?? null;
+    }, [selectedId, props.adAccounts]);
 
     return (
         <Command.Group className="p-2">
@@ -40,7 +42,7 @@ export function AdAccountSelector() {
                     }}
                     onSelectedChange={(selected) => {
                         if (selected) {
-                            setSelected(adAccount);
+                            setSelectedId(adAccount.id);
                         }
                     }}
                     disabled={!adAccount.isActive}
@@ -137,15 +139,15 @@ function AdAccountContextMenu({ adAccount }: AdAccountContextMenuProps) {
                         >
                             <div className="flex items-center truncate">
                                 <div className="flex-1 truncate">
-                                    Select ad account
+                                    Switch to ad account
                                 </div>
 
-                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                <div className="truncate max-w-1/3 font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
                                     {adAccount.name}
                                 </div>
                             </div>
                         </CommandSubItem>
-                        <CommandSeperator />
+                        <CommandSeparator />
                         <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);

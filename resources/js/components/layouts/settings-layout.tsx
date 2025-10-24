@@ -64,7 +64,6 @@ export function Layout({ children, ...props }: Props) {
                             </div>
                             <div className="space-y-1.5">
                                 <SidebarItem>Command menu</SidebarItem>
-                                <SidebarItem>Shortcuts</SidebarItem>
                                 <button
                                     onClick={() => router.post(route("logout"))}
                                     className="text-red-800 font-semibold text-left enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out w-full flex rounded-lg px-3.5 py-2.5 ring-1 ring-transparent text-sm hover:bg-red-900/5 hover:ring-red-900/5 cursor-pointer items-center gap-3 group"
