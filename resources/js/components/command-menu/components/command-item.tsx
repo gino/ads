@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { Command } from "cmdk";
 import { ComponentProps, ReactNode, useEffect, useRef } from "react";
-import { useCommandMenu } from "./store";
+import { useCommandMenu } from "../store";
 
 interface Props extends ComponentProps<typeof Command.Item> {
     id: string;

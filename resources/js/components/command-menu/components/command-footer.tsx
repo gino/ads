@@ -1,6 +1,6 @@
 import { Portal } from "@ariakit/react";
 import { PropsWithChildren } from "react";
-import { ShortcutIconHint, ShortcutKeyHint } from "./components/shortcut-hint";
+import { ShortcutIconHint, ShortcutKeyHint } from "./shortcut-hint";
 
 export function CommandFooter() {
     return (

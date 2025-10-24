@@ -5,9 +5,9 @@ import { router } from "@inertiajs/react";
 import axios from "axios";
 import { Command } from "cmdk";
 import { useEffect, useState } from "react";
-import { CommandFooterPortal } from "../command-footer";
-import { CommandItem } from "../command-item";
-import { CommandSubMenu } from "../command-sub-menu";
+import { CommandFooterPortal } from "../components/command-footer";
+import { CommandItem } from "../components/command-item";
+import { CommandSubMenu } from "../components/command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
 

@@ -3,8 +3,8 @@ import { SharedData } from "@/types";
 import { usePage } from "@inertiajs/react";
 import { Command } from "cmdk";
 import { useState } from "react";
-import { CommandFooterPortal } from "../command-footer";
-import { CommandItem } from "../command-item";
+import { CommandFooterPortal } from "../components/command-footer";
+import { CommandItem } from "../components/command-item";
 import { ShortcutIconHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
 

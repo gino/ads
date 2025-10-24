@@ -1,9 +1,10 @@
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { router } from "@inertiajs/react";
 import { Command } from "cmdk";
-import { CommandItem } from "../command-item";
+import { CommandItem } from "../components/command-item";
 import { useCommandMenu } from "../store";
 
+/* Make these dynamic (from settings sidebar layout) */
 const items = [
     {
         label: "Account",
@@ -38,7 +39,6 @@ export function Settings() {
 
     return (
         <Command.Group className="p-2">
-            {/* Make these dynamic (from settings sidebar layout) */}
             {items.map((item, index) => (
                 <CommandItem
                     key={index}
