@@ -32,7 +32,7 @@ export function Sidebar() {
                         onClick={() => {
                             setIsCommandMenuOpen((o) => !o);
                         }}
-                        className="bg-gray-50"
+                        className="bg-gray-50 ring-1 ring-gray-50 hover:ring-gray-100"
                     >
                         Search
                     </SidebarItem>
