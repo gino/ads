@@ -151,7 +151,7 @@ export function CommandMenu() {
                                     </div>
                                 </div>
 
-                                <Command.List className="overflow-y-auto flex-1 scroll-p-2 outline-none [&>*]:divide-y [&>*]:divide-gray-100">
+                                <Command.List className="overflow-y-auto flex-1 scroll-p-2 outline-none [&>div[cmdk-list-sizer]>div:has(>div[cmdk-group-items]:not(:empty))]:border-t [&>div[cmdk-list-sizer]>div:has(>div[cmdk-group-items]:not(:empty))]:border-gray-100 -mt-px">
                                     {isLoading ? (
                                         <Command.Loading className="h-90"></Command.Loading>
                                     ) : (
@@ -336,7 +336,13 @@ export function CommandMenu() {
                                         <AdAccountSelector />
                                     )}
 
-                                    {page === "settings" && <Settings />}
+                                    {/* Also show results of 'Settings' page when searching */}
+                                    {(page === "settings" ||
+                                        (!page && search.length > 0)) && (
+                                        <Settings />
+                                    )}
+
+                                    {/* {page === "settings" && <Settings />} */}
                                     {page === "campaigns" && <Campaigns />}
                                     {page === "adsets" && <AdSets />}
                                     {page === "ads" && <Ads />}

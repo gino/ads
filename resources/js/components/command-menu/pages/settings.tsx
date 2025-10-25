@@ -7,17 +7,22 @@ import { CommandItem } from "../components/command-item";
 import { ShortcutIconHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
 
-/* Make these dynamic (from settings sidebar layout) */
 const items = [
     {
         label: "Account",
         href: route("dashboard.settings.account"),
-        includeAdAccount: false,
+    },
+    {
+        label: "Billing",
+        href: route("dashboard.settings.account"),
     },
     {
         label: "Ad accounts",
         href: route("dashboard.settings.ad-accounts"),
-        includeAdAccount: false,
+    },
+    {
+        label: "Notifications",
+        href: route("dashboard.settings.account"),
     },
     {
         label: "General",
@@ -34,13 +39,20 @@ const items = [
         href: route("dashboard.settings.ad-account.defaults"),
         includeAdAccount: true,
     },
+    {
+        label: "Integrations",
+        href: route("dashboard.settings.ad-account.general"),
+        includeAdAccount: true,
+    },
 ] as const;
 
 export function Settings() {
-    const { setIsOpen } = useCommandMenu();
+    const { setIsOpen, pages } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
 
     const [selectedIndex, setSelectedIndex] = useState<number | null>();
+
+    const page = pages[pages.length - 1];
 
     return (
         <Command.Group className="p-2">
@@ -52,6 +64,7 @@ export function Settings() {
                         setIsOpen(false);
                         router.visit(item.href);
                     }}
+                    keywords={["settings", item.label]}
                     onSelectedChange={() => {
                         setSelectedIndex(items.indexOf(item));
                     }}
@@ -60,20 +73,21 @@ export function Settings() {
                         <i className="fa-regular fa-arrow-right text-gray-400 mr-1.5 fa-fw -ml-0.5" />
                         <div className="text-gray-400">Settings</div>
                         <div className="text-gray-300">/</div>
-                        {item.includeAdAccount && (
-                            <>
-                                <div className="text-gray-400 max-w-32 truncate">
-                                    {selectedAdAccount.name}
-                                </div>
-                                <div className="text-gray-300">/</div>
-                            </>
-                        )}
+                        {"includeAdAccount" in item &&
+                            item.includeAdAccount && (
+                                <>
+                                    <div className="text-gray-400 max-w-32 truncate">
+                                        {selectedAdAccount.name}
+                                    </div>
+                                    <div className="text-gray-300">/</div>
+                                </>
+                            )}
                         <div>{item.label}</div>
                     </div>
                 </CommandItem>
             ))}
 
-            {selectedIndex !== null && (
+            {selectedIndex !== null && page === "settings" && (
                 <CommandFooterPortal>
                     <ShortcutIconHint
                         label="Jump to"
