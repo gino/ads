@@ -136,6 +136,13 @@ export function Campaigns() {
     );
 }
 
+export type CampaignPageMeta = {
+    campaign: {
+        id: string;
+        name: string;
+    };
+};
+
 interface CampaignContextMenuProps {
     campaign: App.Data.AdCampaignData;
     handleCampaignStatusChange: (
@@ -150,7 +157,11 @@ function CampaignContextMenu({
 }: CampaignContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
+    const {
+        setIsOpen: setCommandMenuIsOpen,
+        setPage,
+        setPlaceholder,
+    } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
 
     return (
@@ -218,6 +229,25 @@ function CampaignContextMenu({
                         </div>
                     </CommandSubItem>
                     <CommandSeparator />
+                    <CommandSubItem
+                        onSelect={() => {
+                            setIsOpen(false);
+                            setPage("ads", {
+                                campaign: {
+                                    id: campaign.id,
+                                    name: campaign.name,
+                                },
+                            } as CampaignPageMeta);
+                            setPlaceholder("Search ads...");
+                        }}
+                        className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
+                    >
+                        <div className="flex items-center truncate">
+                            <div className="flex-1 truncate">
+                                View related ads
+                            </div>
+                        </div>
+                    </CommandSubItem>
                     <CommandSubItem
                         onSelect={() => {
                             setIsOpen(false);

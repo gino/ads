@@ -10,12 +10,14 @@ interface CommandMenuStore {
     isLoading: boolean;
     setIsLoading: (value: boolean) => void;
     pages: CommandMenuPage[];
-    setPage: (page: CommandMenuPage) => void;
+    setPage: (page: CommandMenuPage, meta?: Record<string, any>) => void;
     setPages: (
         value:
             | CommandMenuPage[]
             | ((prev: CommandMenuPage[]) => CommandMenuPage[])
     ) => void;
+    pageMeta: Record<string, any>;
+    setPageMeta: (value: Record<string, any>) => void;
     resetPage: () => void;
     search: string;
     setSearch: (value: string) => void;
@@ -47,17 +49,19 @@ export const useCommandMenuStore = create<CommandMenuStore>((set, get) => ({
         return set(() => ({ isLoading: value }));
     },
     pages: [],
-    setPage: (page) => {
+    setPage: (page, meta) => {
         return set((state) => ({
             pages: [...state.pages, page],
             search: "",
             selectedItemId: null,
+            pageMeta: meta || {},
         }));
     },
     setPages: (value) => {
         return set((state) => ({
             pages: typeof value === "function" ? value(state.pages) : value,
             selectedItemId: null,
+            pageMeta: {},
         }));
     },
     search: "",
@@ -68,12 +72,17 @@ export const useCommandMenuStore = create<CommandMenuStore>((set, get) => ({
     setPlaceholder: (value) => {
         return set(() => ({ placeholder: value }));
     },
+    pageMeta: {},
+    setPageMeta: (value) => {
+        return set(() => ({ pageMeta: value }));
+    },
     resetPage: () => {
         return set(() => ({
             pages: [],
             search: "",
             placeholder: initialPlaceholder,
             selectedItemId: null,
+            pageMeta: {},
         }));
     },
     selectedItemId: "",
@@ -97,6 +106,8 @@ export function useCommandMenu() {
             placeholder: state.placeholder,
             setPlaceholder: state.setPlaceholder,
             resetPage: state.resetPage,
+            pageMeta: state.pageMeta,
+            setPageMeta: state.setPageMeta,
             selectedItemId: state.selectedItemId,
             setSelectedItemId: state.setSelectedItemId,
         }))

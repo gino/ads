@@ -12,18 +12,29 @@ import { CommandSubItem } from "../components/command-sub-item";
 import { CommandSubMenu } from "../components/command-sub-menu";
 import { ShortcutButtonHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
+import { CampaignPageMeta } from "./campaigns";
 
 export function Ads() {
     const [ads, setAds] = useState<App.Data.AdData[]>([]);
     const [cacheKey, setCacheKey] = useState("");
 
-    const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
+    const { setIsOpen, isLoading, setIsLoading, pageMeta } = useCommandMenu();
+
+    const meta = pageMeta as CampaignPageMeta;
+
+    const filteredAds = useMemo(() => {
+        if (meta.campaign) {
+            return ads.filter((ad) => ad.campaignId === meta.campaign.id);
+        }
+
+        return ads;
+    }, [ads, meta]);
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     const selected = useMemo(() => {
-        return ads.find((c) => c.id === selectedId) ?? null;
-    }, [selectedId, ads]);
+        return filteredAds.find((c) => c.id === selectedId) ?? null;
+    }, [selectedId, filteredAds]);
 
     useEffect(() => {
         setIsLoading(true);
@@ -60,13 +71,21 @@ export function Ads() {
         flushOnBeforeUnload: false,
     });
 
-    if (ads.length === 0 || isLoading) {
+    if (filteredAds.length === 0 || isLoading) {
         return null;
     }
 
     return (
         <CommandGroup>
-            {ads.map((ad) => (
+            {meta.campaign && (
+                <div className="mb-2">
+                    <span className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                        {meta.campaign?.name}
+                    </span>
+                </div>
+            )}
+
+            {filteredAds.map((ad) => (
                 <CommandItem
                     key={ad.id}
                     id="ad-item"
@@ -99,7 +118,7 @@ export function Ads() {
                 <AdContextMenu
                     ad={selected}
                     handleAdStatusChange={(adId, status) => {
-                        const ad = ads.find((a) => a.id === adId);
+                        const ad = filteredAds.find((a) => a.id === adId);
 
                         if (!ad) return;
 
