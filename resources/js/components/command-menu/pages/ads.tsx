@@ -94,31 +94,33 @@ export function Ads() {
                 </CommandItem>
             ))}
 
-            <AdContextMenu
-                ad={selected}
-                handleAdStatusChange={(adId, status) => {
-                    const ad = ads.find((a) => a.id === adId);
+            {selected && (
+                <AdContextMenu
+                    ad={selected}
+                    handleAdStatusChange={(adId, status) => {
+                        const ad = ads.find((a) => a.id === adId);
 
-                    if (!ad) return;
+                        if (!ad) return;
 
-                    setAds((data) => {
-                        return data.map((ad) =>
-                            ad.id === adId ? { ...ad, status: status } : ad
-                        );
-                    });
+                        setAds((data) => {
+                            return data.map((ad) =>
+                                ad.id === adId ? { ...ad, status: status } : ad
+                            );
+                        });
 
-                    enqueue({
-                        ...ad,
-                        status,
-                    });
-                }}
-            />
+                        enqueue({
+                            ...ad,
+                            status,
+                        });
+                    }}
+                />
+            )}
         </Command.Group>
     );
 }
 
 interface AdContextMenuProps {
-    ad: App.Data.AdData | null;
+    ad: App.Data.AdData;
     handleAdStatusChange: (
         adId: string,
         status: App.Data.AdData["status"]
@@ -129,10 +131,6 @@ function AdContextMenu({ ad, handleAdStatusChange }: AdContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
-
-    if (!ad) {
-        return null;
-    }
 
     return (
         <CommandSubMenu

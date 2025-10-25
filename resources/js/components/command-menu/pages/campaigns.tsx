@@ -106,33 +106,37 @@ export function Campaigns() {
                 </CommandItem>
             ))}
 
-            <CampaignContextMenu
-                campaign={selected}
-                handleCampaignStatusChange={(campaignId, status) => {
-                    const campaign = campaigns.find((c) => c.id === campaignId);
-
-                    if (!campaign) return;
-
-                    setCampaigns((data) => {
-                        return data.map((campaign) =>
-                            campaign.id === campaignId
-                                ? { ...campaign, effectiveStatus: status }
-                                : campaign
+            {selected && (
+                <CampaignContextMenu
+                    campaign={selected}
+                    handleCampaignStatusChange={(campaignId, status) => {
+                        const campaign = campaigns.find(
+                            (c) => c.id === campaignId
                         );
-                    });
 
-                    enqueue({
-                        ...campaign,
-                        status,
-                    });
-                }}
-            />
+                        if (!campaign) return;
+
+                        setCampaigns((data) => {
+                            return data.map((campaign) =>
+                                campaign.id === campaignId
+                                    ? { ...campaign, effectiveStatus: status }
+                                    : campaign
+                            );
+                        });
+
+                        enqueue({
+                            ...campaign,
+                            status,
+                        });
+                    }}
+                />
+            )}
         </Command.Group>
     );
 }
 
 interface CampaignContextMenuProps {
-    campaign: App.Data.AdCampaignData | null;
+    campaign: App.Data.AdCampaignData;
     handleCampaignStatusChange: (
         campaignId: string,
         status: App.Data.AdCampaignData["status"]
@@ -147,10 +151,6 @@ function CampaignContextMenu({
 
     const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
-
-    if (!campaign) {
-        return null;
-    }
 
     return (
         <CommandSubMenu

@@ -13,6 +13,8 @@ export function AccountPopup() {
         setOpen: setIsOpen,
     });
 
+    const [notifications, setNotifications] = useState(0);
+
     return (
         <Ariakit.MenuProvider focusLoop store={store} placement="top">
             <Ariakit.MenuButton
@@ -21,10 +23,18 @@ export function AccountPopup() {
                         className="flex gap-3 enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out items-center px-3 py-2.5 w-full text-left rounded-lg ring-1 ring-gray-100 hover:bg-gray-100 cursor-pointer"
                         {...props}
                     >
-                        <img
-                            src={user.avatar}
-                            className="object-cover object-center w-8 h-8 rounded-full"
-                        />
+                        <div className="relative w-8 h-8">
+                            <img
+                                src={user.avatar}
+                                className="object-cover object-center w-full h-full rounded-full"
+                            />
+
+                            {notifications > 0 && (
+                                <div className="absolute -top-px -right-px">
+                                    <div className="h-2 w-2 bg-red-700 rounded-full ring-2 ring-white" />
+                                </div>
+                            )}
+                        </div>
                         <div className="flex-1">
                             <div className="text-sm font-semibold">
                                 {user.name}
@@ -77,7 +87,12 @@ export function AccountPopup() {
                     }}
                     className="flex items-center outline-none data-[active-item='true']:bg-gray-100 data-[disabled='true']:opacity-50 data-[disabled='true']:cursor-not-allowed group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                 >
-                    <div>Notifications</div>
+                    <div className="flex-1 truncate">Notifications</div>
+                    {notifications > 0 && (
+                        <span className="font-semibold bg-red-700 text-white flex items-center text-center text-[12px] px-2 leading-5 rounded-full">
+                            {notifications}
+                        </span>
+                    )}
                 </Ariakit.MenuItem>
 
                 <div className="bg-gray-100 h-px my-1 -mx-1" />

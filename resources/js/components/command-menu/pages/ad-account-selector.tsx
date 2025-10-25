@@ -77,13 +77,13 @@ export function AdAccountSelector() {
                 </CommandItem>
             ))}
 
-            <AdAccountContextMenu adAccount={selected} />
+            {selected && <AdAccountContextMenu adAccount={selected} />}
         </Command.Group>
     );
 }
 
 interface AdAccountContextMenuProps {
-    adAccount: App.Data.AdAccountData | null;
+    adAccount: App.Data.AdAccountData;
 }
 
 function AdAccountContextMenu({ adAccount }: AdAccountContextMenuProps) {
@@ -91,10 +91,6 @@ function AdAccountContextMenu({ adAccount }: AdAccountContextMenuProps) {
 
     const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
     const { selectAdAccount, selectedAdAccountId } = useSelectedAdAccount();
-
-    if (!adAccount) {
-        return null;
-    }
 
     return (
         <CommandSubMenu

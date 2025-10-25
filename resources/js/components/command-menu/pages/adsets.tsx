@@ -89,42 +89,54 @@ export function AdSets() {
                     keywords={[adSet.id, adSet.name]}
                     value={adSet.id}
                 >
-                    <div className="flex gap-3 items-center truncate">
-                        <StatusTag status={adSet.status} showLabel={false} />
-                        <div className="font-semibold truncate">
-                            {adSet.name}
+                    <div className="flex items-center gap-3 w-full truncate">
+                        <div className="flex gap-3 items-center truncate">
+                            <StatusTag
+                                status={adSet.status}
+                                showLabel={false}
+                            />
+                            <div className="font-semibold truncate">
+                                {adSet.name}
+                            </div>
                         </div>
+                        {adSet.dailyBudget !== null && (
+                            <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                ABO
+                            </div>
+                        )}
                     </div>
                 </CommandItem>
             ))}
 
-            <AdSetContextMenu
-                adSet={selected}
-                handleAdSetStatusChange={(adSetId, status) => {
-                    const adSet = adSets.find((a) => a.id === adSetId);
+            {selected && (
+                <AdSetContextMenu
+                    adSet={selected}
+                    handleAdSetStatusChange={(adSetId, status) => {
+                        const adSet = adSets.find((a) => a.id === adSetId);
 
-                    if (!adSet) return;
+                        if (!adSet) return;
 
-                    setAdSets((data) => {
-                        return data.map((adSet) =>
-                            adSet.id === adSetId
-                                ? { ...adSet, status: status }
-                                : adSet
-                        );
-                    });
+                        setAdSets((data) => {
+                            return data.map((adSet) =>
+                                adSet.id === adSetId
+                                    ? { ...adSet, status: status }
+                                    : adSet
+                            );
+                        });
 
-                    enqueue({
-                        ...adSet,
-                        status,
-                    });
-                }}
-            />
+                        enqueue({
+                            ...adSet,
+                            status,
+                        });
+                    }}
+                />
+            )}
         </Command.Group>
     );
 }
 
 interface AdSetContextMenuProps {
-    adSet: App.Data.AdSetData | null;
+    adSet: App.Data.AdSetData;
     handleAdSetStatusChange: (
         adSetId: string,
         status: App.Data.AdSetData["status"]
@@ -139,10 +151,6 @@ function AdSetContextMenu({
 
     const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
-
-    if (!adSet) {
-        return null;
-    }
 
     return (
         <CommandSubMenu

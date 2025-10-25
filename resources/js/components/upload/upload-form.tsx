@@ -207,14 +207,21 @@ export function UploadForm({
                                 getItem={(adSet) => ({
                                     value: adSet.id,
                                     label: (
-                                        <div className="flex gap-3 items-center">
-                                            <StatusTag
-                                                status={adSet.status}
-                                                showLabel={false}
-                                            />
-                                            <div className="font-semibold">
-                                                {adSet.name}
+                                        <div className="flex flex-1 gap-3 items-center mr-1 text-left truncate">
+                                            <div className="flex flex-1 gap-3 items-center truncate">
+                                                <StatusTag
+                                                    status={adSet.status}
+                                                    showLabel={false}
+                                                />
+                                                <div className="font-semibold">
+                                                    {adSet.name}
+                                                </div>
                                             </div>
+                                            {adSet.dailyBudget !== null && (
+                                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-hover:bg-gray-200 group-data-[selected='true']:bg-black/5 group-data-[active-item]:bg-gray-200">
+                                                    ABO
+                                                </div>
+                                            )}
                                         </div>
                                     ),
                                 })}

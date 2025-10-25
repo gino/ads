@@ -24,8 +24,8 @@ export function Sidebar() {
                     <SidebarItem
                         icon="fa-search"
                         suffix={
-                            <div className="flex items-center gap-0.5 text-[14px] font-medium text-gray-400">
-                                <i className="fa-regular fa-command text-[10px]" />
+                            <div className="flex items-center gap-px text-[14px] font-semibold text-gray-400">
+                                <i className="fa-solid fa-command text-[9px]" />
                                 <span>K</span>
                             </div>
                         }

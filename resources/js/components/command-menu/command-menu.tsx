@@ -12,8 +12,8 @@ import {
 import { CommandItem } from "./components/command-item";
 import { ShortcutIconHint } from "./components/shortcut-hint";
 import { AdAccountSelector } from "./pages/ad-account-selector";
-import { AdSets } from "./pages/ad-sets";
 import { Ads } from "./pages/ads";
+import { AdSets } from "./pages/adsets";
 import { Campaigns } from "./pages/campaigns";
 import { Settings } from "./pages/settings";
 import { initialPlaceholder, useCommandMenu } from "./store";
