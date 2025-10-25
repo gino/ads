@@ -512,6 +512,7 @@ export function UploadedCreatives({ adSets }: Props) {
         if (!form.data.campaignId) return true;
         if (!form.data.pixelId) return true;
         if (!form.data.facebookPageId) return true;
+        if (!form.data.websiteUrl) return true;
 
         // Disable if no creatives at all
         if (creatives.length === 0) return true;
@@ -530,6 +531,7 @@ export function UploadedCreatives({ adSets }: Props) {
         form.data.campaignId,
         form.data.pixelId,
         form.data.facebookPageId,
+        form.data.websiteUrl,
         creatives,
         ungroupedCreatives,
         adSetGroups,

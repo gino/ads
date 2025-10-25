@@ -182,7 +182,7 @@ class UploadController extends Controller
                 //
                 'hasSelectedAdSet' => ['required', 'boolean'],
                 'campaignId' => ['required', 'string'],
-                'websiteUrl' => ['nullable', 'string', 'url'],
+                'websiteUrl' => ['required', 'string', 'url'],
                 'pixelId' => ['required', 'string'],
                 'facebookPageId' => ['required', 'string'],
                 'instagramPageId' => ['nullable', 'string'],
@@ -217,6 +217,9 @@ class UploadController extends Controller
                     'video_id' => null,
                 ])->toArray(),
             ])->toArray();
+
+            // Eventually we wanna render these ad launches in the UI with its status - and possibly a "Cancel" or "Retry" button - not sure yet.
+            // https://claude.ai/chat/d2259732-ee01-446d-bf79-2d703f9ab6ad
 
             $flow = AdCreationFlow::create([
                 'adSets' => $mappedAdSets,
@@ -283,7 +286,7 @@ class UploadController extends Controller
                         creativeIndex: $creativeIndex,
                         label: $creative['label'],
                         facebookPageId: $facebookPageId,
-                        websiteUrl: is_null($websiteUrl) ? 'https://google.com' : $websiteUrl, // TODO: Get default from ad account settings if null
+                        websiteUrl: $websiteUrl,
                         instagramPageId: $instagramPageId,
                         cta: $creative['settings']['cta'],
                         primaryTexts: array_unique(array_filter($creative['settings']['primaryTexts'])),

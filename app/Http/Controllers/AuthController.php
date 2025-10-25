@@ -129,7 +129,7 @@ class AuthController extends Controller
         }
         AdAccountSetting::upsert($settings, uniqueBy: ['ad_account_id', 'key'], update: []);
 
-        Auth::login($user);
+        Auth::login($user, remember: true);
 
         return redirect()->intended(route('dashboard.index'));
     }

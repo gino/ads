@@ -247,8 +247,8 @@ export function UploadForm({
                                 Website URL
                             </span>
                             <Input
-                                type="text"
-                                placeholder="e.g. the URL of your product page"
+                                type="url"
+                                placeholder="https://your-store.myshopify.com/products/example"
                                 value={form.data.websiteUrl}
                                 onChange={(e) =>
                                     form.setData("websiteUrl", e.target.value)

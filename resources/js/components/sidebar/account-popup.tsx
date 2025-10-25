@@ -23,10 +23,10 @@ export function AccountPopup() {
                         className="flex gap-3 enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out items-center px-3 py-2.5 w-full text-left rounded-lg ring-1 ring-gray-100 hover:bg-gray-100 cursor-pointer"
                         {...props}
                     >
-                        <div className="relative w-8 h-8">
+                        <div className="relative rounded-full overflow-hidden w-8 h-8 after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
                             <img
                                 src={user.avatar}
-                                className="object-cover object-center w-full h-full rounded-full"
+                                className="object-cover object-center w-full h-full"
                             />
 
                             {notifications > 0 && (

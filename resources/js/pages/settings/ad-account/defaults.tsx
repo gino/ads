@@ -129,7 +129,7 @@ export default function Defaults({
                                                     e.target.value
                                                 );
                                             }}
-                                            placeholder="e.g. the URL of your store"
+                                            placeholder="https://your-store.myshopify.com/products/example"
                                         />
                                     </label>
                                 </div>
