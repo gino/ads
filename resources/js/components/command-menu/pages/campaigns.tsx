@@ -157,11 +157,7 @@ function CampaignContextMenu({
 }: CampaignContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const {
-        setIsOpen: setCommandMenuIsOpen,
-        setPage,
-        setPlaceholder,
-    } = useCommandMenu();
+    const { setIsOpen: setCommandMenuIsOpen, setPage } = useCommandMenu();
     const { selectedAdAccount } = useSelectedAdAccount();
 
     return (
@@ -238,7 +234,6 @@ function CampaignContextMenu({
                                     name: campaign.name,
                                 },
                             } as CampaignPageMeta);
-                            setPlaceholder("Search ads...");
                         }}
                         className="data-[selected='true']:bg-gray-100 group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
                     >

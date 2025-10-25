@@ -18,7 +18,7 @@ import { Ads } from "./pages/ads";
 import { AdSets } from "./pages/adsets";
 import { Campaigns } from "./pages/campaigns";
 import { Settings } from "./pages/settings";
-import { initialPlaceholder, useCommandMenu } from "./store";
+import { useCommandMenu } from "./store";
 
 export type CommandMenuPage =
     | "ad-accounts"
@@ -37,7 +37,6 @@ export function CommandMenu() {
         search,
         setSearch,
         placeholder,
-        setPlaceholder,
         isLoading,
         selectedItemId,
     } = useCommandMenu();
@@ -141,7 +140,6 @@ export function CommandMenu() {
                                     ) {
                                         e.preventDefault();
                                         setPages((pages) => pages.slice(0, -1));
-                                        setPlaceholder(initialPlaceholder);
                                     }
                                 }}
                                 loop
@@ -191,9 +189,6 @@ export function CommandMenu() {
                                                     id="switch-ad-account"
                                                     onSelect={() => {
                                                         setPage("ad-accounts");
-                                                        setPlaceholder(
-                                                            "Search ad account..."
-                                                        );
                                                     }}
                                                     icon="fa-regular fa-rectangle-history"
                                                 >
@@ -209,9 +204,6 @@ export function CommandMenu() {
                                                     id="search-campaigns"
                                                     onSelect={() => {
                                                         setPage("campaigns");
-                                                        setPlaceholder(
-                                                            "Search campaigns..."
-                                                        );
                                                     }}
                                                     icon="fa-regular fa-rectangle-history"
                                                 >
@@ -221,9 +213,6 @@ export function CommandMenu() {
                                                     id="search-adsets"
                                                     onSelect={() => {
                                                         setPage("adsets");
-                                                        setPlaceholder(
-                                                            "Search ad sets..."
-                                                        );
                                                     }}
                                                     icon="fa-regular fa-rectangle-history"
                                                 >
@@ -233,9 +222,6 @@ export function CommandMenu() {
                                                     id="search-ads"
                                                     onSelect={() => {
                                                         setPage("ads");
-                                                        setPlaceholder(
-                                                            "Search ads..."
-                                                        );
                                                     }}
                                                     icon="fa-regular fa-rectangle-history"
                                                 >
@@ -319,9 +305,6 @@ export function CommandMenu() {
                                                     id="settings"
                                                     onSelect={() => {
                                                         setPage("settings");
-                                                        setPlaceholder(
-                                                            "Search settings..."
-                                                        );
                                                     }}
                                                     icon="fa-regular fa-cog"
                                                 >

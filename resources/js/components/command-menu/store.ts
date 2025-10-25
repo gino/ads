@@ -21,13 +21,27 @@ interface CommandMenuStore {
     resetPage: () => void;
     search: string;
     setSearch: (value: string) => void;
-    placeholder: string;
-    setPlaceholder: (value: string) => void;
     selectedItemId: string | null;
     setSelectedItemId: (id: string) => void;
 }
 
 export const initialPlaceholder = "Type a command or search...";
+
+const pagePlaceholders: Record<CommandMenuPage, string> = {
+    "ad-accounts": "Search ad accounts...",
+    settings: "Search settings...",
+    campaigns: "Search campaigns...",
+    adsets: "Search ad sets...",
+    ads: "Search ads...",
+};
+
+export function getPlaceholder(pages: CommandMenuPage[]): string {
+    if (pages.length === 0) {
+        return initialPlaceholder;
+    }
+    const currentPage = pages[pages.length - 1];
+    return pagePlaceholders[currentPage] || initialPlaceholder;
+}
 
 export const useCommandMenuStore = create<CommandMenuStore>((set, get) => ({
     isOpen: false,
@@ -68,10 +82,6 @@ export const useCommandMenuStore = create<CommandMenuStore>((set, get) => ({
     setSearch: (value) => {
         return set(() => ({ search: value }));
     },
-    placeholder: initialPlaceholder,
-    setPlaceholder: (value) => {
-        return set(() => ({ placeholder: value }));
-    },
     pageMeta: {},
     setPageMeta: (value) => {
         return set(() => ({ pageMeta: value }));
@@ -103,8 +113,7 @@ export function useCommandMenu() {
             setPages: state.setPages,
             search: state.search,
             setSearch: state.setSearch,
-            placeholder: state.placeholder,
-            setPlaceholder: state.setPlaceholder,
+            placeholder: getPlaceholder(state.pages),
             resetPage: state.resetPage,
             pageMeta: state.pageMeta,
             setPageMeta: state.setPageMeta,
