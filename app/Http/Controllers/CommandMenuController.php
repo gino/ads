@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\AdCampaignData;
+use App\Data\AdData;
 use App\Data\AdSetData;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetAdCampaignsRequest;
@@ -21,12 +22,15 @@ class CommandMenuController extends Controller
         $meta = new MetaConnector($request->user()->connection);
 
         $adCampaignsRequest = new GetAdCampaignsRequest($adAccount);
-        $campaigns = collect($meta->paginate($adCampaignsRequest)->collect()->all());
-        // for ($i = 0; $i < 1; $i++) {
-        //     dump(AdCampaignData::collect($campaigns));
-        // }
 
-        return AdCampaignData::collect($campaigns);
+        $campaigns = collect($meta->paginate($adCampaignsRequest)->collect()->all());
+
+        $cacheKey = $adCampaignsRequest->getCacheKey($meta->createPendingRequest($adCampaignsRequest));
+
+        return response()->json([
+            'campaigns' => AdCampaignData::collect($campaigns),
+            'cacheKey' => $cacheKey ? hash('sha256', $cacheKey) : null,
+        ]);
     }
 
     public function adSets(Request $request)
@@ -40,7 +44,12 @@ class CommandMenuController extends Controller
 
         $adSets = collect($meta->paginate($adSetsRequest)->collect()->all());
 
-        return AdSetData::collect($adSets);
+        $cacheKey = $adSetsRequest->getCacheKey($meta->createPendingRequest($adSetsRequest));
+
+        return response()->json([
+            'adSets' => AdSetData::collect($adSets),
+            'cacheKey' => $cacheKey ? hash('sha256', $cacheKey) : null,
+        ]);
     }
 
     public function ads(Request $request)
@@ -54,6 +63,11 @@ class CommandMenuController extends Controller
 
         $ads = collect($meta->paginate($adsRequest)->collect()->all());
 
-        return AdSetData::collect($ads);
+        $cacheKey = $adsRequest->getCacheKey($meta->createPendingRequest($adsRequest));
+
+        return response()->json([
+            'ads' => AdData::collect($ads),
+            'cacheKey' => $cacheKey ? hash('sha256', $cacheKey) : null,
+        ]);
     }
 }

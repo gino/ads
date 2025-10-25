@@ -1,4 +1,5 @@
 import { StatusTag } from "@/components/ui/status-tag";
+import useDebouncedBatch from "@/lib/hooks/use-debounced-batch";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatMoneyWithLocale } from "@/lib/number-utils";
 import { router } from "@inertiajs/react";
@@ -15,6 +16,8 @@ import { useCommandMenu } from "../store";
 
 export function AdSets() {
     const [adSets, setAdSets] = useState<App.Data.AdSetData[]>([]);
+    const [cacheKey, setCacheKey] = useState("");
+
     const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -28,12 +31,35 @@ export function AdSets() {
         axios
             .get(route("command-menu.api.adSets"))
             .then(({ data }) => {
-                setAdSets(data);
+                setAdSets(data.adSets);
+                setCacheKey(data.cacheKey);
             })
             .finally(() => {
                 setIsLoading(false);
             });
     }, [setIsLoading]);
+
+    const { enqueue } = useDebouncedBatch<App.Data.AdSetData>({
+        waitMs: 2_000,
+        maxWaitMs: 10_000,
+        key: (adSet) => adSet.id,
+        coalesce: (prev, next) => {
+            if (prev && prev.status === next.status) return null;
+            return next;
+        },
+        onFlush: async (items) => {
+            console.log("Sending batch to backend", items);
+            await axios.patch(route("adSets.status.update"), {
+                entries: items,
+                cacheKey,
+            });
+        },
+        flushOnInertiaNavigate: true,
+        flushOnHistoryChange: false,
+        flushOnVisibilityHidden: false,
+        flushOnPageHide: true,
+        flushOnBeforeUnload: false,
+    });
 
     if (adSets.length === 0 || isLoading) {
         return null;
@@ -72,16 +98,43 @@ export function AdSets() {
                 </CommandItem>
             ))}
 
-            <AdSetContextMenu adSet={selected} />
+            <AdSetContextMenu
+                adSet={selected}
+                handleAdSetStatusChange={(adSetId, status) => {
+                    const adSet = adSets.find((a) => a.id === adSetId);
+
+                    if (!adSet) return;
+
+                    setAdSets((data) => {
+                        return data.map((adSet) =>
+                            adSet.id === adSetId
+                                ? { ...adSet, status: status }
+                                : adSet
+                        );
+                    });
+
+                    enqueue({
+                        ...adSet,
+                        status,
+                    });
+                }}
+            />
         </Command.Group>
     );
 }
 
 interface AdSetContextMenuProps {
     adSet: App.Data.AdSetData | null;
+    handleAdSetStatusChange: (
+        adSetId: string,
+        status: App.Data.AdSetData["status"]
+    ) => void;
 }
 
-function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
+function AdSetContextMenu({
+    adSet,
+    handleAdSetStatusChange,
+}: AdSetContextMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
@@ -139,6 +192,12 @@ function AdSetContextMenu({ adSet }: AdSetContextMenuProps) {
                         <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
+                                handleAdSetStatusChange(
+                                    adSet.id,
+                                    adSet.status === "ACTIVE"
+                                        ? "PAUSED"
+                                        : "ACTIVE"
+                                );
                             }}
                         >
                             <div className="flex items-center truncate">

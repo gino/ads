@@ -1,5 +1,5 @@
 import { StatusTag } from "@/components/ui/status-tag";
-import { toast } from "@/components/ui/toast";
+import useDebouncedBatch from "@/lib/hooks/use-debounced-batch";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatMoneyWithLocale } from "@/lib/number-utils";
 import { router } from "@inertiajs/react";
@@ -16,6 +16,8 @@ import { useCommandMenu } from "../store";
 
 export function Campaigns() {
     const [campaigns, setCampaigns] = useState<App.Data.AdCampaignData[]>([]);
+    const [cacheKey, setCacheKey] = useState("");
+
     const { setIsOpen, isLoading, setIsLoading } = useCommandMenu();
 
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -29,12 +31,35 @@ export function Campaigns() {
         axios
             .get(route("command-menu.api.campaigns"))
             .then(({ data }) => {
-                setCampaigns(data);
+                setCampaigns(data.campaigns);
+                setCacheKey(data.cacheKey);
             })
             .finally(() => {
                 setIsLoading(false);
             });
     }, [setIsLoading]);
+
+    const { enqueue } = useDebouncedBatch<App.Data.AdCampaignData>({
+        waitMs: 2_000,
+        maxWaitMs: 10_000,
+        key: (campaign) => campaign.id,
+        coalesce: (prev, next) => {
+            if (prev && prev.status === next.status) return null;
+            return next;
+        },
+        onFlush: async (items) => {
+            console.log("Sending batch to backend", items);
+            await axios.patch(route("campaigns.status.update"), {
+                entries: items,
+                cacheKey,
+            });
+        },
+        flushOnInertiaNavigate: true,
+        flushOnHistoryChange: false,
+        flushOnVisibilityHidden: false,
+        flushOnPageHide: true,
+        flushOnBeforeUnload: false,
+    });
 
     if (campaigns.length === 0 || isLoading) {
         return null;
@@ -84,6 +109,10 @@ export function Campaigns() {
             <CampaignContextMenu
                 campaign={selected}
                 handleCampaignStatusChange={(campaignId, status) => {
+                    const campaign = campaigns.find((c) => c.id === campaignId);
+
+                    if (!campaign) return;
+
                     setCampaigns((data) => {
                         return data.map((campaign) =>
                             campaign.id === campaignId
@@ -92,8 +121,9 @@ export function Campaigns() {
                         );
                     });
 
-                    toast({
-                        contents: `Campaign updated`,
+                    enqueue({
+                        ...campaign,
+                        status,
                     });
                 }}
             />

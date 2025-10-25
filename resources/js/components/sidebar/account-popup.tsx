@@ -2,12 +2,10 @@ import { useAuth } from "@/lib/hooks/use-auth";
 import * as Ariakit from "@ariakit/react";
 import { router } from "@inertiajs/react";
 import { useState } from "react";
-import { useCommandMenu } from "../command-menu/store";
 
 export function AccountPopup() {
     const user = useAuth();
 
-    const { setIsOpen: setCommandMenuIsOpen } = useCommandMenu();
     const [isOpen, setIsOpen] = useState(false);
 
     const store = Ariakit.useMenuStore({
@@ -84,14 +82,8 @@ export function AccountPopup() {
 
                 <div className="bg-gray-100 h-px my-1 -mx-1" />
 
-                <Ariakit.MenuItem
-                    onClick={() => {
-                        setIsOpen(false);
-                        setCommandMenuIsOpen(true);
-                    }}
-                    className="flex items-center outline-none data-[active-item='true']:bg-gray-100 data-[disabled='true']:opacity-50 data-[disabled='true']:cursor-not-allowed group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate"
-                >
-                    <div>Command menu</div>
+                <Ariakit.MenuItem className="flex items-center outline-none data-[active-item='true']:bg-gray-100 data-[disabled='true']:opacity-50 data-[disabled='true']:cursor-not-allowed group px-4 py-3 text-sm rounded-lg cursor-pointer font-semibold truncate">
+                    <div>Support</div>
                 </Ariakit.MenuItem>
 
                 <div className="bg-gray-100 h-px my-1 -mx-1" />

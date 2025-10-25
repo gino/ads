@@ -65,7 +65,7 @@ export function CampaignsTable({ isLoading, campaigns }: Props) {
         flushOnInertiaNavigate: true,
         flushOnHistoryChange: false,
         flushOnVisibilityHidden: false,
-        flushOnPageHide: false,
+        flushOnPageHide: true,
         flushOnBeforeUnload: false,
     });
 

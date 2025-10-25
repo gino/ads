@@ -94,7 +94,7 @@ export function AdsTable({ isLoading, ads }: Props) {
         flushOnInertiaNavigate: true,
         flushOnHistoryChange: false,
         flushOnVisibilityHidden: false,
-        flushOnPageHide: false,
+        flushOnPageHide: true,
         flushOnBeforeUnload: false,
     });
 
