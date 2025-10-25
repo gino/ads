@@ -70,7 +70,7 @@ export function Settings() {
                     }}
                 >
                     <div className="flex items-center gap-2">
-                        <i className="fa-regular fa-arrow-right text-gray-400 mr-1.5 fa-fw -ml-0.5 group-data-[selected='true']:text-black" />
+                        <i className="fa-regular fa-arrow-right text-gray-400 mr-1.5 fa-fw -ml-0.5" />
                         <div className="text-gray-400">Settings</div>
                         <div className="text-gray-300">/</div>
                         {"includeAdAccount" in item &&

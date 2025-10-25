@@ -4,6 +4,7 @@ import * as Ariakit from "@ariakit/react";
 import { router } from "@inertiajs/react";
 import { Command } from "cmdk";
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
     CommandFooter,
@@ -51,17 +52,29 @@ export function CommandMenu() {
     useHotkeys(
         ["meta+k", "ctrl+k", "Slash"],
         () => {
-            if (isOpen) {
-                return;
-            }
+            // setIsOpen((o) => !o);
+
+            if (isOpen) return;
 
             setIsOpen(true);
         },
         [setIsOpen, isOpen],
-        { preventDefault: true }
+        {
+            preventDefault: true,
+            enableOnFormTags: true,
+            // scopes: ["command-menu"],
+        }
     );
 
+    const listRef = useRef<HTMLDivElement>(null);
+
     const page = pages[pages.length - 1];
+
+    useEffect(() => {
+        if (listRef.current) {
+            listRef.current.scrollTop = 0;
+        }
+    }, [search, page]);
 
     return (
         <AnimatePresence>
@@ -152,7 +165,10 @@ export function CommandMenu() {
                                     </div>
                                 </div>
 
-                                <Command.List className="overflow-y-auto flex-1 scroll-p-2 outline-none [&>div[cmdk-list-sizer]>div:has(>div[cmdk-group-items]:not(:empty))]:border-t [&>div[cmdk-list-sizer]>div:has(>div[cmdk-group-items]:not(:empty))]:border-gray-100 -mt-px">
+                                <Command.List
+                                    ref={listRef}
+                                    className="overflow-y-auto flex-1 scroll-p-2 outline-none [&>div[cmdk-list-sizer]>div:has(>div[cmdk-group-items]:not(:empty))]:border-t [&>div[cmdk-list-sizer]>div:has(>div[cmdk-group-items]:not(:empty))]:border-gray-100 -mt-px"
+                                >
                                     {isLoading ? (
                                         <Command.Loading className="h-90"></Command.Loading>
                                     ) : (

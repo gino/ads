@@ -17,6 +17,18 @@ export function CommandSubMenu({
     disclosure,
     children,
 }: Props) {
+    // const { disableScope, enableScope } = useHotkeysContext();
+
+    // useEffect(() => {
+    //     disableScope("command-menu");
+    //     enableScope("command-sub-menu");
+
+    //     return () => {
+    //         disableScope("command-sub-menu");
+    //         enableScope("command-menu");
+    //     };
+    // }, []);
+
     useHotkeys(
         ["meta+k", "ctrl+k"],
         () => {
@@ -26,6 +38,7 @@ export function CommandSubMenu({
         {
             preventDefault: true,
             enableOnFormTags: true,
+            // scopes: ["command-sub-menu"],
         }
     );
 
@@ -50,7 +63,7 @@ export function CommandSubMenu({
                 gutter={18}
                 alwaysVisible
                 hideOnInteractOutside
-                unmountOnHide
+                // unmountOnHide
                 autoFocusOnHide
                 finalFocus={
                     document.querySelector("input[cmdk-input]") as HTMLElement
@@ -79,7 +92,7 @@ export function CommandSubMenu({
                                 duration: 0.1,
                                 ease: "easeInOut",
                             }}
-                            className="bg-white shadow-base-popup origin-bottom-right w-full p-1 space-y-1 scroll-p-1 rounded-xl max-h-72 overflow-y-auto"
+                            className="bg-white will-change-transform shadow-base-popup origin-bottom-right w-full p-1 space-y-1 scroll-p-1 rounded-xl max-h-72 overflow-y-auto"
                         >
                             {children}
                         </motion.div>
