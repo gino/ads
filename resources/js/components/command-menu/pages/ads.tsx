@@ -5,6 +5,7 @@ import axios from "axios";
 import { Command } from "cmdk";
 import { useEffect, useMemo, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
+import { CommandGroup } from "../components/command-group";
 import { CommandItem } from "../components/command-item";
 import { CommandSeparator } from "../components/command-separator";
 import { CommandSubItem } from "../components/command-sub-item";
@@ -64,7 +65,7 @@ export function Ads() {
     }
 
     return (
-        <Command.Group className="p-2">
+        <CommandGroup>
             {ads.map((ad) => (
                 <CommandItem
                     key={ad.id}
@@ -115,7 +116,7 @@ export function Ads() {
                     }}
                 />
             )}
-        </Command.Group>
+        </CommandGroup>
     );
 }
 
@@ -155,45 +156,43 @@ function AdContextMenu({ ad, handleAdStatusChange }: AdContextMenuProps) {
         >
             <Command loop className="outline-none">
                 <Command.List className="outline-none">
-                    <Command.Group>
-                        <CommandSubItem
-                            onSelect={() => {
-                                setIsOpen(false);
-                                handleAdStatusChange(
-                                    ad.id,
-                                    ad.status === "ACTIVE" ? "PAUSED" : "ACTIVE"
-                                );
-                            }}
-                        >
-                            <div className="flex items-center truncate">
-                                <div className="flex-1 truncate">
-                                    {ad.status === "ACTIVE"
-                                        ? "Turn ad off"
-                                        : "Turn ad on"}
-                                </div>
+                    <CommandSubItem
+                        onSelect={() => {
+                            setIsOpen(false);
+                            handleAdStatusChange(
+                                ad.id,
+                                ad.status === "ACTIVE" ? "PAUSED" : "ACTIVE"
+                            );
+                        }}
+                    >
+                        <div className="flex items-center truncate">
+                            <div className="flex-1 truncate">
+                                {ad.status === "ACTIVE"
+                                    ? "Turn ad off"
+                                    : "Turn ad on"}
                             </div>
-                        </CommandSubItem>
-                        <CommandSeparator />
-                        <CommandSubItem
-                            onSelect={() => {
-                                setIsOpen(false);
-                                setCommandMenuIsOpen(false);
-                                router.visit(
-                                    route("dashboard.campaigns.ads", {
-                                        _query: {
-                                            selected_ad_ids: ad.id,
-                                        },
-                                    })
-                                );
-                            }}
-                        >
-                            <div className="flex items-center truncate">
-                                <div className="flex-1 truncate">
-                                    View ad insights
-                                </div>
+                        </div>
+                    </CommandSubItem>
+                    <CommandSeparator />
+                    <CommandSubItem
+                        onSelect={() => {
+                            setIsOpen(false);
+                            setCommandMenuIsOpen(false);
+                            router.visit(
+                                route("dashboard.campaigns.ads", {
+                                    _query: {
+                                        selected_ad_ids: ad.id,
+                                    },
+                                })
+                            );
+                        }}
+                    >
+                        <div className="flex items-center truncate">
+                            <div className="flex-1 truncate">
+                                View ad insights
                             </div>
-                        </CommandSubItem>
-                    </Command.Group>
+                        </div>
+                    </CommandSubItem>
                 </Command.List>
             </Command>
         </CommandSubMenu>

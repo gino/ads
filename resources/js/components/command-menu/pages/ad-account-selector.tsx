@@ -4,6 +4,7 @@ import { router, usePage } from "@inertiajs/react";
 import { Command } from "cmdk";
 import { useMemo, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
+import { CommandGroup } from "../components/command-group";
 import { CommandItem } from "../components/command-item";
 import { CommandSeparator } from "../components/command-separator";
 import { CommandSubItem } from "../components/command-sub-item";
@@ -28,7 +29,7 @@ export function AdAccountSelector() {
     }, [selectedId, props.adAccounts]);
 
     return (
-        <Command.Group className="p-2">
+        <CommandGroup>
             {props.adAccounts.map((adAccount) => (
                 <CommandItem
                     key={adAccount.id}
@@ -78,7 +79,7 @@ export function AdAccountSelector() {
             ))}
 
             {selected && <AdAccountContextMenu adAccount={selected} />}
-        </Command.Group>
+        </CommandGroup>
     );
 }
 
@@ -121,47 +122,43 @@ function AdAccountContextMenu({ adAccount }: AdAccountContextMenuProps) {
         >
             <Command loop className="outline-none">
                 <Command.List className="outline-none">
-                    <Command.Group>
-                        <CommandSubItem
-                            onSelect={() => {
-                                if (adAccount.id !== selectedAdAccountId) {
-                                    selectAdAccount(adAccount.id);
-                                }
+                    <CommandSubItem
+                        onSelect={() => {
+                            if (adAccount.id !== selectedAdAccountId) {
+                                selectAdAccount(adAccount.id);
+                            }
 
-                                setIsOpen(false);
-                                setCommandMenuIsOpen(false);
-                            }}
-                            disabled={selectedAdAccountId === adAccount.id}
-                        >
-                            <div className="flex items-center truncate">
-                                <div className="flex-1 truncate">
-                                    Switch to ad account
-                                </div>
+                            setIsOpen(false);
+                            setCommandMenuIsOpen(false);
+                        }}
+                        disabled={selectedAdAccountId === adAccount.id}
+                    >
+                        <div className="flex items-center truncate">
+                            <div className="flex-1 truncate">
+                                Switch to ad account
+                            </div>
 
-                                <div className="truncate max-w-1/3 font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
-                                    {adAccount.name}
-                                </div>
+                            <div className="truncate max-w-1/3 font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                {adAccount.name}
                             </div>
-                        </CommandSubItem>
-                        <CommandSeparator />
-                        <CommandSubItem
-                            onSelect={() => {
-                                setIsOpen(false);
-                                setCommandMenuIsOpen(false);
-                                router.visit(
-                                    route(
-                                        "dashboard.settings.ad-account.general"
-                                    )
-                                );
-                            }}
-                        >
-                            <div className="flex items-center truncate">
-                                <div className="flex-1 truncate">
-                                    Configure ad account
-                                </div>
+                        </div>
+                    </CommandSubItem>
+                    <CommandSeparator />
+                    <CommandSubItem
+                        onSelect={() => {
+                            setIsOpen(false);
+                            setCommandMenuIsOpen(false);
+                            router.visit(
+                                route("dashboard.settings.ad-account.general")
+                            );
+                        }}
+                    >
+                        <div className="flex items-center truncate">
+                            <div className="flex-1 truncate">
+                                Configure ad account
                             </div>
-                        </CommandSubItem>
-                    </Command.Group>
+                        </div>
+                    </CommandSubItem>
                 </Command.List>
             </Command>
         </CommandSubMenu>

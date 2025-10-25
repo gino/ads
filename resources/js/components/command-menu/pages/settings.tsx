@@ -1,8 +1,8 @@
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { router } from "@inertiajs/react";
-import { Command } from "cmdk";
 import { useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
+import { CommandGroup } from "../components/command-group";
 import { CommandItem } from "../components/command-item";
 import { ShortcutIconHint } from "../components/shortcut-hint";
 import { useCommandMenu } from "../store";
@@ -55,7 +55,7 @@ export function Settings() {
     const page = pages[pages.length - 1];
 
     return (
-        <Command.Group className="p-2">
+        <CommandGroup heading="Settings">
             {items.map((item, index) => (
                 <CommandItem
                     key={index}
@@ -70,7 +70,7 @@ export function Settings() {
                     }}
                 >
                     <div className="flex items-center gap-2">
-                        <i className="fa-regular fa-arrow-right text-gray-400 mr-1.5 fa-fw -ml-0.5" />
+                        <i className="fa-regular fa-arrow-right text-gray-400 mr-1.5 fa-fw -ml-0.5 group-data-[selected='true']:text-black" />
                         <div className="text-gray-400">Settings</div>
                         <div className="text-gray-300">/</div>
                         {"includeAdAccount" in item &&
@@ -97,6 +97,6 @@ export function Settings() {
                     />
                 </CommandFooterPortal>
             )}
-        </Command.Group>
+        </CommandGroup>
     );
 }

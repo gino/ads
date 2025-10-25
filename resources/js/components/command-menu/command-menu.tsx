@@ -9,6 +9,7 @@ import {
     CommandFooter,
     CommandFooterPortal,
 } from "./components/command-footer";
+import { CommandGroup } from "./components/command-group";
 import { CommandItem } from "./components/command-item";
 import { ShortcutIconHint } from "./components/shortcut-hint";
 import { AdAccountSelector } from "./pages/ad-account-selector";
@@ -169,7 +170,7 @@ export function CommandMenu() {
 
                                     {!page && (
                                         <>
-                                            <Command.Group className="p-2">
+                                            <CommandGroup>
                                                 <CommandItem
                                                     id="switch-ad-account"
                                                     onSelect={() => {
@@ -253,9 +254,9 @@ export function CommandMenu() {
                                                 >
                                                     Create ad sets
                                                 </CommandItem>
-                                            </Command.Group>
+                                            </CommandGroup>
 
-                                            <Command.Group className="p-2">
+                                            <CommandGroup heading="Navigation">
                                                 <CommandItem
                                                     id="dashboard"
                                                     onSelect={() => {
@@ -310,9 +311,9 @@ export function CommandMenu() {
                                                 >
                                                     Settings
                                                 </CommandItem>
-                                            </Command.Group>
+                                            </CommandGroup>
 
-                                            <Command.Group className="p-2">
+                                            <CommandGroup>
                                                 <CommandItem
                                                     id="logout"
                                                     onSelect={() => {
@@ -328,7 +329,7 @@ export function CommandMenu() {
                                                         <div>Log out</div>
                                                     </div>
                                                 </CommandItem>
-                                            </Command.Group>
+                                            </CommandGroup>
                                         </>
                                     )}
 

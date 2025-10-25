@@ -7,6 +7,7 @@ import axios from "axios";
 import { Command } from "cmdk";
 import { useEffect, useMemo, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
+import { CommandGroup } from "../components/command-group";
 import { CommandItem } from "../components/command-item";
 import { CommandSeparator } from "../components/command-separator";
 import { CommandSubItem } from "../components/command-sub-item";
@@ -66,7 +67,7 @@ export function AdSets() {
     }
 
     return (
-        <Command.Group className="p-2">
+        <CommandGroup>
             {adSets.map((adSet) => (
                 <CommandItem
                     key={adSet.id}
@@ -131,7 +132,7 @@ export function AdSets() {
                     }}
                 />
             )}
-        </Command.Group>
+        </CommandGroup>
     );
 }
 
@@ -175,68 +176,64 @@ function AdSetContextMenu({
         >
             <Command loop className="outline-none">
                 <Command.List className="outline-none">
-                    <Command.Group>
-                        {adSet.dailyBudget && (
-                            <CommandSubItem
-                                onSelect={() => {
-                                    setIsOpen(false);
-                                }}
-                            >
-                                <div className="flex items-center truncate">
-                                    <div className="flex-1 truncate">
-                                        Update daily budget
-                                    </div>
-
-                                    <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
-                                        {formatMoneyWithLocale(
-                                            parseInt(adSet.dailyBudget) / 100,
-                                            selectedAdAccount.currency
-                                        )}
-                                    </div>
-                                </div>
-                            </CommandSubItem>
-                        )}
-
+                    {adSet.dailyBudget && (
                         <CommandSubItem
                             onSelect={() => {
                                 setIsOpen(false);
-                                handleAdSetStatusChange(
-                                    adSet.id,
-                                    adSet.status === "ACTIVE"
-                                        ? "PAUSED"
-                                        : "ACTIVE"
-                                );
                             }}
                         >
                             <div className="flex items-center truncate">
                                 <div className="flex-1 truncate">
-                                    {adSet.status === "ACTIVE"
-                                        ? "Turn ad set off"
-                                        : "Turn ad set on"}
+                                    Update daily budget
+                                </div>
+
+                                <div className="font-semibold bg-gray-100 text-[12px] px-2 inline-block rounded-full leading-5 group-data-[selected='true']:bg-gray-200">
+                                    {formatMoneyWithLocale(
+                                        parseInt(adSet.dailyBudget) / 100,
+                                        selectedAdAccount.currency
+                                    )}
                                 </div>
                             </div>
                         </CommandSubItem>
-                        <CommandSeparator />
-                        <CommandSubItem
-                            onSelect={() => {
-                                setIsOpen(false);
-                                setCommandMenuIsOpen(false);
-                                router.visit(
-                                    route("dashboard.campaigns.adSets", {
-                                        _query: {
-                                            selected_adset_ids: adSet.id,
-                                        },
-                                    })
-                                );
-                            }}
-                        >
-                            <div className="flex items-center truncate">
-                                <div className="flex-1 truncate">
-                                    View ad set insights
-                                </div>
+                    )}
+
+                    <CommandSubItem
+                        onSelect={() => {
+                            setIsOpen(false);
+                            handleAdSetStatusChange(
+                                adSet.id,
+                                adSet.status === "ACTIVE" ? "PAUSED" : "ACTIVE"
+                            );
+                        }}
+                    >
+                        <div className="flex items-center truncate">
+                            <div className="flex-1 truncate">
+                                {adSet.status === "ACTIVE"
+                                    ? "Turn ad set off"
+                                    : "Turn ad set on"}
                             </div>
-                        </CommandSubItem>
-                    </Command.Group>
+                        </div>
+                    </CommandSubItem>
+                    <CommandSeparator />
+                    <CommandSubItem
+                        onSelect={() => {
+                            setIsOpen(false);
+                            setCommandMenuIsOpen(false);
+                            router.visit(
+                                route("dashboard.campaigns.adSets", {
+                                    _query: {
+                                        selected_adset_ids: adSet.id,
+                                    },
+                                })
+                            );
+                        }}
+                    >
+                        <div className="flex items-center truncate">
+                            <div className="flex-1 truncate">
+                                View ad set insights
+                            </div>
+                        </div>
+                    </CommandSubItem>
                 </Command.List>
             </Command>
         </CommandSubMenu>
