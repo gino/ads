@@ -84,17 +84,17 @@ Route::middleware([
         return $request->json();
     });
 
-    Route::get('/test', function (Request $request) {
-        /** @var AdAccount $adAccount */
-        $adAccount = $request->adAccount();
+    // Route::get('/test', function (Request $request) {
+    //     /** @var AdAccount $adAccount */
+    //     $adAccount = $request->adAccount();
 
-        $meta = new MetaConnector($request->user()->connection);
+    //     $meta = new MetaConnector($request->user()->connection);
 
-        for ($i = 0; $i < 5000; $i++) {
-            $data = $meta->send(new TestRequest($adAccount));
-            dd($data->json());
-        }
+    //     for ($i = 0; $i < 5000; $i++) {
+    //         $data = $meta->send(new TestRequest($adAccount));
+    //         dd($data->json());
+    //     }
 
-        return $data->json();
-    });
+    //     return $data->json();
+    // });
 });

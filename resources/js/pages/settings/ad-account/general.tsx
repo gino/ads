@@ -73,9 +73,20 @@ export default function General() {
                             </div>
                             <div className="p-5">
                                 <label>
-                                    <span className="block mb-2 font-semibold">
-                                        Timezone
-                                    </span>
+                                    <div className="flex items-center mb-2 justify-between">
+                                        <span className="block font-semibold">
+                                            Timezone
+                                        </span>
+                                        <div>
+                                            <div className="font-semibold bg-gray-100 text-[12px] px-2 leading-5 group-hover:bg-gray-200 rounded-full">
+                                                UTC
+                                                {selectedAdAccount.timezoneOffsetUtc >=
+                                                0
+                                                    ? `+${selectedAdAccount.timezoneOffsetUtc}`
+                                                    : `-${selectedAdAccount.timezoneOffsetUtc}`}
+                                            </div>
+                                        </div>
+                                    </div>
                                     <Input
                                         type="text"
                                         value={selectedAdAccount.timezone}

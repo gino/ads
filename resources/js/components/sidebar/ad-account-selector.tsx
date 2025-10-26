@@ -72,7 +72,7 @@ export function AdAccountSelector({ adAccounts }: Props) {
                 slide={false}
                 unmountOnHide
                 className={cn(
-                    "rounded-xl bg-white shadow-base-popup p-1 space-y-1 max-h-[var(--popover-available-height)] overflow-y-auto"
+                    "rounded-xl outline-none bg-white shadow-base-popup p-1 space-y-1 max-h-[var(--popover-available-height)] overflow-y-auto"
                     // "opacity-0 -translate-y-1 scale-[0.98] transition-[opacity,scale,translate] duration-150 ease-in-out origin-top",
                     // "data-[enter]:opacity-100 data-[enter]:translate-y-0 data-[enter]:scale-[1]"
                 )}
