@@ -39,5 +39,6 @@ return [
         'client_id' => env('FACEBOOK_APP_ID'),
         'client_secret' => env('FACEBOOK_APP_SECRET'),
         'redirect' => 'https://ads.test/connect/facebook/callback',
+        'webhook_verification_token' => env('FACEBOOK_WEBHOOK_VERIFICATION_TOKEN'),
     ],
 ];

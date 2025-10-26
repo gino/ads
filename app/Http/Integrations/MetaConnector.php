@@ -80,17 +80,17 @@ class MetaConnector extends Connector implements HasPagination
             return false;
         }
 
-        Log::debug($this->connection->id.' Checking if token needs renewal');
+        Log::debug("[Token renewal]: {$this->connection->id} - Checking if token needs renewal...");
 
         $expirationBuffer = now()->addDays(7);
 
         if ($this->connection->expires_at && $this->connection->expires_at->lte($expirationBuffer)) {
-            Log::debug($this->connection->id.' Token needs renewal');
+            Log::debug("[Token renewal]: {$this->connection->id}'s token needs renewal - renewing...");
 
             return true;
         }
 
-        Log::debug($this->connection->id.' Token expiration is outside of expiration buffer - not renewing');
+        Log::debug("[Token renewal]: {$this->connection->id}'s token expiration is outside of expiration buffer - skipping...");
 
         return false;
     }

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Integrations\MetaConnector;
-use App\Http\Integrations\Requests\GetAdAccountsRequest;
 use App\Http\Integrations\Requests\RenewTokenRequest;
 use App\Models\AdAccount;
 use App\Models\AdAccountSetting;
 use App\Models\Connection;
 use App\Models\User;
+use App\Services\AdAccountService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -80,30 +80,8 @@ class AuthController extends Controller
         // Exchange short-lived token for a long-lived one
         $this->exchangeLongLivedToken($connection);
 
-        // Maybe we wanna off load this request to a queue job so we can show some type of pending/loading state in the UI
-        $adAccounts = $this->fetchAdAccounts($connection);
-
-        AdAccount::upsert($adAccounts->map(function ($adAccount) use ($connection) {
-            return [
-                'external_id' => $adAccount['id'],
-                'name' => $adAccount['name'],
-                'currency' => $adAccount['currency'],
-                'status' => $adAccount['account_status'],
-                'connection_id' => $connection->id,
-                'business_id' => $adAccount['business']['id'] ?? null,
-                'timezone' => $adAccount['timezone_name'],
-                'timezone_offset_utc' => $adAccount['timezone_offset_hours_utc'],
-                'permissions' => json_encode($adAccount['user_tasks'] ?? []),
-            ];
-        })->all(), uniqueBy: ['external_id'], update: [
-            'name',
-            'currency',
-            'status',
-            'business_id',
-            'timezone',
-            'timezone_offset_utc',
-            'permissions',
-        ]);
+        $adAccounts = AdAccountService::fetchAdAccounts($connection);
+        AdAccountService::syncAdAccounts($adAccounts, $connection);
 
         $ids = AdAccount::whereIn('external_id', array_column($adAccounts->all(), 'id'))->pluck('id', 'external_id');
 
@@ -146,14 +124,6 @@ class AuthController extends Controller
             'expires_at' => isset($data['expires_in']) ? now()->addSeconds($data['expires_in']) : now()->addDays(60),
             'renewed_at' => now(),
         ]);
-    }
-
-    private function fetchAdAccounts(Connection $connection)
-    {
-        $meta = new MetaConnector($connection);
-        $paginator = $meta->paginate(new GetAdAccountsRequest($connection));
-
-        return $paginator->collect();
     }
 
     public function selectAdAccount(Request $request)

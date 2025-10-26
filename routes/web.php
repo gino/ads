@@ -11,6 +11,7 @@ use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetBusinessCreativesRequest;
 use App\Http\Integrations\Requests\TestRequest;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
+use App\Http\Middleware\HandleAdAccountChanges;
 use App\Http\Middleware\HandleSelectedAdAccount;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
@@ -30,6 +31,7 @@ Route::middleware([
     'auth',
     EnsureFacebookTokenIsValid::class,
     HandleSelectedAdAccount::class,
+    HandleAdAccountChanges::class,
 ])->group(function () {
     Route::get('/', [ViewController::class, 'index'])->name('dashboard.index');
 
