@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->validateCsrfTokens(except: [
-            '/connect/facebook/webhook',
+            '/webhooks/facebook',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -6,6 +6,7 @@ use App\Http\Controllers\CommandMenuController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
+use App\Http\Controllers\WebhooksController;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\GetBusinessCreativesRequest;
 use App\Http\Integrations\Requests\TestRequest;
@@ -21,6 +22,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/connect/facebook/callback', [AuthController::class, 'callback']);
+
+Route::get('/webhooks/facebook', [WebhooksController::class, 'verify']);
+Route::post('/webhooks/facebook', [WebhooksController::class, 'callback']);
 
 Route::middleware([
     'auth',

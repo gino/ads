@@ -60,7 +60,7 @@ export function CommandMenu() {
         [setIsOpen, isOpen],
         {
             preventDefault: true,
-            enableOnFormTags: true,
+            // enableOnFormTags: true,
             // scopes: ["command-menu"],
         }
     );
