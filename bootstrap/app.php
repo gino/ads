@@ -24,6 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (RateLimitReachedException $e, Request $request) {
+            dd($e);
+
             return response("We've hit rate limits with your ad account - please try again later.");
             // return response()->view('errors.invalid-order', status: 500);
         });

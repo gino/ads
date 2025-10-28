@@ -12,9 +12,9 @@ interface Props {
 
 export default function AdAccounts({ adAccounts }: Props) {
     const sortedAdAccounts = useMemo(() => {
-        return adAccounts.sort(
-            (a, b) => Number(b.isActive) - Number(a.isActive)
-        );
+        return adAccounts.sort((a, b) => {
+            return Number(b.isActive) - Number(a.isActive);
+        });
     }, [adAccounts]);
 
     return (
@@ -41,13 +41,6 @@ export default function AdAccounts({ adAccounts }: Props) {
                                             >
                                                 <td className="px-5 py-4.5">
                                                     <div className="flex items-center gap-4">
-                                                        <div className="w-[16px] self-start">
-                                                            {adAccount.isActive ? (
-                                                                <i className="fa-brands fa-meta text-[12px] text-[#0081FB] fa-fw" />
-                                                            ) : (
-                                                                <i className="fa-solid fa-triangle-exclamation text-red-800 text-xs fa-fw mt-1" />
-                                                            )}
-                                                        </div>
                                                         <div>
                                                             <div>
                                                                 <div className="font-semibold mb-px">
@@ -67,8 +60,10 @@ export default function AdAccounts({ adAccounts }: Props) {
                                                     </div>
                                                 </td>
                                                 <td className="px-5 py-4.5">
-                                                    {adAccount.isActive && (
+                                                    {adAccount.isActive ? (
                                                         <i className="fa-solid fa-check-circle text-emerald-700 text-base" />
+                                                    ) : (
+                                                        <i className="fa-solid fa-triangle-exclamation text-red-800 text-xs fa-fw mt-1" />
                                                     )}
                                                 </td>
                                                 <td className="px-5 py-4.5">

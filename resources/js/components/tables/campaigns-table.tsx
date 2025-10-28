@@ -29,8 +29,6 @@ interface Props {
     campaigns: App.Data.AdCampaignData[];
 }
 
-const EMPTY_ARRAY: any[] = [];
-
 export function CampaignsTable({ isLoading, campaigns }: Props) {
     const [selectedCampaigns, setSelectedCampaigns] = useSelectedCampaigns();
 

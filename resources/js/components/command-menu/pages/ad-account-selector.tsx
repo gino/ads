@@ -28,9 +28,15 @@ export function AdAccountSelector() {
         return props.adAccounts.find((c) => c.id === selectedId) ?? null;
     }, [selectedId, props.adAccounts]);
 
+    const sortedAdAccounts = useMemo(() => {
+        return props.adAccounts.sort((a, b) => {
+            return Number(b.isActive) - Number(a.isActive);
+        });
+    }, [props.adAccounts]);
+
     return (
         <CommandGroup>
-            {props.adAccounts.map((adAccount) => (
+            {sortedAdAccounts.map((adAccount) => (
                 <CommandItem
                     key={adAccount.id}
                     id="ad-account-item"
