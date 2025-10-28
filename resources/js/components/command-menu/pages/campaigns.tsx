@@ -1,9 +1,10 @@
 import { StatusTag } from "@/components/ui/status-tag";
+import { toast } from "@/components/ui/toast";
 import useDebouncedBatch from "@/lib/hooks/use-debounced-batch";
 import { useSelectedAdAccount } from "@/lib/hooks/use-selected-ad-account";
 import { formatMoneyWithLocale } from "@/lib/number-utils";
 import { router } from "@inertiajs/react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Command } from "cmdk";
 import { useEffect, useMemo, useState } from "react";
 import { CommandFooterPortal } from "../components/command-footer";
@@ -49,11 +50,23 @@ export function Campaigns() {
             return next;
         },
         onFlush: async (items) => {
-            console.log("Sending batch to backend", items);
-            await axios.patch(route("campaigns.status.update"), {
-                entries: items,
-                cacheKey,
-            });
+            try {
+                await axios.patch(route("campaigns.status.update"), {
+                    entries: items,
+                    cacheKey,
+                });
+            } catch (err) {
+                const error = err as AxiosError<{ message: string }>;
+
+                if (error.response?.status === 422) {
+                    toast({
+                        type: "ERROR",
+                        contents:
+                            error.response.data?.message ||
+                            "There was an error updating the status of your campaigns",
+                    });
+                }
+            }
         },
         flushOnInertiaNavigate: true,
         flushOnHistoryChange: false,

@@ -20,7 +20,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useMemo } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { StatusTag } from "../ui/status-tag";
@@ -64,32 +64,44 @@ export function AdsTable({ isLoading, ads }: Props) {
             return next;
         },
         onFlush: async (items) => {
-            console.log("Sending batch to backend", items);
-            const response = await axios.patch(route("ads.status.update"), {
-                entries: items,
-                cacheKey: props.cacheKey,
-            });
-
-            if (response.status === 200) {
-                toast({
-                    contents: `${items.length} ad${
-                        items.length === 1 ? "" : "s"
-                    } updated`,
+            try {
+                const response = await axios.patch(route("ads.status.update"), {
+                    entries: items,
+                    cacheKey: props.cacheKey,
                 });
-            }
 
-            // if (response.status === 200) {
-            //     // Refresh data
-            //     router.get(
-            //         route(route().current()!),
-            //         { ...route().params },
-            //         {
-            //             only: ["ads", "cacheKey"],
-            //             preserveState: true,
-            //             replace: true,
-            //         }
-            //     );
-            // }
+                if (response.status === 200) {
+                    toast({
+                        contents: `${items.length} ad${
+                            items.length === 1 ? "" : "s"
+                        } updated`,
+                    });
+                }
+
+                // if (response.status === 200) {
+                //     // Refresh data
+                //     router.get(
+                //         route(route().current()!),
+                //         { ...route().params },
+                //         {
+                //             only: ["ads", "cacheKey"],
+                //             preserveState: true,
+                //             replace: true,
+                //         }
+                //     );
+                // }
+            } catch (err) {
+                const error = err as AxiosError<{ message: string }>;
+
+                if (error.response?.status === 422) {
+                    toast({
+                        type: "ERROR",
+                        contents:
+                            error.response.data?.message ||
+                            "There was an error updating the status of your ads",
+                    });
+                }
+            }
         },
         flushOnInertiaNavigate: true,
         flushOnHistoryChange: false,

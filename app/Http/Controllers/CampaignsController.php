@@ -16,6 +16,7 @@ use App\Http\Integrations\Requests\UpdateAdSetStatusRequest;
 use App\Http\Integrations\Requests\UpdateAdStatusRequest;
 use App\Models\AdAccount;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class CampaignsController extends Controller
@@ -143,7 +144,22 @@ class CampaignsController extends Controller
         $meta = new MetaConnector($request->user()->connection);
         $updateAdCampaignStatusRequest = new UpdateAdCampaignStatusRequest($validated['entries']);
 
-        $meta->send($updateAdCampaignStatusRequest);
+        $response = $meta->send($updateAdCampaignStatusRequest)->throw();
+
+        $errors = [];
+
+        foreach ($response->json() as $index => $result) {
+            if ($result['code'] !== 200) {
+                $error = json_decode($result['body'], true);
+                $errors["entries.{$index}"] = [
+                    $error['error']['error_user_msg'] ?? 'Failed to update campaign status',
+                ];
+            }
+        }
+
+        if (! empty($errors)) {
+            throw ValidationException::withMessages($errors);
+        }
 
         $cacheKey = $request->input('cacheKey');
         if ($cacheKey) {
@@ -167,7 +183,22 @@ class CampaignsController extends Controller
         $meta = new MetaConnector($request->user()->connection);
         $updateAdSetStatusRequest = new UpdateAdSetStatusRequest($validated['entries']);
 
-        $meta->send($updateAdSetStatusRequest);
+        $response = $meta->send($updateAdSetStatusRequest)->throw();
+
+        $errors = [];
+
+        foreach ($response->json() as $index => $result) {
+            if ($result['code'] !== 200) {
+                $error = json_decode($result['body'], true);
+                $errors["entries.{$index}"] = [
+                    $error['error']['error_user_msg'] ?? 'Failed to update ad set status',
+                ];
+            }
+        }
+
+        if (! empty($errors)) {
+            throw ValidationException::withMessages($errors);
+        }
 
         $cacheKey = $request->input('cacheKey');
         if ($cacheKey) {
@@ -191,7 +222,22 @@ class CampaignsController extends Controller
         $meta = new MetaConnector($request->user()->connection);
         $updateAdStatusRequest = new UpdateAdStatusRequest($validated['entries']);
 
-        $meta->send($updateAdStatusRequest);
+        $response = $meta->send($updateAdStatusRequest)->throw();
+
+        $errors = [];
+
+        foreach ($response->json() as $index => $result) {
+            if ($result['code'] !== 200) {
+                $error = json_decode($result['body'], true);
+                $errors["entries.{$index}"] = [
+                    $error['error']['error_user_msg'] ?? 'Failed to update ad status',
+                ];
+            }
+        }
+
+        if (! empty($errors)) {
+            throw ValidationException::withMessages($errors);
+        }
 
         $cacheKey = $request->input('cacheKey');
         if ($cacheKey) {
