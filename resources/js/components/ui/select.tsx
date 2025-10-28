@@ -120,7 +120,7 @@ export function Select<T extends object>({
                     gutter={8}
                     portal
                     slide={false}
-                    // flip={false}
+                    flip={false}
                     sameWidth
                     className="rounded-xl max-h-[var(--popover-available-height)] overflow-y-auto bg-white shadow-base-popup p-1 space-y-1 scroll-p-1"
                 >

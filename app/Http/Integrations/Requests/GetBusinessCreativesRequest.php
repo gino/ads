@@ -7,26 +7,23 @@ use App\Models\AdAccount;
 use ReflectionClass;
 use Saloon\CachePlugin\Traits\HasCaching;
 use Saloon\Enums\Method;
-use Saloon\Http\PendingRequest;
 use Saloon\Http\Request;
-use Saloon\PaginationPlugin\Contracts\Paginatable;
 
 // https://developers.facebook.com/docs/marketing-api/reference/ad-account/adcreatives
 // https://developers.facebook.com/docs/marketing-api/reference/ad-creative/#fields
 
-class GetBusinessCreativesRequest extends Request implements Paginatable
+class GetBusinessCreativesRequest extends Request
 {
     use HasRateLimits;
     // use HasCaching;
 
     protected Method $method = Method::GET;
 
-    protected AdAccount $adAccount;
-
-    public function __construct(AdAccount $adAccount)
-    {
-        $this->adAccount = $adAccount;
-    }
+    public function __construct(
+        protected AdAccount $adAccount,
+        protected ?int $limit,
+        protected ?string $after = null
+    ) {}
 
     public function resolveEndpoint(): string
     {
@@ -40,26 +37,20 @@ class GetBusinessCreativesRequest extends Request implements Paginatable
             'id',
             'name',
             'image_url',
-            'video_id',
+            'object_story_spec',
             // 'previews.ad_format(MOBILE_FEED_STANDARD){body}',
         ];
 
-        return [
+        $query = [
             'fields' => implode(',', $fields),
+            'limit' => $this->limit,
         ];
-    }
 
-    protected function cacheKey(PendingRequest $pendingRequest): ?string
-    {
-        $query = $pendingRequest->query()->all();
-
-        if (! array_key_exists('limit', $query)) {
-            $query['limit'] = 25;
+        if ($this->after) {
+            $query['after'] = $this->after;
         }
 
-        $query['ad_account_id'] = $this->adAccount->id;
-
-        return http_build_query($query);
+        return $query;
     }
 
     protected function getLimiterPrefix(): ?string

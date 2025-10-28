@@ -68,6 +68,7 @@ export function Ads() {
                 const error = err as AxiosError<{ message: string }>;
 
                 if (error.response?.status === 422) {
+                    // https://claude.ai/chat/4797a66e-1f37-420e-926a-c5d39b9f1f63
                     toast({
                         type: "ERROR",
                         contents:
