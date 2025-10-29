@@ -15,7 +15,7 @@ class RequestLoggerPlugin
 
             $cached = method_exists($response, 'isCached') && $response->isCached();
 
-            Log::info($cached ? 'Saloon (cached) request completed' : 'Saloon request completed', [
+            Log::info($cached ? 'Saloon (cached) request completed' : 'Saloon (NOT cached) request completed', [
                 'request' => get_class($request),
                 'method' => $request->getMethod(),
                 'url' => $request->resolveEndpoint(),

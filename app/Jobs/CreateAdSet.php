@@ -5,12 +5,12 @@ namespace App\Jobs;
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\CreateAdSetRequest;
 use App\Http\Integrations\Requests\Inputs\AdSetInput;
+use App\Jobs\Middleware\MetaRateLimitMiddleware;
 use App\Models\AdCreationFlow;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use Saloon\RateLimitPlugin\Helpers\ApiRateLimited;
 
 class CreateAdSet implements ShouldQueue
 {
@@ -68,6 +68,6 @@ class CreateAdSet implements ShouldQueue
 
     public function middleware(): array
     {
-        return [new ApiRateLimited];
+        return [new MetaRateLimitMiddleware];
     }
 }

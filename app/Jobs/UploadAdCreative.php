@@ -4,13 +4,13 @@ namespace App\Jobs;
 
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\UploadAdCreativeRequest;
+use App\Jobs\Middleware\MetaRateLimitMiddleware;
 use App\Models\AdCreationFlow;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Saloon\RateLimitPlugin\Helpers\ApiRateLimited;
 
 class UploadAdCreative implements ShouldQueue
 {
@@ -72,6 +72,6 @@ class UploadAdCreative implements ShouldQueue
 
     public function middleware(): array
     {
-        return [new ApiRateLimited];
+        return [new MetaRateLimitMiddleware];
     }
 }

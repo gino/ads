@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Integrations\Requests\Exceptions\MetaRateLimitException;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Saloon\RateLimitPlugin\Exceptions\RateLimitReachedException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -23,8 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (RateLimitReachedException $e, Request $request) {
-            dd($e);
+        $exceptions->render(function (MetaRateLimitException $e, Request $request) {
+            dump($e);
 
             return response("We've hit rate limits with your ad account - please try again later.");
             // return response()->view('errors.invalid-order', status: 500);

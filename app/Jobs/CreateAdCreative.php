@@ -4,12 +4,12 @@ namespace App\Jobs;
 
 use App\Http\Integrations\MetaConnector;
 use App\Http\Integrations\Requests\CreateAdCreativeRequest;
+use App\Jobs\Middleware\MetaRateLimitMiddleware;
 use App\Models\AdCreationFlow;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use Saloon\RateLimitPlugin\Helpers\ApiRateLimited;
 
 class CreateAdCreative implements ShouldQueue
 {
@@ -81,6 +81,6 @@ class CreateAdCreative implements ShouldQueue
 
     public function middleware(): array
     {
-        return [new ApiRateLimited];
+        return [new MetaRateLimitMiddleware];
     }
 }
