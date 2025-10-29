@@ -21,7 +21,23 @@ class MetaConnector extends Connector implements HasPagination
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        RequestLoggerPlugin::boot($this);
+
+        // Logger
+        // $this->middleware()->onResponse(function (Response $response) {
+        //     $request = $response->getRequest();
+
+        //     $cached = method_exists($response, 'isCached') && $response->isCached();
+
+        //     Log::info($cached ? 'Saloon (cached) request completed' : 'Saloon (NOT cached) request completed', [
+        //         'request' => get_class($request),
+        //         'method' => $request->getMethod(),
+        //         'url' => $request->resolveEndpoint(),
+        //         'status' => $response->status(),
+        //         'cached' => $cached,
+        //         'body' => $response->body(),
+        //         'successful' => $response->successful(),
+        //     ]);
+        // });
     }
 
     public function resolveBaseUrl(): string
