@@ -2,7 +2,6 @@
 
 namespace App\Http\Integrations\Requests;
 
-use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\AdAccount;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Data\MultipartValue;
@@ -14,7 +13,7 @@ use Saloon\Traits\Body\HasMultipartBody;
 
 class UploadAdCreativeRequest extends Request implements HasBody
 {
-    use HasMultipartBody, HasRateLimits;
+    use HasMultipartBody;
 
     protected Method $method = Method::POST;
 
@@ -60,10 +59,5 @@ class UploadAdCreativeRequest extends Request implements HasBody
                 filename: "{$this->label}.".pathinfo($this->filename, PATHINFO_EXTENSION)
             ),
         ];
-    }
-
-    protected function getLimiterPrefix(): ?string
-    {
-        return "ad-account-id-{$this->adAccount->id}";
     }
 }

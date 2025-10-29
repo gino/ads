@@ -2,10 +2,8 @@
 
 namespace App\Http\Integrations\Requests;
 
-use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\Connection;
 use Illuminate\Support\Facades\Cache;
-use ReflectionClass;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
@@ -16,7 +14,7 @@ use Saloon\Http\Request;
 
 class GetTargetingCountriesRequest extends Request implements Cacheable
 {
-    use HasCaching, HasRateLimits;
+    use HasCaching;
 
     protected Method $method = Method::GET;
 
@@ -59,12 +57,5 @@ class GetTargetingCountriesRequest extends Request implements Cacheable
         $query['connection_id'] = $this->connection->id;
 
         return http_build_query($query);
-    }
-
-    protected function getLimiterPrefix(): ?string
-    {
-        $requestName = (new ReflectionClass($this))->getShortName();
-
-        return "connection-id-{$this->connection->id}:{$requestName}";
     }
 }

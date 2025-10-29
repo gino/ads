@@ -2,10 +2,8 @@
 
 namespace App\Http\Integrations\Requests;
 
-use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\Connection;
 use Illuminate\Support\Facades\Cache;
-use ReflectionClass;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
@@ -17,7 +15,7 @@ use Saloon\PaginationPlugin\Contracts\Paginatable;
 
 class GetFacebookPagesRequest extends Request implements Cacheable, Paginatable
 {
-    use HasCaching, HasRateLimits;
+    use HasCaching;
 
     protected Method $method = Method::GET;
 
@@ -67,12 +65,5 @@ class GetFacebookPagesRequest extends Request implements Cacheable, Paginatable
     {
         // 15 minutes
         return 60 * 15;
-    }
-
-    protected function getLimiterPrefix(): ?string
-    {
-        $requestName = (new ReflectionClass($this))->getShortName();
-
-        return "connection-id-{$this->connection->id}:{$requestName}";
     }
 }

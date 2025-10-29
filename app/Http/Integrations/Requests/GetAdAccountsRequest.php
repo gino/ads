@@ -42,9 +42,4 @@ class GetAdAccountsRequest extends Request implements Paginatable
             'fields' => implode(',', $fields),
         ];
     }
-
-    protected function getLimiterPrefix(): ?string
-    {
-        return "connection-id-{$this->connection->id}";
-    }
 }

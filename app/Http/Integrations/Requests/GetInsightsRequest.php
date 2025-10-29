@@ -3,10 +3,8 @@
 namespace App\Http\Integrations\Requests;
 
 use App\Http\Integrations\Requests\Traits\FilteringByDate;
-use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\AdAccount;
 use Illuminate\Support\Facades\Cache;
-use ReflectionClass;
 use Saloon\CachePlugin\Contracts\Cacheable;
 use Saloon\CachePlugin\Contracts\Driver;
 use Saloon\CachePlugin\Drivers\LaravelCacheDriver;
@@ -20,7 +18,7 @@ use Saloon\PaginationPlugin\Contracts\Paginatable;
 
 class GetInsightsRequest extends Request implements Cacheable, Paginatable
 {
-    use FilteringByDate, HasCaching, HasRateLimits;
+    use FilteringByDate, HasCaching;
 
     protected Method $method = Method::GET;
 
@@ -95,12 +93,5 @@ class GetInsightsRequest extends Request implements Cacheable, Paginatable
         // 15 minutes
         // Insights refresh every 15 minutes anyways, by Meta (limitations of the API)
         return 60 * 15;
-    }
-
-    protected function getLimiterPrefix(): ?string
-    {
-        $requestName = (new ReflectionClass($this))->getShortName();
-
-        return "ad-account-id-{$this->adAccount->id}:{$requestName}";
     }
 }

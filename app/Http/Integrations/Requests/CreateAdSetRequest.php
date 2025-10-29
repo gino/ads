@@ -3,9 +3,7 @@
 namespace App\Http\Integrations\Requests;
 
 use App\Http\Integrations\Requests\Inputs\AdSetInput;
-use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\AdAccount;
-use ReflectionClass;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
@@ -13,7 +11,7 @@ use Saloon\Traits\Body\HasJsonBody;
 
 class CreateAdSetRequest extends Request implements HasBody
 {
-    use HasJsonBody, HasRateLimits;
+    use HasJsonBody;
 
     protected Method $method = Method::POST;
 
@@ -80,12 +78,5 @@ class CreateAdSetRequest extends Request implements HasBody
         }
 
         return $data;
-    }
-
-    protected function getLimiterPrefix(): ?string
-    {
-        $requestName = (new ReflectionClass($this))->getShortName();
-
-        return "ad-account-id-{$this->adAccount->id}:{$requestName}";
     }
 }

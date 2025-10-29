@@ -2,6 +2,7 @@
 
 namespace App\Http\Integrations;
 
+use App\Http\Integrations\Requests\Traits\HasMetaRateLimit;
 use App\Models\Connection;
 use Illuminate\Support\Facades\Log;
 use Saloon\Http\Auth\TokenAuthenticator;
@@ -13,6 +14,8 @@ use Saloon\PaginationPlugin\CursorPaginator;
 
 class MetaConnector extends Connector implements HasPagination
 {
+    use HasMetaRateLimit;
+
     protected Connection $connection;
 
     public function __construct(Connection $connection)

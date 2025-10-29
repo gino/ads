@@ -2,9 +2,7 @@
 
 namespace App\Http\Integrations\Requests;
 
-use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use App\Models\AdAccount;
-use ReflectionClass;
 use Saloon\CachePlugin\Traits\HasCaching;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
@@ -14,7 +12,6 @@ use Saloon\Http\Request;
 
 class GetBusinessCreativesRequest extends Request
 {
-    use HasRateLimits;
     // use HasCaching;
 
     protected Method $method = Method::GET;
@@ -51,12 +48,5 @@ class GetBusinessCreativesRequest extends Request
         }
 
         return $query;
-    }
-
-    protected function getLimiterPrefix(): ?string
-    {
-        $requestName = (new ReflectionClass($this))->getShortName();
-
-        return "ad-account-id-{$this->adAccount->id}:{$requestName}";
     }
 }

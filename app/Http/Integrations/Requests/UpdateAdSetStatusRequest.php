@@ -2,7 +2,6 @@
 
 namespace App\Http\Integrations\Requests;
 
-use App\Http\Integrations\Requests\Traits\HasRateLimits;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
@@ -10,7 +9,7 @@ use Saloon\Traits\Body\HasJsonBody;
 
 class UpdateAdSetStatusRequest extends Request implements HasBody
 {
-    use HasJsonBody, HasRateLimits;
+    use HasJsonBody;
 
     protected Method $method = Method::POST;
 

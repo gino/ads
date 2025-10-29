@@ -8,8 +8,8 @@ use App\Http\Controllers\UploadController;
 use App\Http\Controllers\ViewController;
 use App\Http\Controllers\WebhooksController;
 use App\Http\Integrations\MetaConnector;
+use App\Http\Integrations\Requests\GetAdsRequest;
 use App\Http\Integrations\Requests\GetBusinessCreativesRequest;
-use App\Http\Integrations\Requests\TestRequest;
 use App\Http\Middleware\EnsureFacebookTokenIsValid;
 use App\Http\Middleware\HandleAdAccountChanges;
 use App\Http\Middleware\HandleSelectedAdAccount;
@@ -88,17 +88,17 @@ Route::middleware([
         return $request->json();
     });
 
-    // Route::get('/test', function (Request $request) {
-    //     /** @var AdAccount $adAccount */
-    //     $adAccount = $request->adAccount();
+    Route::get('/test', function (Request $request) {
+        /** @var AdAccount $adAccount */
+        $adAccount = $request->adAccount();
 
-    //     $meta = new MetaConnector($request->user()->connection);
+        $meta = new MetaConnector($request->user()->connection);
 
-    //     for ($i = 0; $i < 5000; $i++) {
-    //         $data = $meta->send(new TestRequest($adAccount));
-    //         dd($data->json());
-    //     }
+        for ($i = 0; $i < 1; $i++) {
+            $data = $meta->paginate(new GetAdsRequest($adAccount));
+            $data->collect()->all();
+        }
 
-    //     return $data->json();
-    // });
+        return 'OK';
+    });
 });

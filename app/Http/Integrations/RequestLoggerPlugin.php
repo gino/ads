@@ -13,12 +13,14 @@ class RequestLoggerPlugin
         $connector->middleware()->onResponse(function (Response $response) {
             $request = $response->getRequest();
 
-            Log::info('Saloon request completed', [
+            $cached = method_exists($response, 'isCached') && $response->isCached();
+
+            Log::info($cached ? 'Saloon (cached) request completed' : 'Saloon request completed', [
                 'request' => get_class($request),
                 'method' => $request->getMethod(),
                 'url' => $request->resolveEndpoint(),
                 'status' => $response->status(),
-                'cached' => method_exists($response, 'isCached') && $response->isCached(),
+                'cached' => $cached,
                 'body' => $response->body(),
                 'successful' => $response->successful(),
             ]);
