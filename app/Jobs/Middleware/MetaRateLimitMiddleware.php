@@ -15,7 +15,7 @@ class MetaRateLimitMiddleware
         } catch (MetaRateLimitException $exception) {
             $retryAfterSeconds = $exception->getRetryAfterSeconds();
 
-            Log::warning('Job hit Meta API rate limit — releasing back to queue', [
+            Log::warning('[MetaRateLimitMiddleware] Job hit Meta API rate limit — releasing back to queue', [
                 'job' => get_class($job),
                 'retry_after_seconds' => $retryAfterSeconds,
                 'request' => $exception->getRequest()?->resolveEndpoint(),

@@ -20,7 +20,7 @@ trait HasMetaRateLimit
                 $request = $response->getRequest();
 
                 if ($response->isCached()) {
-                    Log::debug('No rate limit from Meta - request was cached - ignoring...', [
+                    Log::debug('[HasMetaRateLimit] No rate limit from Meta - request was cached - ignoring...', [
                         'cached' => $response->isCached(),
                         'request' => get_class($request),
                         'method' => $request->getMethod(),
@@ -40,7 +40,7 @@ trait HasMetaRateLimit
                     ($status === 400 && in_array($error['code'] ?? null, $this->metaRateLimitCodes ?? [], true));
 
                 if (! $isRateLimited) {
-                    Log::debug('No rate limit from Meta', [
+                    Log::debug('[HasMetaRateLimit] No rate limit from Meta', [
                         'request' => get_class($request),
                         'method' => $request->getMethod(),
                         'url' => $request->resolveEndpoint(),
@@ -112,7 +112,7 @@ trait HasMetaRateLimit
                     $retryAfterSource = 'default-fallback';
                 }
 
-                Log::warning('Meta API rate limit encountered', [
+                Log::warning('[HasMetaRateLimit] Meta API rate limit encountered', [
                     'retry_after_seconds' => $retryAfterSeconds,
                     'retry_after_source' => $retryAfterSource,
                     'status' => $status,
