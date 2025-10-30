@@ -20,18 +20,18 @@ export function AccountPopup() {
             <Ariakit.MenuButton
                 render={(props) => (
                     <button
-                        className="flex gap-3 enabled:active:scale-[0.99] transition-transform duration-100 ease-in-out items-center px-3 py-2.5 w-full text-left rounded-lg ring-1 ring-gray-100 hover:bg-gray-100 cursor-pointer"
+                        className="flex gap-3 enabled:active:scale-[0.99] group transition-transform duration-100 ease-in-out items-center px-3 py-2.5 w-full text-left rounded-lg ring-1 ring-gray-100 hover:bg-gray-100 cursor-pointer"
                         {...props}
                     >
-                        <div className="relative rounded-full overflow-hidden w-8 h-8 after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
+                        <div className="relative rounded-full w-8 h-8 after:absolute after:inset-0 after:ring-1 after:ring-inset after:rounded-[inherit] after:ring-black/5">
                             <img
                                 src={user.avatar}
-                                className="object-cover object-center w-full h-full"
+                                className="object-cover object-center w-full h-full rounded-[inherit]"
                             />
 
                             {notifications > 0 && (
-                                <div className="absolute -top-px -right-px">
-                                    <div className="h-2 w-2 bg-red-700 rounded-full ring-2 ring-white" />
+                                <div className="absolute -top-px -right-px z-10">
+                                    <div className="h-2 w-2 bg-red-700 rounded-full ring-2 ring-white group-hover:ring-gray-100" />
                                 </div>
                             )}
                         </div>
