@@ -37,22 +37,22 @@ export const getDatePickerClasses = (): PropsBase["classNames"] => {
             defaultClassNames.day
         ),
         range_start: cn(
-            "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold bg-brand/10 rounded-l-lg",
+            "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold bg-brand-lighter rounded-l-lg",
             "[&>button]:relative [&>button]:after:absolute [&>button]:after:ring-1 [&>button]:after:inset-0 [&>button]:after:ring-black/5 [&>button]:after:ring-inset [&>button]:after:rounded-[inherit]",
             defaultClassNames.range_start
         ),
         selected: cn(
-            "group-data-[mode='single']/root:[&>button]:bg-brand group-data-[mode='single']/root:[&>button]:text-white group-data-[mode='single']/root:[&>button]:rounded-lg group-data-[mode='single']/root:[&>button]:font-semibold group-data-[mode='single']/root:bg-brand/10 group-data-[mode='single']/root:rounded-lg",
+            "group-data-[mode='single']/root:[&>button]:bg-brand group-data-[mode='single']/root:[&>button]:text-white group-data-[mode='single']/root:[&>button]:rounded-lg group-data-[mode='single']/root:[&>button]:font-semibold group-data-[mode='single']/root:bg-brand-lighter group-data-[mode='single']/root:rounded-lg",
             "group-data-[mode='single']/root:[&>button]:relative group-data-[mode='single']/root:[&>button]:after:absolute group-data-[mode='single']/root:[&>button]:after:ring-1 group-data-[mode='single']/root:[&>button]:after:inset-0 group-data-[mode='single']/root:[&>button]:after:ring-black/5 group-data-[mode='single']/root:[&>button]:after:ring-inset group-data-[mode='single']/root:[&>button]:after:rounded-[inherit]",
             defaultClassNames.selected
         ),
         range_middle: cn(
-            "bg-brand/10",
+            "bg-brand-lighter",
             "[&:first-child:not(:empty)]:rounded-l-lg [&:last-child:not(:empty)]:rounded-r-lg",
             defaultClassNames.range_middle
         ),
         range_end: cn(
-            "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold not-first:bg-brand/10 rounded-r-lg",
+            "[&>button]:bg-brand [&>button]:text-white [&>button]:rounded-lg [&>button]:font-semibold not-first:bg-brand-lighter rounded-r-lg",
             "[&>button]:relative [&>button]:after:absolute [&>button]:after:ring-1 [&>button]:after:inset-0 [&>button]:after:ring-black/5 [&>button]:after:ring-inset [&>button]:after:rounded-[inherit]",
             defaultClassNames.range_end
         ),

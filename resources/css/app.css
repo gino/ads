@@ -46,7 +46,7 @@
     --color-brand: var(--color-cyan-500);
     /* --color-brand: var(--color-sky-500); */
 
-    --color-brand-light: #f2f8ff;
+    --color-brand-light: #edf3fb;
     --color-brand-lighter: #f2f8ff;
 
     --shadow-base: 0 0px 0px 1px rgba(0, 0, 0, 0.06),
