@@ -10,10 +10,25 @@ use App\Http\Integrations\Requests\GetAdCampaignsRequest;
 use App\Http\Integrations\Requests\GetAdSetsRequest;
 use App\Http\Integrations\Requests\GetAdsRequest;
 use App\Models\AdAccount;
+use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
-class CommandMenuController extends Controller
+class CommandMenuController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            function (Request $request, Closure $next) {
+                if (! $request->expectsJson()) {
+                    return abort(404);
+                }
+
+                return $next($request);
+            },
+        ];
+    }
+
     public function campaigns(Request $request)
     {
         /** @var AdAccount $adAccount */
