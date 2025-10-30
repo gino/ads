@@ -137,7 +137,18 @@ export function AdsTable({ isLoading, ads }: Props) {
         return ads;
     }, [selectedCampaignIds, selectedAdsetIds, ads]);
 
-    const sums = useMemo(() => aggregateInsights(filteredAds), [filteredAds]);
+    // Would be cool to only aggregate the selected ones? - if any selected (otherwise, aggregate all)
+    const sums = useMemo(() => {
+        const selectedAdIds = Object.keys(selectedAds);
+
+        if (selectedAdIds.length > 0) {
+            return aggregateInsights(
+                filteredAds.filter((ad) => selectedAdIds.includes(ad.id))
+            );
+        }
+
+        return aggregateInsights(filteredAds);
+    }, [filteredAds, selectedAds]);
 
     const [sorting, setSorting] = useSortingState();
 
