@@ -45,7 +45,7 @@ export function Layout({ children }: PropsWithChildren) {
                     </div>
                 </div>
                 <div className="bg-white flex-1 shadow-base flex flex-col rounded-xl overflow-hidden max-h-full">
-                    <div className="flex-1 flex flex-col min-h-full">
+                    <div className="flex-1 flex flex-col min-h-full after:absolute after:inset-0 relative after:z-50 after:shadow-base after:pointer-events-none">
                         {children}
                     </div>
                 </div>

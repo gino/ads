@@ -57,6 +57,17 @@ export function CampaignsTab() {
                     </div>
                 </div>
             )}
+            {isActive && (
+                <div className="absolute top-1/2 flex items-center justify-center -translate-y-1/2 right-1.5">
+                    <div className="h-7 w-7 group-hover:bg-gray-100 cursor-pointer text-gray-400 group-hover:text-black flex items-center justify-center rounded-md">
+                        {false ? (
+                            <i className="fa-solid fa-spinner-third animate-spin text-[12px]" />
+                        ) : (
+                            <i className="fa-solid fa-refresh text-[12px]" />
+                        )}
+                    </div>
+                </div>
+            )}
             {/* {selectedCampaignsAmount > 0 && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-brand text-white text-[12px] pl-2.5 pr-2 rounded-full leading-5 flex items-center">
                     <span>{selectedCampaignsAmount}</span>

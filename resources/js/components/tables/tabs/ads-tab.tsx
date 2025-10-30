@@ -62,6 +62,7 @@ export function AdsTab() {
             isActive={isActive}
             onClick={() => {
                 if (isActive) {
+                    // refresh
                     return;
                 }
 
@@ -90,6 +91,18 @@ export function AdsTab() {
                         )}
                     >
                         <i className="fa-solid fa-times" />
+                    </div>
+                </div>
+            )}
+
+            {isActive && (
+                <div className="absolute top-1/2 flex items-center justify-center -translate-y-1/2 right-1.5">
+                    <div className="h-7 w-7 group-hover:bg-gray-100 cursor-pointer text-gray-400 group-hover:text-black flex items-center justify-center rounded-md">
+                        {false ? (
+                            <i className="fa-solid fa-spinner-third animate-spin text-[12px]" />
+                        ) : (
+                            <i className="fa-solid fa-refresh text-[12px]" />
+                        )}
                     </div>
                 </div>
             )}
