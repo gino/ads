@@ -49,6 +49,10 @@ export function AdsTable({ isLoading, ads }: Props) {
         () => Object.keys(selectedAdSets),
         [selectedAdSets]
     );
+    const selectedAdIds = useMemo(
+        () => Object.keys(selectedAds),
+        [selectedAds]
+    );
 
     const { props } = usePage<SharedData & { cacheKey: string | null }>();
 
@@ -139,8 +143,6 @@ export function AdsTable({ isLoading, ads }: Props) {
 
     // Would be cool to only aggregate the selected ones? - if any selected (otherwise, aggregate all)
     const sums = useMemo(() => {
-        const selectedAdIds = Object.keys(selectedAds);
-
         if (selectedAdIds.length > 0) {
             return aggregateInsights(
                 filteredAds.filter((ad) => selectedAdIds.includes(ad.id))
@@ -148,7 +150,7 @@ export function AdsTable({ isLoading, ads }: Props) {
         }
 
         return aggregateInsights(filteredAds);
-    }, [filteredAds, selectedAds]);
+    }, [filteredAds, selectedAdIds]);
 
     const [sorting, setSorting] = useSortingState();
 
@@ -207,8 +209,9 @@ export function AdsTable({ isLoading, ads }: Props) {
                 ),
                 footer: ({ table }) => (
                     <div className="text-xs font-semibold">
-                        Total of {table.getRowCount()} ads{" "}
-                        <i className="fa-solid fa-circle-info align-middle ml-1 text-[12px] text-gray-300" />
+                        {selectedAdIds.length > 0
+                            ? `Total of ${selectedAdIds.length} selected ads`
+                            : `Total of ${table.getRowCount()} ads`}
                     </div>
                 ),
             },
